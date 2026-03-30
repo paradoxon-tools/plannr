@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: plannr-postgres
+    environment:
+      POSTGRES_DB: plannr
+      POSTGRES_USER: plannr
+      POSTGRES_PASSWORD: plannr
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plannr -d plannr"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-local}/plannr-server:local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/plannr
+      SPRING_R2DBC_USERNAME: plannr
+      SPRING_R2DBC_PASSWORD: plannr
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres-data:

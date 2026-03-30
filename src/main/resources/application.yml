@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: plannr-server
+  r2dbc:
+    url: ${SPRING_R2DBC_URL:r2dbc:h2:mem:///plannr;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${SPRING_R2DBC_USERNAME:sa}
+    password: ${SPRING_R2DBC_PASSWORD:}
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health
+  health:
+    db:
+      enabled: false
