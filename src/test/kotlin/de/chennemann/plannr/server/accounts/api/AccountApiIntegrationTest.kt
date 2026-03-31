@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class AccountApiIntegrationTest : ApiIntegrationTest() {
     @BeforeEach
     fun setUp() {
-        cleanDatabase("accounts", "currencies")
+        cleanDatabase("pockets", "accounts", "currencies")
     }
 
     @Test
@@ -222,6 +222,58 @@ class AccountApiIntegrationTest : ApiIntegrationTest() {
     }
 
     @Test
+    fun `archives and unarchives account and propagates to pockets`() {
+        createCurrencyOverHttp()
+        val accountId = createAccountOverHttp(name = AccountFixtures.DEFAULT_NAME)
+        val otherAccountId = createAccountOverHttp(name = "Savings")
+        val pocketId = createPocketOverHttp(accountId = accountId, name = "Bills")
+        val otherPocketId = createPocketOverHttp(accountId = otherAccountId, name = "Travel")
+
+        webTestClient.post()
+            .uri("/accounts/{id}/archive", accountId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.id").isEqualTo(accountId)
+            .jsonPath("$.isArchived").isEqualTo(true)
+
+        webTestClient.get()
+            .uri("/accounts/{id}", accountId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(true)
+
+        webTestClient.get()
+            .uri("/pockets/{id}", pocketId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(true)
+
+        webTestClient.get()
+            .uri("/pockets/{id}", otherPocketId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
+
+        webTestClient.post()
+            .uri("/accounts/{id}/unarchive", accountId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
+
+        webTestClient.get()
+            .uri("/pockets/{id}", pocketId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
+    }
+
+    @Test
     fun `returns validation error for invalid update request`() {
         createCurrencyOverHttp()
         val accountId = createAccountOverHttp(name = AccountFixtures.DEFAULT_NAME)
@@ -235,6 +287,34 @@ class AccountApiIntegrationTest : ApiIntegrationTest() {
             .expectApiError(
                 code = "validation_error",
                 message = "Account name must not be blank",
+            )
+    }
+
+    @Test
+    fun `returns not found when archiving unknown account`() {
+        webTestClient.post()
+            .uri("/accounts/acc_missing/archive")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+            .expectApiError(
+                code = "not_found",
+                message = "Account not found",
+                details = mapOf("id" to "acc_missing"),
+            )
+    }
+
+    @Test
+    fun `returns not found when unarchiving unknown account`() {
+        webTestClient.post()
+            .uri("/accounts/acc_missing/unarchive")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+            .expectApiError(
+                code = "not_found",
+                message = "Account not found",
+                details = mapOf("id" to "acc_missing"),
             )
     }
 
@@ -273,5 +353,26 @@ class AccountApiIntegrationTest : ApiIntegrationTest() {
             .responseBody!!
 
         return response.id
+    }
+
+    private fun createPocketOverHttp(accountId: String, name: String): String {
+        val response = webTestClient.post()
+            .uri("/pockets")
+            .bodyValue(
+                mapOf(
+                    "accountId" to accountId,
+                    "name" to name,
+                    "description" to "Pocket for $name",
+                    "color" to 123456,
+                    "isDefault" to false,
+                ),
+            )
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody(Map::class.java)
+            .returnResult()
+            .responseBody!!
+
+        return response["id"] as String
     }
 }

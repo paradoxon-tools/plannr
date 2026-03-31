@@ -1,8 +1,10 @@
 package de.chennemann.plannr.server.accounts.api
 
+import de.chennemann.plannr.server.accounts.usecases.ArchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.accounts.usecases.GetAccount
 import de.chennemann.plannr.server.accounts.usecases.ListAccounts
+import de.chennemann.plannr.server.accounts.usecases.UnarchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,6 +23,8 @@ class AccountController(
     private val updateAccount: UpdateAccount,
     private val getAccount: GetAccount,
     private val listAccounts: ListAccounts,
+    private val archiveAccount: ArchiveAccount,
+    private val unarchiveAccount: UnarchiveAccount,
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,4 +41,12 @@ class AccountController(
 
     @GetMapping
     suspend fun list(): List<AccountResponse> = listAccounts().map(AccountResponse::from)
+
+    @PostMapping("/{id}/archive")
+    suspend fun archive(@PathVariable id: String): AccountResponse =
+        AccountResponse.from(archiveAccount(id))
+
+    @PostMapping("/{id}/unarchive")
+    suspend fun unarchive(@PathVariable id: String): AccountResponse =
+        AccountResponse.from(unarchiveAccount(id))
 }
