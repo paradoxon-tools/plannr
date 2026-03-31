@@ -1,15 +1,27 @@
-package de.chennemann.plannr.server.currencies.application
+package de.chennemann.plannr.server.currencies.usecases
 
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
-class CreateCurrency(
+interface CreateCurrency {
+    suspend operator fun invoke(command: Command): Currency
+
+    data class Command(
+        val code: String,
+        val name: String,
+        val symbol: String,
+        val decimalPlaces: Int,
+        val symbolPosition: String,
+    )
+}
+
+@Component
+internal class CreateCurrencyUseCase(
     private val currencyRepository: CurrencyRepository,
-) {
-    suspend operator fun invoke(command: Command): Currency {
+) : CreateCurrency {
+    override suspend fun invoke(command: CreateCurrency.Command): Currency {
         val currency = Currency(
             code = command.code,
             name = command.name,
@@ -28,12 +40,4 @@ class CreateCurrency(
 
         return currencyRepository.save(currency)
     }
-
-    data class Command(
-        val code: String,
-        val name: String,
-        val symbol: String,
-        val decimalPlaces: Int,
-        val symbolPosition: String,
-    )
 }

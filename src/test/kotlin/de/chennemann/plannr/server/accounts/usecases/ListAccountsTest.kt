@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.accounts.application
+package de.chennemann.plannr.server.accounts.usecases
 
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
@@ -10,7 +10,7 @@ class ListAccountsTest {
     @Test
     fun `returns empty list when there are no accounts`() = runTest {
         val repository = InMemoryAccountRepository()
-        val listAccounts = ListAccounts(repository)
+        val listAccounts = ListAccountsUseCase(repository)
 
         val result = listAccounts()
 
@@ -24,7 +24,7 @@ class ListAccountsTest {
         val second = AccountFixtures.account(id = "acc_2", createdAt = 2, name = "Savings")
         repository.save(first)
         repository.save(second)
-        val listAccounts = ListAccounts(repository)
+        val listAccounts = ListAccountsUseCase(repository)
 
         val result = listAccounts()
 

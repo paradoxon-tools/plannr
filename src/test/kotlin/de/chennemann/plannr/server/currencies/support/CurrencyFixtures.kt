@@ -2,8 +2,8 @@ package de.chennemann.plannr.server.currencies.support
 
 import de.chennemann.plannr.server.currencies.api.CreateCurrencyRequest
 import de.chennemann.plannr.server.currencies.api.UpdateCurrencyRequest
-import de.chennemann.plannr.server.currencies.application.CreateCurrency
-import de.chennemann.plannr.server.currencies.application.UpdateCurrency
+import de.chennemann.plannr.server.currencies.usecases.CreateCurrency
+import de.chennemann.plannr.server.currencies.usecases.UpdateCurrency
 import de.chennemann.plannr.server.currencies.domain.Currency
 
 object CurrencyFixtures {

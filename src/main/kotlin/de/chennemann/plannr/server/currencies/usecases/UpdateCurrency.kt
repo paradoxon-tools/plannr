@@ -1,16 +1,29 @@
-package de.chennemann.plannr.server.currencies.application
+package de.chennemann.plannr.server.currencies.usecases
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
-class UpdateCurrency(
+interface UpdateCurrency {
+    suspend operator fun invoke(command: Command): Currency
+
+    data class Command(
+        val pathCode: String,
+        val code: String,
+        val name: String,
+        val symbol: String,
+        val decimalPlaces: Int,
+        val symbolPosition: String,
+    )
+}
+
+@Component
+internal class UpdateCurrencyUseCase(
     private val currencyRepository: CurrencyRepository,
-) {
-    suspend operator fun invoke(command: Command): Currency {
+) : UpdateCurrency {
+    override suspend fun invoke(command: UpdateCurrency.Command): Currency {
         val pathCode = command.pathCode.trim().uppercase()
         val currency = Currency(
             code = command.code,
@@ -41,13 +54,4 @@ class UpdateCurrency(
 
         return currencyRepository.update(currency)
     }
-
-    data class Command(
-        val pathCode: String,
-        val code: String,
-        val name: String,
-        val symbol: String,
-        val decimalPlaces: Int,
-        val symbolPosition: String,
-    )
 }

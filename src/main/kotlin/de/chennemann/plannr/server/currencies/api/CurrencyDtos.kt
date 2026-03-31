@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.currencies.api
 
-import de.chennemann.plannr.server.currencies.application.CreateCurrency
+import de.chennemann.plannr.server.currencies.usecases.CreateCurrency
+import de.chennemann.plannr.server.currencies.usecases.UpdateCurrency
 import de.chennemann.plannr.server.currencies.domain.Currency
 
 data class CreateCurrencyRequest(
@@ -27,8 +28,8 @@ data class UpdateCurrencyRequest(
     val decimalPlaces: Int,
     val symbolPosition: String,
 ) {
-    fun toCommand(pathCode: String): de.chennemann.plannr.server.currencies.application.UpdateCurrency.Command =
-        de.chennemann.plannr.server.currencies.application.UpdateCurrency.Command(
+    fun toCommand(pathCode: String): UpdateCurrency.Command =
+        UpdateCurrency.Command(
             pathCode = pathCode,
             code = code,
             name = name,

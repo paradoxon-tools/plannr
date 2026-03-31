@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.accounts.application
+package de.chennemann.plannr.server.accounts.support
 
 import org.springframework.stereotype.Component
 import java.util.UUID
@@ -8,6 +8,6 @@ fun interface AccountIdGenerator {
 }
 
 @Component
-class UuidAccountIdGenerator : AccountIdGenerator {
+internal class UuidAccountIdGenerator : AccountIdGenerator {
     override fun invoke(): String = "acc_${UUID.randomUUID()}"
 }

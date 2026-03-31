@@ -1,17 +1,21 @@
-package de.chennemann.plannr.server.accounts.application
+package de.chennemann.plannr.server.currencies.usecases
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
 import de.chennemann.plannr.server.currencies.domain.CurrencyTemplateCatalog
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
-class EnsureCurrencyExists(
+interface EnsureCurrencyExists {
+    suspend operator fun invoke(currencyCode: String): Currency
+}
+
+@Component
+internal class EnsureCurrencyExistsUseCase(
     private val currencyRepository: CurrencyRepository,
     private val currencyTemplateCatalog: CurrencyTemplateCatalog,
-) {
-    suspend operator fun invoke(currencyCode: String): Currency {
+) : EnsureCurrencyExists {
+    override suspend fun invoke(currencyCode: String): Currency {
         val normalizedCode = currencyCode.trim().uppercase()
 
         currencyRepository.findByCode(normalizedCode)?.let { return it }

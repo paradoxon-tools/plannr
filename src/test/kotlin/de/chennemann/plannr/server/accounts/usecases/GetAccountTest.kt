@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.accounts.application
+package de.chennemann.plannr.server.accounts.usecases
 
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
@@ -14,7 +14,7 @@ class GetAccountTest {
         val repository = InMemoryAccountRepository()
         val account = AccountFixtures.account()
         repository.save(account)
-        val getAccount = GetAccount(repository)
+        val getAccount = GetAccountUseCase(repository)
 
         val result = getAccount(AccountFixtures.DEFAULT_ID)
 
@@ -24,7 +24,7 @@ class GetAccountTest {
     @Test
     fun `returns not found for unknown account`() = runTest {
         val repository = InMemoryAccountRepository()
-        val getAccount = GetAccount(repository)
+        val getAccount = GetAccountUseCase(repository)
 
         assertFailsWith<NotFoundException> {
             getAccount(AccountFixtures.DEFAULT_ID)

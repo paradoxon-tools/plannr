@@ -1,8 +1,9 @@
 package de.chennemann.plannr.server.accounts.api
 
-import de.chennemann.plannr.server.accounts.application.CreateAccount
-import de.chennemann.plannr.server.accounts.application.GetAccount
-import de.chennemann.plannr.server.accounts.application.ListAccounts
+import de.chennemann.plannr.server.accounts.usecases.CreateAccount
+import de.chennemann.plannr.server.accounts.usecases.GetAccount
+import de.chennemann.plannr.server.accounts.usecases.ListAccounts
+import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/accounts")
 class AccountController(
     private val createAccount: CreateAccount,
-    private val updateAccount: de.chennemann.plannr.server.accounts.application.UpdateAccount,
+    private val updateAccount: UpdateAccount,
     private val getAccount: GetAccount,
     private val listAccounts: ListAccounts,
 ) {

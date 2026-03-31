@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.currencies.application
+package de.chennemann.plannr.server.currencies.usecases
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
@@ -14,7 +14,7 @@ class UpdateCurrencyTest {
     fun `updates an existing currency`() = runTest {
         val repository = InMemoryCurrencyRepository()
         repository.save(CurrencyFixtures.currency())
-        val updateCurrency = UpdateCurrency(repository)
+        val updateCurrency = UpdateCurrencyUseCase(repository)
 
         val updated = updateCurrency(
             CurrencyFixtures.updateCurrencyCommand(
@@ -38,7 +38,7 @@ class UpdateCurrencyTest {
     fun `normalizes updated currency code to uppercase`() = runTest {
         val repository = InMemoryCurrencyRepository()
         repository.save(CurrencyFixtures.currency())
-        val updateCurrency = UpdateCurrency(repository)
+        val updateCurrency = UpdateCurrencyUseCase(repository)
 
         val updated = updateCurrency(
             CurrencyFixtures.updateCurrencyCommand(
@@ -56,7 +56,7 @@ class UpdateCurrencyTest {
     fun `rejects code mismatch between path and body`() = runTest {
         val repository = InMemoryCurrencyRepository()
         repository.save(CurrencyFixtures.currency())
-        val updateCurrency = UpdateCurrency(repository)
+        val updateCurrency = UpdateCurrencyUseCase(repository)
 
         assertFailsWith<ValidationException> {
             updateCurrency(
@@ -71,7 +71,7 @@ class UpdateCurrencyTest {
     @Test
     fun `returns not found when currency does not exist`() = runTest {
         val repository = InMemoryCurrencyRepository()
-        val updateCurrency = UpdateCurrency(repository)
+        val updateCurrency = UpdateCurrencyUseCase(repository)
 
         assertFailsWith<NotFoundException> {
             updateCurrency(

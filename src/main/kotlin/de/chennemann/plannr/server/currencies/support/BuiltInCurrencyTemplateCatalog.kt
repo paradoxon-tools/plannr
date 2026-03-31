@@ -1,11 +1,11 @@
-package de.chennemann.plannr.server.currencies.application
+package de.chennemann.plannr.server.currencies.support
 
 import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.domain.CurrencyTemplateCatalog
 import org.springframework.stereotype.Component
 
 @Component
-class BuiltInCurrencyTemplateCatalog : CurrencyTemplateCatalog {
+internal class BuiltInCurrencyTemplateCatalog : CurrencyTemplateCatalog {
     private val templates = mapOf(
         "EUR" to Currency("EUR", "Euro", "€", 2, "before"),
         "USD" to Currency("USD", "US Dollar", "$", 2, "before"),

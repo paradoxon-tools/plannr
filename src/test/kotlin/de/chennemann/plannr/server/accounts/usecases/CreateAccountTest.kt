@@ -1,9 +1,10 @@
-package de.chennemann.plannr.server.accounts.application
+package de.chennemann.plannr.server.accounts.usecases
 
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.accounts.support.InMemoryCurrencyTemplateCatalog
+import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExistsUseCase
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
 import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyRepository
 import kotlinx.coroutines.test.runTest
@@ -17,9 +18,9 @@ class CreateAccountTest {
         val accountRepository = InMemoryAccountRepository()
         val currencyRepository = InMemoryCurrencyRepository()
         currencyRepository.save(CurrencyFixtures.currency())
-        val createAccount = CreateAccount(
+        val createAccount = CreateAccountUseCase(
             accountRepository = accountRepository,
-            ensureCurrencyExists = EnsureCurrencyExists(
+            ensureCurrencyExists = EnsureCurrencyExistsUseCase(
                 currencyRepository = currencyRepository,
                 currencyTemplateCatalog = InMemoryCurrencyTemplateCatalog(),
             ),
@@ -38,9 +39,9 @@ class CreateAccountTest {
     fun `creates account and persists built in currency when missing`() = runTest {
         val accountRepository = InMemoryAccountRepository()
         val currencyRepository = InMemoryCurrencyRepository()
-        val createAccount = CreateAccount(
+        val createAccount = CreateAccountUseCase(
             accountRepository = accountRepository,
-            ensureCurrencyExists = EnsureCurrencyExists(
+            ensureCurrencyExists = EnsureCurrencyExistsUseCase(
                 currencyRepository = currencyRepository,
                 currencyTemplateCatalog = InMemoryCurrencyTemplateCatalog(
                     mapOf("EUR" to CurrencyFixtures.currency()),
@@ -60,9 +61,9 @@ class CreateAccountTest {
     fun `fails when currency exists in neither database nor templates`() = runTest {
         val accountRepository = InMemoryAccountRepository()
         val currencyRepository = InMemoryCurrencyRepository()
-        val createAccount = CreateAccount(
+        val createAccount = CreateAccountUseCase(
             accountRepository = accountRepository,
-            ensureCurrencyExists = EnsureCurrencyExists(
+            ensureCurrencyExists = EnsureCurrencyExistsUseCase(
                 currencyRepository = currencyRepository,
                 currencyTemplateCatalog = InMemoryCurrencyTemplateCatalog(),
             ),

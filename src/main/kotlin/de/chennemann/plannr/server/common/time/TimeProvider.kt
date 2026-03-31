@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.accounts.application
+package de.chennemann.plannr.server.common.time
 
 import org.springframework.stereotype.Component
 
@@ -7,6 +7,6 @@ fun interface TimeProvider {
 }
 
 @Component
-class SystemTimeProvider : TimeProvider {
+internal class SystemTimeProvider : TimeProvider {
     override fun invoke(): Long = System.currentTimeMillis()
 }

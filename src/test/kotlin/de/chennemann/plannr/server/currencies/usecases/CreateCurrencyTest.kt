@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.currencies.application
+package de.chennemann.plannr.server.currencies.usecases
 
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
@@ -12,7 +12,7 @@ class CreateCurrencyTest {
     @Test
     fun `creates a new currency`() = runTest {
         val repository = InMemoryCurrencyRepository()
-        val createCurrency = CreateCurrency(repository)
+        val createCurrency = CreateCurrencyUseCase(repository)
 
         val created = createCurrency(CurrencyFixtures.createCurrencyCommand())
 
@@ -23,7 +23,7 @@ class CreateCurrencyTest {
     @Test
     fun `rejects duplicate currency code`() = runTest {
         val repository = InMemoryCurrencyRepository()
-        val createCurrency = CreateCurrency(repository)
+        val createCurrency = CreateCurrencyUseCase(repository)
         repository.save(CurrencyFixtures.currency())
 
         assertFailsWith<ConflictException> {

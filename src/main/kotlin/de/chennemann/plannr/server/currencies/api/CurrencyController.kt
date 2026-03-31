@@ -1,9 +1,9 @@
 package de.chennemann.plannr.server.currencies.api
 
-import de.chennemann.plannr.server.currencies.application.CreateCurrency
-import de.chennemann.plannr.server.currencies.application.GetCurrency
-import de.chennemann.plannr.server.currencies.application.ListCurrencies
-import de.chennemann.plannr.server.currencies.application.UpdateCurrency
+import de.chennemann.plannr.server.currencies.usecases.CreateCurrency
+import de.chennemann.plannr.server.currencies.usecases.GetCurrency
+import de.chennemann.plannr.server.currencies.usecases.ListCurrencies
+import de.chennemann.plannr.server.currencies.usecases.UpdateCurrency
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
