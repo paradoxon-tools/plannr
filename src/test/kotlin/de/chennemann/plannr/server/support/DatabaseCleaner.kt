@@ -9,8 +9,13 @@ class DatabaseCleaner(
 ) {
     fun deleteAllFrom(vararg tables: String) {
         runBlocking {
-            tables.forEach { table ->
-                databaseClient.sql("DELETE FROM $table").fetch().rowsUpdated().awaitSingle()
+            databaseClient.sql("SET REFERENTIAL_INTEGRITY FALSE").fetch().rowsUpdated().awaitSingle()
+            try {
+                tables.forEach { table ->
+                    databaseClient.sql("DELETE FROM $table").fetch().rowsUpdated().awaitSingle()
+                }
+            } finally {
+                databaseClient.sql("SET REFERENTIAL_INTEGRITY TRUE").fetch().rowsUpdated().awaitSingle()
             }
         }
     }
