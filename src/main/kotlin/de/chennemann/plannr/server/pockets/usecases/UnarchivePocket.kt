@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.pockets.usecases
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import org.springframework.stereotype.Component
@@ -12,6 +13,7 @@ interface UnarchivePocket {
 @Component
 internal class UnarchivePocketUseCase(
     private val pocketRepository: PocketRepository,
+    private val contractRepository: ContractRepository,
 ) : UnarchivePocket {
     override suspend fun invoke(id: String): Pocket {
         val existing = pocketRepository.findById(id.trim())
@@ -22,6 +24,8 @@ internal class UnarchivePocketUseCase(
             )
 
         val updated = existing.copy(isArchived = false)
-        return pocketRepository.update(updated)
+        pocketRepository.update(updated)
+        contractRepository.findByPocketId(updated.id)?.let { contractRepository.update(it.copy(isArchived = false)) }
+        return updated
     }
 }

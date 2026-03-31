@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class AccountApiIntegrationTest : ApiIntegrationTest() {
     @BeforeEach
     fun setUp() {
-        cleanDatabase("pockets", "accounts", "currencies")
+        cleanDatabase("contracts", "pockets", "accounts", "currencies")
     }
 
     @Test
@@ -222,12 +222,14 @@ class AccountApiIntegrationTest : ApiIntegrationTest() {
     }
 
     @Test
-    fun `archives and unarchives account and propagates to pockets`() {
+    fun `archives and unarchives account and propagates to pockets and contracts`() {
         createCurrencyOverHttp()
         val accountId = createAccountOverHttp(name = AccountFixtures.DEFAULT_NAME)
         val otherAccountId = createAccountOverHttp(name = "Savings")
         val pocketId = createPocketOverHttp(accountId = accountId, name = "Bills")
         val otherPocketId = createPocketOverHttp(accountId = otherAccountId, name = "Travel")
+        val contractId = createContractOverHttp(pocketId)
+        val otherContractId = createContractOverHttp(otherPocketId)
 
         webTestClient.post()
             .uri("/accounts/{id}/archive", accountId)
@@ -252,7 +254,21 @@ class AccountApiIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.isArchived").isEqualTo(true)
 
         webTestClient.get()
+            .uri("/contracts/{id}", contractId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(true)
+
+        webTestClient.get()
             .uri("/pockets/{id}", otherPocketId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
+
+        webTestClient.get()
+            .uri("/contracts/{id}", otherContractId)
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -267,6 +283,13 @@ class AccountApiIntegrationTest : ApiIntegrationTest() {
 
         webTestClient.get()
             .uri("/pockets/{id}", pocketId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
+
+        webTestClient.get()
+            .uri("/contracts/{id}", contractId)
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -365,6 +388,28 @@ class AccountApiIntegrationTest : ApiIntegrationTest() {
                     "description" to "Pocket for $name",
                     "color" to 123456,
                     "isDefault" to false,
+                ),
+            )
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody(Map::class.java)
+            .returnResult()
+            .responseBody!!
+
+        return response["id"] as String
+    }
+
+    private fun createContractOverHttp(pocketId: String): String {
+        val response = webTestClient.post()
+            .uri("/contracts")
+            .bodyValue(
+                mapOf(
+                    "pocketId" to pocketId,
+                    "partnerId" to null,
+                    "name" to "Internet Contract",
+                    "startDate" to "2024-01-01",
+                    "endDate" to null,
+                    "notes" to "12 month term",
                 ),
             )
             .exchange()

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class PocketApiIntegrationTest : ApiIntegrationTest() {
     @BeforeEach
     fun setUp() {
-        cleanDatabase("pockets", "accounts", "currencies")
+        cleanDatabase("contracts", "pockets", "accounts", "currencies")
     }
 
     @Test
@@ -114,10 +114,11 @@ class PocketApiIntegrationTest : ApiIntegrationTest() {
     }
 
     @Test
-    fun `archives and unarchives pocket`() {
+    fun `archives and unarchives pocket and its contract`() {
         createCurrencyOverHttp()
         val accountId = createAccountOverHttp()
         val pocketId = createPocketOverHttp(accountId = accountId)
+        val contractId = createContractOverHttp(pocketId)
 
         webTestClient.post()
             .uri("/pockets/{id}/archive", pocketId)
@@ -126,8 +127,22 @@ class PocketApiIntegrationTest : ApiIntegrationTest() {
             .expectBody()
             .jsonPath("$.isArchived").isEqualTo(true)
 
+        webTestClient.get()
+            .uri("/contracts/{id}", contractId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(true)
+
         webTestClient.post()
             .uri("/pockets/{id}/unarchive", pocketId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
+
+        webTestClient.get()
+            .uri("/contracts/{id}", contractId)
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -204,5 +219,27 @@ class PocketApiIntegrationTest : ApiIntegrationTest() {
             .uri("/pockets/{id}/archive", pocketId)
             .exchange()
             .expectStatus().isOk
+    }
+
+    private fun createContractOverHttp(pocketId: String): String {
+        val response = webTestClient.post()
+            .uri("/contracts")
+            .bodyValue(
+                mapOf(
+                    "pocketId" to pocketId,
+                    "partnerId" to null,
+                    "name" to "Internet Contract",
+                    "startDate" to "2024-01-01",
+                    "endDate" to null,
+                    "notes" to "12 month term",
+                ),
+            )
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody(Map::class.java)
+            .returnResult()
+            .responseBody!!
+
+        return response["id"] as String
     }
 }
