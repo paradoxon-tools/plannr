@@ -1,8 +1,12 @@
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
+**/.gradle/
+**/build/
+!**/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+**/node_modules/
+**/.svelte-kit/
+**/.vite/
 
 ### IntelliJ IDEA ###
 .idea/
@@ -18,3 +22,6 @@ out/
 
 ### Mac OS ###
 .DS_Store
+
+### docker ###
+docker-compose.yml

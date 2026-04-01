@@ -1,38 +1,50 @@
-# plannr-server
+# plannr monorepo
 
-Minimal coroutine-first Spring Boot application with a single endpoint:
+This repository is organized as a lightweight monorepo without shared app tooling at the root.
 
-- `GET /health` returns `ok` when the database connection is established
-- returns HTTP `503` when the database is unavailable
+## Apps
 
-## Run locally
+- `apps/server` – Spring Boot backend, Gradle wrapper, Dockerfile
+- `apps/web` – SvelteKit frontend, npm package manifest, Dockerfile
+
+Docker Compose service names:
+- `plannr-server`
+- `plannr-web`
+
+## Principles
+
+- App-specific tooling stays inside the app directory
+- No root-level `node_modules`
+- No root-level Gradle wrapper or build files
+
+## Local development
+
+### Backend
 
 ```bash
+cd apps/server
 ./gradlew bootRun
 ```
 
-Default local database: in-memory H2 via R2DBC.
+### Frontend
 
-## Run with Docker Compose
+```bash
+cd apps/web
+npm install
+npm run dev
+```
+
+### Run both with Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-## Endpoint
+## Docker publishing
 
-```bash
-curl http://localhost:8080/health
-```
+The GitHub Actions workflow publishes both app images to GHCR:
 
-Expected success response:
+- `ghcr.io/paradoxon-tools/plannr-server`
+- `ghcr.io/paradoxon-tools/plannr-web`
 
-```text
-ok
-```
-
-## Build Docker image
-
-```bash
-docker build -t plannr-server:local .
-```
+using `apps/server` and `apps/web` as their respective build contexts.

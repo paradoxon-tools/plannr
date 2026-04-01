@@ -6,7 +6,7 @@ spring:
     username: ${SPRING_DB_USERNAME:sa}
     password: ${SPRING_DB_PASSWORD:}
   flyway:
-    url: ${SPRING_FLYWAY_URL:jdbc:h2:mem:plannr;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    url: ${SPRING_JDBC_URL:jdbc:h2:mem:plannr;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
     user: ${SPRING_DB_USERNAME:sa}
     password: ${SPRING_DB_PASSWORD:}
 management:
