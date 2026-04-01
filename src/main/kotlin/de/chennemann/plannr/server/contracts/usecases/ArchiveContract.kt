@@ -3,6 +3,7 @@ package de.chennemann.plannr.server.contracts.usecases
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
+import de.chennemann.plannr.server.recurringtransactions.domain.RecurringTransactionRepository
 import org.springframework.stereotype.Component
 
 interface ArchiveContract {
@@ -12,6 +13,7 @@ interface ArchiveContract {
 @Component
 internal class ArchiveContractUseCase(
     private val contractRepository: ContractRepository,
+    private val recurringTransactionRepository: RecurringTransactionRepository,
 ) : ArchiveContract {
     override suspend fun invoke(id: String): Contract {
         val existing = contractRepository.findById(id.trim())
@@ -22,6 +24,8 @@ internal class ArchiveContractUseCase(
             )
 
         val updated = existing.copy(isArchived = true)
-        return contractRepository.update(updated)
+        contractRepository.update(updated)
+        recurringTransactionRepository.findByContractId(updated.id).forEach { recurringTransactionRepository.update(it.copy(isArchived = true)) }
+        return updated
     }
 }

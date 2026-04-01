@@ -5,6 +5,7 @@ import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.recurringtransactions.domain.RecurringTransactionRepository
 import org.springframework.stereotype.Component
 
 interface ArchiveAccount {
@@ -16,6 +17,7 @@ internal class ArchiveAccountUseCase(
     private val accountRepository: AccountRepository,
     private val pocketRepository: PocketRepository,
     private val contractRepository: ContractRepository,
+    private val recurringTransactionRepository: RecurringTransactionRepository,
 ) : ArchiveAccount {
     override suspend fun invoke(id: String): Account {
         val accountId = id.trim()
@@ -34,6 +36,8 @@ internal class ArchiveAccountUseCase(
             pocketRepository.update(updatedPocket)
             contractRepository.findByPocketId(updatedPocket.id)?.let { contractRepository.update(it.copy(isArchived = true)) }
         }
+        recurringTransactionRepository.findAll(accountId = accountId, archived = false)
+            .forEach { recurringTransactionRepository.update(it.copy(isArchived = true)) }
 
         return updatedAccount
     }

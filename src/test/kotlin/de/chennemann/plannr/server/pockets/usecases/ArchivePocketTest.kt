@@ -5,6 +5,7 @@ import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
+import de.chennemann.plannr.server.recurringtransactions.support.InMemoryRecurringTransactionRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,7 +18,7 @@ class ArchivePocketTest {
         val contractRepository = InMemoryContractRepository()
         repository.save(PocketFixtures.pocket())
         contractRepository.save(ContractFixtures.contract(pocketId = PocketFixtures.DEFAULT_ID))
-        val archivePocket = ArchivePocketUseCase(repository, contractRepository)
+        val archivePocket = ArchivePocketUseCase(repository, contractRepository, InMemoryRecurringTransactionRepository())
 
         val result = archivePocket(PocketFixtures.DEFAULT_ID)
 
@@ -28,7 +29,7 @@ class ArchivePocketTest {
 
     @Test
     fun `fails for unknown pocket`() = runTest {
-        val archivePocket = ArchivePocketUseCase(InMemoryPocketRepository(), InMemoryContractRepository())
+        val archivePocket = ArchivePocketUseCase(InMemoryPocketRepository(), InMemoryContractRepository(), InMemoryRecurringTransactionRepository())
 
         assertFailsWith<NotFoundException> {
             archivePocket(PocketFixtures.DEFAULT_ID)

@@ -7,6 +7,7 @@ import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
+import de.chennemann.plannr.server.recurringtransactions.support.InMemoryRecurringTransactionRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,7 +26,7 @@ class UnarchiveAccountTest {
         pocketRepository.save(PocketFixtures.pocket(id = "poc_3", accountId = "acc_456", isArchived = true))
         contractRepository.save(ContractFixtures.contract(id = "con_1", accountId = AccountFixtures.DEFAULT_ID, pocketId = "poc_1", partnerId = null, isArchived = true))
         contractRepository.save(ContractFixtures.contract(id = "con_2", accountId = "acc_456", pocketId = "poc_3", partnerId = null, isArchived = true))
-        val unarchiveAccount = UnarchiveAccountUseCase(accountRepository, pocketRepository, contractRepository)
+        val unarchiveAccount = UnarchiveAccountUseCase(accountRepository, pocketRepository, contractRepository, InMemoryRecurringTransactionRepository())
 
         val result = unarchiveAccount(AccountFixtures.DEFAULT_ID)
 
@@ -40,7 +41,7 @@ class UnarchiveAccountTest {
 
     @Test
     fun `returns not found for unknown account`() = runTest {
-        val unarchiveAccount = UnarchiveAccountUseCase(InMemoryAccountRepository(), InMemoryPocketRepository(), InMemoryContractRepository())
+        val unarchiveAccount = UnarchiveAccountUseCase(InMemoryAccountRepository(), InMemoryPocketRepository(), InMemoryContractRepository(), InMemoryRecurringTransactionRepository())
 
         assertFailsWith<NotFoundException> {
             unarchiveAccount("acc_missing")

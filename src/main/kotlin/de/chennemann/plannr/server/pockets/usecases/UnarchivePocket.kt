@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.recurringtransactions.domain.RecurringTransactionRepository
 import org.springframework.stereotype.Component
 
 interface UnarchivePocket {
@@ -14,6 +15,7 @@ interface UnarchivePocket {
 internal class UnarchivePocketUseCase(
     private val pocketRepository: PocketRepository,
     private val contractRepository: ContractRepository,
+    private val recurringTransactionRepository: RecurringTransactionRepository,
 ) : UnarchivePocket {
     override suspend fun invoke(id: String): Pocket {
         val existing = pocketRepository.findById(id.trim())
@@ -26,6 +28,9 @@ internal class UnarchivePocketUseCase(
         val updated = existing.copy(isArchived = false)
         pocketRepository.update(updated)
         contractRepository.findByPocketId(updated.id)?.let { contractRepository.update(it.copy(isArchived = false)) }
+        recurringTransactionRepository.findAll(accountId = updated.accountId, archived = true)
+            .filter { it.sourcePocketId == updated.id || it.destinationPocketId == updated.id }
+            .forEach { recurringTransactionRepository.update(it.copy(isArchived = false)) }
         return updated
     }
 }

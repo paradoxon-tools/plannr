@@ -3,6 +3,7 @@ package de.chennemann.plannr.server.contracts.usecases
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
+import de.chennemann.plannr.server.recurringtransactions.support.InMemoryRecurringTransactionRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,7 +14,7 @@ class UnarchiveContractTest {
     fun `unarchives contract`() = runTest {
         val repository = InMemoryContractRepository()
         repository.save(ContractFixtures.contract(isArchived = true))
-        val unarchiveContract = UnarchiveContractUseCase(repository)
+        val unarchiveContract = UnarchiveContractUseCase(repository, InMemoryRecurringTransactionRepository())
 
         val result = unarchiveContract(ContractFixtures.DEFAULT_ID)
 
@@ -23,7 +24,7 @@ class UnarchiveContractTest {
 
     @Test
     fun `fails for unknown contract`() = runTest {
-        val unarchiveContract = UnarchiveContractUseCase(InMemoryContractRepository())
+        val unarchiveContract = UnarchiveContractUseCase(InMemoryContractRepository(), InMemoryRecurringTransactionRepository())
 
         assertFailsWith<NotFoundException> {
             unarchiveContract(ContractFixtures.DEFAULT_ID)
