@@ -9,6 +9,24 @@ data class Partner private constructor(
     val isArchived: Boolean,
     val createdAt: Long,
 ) {
+    fun archive(): Partner =
+        Partner(
+            id = id,
+            name = name,
+            notes = notes,
+            isArchived = true,
+            createdAt = createdAt,
+        )
+
+    fun unarchive(): Partner =
+        Partner(
+            id = id,
+            name = name,
+            notes = notes,
+            isArchived = false,
+            createdAt = createdAt,
+        )
+
     companion object {
         operator fun invoke(
             id: String,

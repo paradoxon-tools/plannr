@@ -16,7 +16,7 @@ internal class UnarchiveRecurringTransactionUseCase(
     override suspend fun invoke(id: String): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to id.trim()))
-        val updated = existing.copy(isArchived = false)
+        val updated = existing.unarchive()
         return recurringTransactionRepository.update(updated)
     }
 }

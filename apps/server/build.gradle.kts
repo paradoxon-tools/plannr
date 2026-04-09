@@ -56,7 +56,8 @@ tasks.withType<KotlinCompile> {
     compilerOptions {
         freeCompilerArgs.addAll(
             "-Xjsr305=strict",
-            "-Xannotation-default-target=param-property"
+            "-Xannotation-default-target=param-property",
+            "-Xconsistent-data-class-copy-visibility"
         )
     }
 }

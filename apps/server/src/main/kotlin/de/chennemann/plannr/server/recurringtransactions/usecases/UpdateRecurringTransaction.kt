@@ -109,7 +109,7 @@ internal class UpdateRecurringTransactionUseCase(
             "effective_from" -> {
                 val effectiveFromDate = command.effectiveFromDate?.trim()?.takeIf { it.isNotBlank() }
                     ?: throw ValidationException("validation_error", "effectiveFromDate is required for effective_from updates")
-                recurringTransactionRepository.update(existing.copy(isArchived = true, finalOccurrenceDate = effectiveFromDate))
+                recurringTransactionRepository.update(existing.archive(finalOccurrenceDate = effectiveFromDate))
                 recurringTransactionRepository.save(
                     RecurringTransaction(
                         id = recurringTransactionIdGenerator(),

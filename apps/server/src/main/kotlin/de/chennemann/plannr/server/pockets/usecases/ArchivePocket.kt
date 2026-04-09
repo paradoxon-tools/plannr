@@ -25,12 +25,12 @@ internal class ArchivePocketUseCase(
                 details = mapOf("id" to id.trim()),
             )
 
-        val updated = existing.copy(isArchived = true)
+        val updated = existing.archive()
         pocketRepository.update(updated)
-        contractRepository.findByPocketId(updated.id)?.let { contractRepository.update(it.copy(isArchived = true)) }
+        contractRepository.findByPocketId(updated.id)?.let { contractRepository.update(it.archive()) }
         recurringTransactionRepository.findAll(accountId = updated.accountId, archived = false)
             .filter { it.sourcePocketId == updated.id || it.destinationPocketId == updated.id }
-            .forEach { recurringTransactionRepository.update(it.copy(isArchived = true)) }
+            .forEach { recurringTransactionRepository.update(it.archive()) }
         return updated
     }
 }

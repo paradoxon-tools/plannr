@@ -21,7 +21,7 @@ internal class ArchivePartnerUseCase(
                 details = mapOf("id" to id.trim()),
             )
 
-        val updated = existing.copy(isArchived = true)
+        val updated = existing.archive()
         return partnerRepository.update(updated)
     }
 }

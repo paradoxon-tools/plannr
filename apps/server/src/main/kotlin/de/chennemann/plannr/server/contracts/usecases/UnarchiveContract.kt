@@ -23,9 +23,9 @@ internal class UnarchiveContractUseCase(
                 details = mapOf("id" to id.trim()),
             )
 
-        val updated = existing.copy(isArchived = false)
+        val updated = existing.unarchive()
         contractRepository.update(updated)
-        recurringTransactionRepository.findByContractId(updated.id).forEach { recurringTransactionRepository.update(it.copy(isArchived = false)) }
+        recurringTransactionRepository.findByContractId(updated.id).forEach { recurringTransactionRepository.update(it.unarchive()) }
         return updated
     }
 }

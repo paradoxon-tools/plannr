@@ -11,6 +11,28 @@ data class Account private constructor(
     val isArchived: Boolean,
     val createdAt: Long,
 ) {
+    fun archive(): Account =
+        Account(
+            id = id,
+            name = name,
+            institution = institution,
+            currencyCode = currencyCode,
+            weekendHandling = weekendHandling,
+            isArchived = true,
+            createdAt = createdAt,
+        )
+
+    fun unarchive(): Account =
+        Account(
+            id = id,
+            name = name,
+            institution = institution,
+            currencyCode = currencyCode,
+            weekendHandling = weekendHandling,
+            isArchived = false,
+            createdAt = createdAt,
+        )
+
     companion object {
         operator fun invoke(
             id: String,

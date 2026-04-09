@@ -28,16 +28,16 @@ internal class UnarchiveAccountUseCase(
                 details = mapOf("id" to accountId),
             )
 
-        val updatedAccount = existing.copy(isArchived = false)
+        val updatedAccount = existing.unarchive()
         accountRepository.update(updatedAccount)
 
         pocketRepository.findAll(accountId = accountId).forEach { pocket ->
-            val updatedPocket = pocket.copy(isArchived = false)
+            val updatedPocket = pocket.unarchive()
             pocketRepository.update(updatedPocket)
-            contractRepository.findByPocketId(updatedPocket.id)?.let { contractRepository.update(it.copy(isArchived = false)) }
+            contractRepository.findByPocketId(updatedPocket.id)?.let { contractRepository.update(it.unarchive()) }
         }
         recurringTransactionRepository.findAll(accountId = accountId, archived = true)
-            .forEach { recurringTransactionRepository.update(it.copy(isArchived = false)) }
+            .forEach { recurringTransactionRepository.update(it.unarchive()) }
 
         return updatedAccount
     }
