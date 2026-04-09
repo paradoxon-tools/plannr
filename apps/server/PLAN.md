@@ -535,7 +535,7 @@ Below is the minimum set of relevant cases we should cover.
 #### Amount semantics
 
 - [x] expense source row has negative `signed_amount`
-- [ ] income destination row has positive `signed_amount`
+- [x] income destination row has positive `signed_amount`
 - [x] transfer source row has negative `signed_amount`
 - [x] transfer destination row has positive `signed_amount`
 - [ ] `transaction_amount` is preserved on all pocket feed rows
@@ -575,7 +575,7 @@ Below is the minimum set of relevant cases we should cover.
 - [x] account feed is always ordered by `history_position DESC`
 - [x] pocket feed is always ordered by `history_position DESC`
 - [ ] ties or gaps do not break ordering assumptions
-- [ ] `history_position` values are unique within a feed scope
+- [x] `history_position` values are unique within a feed scope
 
 #### Cursor behavior under history rewrites
 
@@ -649,7 +649,7 @@ These are especially important because the whole design depends on tail rewrites
 #### Account metadata changes
 
 - [x] changing account metadata updates `account_query`
-- [ ] account feed remains readable and associated with the correct account after account metadata changes
+- [x] account feed remains readable and associated with the correct account after account metadata changes
 
 ---
 
@@ -766,7 +766,7 @@ These invariants should be asserted repeatedly across projector and integration 
 
 - [ ] feed rows are strictly ordered by descending `history_position`
 - [x] latest feed row `balance_after` equals summary current balance
-- [ ] `history_position` is unique within a feed scope
+- [x] `history_position` is unique within a feed scope
 - [ ] account feed contains exactly the visible account transactions expected
 - [ ] pocket feed contains exactly the visible pocket transactions expected
 - [x] denormalized metadata matches the latest projected values after metadata changes

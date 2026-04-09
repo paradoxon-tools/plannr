@@ -1,7 +1,9 @@
 package de.chennemann.plannr.server.query
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
+import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.query.projection.TransactionQueryProjectionService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
@@ -13,15 +15,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.r2dbc.core.DatabaseClient
+import kotlin.test.assertEquals
 
 class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
     @Autowired lateinit var createAccount: CreateAccount
+    @Autowired lateinit var updateAccount: UpdateAccount
     @Autowired lateinit var createPocket: CreatePocket
     @Autowired lateinit var createTransaction: CreateTransaction
     @Autowired lateinit var updateTransaction: UpdateTransaction
     @Autowired lateinit var archiveTransaction: ArchiveTransaction
     @Autowired lateinit var unarchiveTransaction: UnarchiveTransaction
+    @Autowired lateinit var transactionQueryProjectionService: TransactionQueryProjectionService
 
     @BeforeEach
     fun setUp() {
@@ -736,6 +741,186 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
             .expectBody()
             .jsonPath("$.currentBalance").isEqualTo(130)
     }
+
+    @Test
+    fun `income destination row uses positive signed amount in pocket feed`() = runBlocking {
+        val account = createAccount(
+            CreateAccount.Command(
+                name = "Main account",
+                institution = "Demo Bank",
+                currencyCode = "EUR",
+                weekendHandling = "same_day",
+            ),
+        )
+        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+
+        val income = createTransaction(
+            CreateTransaction.Command(
+                type = "income",
+                status = "booked",
+                transactionDate = "2026-04-22",
+                amount = 75,
+                currencyCode = "EUR",
+                exchangeRate = null,
+                destinationAmount = null,
+                description = "Income",
+                partnerId = null,
+                sourcePocketId = null,
+                destinationPocketId = pocket.id,
+            ),
+        )
+
+        webTestClient.get()
+            .uri("/query/pockets/${pocket.id}/transactions?limit=10")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.items.length()").isEqualTo(1)
+            .jsonPath("$.items[0].transactionId").isEqualTo(income.id)
+            .jsonPath("$.items[0].signedAmount").isEqualTo(75)
+            .jsonPath("$.items[0].balanceAfter").isEqualTo(75)
+    }
+
+    @Test
+    fun `account metadata changes do not break feed readability or association`() = runBlocking {
+        val account = createAccount(
+            CreateAccount.Command(
+                name = "Main account",
+                institution = "Demo Bank",
+                currencyCode = "EUR",
+                weekendHandling = "same_day",
+            ),
+        )
+        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val transaction = createTransaction(
+            CreateTransaction.Command(
+                type = "expense",
+                status = "booked",
+                transactionDate = "2026-04-22",
+                amount = 33,
+                currencyCode = "EUR",
+                exchangeRate = null,
+                destinationAmount = null,
+                description = "Expense",
+                partnerId = null,
+                sourcePocketId = pocket.id,
+                destinationPocketId = null,
+            ),
+        )
+
+        val updatedAccount = UpdateAccount.Command(
+            id = account.id,
+            name = "Renamed account",
+            institution = "New bank",
+            currencyCode = "EUR",
+            weekendHandling = "next_business_day",
+        )
+        updateAccount(updatedAccount)
+
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}/transactions?limit=10")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.items.length()").isEqualTo(1)
+            .jsonPath("$.items[0].accountId").isEqualTo(account.id)
+            .jsonPath("$.items[0].transactionId").isEqualTo(transaction.id)
+            .jsonPath("$.items[0].sourcePocketName").isEqualTo("Wallet")
+    }
+
+    @Test
+    fun `history positions remain unique after repeated rewrites`() = runBlocking {
+        val account = createAccount(
+            CreateAccount.Command(
+                name = "Main account",
+                institution = "Demo Bank",
+                currencyCode = "EUR",
+                weekendHandling = "same_day",
+            ),
+        )
+        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+
+        val tx1 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
+        val tx2 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
+        val tx3 = createTransaction(CreateTransaction.Command("income", "booked", "2026-04-15", 40, "EUR", null, null, "t3", null, null, pocket.id))
+
+        updateTransaction(UpdateTransaction.Command(tx1.id, "expense", "booked", "2026-04-14", 15, "EUR", null, null, "t1", null, pocket.id, null))
+        archiveTransaction(tx2.id)
+        unarchiveTransaction(tx2.id)
+        updateTransaction(UpdateTransaction.Command(tx2.id, "expense", "booked", "2026-04-11", 25, "EUR", null, null, "t2", null, pocket.id, null))
+
+        assertEquals(
+            singleLong("SELECT COUNT(*) AS value FROM account_transaction_feed WHERE account_id = '${account.id}'"),
+            singleLong("SELECT COUNT(DISTINCT history_position) AS value FROM account_transaction_feed WHERE account_id = '${account.id}'"),
+        )
+        assertEquals(
+            singleLong("SELECT COUNT(*) AS value FROM pocket_transaction_feed WHERE pocket_id = '${pocket.id}'"),
+            singleLong("SELECT COUNT(DISTINCT history_position) AS value FROM pocket_transaction_feed WHERE pocket_id = '${pocket.id}'"),
+        )
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(0)
+        webTestClient.get()
+            .uri("/query/pockets/${pocket.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(0)
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}/transactions?limit=10")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.items.length()").isEqualTo(3)
+    }
+
+    @Test
+    fun `rebuilding the same projection state is deterministic`() = runBlocking {
+        val account = createAccount(
+            CreateAccount.Command(
+                name = "Main account",
+                institution = "Demo Bank",
+                currencyCode = "EUR",
+                weekendHandling = "same_day",
+            ),
+        )
+        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val tx1 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
+        val tx2 = createTransaction(CreateTransaction.Command("income", "booked", "2026-04-12", 30, "EUR", null, null, "t2", null, null, pocket.id))
+
+        transactionQueryProjectionService.rebuildFor(after = tx1)
+        transactionQueryProjectionService.rebuildFor(after = tx2)
+        val firstAccountRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM account_transaction_feed WHERE account_id = '${account.id}' ORDER BY history_position")
+        val firstPocketRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM pocket_transaction_feed WHERE pocket_id = '${pocket.id}' ORDER BY history_position")
+        val firstAccountBalance = singleLong("SELECT current_balance AS value FROM account_query WHERE account_id = '${account.id}'")
+        val firstPocketBalance = singleLong("SELECT current_balance AS value FROM pocket_query WHERE pocket_id = '${pocket.id}'")
+
+        transactionQueryProjectionService.rebuildFor(after = tx1)
+        transactionQueryProjectionService.rebuildFor(after = tx2)
+        val secondAccountRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM account_transaction_feed WHERE account_id = '${account.id}' ORDER BY history_position")
+        val secondPocketRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM pocket_transaction_feed WHERE pocket_id = '${pocket.id}' ORDER BY history_position")
+        val secondAccountBalance = singleLong("SELECT current_balance AS value FROM account_query WHERE account_id = '${account.id}'")
+        val secondPocketBalance = singleLong("SELECT current_balance AS value FROM pocket_query WHERE pocket_id = '${pocket.id}'")
+
+        assertEquals(firstAccountRows, secondAccountRows)
+        assertEquals(firstPocketRows, secondPocketRows)
+        assertEquals(firstAccountBalance, secondAccountBalance)
+        assertEquals(firstPocketBalance, secondPocketBalance)
+    }
+
+    private suspend fun singleLong(sql: String): Long =
+        (databaseClient.sql(sql).fetch().one().awaitSingle().getValue("value") as Number).toLong()
+
+    private suspend fun queryRows(sql: String): List<Map<String, Any?>> =
+        databaseClient.sql(sql)
+            .fetch()
+            .all()
+            .map { row -> row.mapValues { it.value } }
+            .collectList()
+            .awaitSingle()
 
     private fun insertCurrency(code: String) {
         runBlocking {
