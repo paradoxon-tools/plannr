@@ -444,7 +444,7 @@ We explicitly accept:
 
 The query layer should be covered at multiple levels:
 
-- [ ] projector unit tests
+- [x] projector unit tests
 - [ ] query repository tests
 - [x] event bus / transaction boundary tests
 - [x] query API integration tests
@@ -458,8 +458,8 @@ Below is the minimum set of relevant cases we should cover.
 
 - [x] creating an account creates one `account_query` row
 - [x] updating account metadata updates the corresponding `account_query` row
-- [ ] archiving an account updates `account_query.is_archived`
-- [ ] unarchiving an account updates `account_query.is_archived`
+- [x] archiving an account updates `account_query.is_archived`
+- [x] unarchiving an account updates `account_query.is_archived`
 - [x] account detail endpoint returns the projected account metadata
 - [x] account detail endpoint returns `not_found` for unknown id
 
@@ -467,8 +467,8 @@ Below is the minimum set of relevant cases we should cover.
 
 - [x] creating a pocket creates one `pocket_query` row
 - [x] updating pocket metadata updates the corresponding `pocket_query` row
-- [ ] archiving a pocket updates `pocket_query.is_archived`
-- [ ] unarchiving a pocket updates `pocket_query.is_archived`
+- [x] archiving a pocket updates `pocket_query.is_archived`
+- [x] unarchiving a pocket updates `pocket_query.is_archived`
 - [x] pocket detail endpoint returns the projected pocket metadata
 - [x] pocket detail endpoint returns `not_found` for unknown id
 
@@ -487,8 +487,8 @@ Below is the minimum set of relevant cases we should cover.
 
 #### Basic projection
 
-- [ ] expense transaction creates one account feed row
-- [ ] income transaction creates one account feed row
+- [x] expense transaction creates one account feed row
+- [x] income transaction creates one account feed row
 - [x] transfer transaction creates one account feed row
 - [ ] archived/hidden transactions are excluded or marked according to final visibility rules
 - [x] account feed endpoint returns rows in descending `history_position`
@@ -511,8 +511,8 @@ Below is the minimum set of relevant cases we should cover.
 
 #### Denormalized display data
 
-- [ ] account feed row contains source pocket name and color at projection time
-- [ ] account feed row contains destination pocket name and color at projection time
+- [x] account feed row contains source pocket name and color at projection time
+- [x] account feed row contains destination pocket name and color at projection time
 - [ ] account feed row contains partner name at projection time
 - [x] pocket rename updates all account feed rows where pocket is source
 - [x] pocket rename updates all account feed rows where pocket is destination
@@ -526,15 +526,15 @@ Below is the minimum set of relevant cases we should cover.
 
 #### Basic projection
 
-- [ ] expense transaction creates one pocket feed row for the source pocket
-- [ ] income transaction creates one pocket feed row for the destination pocket
+- [x] expense transaction creates one pocket feed row for the source pocket
+- [x] income transaction creates one pocket feed row for the destination pocket
 - [x] transfer transaction creates two pocket feed rows
 - [x] pocket feed endpoint returns rows in descending `history_position`
 - [ ] pocket feed endpoint returns `not_found` for unknown pocket id if that is the chosen API behavior
 
 #### Amount semantics
 
-- [ ] expense source row has negative `signed_amount`
+- [x] expense source row has negative `signed_amount`
 - [ ] income destination row has positive `signed_amount`
 - [x] transfer source row has negative `signed_amount`
 - [x] transfer destination row has positive `signed_amount`
@@ -551,7 +551,7 @@ Below is the minimum set of relevant cases we should cover.
 
 #### Denormalized display data
 
-- [ ] transfer row contains `transfer_pocket_id`, `transfer_pocket_name`, and `transfer_pocket_color`
+- [x] transfer row contains `transfer_pocket_id`, `transfer_pocket_name`, and `transfer_pocket_color`
 - [ ] partner name is projected onto pocket feed rows
 - [x] pocket rename updates all pocket feed rows where pocket appears as `transfer_pocket_*`
 - [x] pocket color change updates all pocket feed rows where pocket appears as `transfer_pocket_*`
@@ -579,9 +579,9 @@ Below is the minimum set of relevant cases we should cover.
 
 #### Cursor behavior under history rewrites
 
-- [ ] pagination still works after a historic insert rewrites tail positions
-- [ ] pagination still works after a historic update rewrites tail positions
-- [ ] pagination still works after a historic archive rewrites tail positions
+- [x] pagination still works after a historic insert rewrites tail positions
+- [x] pagination still works after a historic update rewrites tail positions
+- [x] pagination still works after a historic archive rewrites tail positions
 
 ---
 
@@ -605,7 +605,7 @@ These are especially important because the whole design depends on tail rewrites
 - [x] updating transaction amount recomputes all later account balances
 - [ ] updating transaction amount recomputes all later pocket balances
 - [ ] updating transaction type recomputes affected account and pocket feed rows correctly
-- [ ] updating source or destination pocket rewrites affected pocket histories correctly
+- [x] updating source or destination pocket rewrites affected pocket histories correctly
 - [x] latest balances remain correct after a historic update
 
 #### Historic archive / unarchive / deletion semantics
@@ -728,7 +728,7 @@ Even if rebuild support is implemented later, the projector logic should be dete
 #### Account transactions API
 
 - [x] returns transactions in descending order
-- [ ] returns denormalized fields expected by the UI
+- [x] returns denormalized fields expected by the UI
 - [x] returns valid pagination cursor / `before` behavior
 - [x] returns correct running balances per row
 - [ ] returns correct amounts for expense, income, and transfer rows
@@ -736,7 +736,7 @@ Even if rebuild support is implemented later, the projector logic should be dete
 #### Pocket transactions API
 
 - [x] returns transactions in descending order
-- [ ] returns denormalized fields expected by the UI
+- [x] returns denormalized fields expected by the UI
 - [x] returns valid pagination cursor / `before` behavior
 - [x] returns correct running balances per row
 - [ ] returns correct amounts for expense, income, and transfer rows
@@ -746,9 +746,9 @@ Even if rebuild support is implemented later, the projector logic should be dete
 ### L. Edge cases worth covering
 
 - [ ] zero-amount transaction if allowed by business rules
-- [ ] multiple transactions on the same date
+- [x] multiple transactions on the same date
 - [ ] multiple historical inserts on the same date
-- [ ] repeated updates of the same historical transaction
+- [x] repeated updates of the same historical transaction
 - [ ] renaming a pocket that appears in a large number of rows
 - [ ] renaming a partner that appears in a large number of rows
 - [ ] transactions at the beginning of history

@@ -51,6 +51,21 @@ class R2dbcPocketTransactionFeedRepositoryTest : ApiIntegrationTest() {
         assertEquals(true, page.none { it.pocketId == "poc_other" })
     }
 
+    @Test
+    fun `maps nullable denormalized pocket feed fields`() = runBlocking {
+        insertPocket("poc_null", "acc_123", "Null pocket", 999)
+        insertFeedRowWithNulls(pocketId = "poc_null", transactionId = "tx_null", historyPosition = 1)
+
+        val page = repository.findPage(pocketId = "poc_null", before = null, limit = 10)
+
+        assertEquals(1, page.size)
+        assertEquals(null, page.first().partnerId)
+        assertEquals(null, page.first().partnerName)
+        assertEquals(null, page.first().transferPocketId)
+        assertEquals(null, page.first().transferPocketName)
+        assertEquals(null, page.first().transferPocketColor)
+    }
+
     private fun insertCurrency() = runBlocking {
         databaseClient.sql("INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position) VALUES ('EUR', 'Euro', '€', 2, 'before')")
             .fetch().rowsUpdated().awaitSingle()
@@ -104,6 +119,30 @@ class R2dbcPocketTransactionFeedRepositoryTest : ApiIntegrationTest() {
             .bind("transferPocketId", transferPocketId)
             .bind("transferPocketName", transferPocketName)
             .bind("transferPocketColor", transferPocketColor)
+            .fetch().rowsUpdated().awaitSingle()
+    }
+
+    private fun insertFeedRowWithNulls(
+        pocketId: String,
+        transactionId: String,
+        historyPosition: Long,
+    ) = runBlocking {
+        databaseClient.sql(
+            """
+            INSERT INTO pocket_transaction_feed (
+                pocket_id, account_id, transaction_id, history_position, transaction_date, type, status, description,
+                transaction_amount, signed_amount, balance_after, partner_id, partner_name,
+                transfer_pocket_id, transfer_pocket_name, transfer_pocket_color, is_archived
+            ) VALUES (
+                :pocketId, 'acc_123', :transactionId, :historyPosition, '2026-04-11', 'income', 'booked', 'nullable',
+                100, 100, 100, null, null,
+                null, null, null, FALSE
+            )
+            """.trimIndent(),
+        )
+            .bind("pocketId", pocketId)
+            .bind("transactionId", transactionId)
+            .bind("historyPosition", historyPosition)
             .fetch().rowsUpdated().awaitSingle()
     }
 }

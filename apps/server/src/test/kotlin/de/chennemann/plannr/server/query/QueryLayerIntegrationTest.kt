@@ -1,10 +1,14 @@
 package de.chennemann.plannr.server.query
 
+import de.chennemann.plannr.server.accounts.usecases.ArchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
+import de.chennemann.plannr.server.accounts.usecases.UnarchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import de.chennemann.plannr.server.partners.usecases.CreatePartner
 import de.chennemann.plannr.server.partners.usecases.UpdatePartner
+import de.chennemann.plannr.server.pockets.usecases.ArchivePocket
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.pockets.usecases.UnarchivePocket
 import de.chennemann.plannr.server.pockets.usecases.UpdatePocket
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.support.expectApiError
@@ -20,8 +24,12 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
     @Autowired lateinit var createAccount: CreateAccount
     @Autowired lateinit var updateAccount: UpdateAccount
+    @Autowired lateinit var archiveAccount: ArchiveAccount
+    @Autowired lateinit var unarchiveAccount: UnarchiveAccount
     @Autowired lateinit var createPocket: CreatePocket
     @Autowired lateinit var updatePocket: UpdatePocket
+    @Autowired lateinit var archivePocket: ArchivePocket
+    @Autowired lateinit var unarchivePocket: UnarchivePocket
     @Autowired lateinit var createPartner: CreatePartner
     @Autowired lateinit var updatePartner: UpdatePartner
 
@@ -413,6 +421,53 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
         assertEquals("New partner", accountRow.getValue("partner_name"))
         assertEquals("New partner", pocketRow.getValue("partner_name"))
+    }
+
+    @Test
+    fun `account and pocket archive state is projected to query summaries`() = runBlocking {
+        val account = createAccount(
+            CreateAccount.Command(
+                name = "Main account",
+                institution = "Test Bank",
+                currencyCode = "EUR",
+                weekendHandling = "same_day",
+            ),
+        )
+        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+
+        archiveAccount(account.id)
+        archivePocket(pocket.id)
+
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(true)
+
+        webTestClient.get()
+            .uri("/query/pockets/${pocket.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(true)
+
+        unarchiveAccount(account.id)
+        unarchivePocket(pocket.id)
+
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
+
+        webTestClient.get()
+            .uri("/query/pockets/${pocket.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.isArchived").isEqualTo(false)
     }
 
     @Test

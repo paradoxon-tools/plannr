@@ -54,6 +54,24 @@ class R2dbcAccountTransactionFeedRepositoryTest : ApiIntegrationTest() {
         assertEquals(true, page.none { it.accountId == "acc_999" })
     }
 
+    @Test
+    fun `maps nullable denormalized account feed fields`() = runBlocking {
+        insertAccount("acc_null")
+        insertFeedRowWithNulls(accountId = "acc_null", transactionId = "tx_null", historyPosition = 1)
+
+        val page = repository.findPage(accountId = "acc_null", before = null, limit = 10)
+
+        assertEquals(1, page.size)
+        assertEquals(null, page.first().partnerId)
+        assertEquals(null, page.first().partnerName)
+        assertEquals(null, page.first().sourcePocketId)
+        assertEquals(null, page.first().sourcePocketName)
+        assertEquals(null, page.first().sourcePocketColor)
+        assertEquals(null, page.first().destinationPocketId)
+        assertEquals(null, page.first().destinationPocketName)
+        assertEquals(null, page.first().destinationPocketColor)
+    }
+
     private fun insertCurrency() = runBlocking {
         databaseClient.sql("INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position) VALUES ('EUR', 'Euro', '€', 2, 'before')")
             .fetch().rowsUpdated().awaitSingle()
@@ -100,6 +118,28 @@ class R2dbcAccountTransactionFeedRepositoryTest : ApiIntegrationTest() {
             .bind("historyPosition", historyPosition)
             .bind("description", description)
             .bind("balanceAfter", -100L * historyPosition)
+            .fetch().rowsUpdated().awaitSingle()
+    }
+
+    private fun insertFeedRowWithNulls(accountId: String, transactionId: String, historyPosition: Long) = runBlocking {
+        databaseClient.sql(
+            """
+            INSERT INTO account_transaction_feed (
+                account_id, transaction_id, history_position, transaction_date, type, status, description,
+                transaction_amount, signed_amount, balance_after, partner_id, partner_name,
+                source_pocket_id, source_pocket_name, source_pocket_color,
+                destination_pocket_id, destination_pocket_name, destination_pocket_color, is_archived
+            ) VALUES (
+                :accountId, :transactionId, :historyPosition, '2026-04-11', 'income', 'booked', 'nullable',
+                100, 100, 100, null, null,
+                null, null, null,
+                null, null, null, FALSE
+            )
+            """.trimIndent(),
+        )
+            .bind("accountId", accountId)
+            .bind("transactionId", transactionId)
+            .bind("historyPosition", historyPosition)
             .fetch().rowsUpdated().awaitSingle()
     }
 }
