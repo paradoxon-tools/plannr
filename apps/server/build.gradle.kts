@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.3.4"
-    id("io.spring.dependency-management") version "1.1.6"
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
+    id("org.springframework.boot") version "4.0.5"
+    id("io.spring.dependency-management") version "1.1.7"
+    kotlin("jvm") version "2.3.20"
+    kotlin("plugin.spring") version "2.3.20"
 }
 
 group = "de.chennemann.plannr"
@@ -14,7 +14,7 @@ description = "Coroutine-first Spring Boot version of plannr-server"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -53,6 +53,9 @@ tasks.withType<Test> {
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
-        freeCompilerArgs.add("-Xjsr305=strict")
+        freeCompilerArgs.addAll(
+            "-Xjsr305=strict",
+            "-Xannotation-default-target=param-property"
+        )
     }
 }

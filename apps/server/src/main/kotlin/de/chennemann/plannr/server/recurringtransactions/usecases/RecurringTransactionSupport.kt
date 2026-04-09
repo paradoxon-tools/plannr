@@ -1,16 +1,17 @@
 package de.chennemann.plannr.server.recurringtransactions.usecases
 
+import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
-import de.chennemann.plannr.server.contracts.usecases.GetContract
-import de.chennemann.plannr.server.partners.usecases.GetPartner
-import de.chennemann.plannr.server.pockets.usecases.GetPocket
+import de.chennemann.plannr.server.contracts.domain.ContractRepository
+import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import org.springframework.stereotype.Component
 
 @Component
 internal class RecurringTransactionContextResolver(
-    private val getContract: GetContract,
-    private val getPocket: GetPocket,
-    private val getPartner: GetPartner,
+    private val contractRepository: ContractRepository,
+    private val pocketRepository: PocketRepository,
+    private val partnerRepository: PartnerRepository,
 ) {
     suspend fun resolve(
         contractId: String?,
@@ -20,10 +21,22 @@ internal class RecurringTransactionContextResolver(
         transactionType: String,
     ): ResolvedContext {
         val normalizedTransactionType = transactionType.trim().lowercase()
-        val contract = contractId?.trim()?.takeIf { it.isNotBlank() }?.let { getContract(it) }
-        val sourcePocket = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }?.let { getPocket(it) }
-        val destinationPocket = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }?.let { getPocket(it) }
-        val resolvedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }?.let { getPartner(it).id }
+        val contract = contractId?.trim()?.takeIf { it.isNotBlank() }?.let {
+            contractRepository.findById(it)
+                ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to it))
+        }
+        val sourcePocket = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
+            pocketRepository.findById(it)
+                ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
+        }
+        val destinationPocket = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
+            pocketRepository.findById(it)
+                ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
+        }
+        val resolvedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {
+            partnerRepository.findById(it)?.id
+                ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to it))
+        }
 
         when (normalizedTransactionType) {
             "expense" -> if (sourcePocket == null) throw ValidationException("validation_error", "Expense recurring transaction requires source pocket")

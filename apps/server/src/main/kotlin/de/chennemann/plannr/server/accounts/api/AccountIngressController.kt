@@ -2,12 +2,9 @@ package de.chennemann.plannr.server.accounts.api
 
 import de.chennemann.plannr.server.accounts.usecases.ArchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
-import de.chennemann.plannr.server.accounts.usecases.GetAccount
-import de.chennemann.plannr.server.accounts.usecases.ListAccounts
 import de.chennemann.plannr.server.accounts.usecases.UnarchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -18,11 +15,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/accounts")
-class AccountController(
+class AccountIngressController(
     private val createAccount: CreateAccount,
     private val updateAccount: UpdateAccount,
-    private val getAccount: GetAccount,
-    private val listAccounts: ListAccounts,
     private val archiveAccount: ArchiveAccount,
     private val unarchiveAccount: UnarchiveAccount,
 ) {
@@ -35,12 +30,6 @@ class AccountController(
     suspend fun update(@PathVariable id: String, @RequestBody request: UpdateAccountRequest): AccountResponse =
         AccountResponse.from(updateAccount(request.toCommand(id)))
 
-    @GetMapping("/{id}")
-    suspend fun getById(@PathVariable id: String): AccountResponse =
-        AccountResponse.from(getAccount(id))
-
-    @GetMapping
-    suspend fun list(): List<AccountResponse> = listAccounts().map(AccountResponse::from)
 
     @PostMapping("/{id}/archive")
     suspend fun archive(@PathVariable id: String): AccountResponse =

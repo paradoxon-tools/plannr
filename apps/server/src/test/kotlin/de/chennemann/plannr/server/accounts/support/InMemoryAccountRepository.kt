@@ -17,6 +17,4 @@ class InMemoryAccountRepository : AccountRepository {
     }
 
     override suspend fun findById(id: String): Account? = accounts[id]
-
-    override suspend fun findAll(): List<Account> = accounts.values.toList()
 }

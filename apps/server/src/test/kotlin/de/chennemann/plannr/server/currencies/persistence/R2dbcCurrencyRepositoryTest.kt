@@ -39,13 +39,4 @@ class R2dbcCurrencyRepositoryTest : ApiIntegrationTest() {
         assertEquals(updated, currencyRepository.findByCode("EUR"))
     }
 
-    @Test
-    fun `finds all currencies ordered by code`() = runBlocking {
-        currencyRepository.save(CurrencyFixtures.currency(code = "USD", name = "US Dollar", symbol = "$"))
-        currencyRepository.save(CurrencyFixtures.currency())
-
-        val currencies = currencyRepository.findAll()
-
-        assertEquals(listOf("EUR", "USD"), currencies.map { it.code })
-    }
 }

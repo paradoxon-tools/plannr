@@ -1,11 +1,8 @@
 package de.chennemann.plannr.server.currencies.api
 
 import de.chennemann.plannr.server.currencies.usecases.CreateCurrency
-import de.chennemann.plannr.server.currencies.usecases.GetCurrency
-import de.chennemann.plannr.server.currencies.usecases.ListCurrencies
 import de.chennemann.plannr.server.currencies.usecases.UpdateCurrency
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -16,11 +13,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/currencies")
-class CurrencyController(
+class CurrencyIngressController(
     private val createCurrency: CreateCurrency,
     private val updateCurrency: UpdateCurrency,
-    private val getCurrency: GetCurrency,
-    private val listCurrencies: ListCurrencies,
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,11 +26,4 @@ class CurrencyController(
     suspend fun update(@PathVariable code: String, @RequestBody request: UpdateCurrencyRequest): CurrencyResponse =
         CurrencyResponse.from(updateCurrency(request.toCommand(code)))
 
-    @GetMapping("/{code}")
-    suspend fun getByCode(@PathVariable code: String): CurrencyResponse =
-        CurrencyResponse.from(getCurrency(code))
-
-    @GetMapping
-    suspend fun list(): List<CurrencyResponse> =
-        listCurrencies().map(CurrencyResponse::from)
 }

@@ -71,19 +71,6 @@ class R2dbcAccountRepository(
             .map(::toAccount)
             .awaitSingleOrNull()
 
-    override suspend fun findAll(): List<Account> =
-        databaseClient.sql(
-            """
-            SELECT id, name, institution, currency_code, weekend_handling, is_archived, created_at
-            FROM accounts
-            ORDER BY created_at ASC, id ASC
-            """.trimIndent(),
-        )
-            .fetch()
-            .all()
-            .map(::toAccount)
-            .collectList()
-            .awaitSingle()
 
     private fun toAccount(row: Map<String, Any>): Account =
         Account(

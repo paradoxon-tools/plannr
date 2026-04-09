@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.pockets.usecases
 
-import de.chennemann.plannr.server.accounts.usecases.GetAccount
+import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
@@ -22,7 +22,7 @@ interface UpdatePocket {
 @Component
 internal class UpdatePocketUseCase(
     private val pocketRepository: PocketRepository,
-    private val getAccount: GetAccount,
+    private val accountRepository: AccountRepository,
 ) : UpdatePocket {
     override suspend fun invoke(command: UpdatePocket.Command): Pocket {
         val existing = pocketRepository.findById(command.id.trim())
@@ -32,11 +32,17 @@ internal class UpdatePocketUseCase(
                 details = mapOf("id" to command.id.trim()),
             )
 
-        getAccount(command.accountId)
+        val accountId = command.accountId.trim()
+        accountRepository.findById(accountId)
+            ?: throw NotFoundException(
+                code = "not_found",
+                message = "Account not found",
+                details = mapOf("id" to accountId),
+            )
 
         val updated = Pocket(
             id = existing.id,
-            accountId = command.accountId,
+            accountId = accountId,
             name = command.name,
             description = command.description,
             color = command.color,

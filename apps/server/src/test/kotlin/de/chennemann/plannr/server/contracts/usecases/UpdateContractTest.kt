@@ -6,10 +6,8 @@ import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.partners.support.PartnerFixtures
-import de.chennemann.plannr.server.partners.usecases.GetPartnerUseCase
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
-import de.chennemann.plannr.server.pockets.usecases.GetPocketUseCase
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,8 +26,8 @@ class UpdateContractTest {
         contractRepository.save(ContractFixtures.contract())
         val updateContract = UpdateContractUseCase(
             contractRepository = contractRepository,
-            getPocket = GetPocketUseCase(pocketRepository),
-            getPartner = GetPartnerUseCase(partnerRepository),
+            pocketRepository = pocketRepository,
+            partnerRepository = partnerRepository,
         )
 
         val updated = updateContract(
@@ -55,8 +53,8 @@ class UpdateContractTest {
     fun `fails when contract does not exist`() = runTest {
         val updateContract = UpdateContractUseCase(
             contractRepository = InMemoryContractRepository(),
-            getPocket = GetPocketUseCase(InMemoryPocketRepository()),
-            getPartner = GetPartnerUseCase(InMemoryPartnerRepository()),
+            pocketRepository = InMemoryPocketRepository(),
+            partnerRepository = InMemoryPartnerRepository(),
         )
 
         assertFailsWith<NotFoundException> {
@@ -74,8 +72,8 @@ class UpdateContractTest {
         contractRepository.save(ContractFixtures.contract(id = "con_456", accountId = "acc_456", pocketId = "poc_456"))
         val updateContract = UpdateContractUseCase(
             contractRepository = contractRepository,
-            getPocket = GetPocketUseCase(pocketRepository),
-            getPartner = GetPartnerUseCase(InMemoryPartnerRepository()),
+            pocketRepository = pocketRepository,
+            partnerRepository = InMemoryPartnerRepository(),
         )
 
         assertFailsWith<ConflictException> {

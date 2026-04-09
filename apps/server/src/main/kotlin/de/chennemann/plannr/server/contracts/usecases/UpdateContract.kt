@@ -4,8 +4,8 @@ import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.partners.usecases.GetPartner
-import de.chennemann.plannr.server.pockets.usecases.GetPocket
+import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import org.springframework.stereotype.Component
 
 interface UpdateContract {
@@ -25,8 +25,8 @@ interface UpdateContract {
 @Component
 internal class UpdateContractUseCase(
     private val contractRepository: ContractRepository,
-    private val getPocket: GetPocket,
-    private val getPartner: GetPartner,
+    private val pocketRepository: PocketRepository,
+    private val partnerRepository: PartnerRepository,
 ) : UpdateContract {
     override suspend fun invoke(command: UpdateContract.Command): Contract {
         val existing = contractRepository.findById(command.id.trim())
@@ -36,7 +36,13 @@ internal class UpdateContractUseCase(
                 details = mapOf("id" to command.id.trim()),
             )
 
-        val pocket = getPocket(command.pocketId)
+        val pocketId = command.pocketId.trim()
+        val pocket = pocketRepository.findById(pocketId)
+            ?: throw NotFoundException(
+                code = "not_found",
+                message = "Pocket not found",
+                details = mapOf("id" to pocketId),
+            )
         val existingForPocket = contractRepository.findByPocketId(pocket.id)
         if (existingForPocket != null && existingForPocket.id != existing.id) {
             throw ConflictException(
@@ -46,7 +52,14 @@ internal class UpdateContractUseCase(
             )
         }
 
-        val partnerId = command.partnerId?.trim()?.takeIf { it.isNotBlank() }?.let { getPartner(it).id }
+        val partnerId = command.partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {
+            partnerRepository.findById(it)?.id
+                ?: throw NotFoundException(
+                    code = "not_found",
+                    message = "Partner not found",
+                    details = mapOf("id" to it),
+                )
+        }
         val updated = Contract(
             id = existing.id,
             accountId = pocket.accountId,

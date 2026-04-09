@@ -47,13 +47,4 @@ class R2dbcAccountRepositoryTest : ApiIntegrationTest() {
         assertEquals(updated, accountRepository.findById(AccountFixtures.DEFAULT_ID))
     }
 
-    @Test
-    fun `finds all accounts ordered by created at and id`() = runBlocking {
-        accountRepository.save(AccountFixtures.account(id = "acc_2", createdAt = 2, name = "Second"))
-        accountRepository.save(AccountFixtures.account(id = "acc_1", createdAt = 1, name = "First"))
-
-        val accounts = accountRepository.findAll()
-
-        assertEquals(listOf("acc_1", "acc_2"), accounts.map { it.id })
-    }
 }

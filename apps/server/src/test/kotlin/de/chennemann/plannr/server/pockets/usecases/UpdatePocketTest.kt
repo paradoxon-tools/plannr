@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.pockets.usecases
 
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.accounts.usecases.GetAccountUseCase
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -22,7 +21,7 @@ class UpdatePocketTest {
         pocketRepository.save(PocketFixtures.pocket())
         val updatePocket = UpdatePocketUseCase(
             pocketRepository = pocketRepository,
-            getAccount = GetAccountUseCase(accountRepository),
+            accountRepository = accountRepository,
         )
 
         val updated = updatePocket(
@@ -49,7 +48,7 @@ class UpdatePocketTest {
         accountRepository.save(AccountFixtures.account())
         val updatePocket = UpdatePocketUseCase(
             pocketRepository = InMemoryPocketRepository(),
-            getAccount = GetAccountUseCase(accountRepository),
+            accountRepository = accountRepository,
         )
 
         assertFailsWith<NotFoundException> {
@@ -63,7 +62,7 @@ class UpdatePocketTest {
         pocketRepository.save(PocketFixtures.pocket())
         val updatePocket = UpdatePocketUseCase(
             pocketRepository = pocketRepository,
-            getAccount = GetAccountUseCase(InMemoryAccountRepository()),
+            accountRepository = InMemoryAccountRepository(),
         )
 
         assertFailsWith<NotFoundException> {

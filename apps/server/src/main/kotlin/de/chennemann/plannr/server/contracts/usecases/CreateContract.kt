@@ -1,12 +1,13 @@
 package de.chennemann.plannr.server.contracts.usecases
 
 import de.chennemann.plannr.server.common.error.ConflictException
+import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.support.ContractIdGenerator
-import de.chennemann.plannr.server.partners.usecases.GetPartner
-import de.chennemann.plannr.server.pockets.usecases.GetPocket
+import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import org.springframework.stereotype.Component
 
 interface CreateContract {
@@ -25,13 +26,19 @@ interface CreateContract {
 @Component
 internal class CreateContractUseCase(
     private val contractRepository: ContractRepository,
-    private val getPocket: GetPocket,
-    private val getPartner: GetPartner,
+    private val pocketRepository: PocketRepository,
+    private val partnerRepository: PartnerRepository,
     private val contractIdGenerator: ContractIdGenerator,
     private val timeProvider: TimeProvider,
 ) : CreateContract {
     override suspend fun invoke(command: CreateContract.Command): Contract {
-        val pocket = getPocket(command.pocketId)
+        val pocketId = command.pocketId.trim()
+        val pocket = pocketRepository.findById(pocketId)
+            ?: throw NotFoundException(
+                code = "not_found",
+                message = "Pocket not found",
+                details = mapOf("id" to pocketId),
+            )
         if (contractRepository.findByPocketId(pocket.id) != null) {
             throw ConflictException(
                 code = "conflict",
@@ -40,7 +47,14 @@ internal class CreateContractUseCase(
             )
         }
 
-        val partnerId = command.partnerId?.trim()?.takeIf { it.isNotBlank() }?.let { getPartner(it).id }
+        val partnerId = command.partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {
+            partnerRepository.findById(it)?.id
+                ?: throw NotFoundException(
+                    code = "not_found",
+                    message = "Partner not found",
+                    details = mapOf("id" to it),
+                )
+        }
         val contract = Contract(
             id = contractIdGenerator(),
             accountId = pocket.accountId,

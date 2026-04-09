@@ -6,10 +6,8 @@ import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.partners.support.PartnerFixtures
-import de.chennemann.plannr.server.partners.usecases.GetPartnerUseCase
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
-import de.chennemann.plannr.server.pockets.usecases.GetPocketUseCase
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,8 +23,8 @@ class CreateContractTest {
         partnerRepository.save(PartnerFixtures.partner())
         val createContract = CreateContractUseCase(
             contractRepository = contractRepository,
-            getPocket = GetPocketUseCase(pocketRepository),
-            getPartner = GetPartnerUseCase(partnerRepository),
+            pocketRepository = pocketRepository,
+            partnerRepository = partnerRepository,
             contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
@@ -44,8 +42,8 @@ class CreateContractTest {
         pocketRepository.save(PocketFixtures.pocket())
         val createContract = CreateContractUseCase(
             contractRepository = contractRepository,
-            getPocket = GetPocketUseCase(pocketRepository),
-            getPartner = GetPartnerUseCase(InMemoryPartnerRepository()),
+            pocketRepository = pocketRepository,
+            partnerRepository = InMemoryPartnerRepository(),
             contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
@@ -65,8 +63,8 @@ class CreateContractTest {
         contractRepository.save(ContractFixtures.contract())
         val createContract = CreateContractUseCase(
             contractRepository = contractRepository,
-            getPocket = GetPocketUseCase(pocketRepository),
-            getPartner = GetPartnerUseCase(partnerRepository),
+            pocketRepository = pocketRepository,
+            partnerRepository = partnerRepository,
             contractIdGenerator = { "con_other" },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
@@ -80,8 +78,8 @@ class CreateContractTest {
     fun `fails when pocket does not exist`() = runTest {
         val createContract = CreateContractUseCase(
             contractRepository = InMemoryContractRepository(),
-            getPocket = GetPocketUseCase(InMemoryPocketRepository()),
-            getPartner = GetPartnerUseCase(InMemoryPartnerRepository()),
+            pocketRepository = InMemoryPocketRepository(),
+            partnerRepository = InMemoryPartnerRepository(),
             contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
@@ -97,8 +95,8 @@ class CreateContractTest {
         pocketRepository.save(PocketFixtures.pocket())
         val createContract = CreateContractUseCase(
             contractRepository = InMemoryContractRepository(),
-            getPocket = GetPocketUseCase(pocketRepository),
-            getPartner = GetPartnerUseCase(InMemoryPartnerRepository()),
+            pocketRepository = pocketRepository,
+            partnerRepository = InMemoryPartnerRepository(),
             contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )

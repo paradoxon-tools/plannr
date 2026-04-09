@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.pockets.usecases
 
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.accounts.usecases.GetAccountUseCase
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -19,7 +18,7 @@ class CreatePocketTest {
         accountRepository.save(AccountFixtures.account())
         val createPocket = CreatePocketUseCase(
             pocketRepository = pocketRepository,
-            getAccount = GetAccountUseCase(accountRepository),
+            accountRepository = accountRepository,
             pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -35,7 +34,7 @@ class CreatePocketTest {
     fun `fails when account does not exist`() = runTest {
         val createPocket = CreatePocketUseCase(
             pocketRepository = InMemoryPocketRepository(),
-            getAccount = GetAccountUseCase(InMemoryAccountRepository()),
+            accountRepository = InMemoryAccountRepository(),
             pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
