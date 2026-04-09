@@ -1,9 +1,13 @@
 package de.chennemann.plannr.server.partners.usecases
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.events.ApplicationEventBus
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.partners.events.PartnerUpdated
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 interface UpdatePartner {
     suspend operator fun invoke(command: Command): Partner
@@ -16,8 +20,10 @@ interface UpdatePartner {
 }
 
 @Component
+@Transactional
 internal class UpdatePartnerUseCase(
     private val partnerRepository: PartnerRepository,
+    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : UpdatePartner {
     override suspend fun invoke(command: UpdatePartner.Command): Partner {
         val existing = partnerRepository.findById(command.id.trim())
@@ -35,6 +41,8 @@ internal class UpdatePartnerUseCase(
             createdAt = existing.createdAt,
         )
 
-        return partnerRepository.update(updated)
+        val persisted = partnerRepository.update(updated)
+        applicationEventBus.publish(PartnerUpdated(existing, persisted))
+        return persisted
     }
 }

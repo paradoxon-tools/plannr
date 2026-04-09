@@ -2,9 +2,13 @@ package de.chennemann.plannr.server.pockets.usecases
 
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.events.ApplicationEventBus
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.events.PocketUpdated
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 interface UpdatePocket {
     suspend operator fun invoke(command: Command): Pocket
@@ -20,9 +24,11 @@ interface UpdatePocket {
 }
 
 @Component
+@Transactional
 internal class UpdatePocketUseCase(
     private val pocketRepository: PocketRepository,
     private val accountRepository: AccountRepository,
+    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : UpdatePocket {
     override suspend fun invoke(command: UpdatePocket.Command): Pocket {
         val existing = pocketRepository.findById(command.id.trim())
@@ -51,6 +57,8 @@ internal class UpdatePocketUseCase(
             createdAt = existing.createdAt,
         )
 
-        return pocketRepository.update(updated)
+        val persisted = pocketRepository.update(updated)
+        applicationEventBus.publish(PocketUpdated(existing, persisted))
+        return persisted
     }
 }

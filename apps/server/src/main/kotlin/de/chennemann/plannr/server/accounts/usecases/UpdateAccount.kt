@@ -2,9 +2,13 @@ package de.chennemann.plannr.server.accounts.usecases
 
 import de.chennemann.plannr.server.accounts.domain.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.events.AccountUpdated
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.events.ApplicationEventBus
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExists
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 interface UpdateAccount {
     suspend operator fun invoke(command: Command): Account
@@ -19,9 +23,11 @@ interface UpdateAccount {
 }
 
 @Component
+@Transactional
 internal class UpdateAccountUseCase(
     private val accountRepository: AccountRepository,
     private val ensureCurrencyExists: EnsureCurrencyExists,
+    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : UpdateAccount {
     override suspend fun invoke(command: UpdateAccount.Command): Account {
         val existing = accountRepository.findById(command.id.trim())
@@ -42,6 +48,8 @@ internal class UpdateAccountUseCase(
             createdAt = existing.createdAt,
         )
 
-        return accountRepository.update(updated)
+        val persisted = accountRepository.update(updated)
+        applicationEventBus.publish(AccountUpdated(existing, persisted))
+        return persisted
     }
 }
