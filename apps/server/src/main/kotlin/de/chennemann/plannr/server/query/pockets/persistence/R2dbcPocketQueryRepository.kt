@@ -22,12 +22,14 @@ class R2dbcPocketQueryRepository(
                     color = :color,
                     is_default = :isDefault,
                     is_archived = :isArchived,
-                    created_at = :createdAt
+                    created_at = :createdAt,
+                    current_balance = :currentBalance
                 WHERE pocket_id = :pocketId
                 """.trimIndent(),
             ),
             pocketQuery,
         )
+            .bind("currentBalance", pocketQuery.currentBalance)
             .fetch()
             .rowsUpdated()
             .awaitSingle()

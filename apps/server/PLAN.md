@@ -679,33 +679,33 @@ Even if rebuild support is implemented later, the projector logic should be dete
 
 #### Account query repository
 
-- [ ] find account by id
-- [ ] return `null` / not found when missing
-- [ ] map current balance correctly
+- [x] find account by id
+- [x] return `null` / not found when missing
+- [x] map current balance correctly
 
 #### Pocket query repository
 
-- [ ] find pocket by id
-- [ ] return `null` / not found when missing
-- [ ] map current balance correctly
+- [x] find pocket by id
+- [x] return `null` / not found when missing
+- [x] map current balance correctly
 
 #### Account feed repository
 
-- [ ] fetch first page in descending order
-- [ ] fetch next page using `before`
-- [ ] respect `limit`
-- [ ] filter by account id only
-- [ ] map denormalized fields correctly
-- [ ] map `transaction_amount`, `signed_amount`, and `balance_after` correctly
+- [x] fetch first page in descending order
+- [x] fetch next page using `before`
+- [x] respect `limit`
+- [x] filter by account id only
+- [x] map denormalized fields correctly
+- [x] map `transaction_amount`, `signed_amount`, and `balance_after` correctly
 
 #### Pocket feed repository
 
-- [ ] fetch first page in descending order
-- [ ] fetch next page using `before`
-- [ ] respect `limit`
-- [ ] filter by pocket id only
-- [ ] map denormalized fields correctly
-- [ ] map `transaction_amount`, `signed_amount`, and `balance_after` correctly
+- [x] fetch first page in descending order
+- [x] fetch next page using `before`
+- [x] respect `limit`
+- [x] filter by pocket id only
+- [x] map denormalized fields correctly
+- [x] map `transaction_amount`, `signed_amount`, and `balance_after` correctly
 
 ---
 

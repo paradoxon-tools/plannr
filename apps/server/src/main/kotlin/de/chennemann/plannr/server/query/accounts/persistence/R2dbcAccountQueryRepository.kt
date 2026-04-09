@@ -20,7 +20,8 @@ class R2dbcAccountQueryRepository(
                 currency_code = :currencyCode,
                 weekend_handling = :weekendHandling,
                 is_archived = :isArchived,
-                created_at = :createdAt
+                created_at = :createdAt,
+                current_balance = :currentBalance
             WHERE account_id = :accountId
             """.trimIndent(),
         )
@@ -31,6 +32,7 @@ class R2dbcAccountQueryRepository(
             .bind("weekendHandling", accountQuery.weekendHandling)
             .bind("isArchived", accountQuery.isArchived)
             .bind("createdAt", accountQuery.createdAt)
+            .bind("currentBalance", accountQuery.currentBalance)
             .fetch()
             .rowsUpdated()
             .awaitSingle()
