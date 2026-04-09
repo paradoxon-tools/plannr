@@ -30,58 +30,12 @@ data class RecurringTransaction private constructor(
     val createdAt: Long,
 ) {
     fun archive(finalOccurrenceDate: String? = this.finalOccurrenceDate): RecurringTransaction =
-        RecurringTransaction(
-            id = id,
-            contractId = contractId,
-            accountId = accountId,
-            sourcePocketId = sourcePocketId,
-            destinationPocketId = destinationPocketId,
-            partnerId = partnerId,
-            title = title,
-            description = description,
-            amount = amount,
-            currencyCode = currencyCode,
-            transactionType = transactionType,
-            firstOccurrenceDate = firstOccurrenceDate,
+        copy(
             finalOccurrenceDate = finalOccurrenceDate,
-            recurrenceType = recurrenceType,
-            skipCount = skipCount,
-            daysOfWeek = daysOfWeek,
-            weeksOfMonth = weeksOfMonth,
-            daysOfMonth = daysOfMonth,
-            monthsOfYear = monthsOfYear,
-            lastMaterializedDate = lastMaterializedDate,
-            previousVersionId = previousVersionId,
             isArchived = true,
-            createdAt = createdAt,
         )
 
-    fun unarchive(): RecurringTransaction =
-        RecurringTransaction(
-            id = id,
-            contractId = contractId,
-            accountId = accountId,
-            sourcePocketId = sourcePocketId,
-            destinationPocketId = destinationPocketId,
-            partnerId = partnerId,
-            title = title,
-            description = description,
-            amount = amount,
-            currencyCode = currencyCode,
-            transactionType = transactionType,
-            firstOccurrenceDate = firstOccurrenceDate,
-            finalOccurrenceDate = finalOccurrenceDate,
-            recurrenceType = recurrenceType,
-            skipCount = skipCount,
-            daysOfWeek = daysOfWeek,
-            weeksOfMonth = weeksOfMonth,
-            daysOfMonth = daysOfMonth,
-            monthsOfYear = monthsOfYear,
-            lastMaterializedDate = lastMaterializedDate,
-            previousVersionId = previousVersionId,
-            isArchived = false,
-            createdAt = createdAt,
-        )
+    fun unarchive(): RecurringTransaction = copy(isArchived = false)
 
     companion object {
         operator fun invoke(

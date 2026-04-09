@@ -12,29 +12,9 @@ data class Pocket private constructor(
     val isArchived: Boolean,
     val createdAt: Long,
 ) {
-    fun archive(): Pocket =
-        Pocket(
-            id = id,
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-            isArchived = true,
-            createdAt = createdAt,
-        )
+    fun archive(): Pocket = copy(isArchived = true)
 
-    fun unarchive(): Pocket =
-        Pocket(
-            id = id,
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-            isArchived = false,
-            createdAt = createdAt,
-        )
+    fun unarchive(): Pocket = copy(isArchived = false)
 
     companion object {
         operator fun invoke(

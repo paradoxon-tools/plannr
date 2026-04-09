@@ -16,33 +16,9 @@ data class Contract private constructor(
     val isArchived: Boolean,
     val createdAt: Long,
 ) {
-    fun archive(): Contract =
-        Contract(
-            id = id,
-            accountId = accountId,
-            pocketId = pocketId,
-            partnerId = partnerId,
-            name = name,
-            startDate = startDate,
-            endDate = endDate,
-            notes = notes,
-            isArchived = true,
-            createdAt = createdAt,
-        )
+    fun archive(): Contract = copy(isArchived = true)
 
-    fun unarchive(): Contract =
-        Contract(
-            id = id,
-            accountId = accountId,
-            pocketId = pocketId,
-            partnerId = partnerId,
-            name = name,
-            startDate = startDate,
-            endDate = endDate,
-            notes = notes,
-            isArchived = false,
-            createdAt = createdAt,
-        )
+    fun unarchive(): Contract = copy(isArchived = false)
 
     companion object {
         operator fun invoke(

@@ -11,27 +11,9 @@ data class Account private constructor(
     val isArchived: Boolean,
     val createdAt: Long,
 ) {
-    fun archive(): Account =
-        Account(
-            id = id,
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-            isArchived = true,
-            createdAt = createdAt,
-        )
+    fun archive(): Account = copy(isArchived = true)
 
-    fun unarchive(): Account =
-        Account(
-            id = id,
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-            isArchived = false,
-            createdAt = createdAt,
-        )
+    fun unarchive(): Account = copy(isArchived = false)
 
     companion object {
         operator fun invoke(
