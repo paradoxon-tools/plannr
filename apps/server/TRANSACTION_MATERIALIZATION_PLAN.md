@@ -1,0 +1,1142 @@
+# Transaction Materialization & Feed Projection Plan
+
+## Status legend
+
+- `[x]` done
+- `[ ]` not done
+- `[~]` in progress / partially done
+
+---
+
+## Goal
+
+Introduce a proper **transaction materialization layer** in the server so that:
+
+1. recurring transaction generation is separated from the query/read side,
+2. a single canonical transaction store contains both:
+   - manually created transactions,
+   - recurring-materialized transactions,
+   - modified recurring occurrences,
+3. account/pocket feeds are derived from that canonical store,
+4. read models can be optimized independently,
+5. projection synchronization is handled by scheduled/background processes,
+6. account and pocket balances **exclude future transactions**,
+7. future transactions are still queryable through dedicated read models.
+
+This plan reflects the current implementation analysis and the following agreed refinements:
+
+- use the legacy enums and semantics as the canonical model,
+- add `YEARLY` recurrence,
+- rely on `isArchived` instead of introducing `isActive`,
+- recurring versioning should not require `effectiveFromDate`,
+- old recurring versions end **inclusive** on their last generated occurrence,
+- future transactions must not affect current balances,
+- projection synchronization should be cron/background-job based,
+- the client should decide how much of the future horizon it wants to display.
+
+---
+
+## Architectural direction
+
+## Canonical write/materialization side
+
+The server will use a **canonical transaction ledger** as the source of truth for transaction history.
+
+### Recommendation
+
+Use the existing `transactions` table as the canonical ledger and evolve it to support:
+
+- manual transactions,
+- recurring-materialized transactions,
+- recurring occurrence modifications,
+- projection scheduling metadata if needed.
+
+This avoids introducing a second canonical transaction table that duplicates the meaning of `transactions`.
+
+### Canonical ledger responsibilities
+
+The canonical ledger will own:
+
+- transaction lifecycle,
+- visibility rules for modified recurring occurrences,
+- transaction status,
+- linkage to recurring templates,
+- recurrence materialization outputs,
+- source data for all read projections.
+
+## Query side
+
+The query side becomes fully derived and disposable:
+
+- account summary read model,
+- pocket summary read model,
+- account historical transaction feed,
+- pocket historical transaction feed,
+- account future transaction feed,
+- pocket future transaction feed.
+
+## Synchronization model
+
+Projection updates will no longer be required to happen synchronously in the command transaction.
+
+Instead:
+
+- command/materialization writes update the canonical ledger,
+- affected scopes are marked dirty,
+- scheduled projection jobs rebuild affected read models,
+- a periodic full rebuild job exists as a safety net.
+
+This creates a cleaner separation between:
+
+- transaction generation / mutation,
+- read optimization.
+
+---
+
+## Target domain model
+
+## Enums to adopt from legacy
+
+### TransactionStatus
+
+Use the legacy status model exactly:
+
+- `PENDING`
+- `CLEARED`
+- `RECONCILED`
+
+### TransactionType
+
+Use the legacy type model exactly:
+
+- `INCOME`
+- `EXPENSE`
+- `TRANSFER`
+
+### RecurrenceType
+
+Use the legacy recurrence model exactly:
+
+- `NONE`
+- `DAILY`
+- `WEEKLY`
+- `MONTHLY`
+- `YEARLY`
+
+### WeekendHandling
+
+Use the legacy weekend handling model exactly:
+
+- `NO_SHIFT`
+- `MOVE_BEFORE`
+- `MOVE_AFTER`
+
+---
+
+## Core design decisions
+
+### 1. Canonical transaction ledger contains manual + recurring-generated transactions
+
+- manual transactions are written directly by transaction use cases,
+- recurring materialization creates normal transaction rows in the same ledger,
+- modified recurring occurrences are represented as linked transactions in the same ledger.
+
+### 2. Future transactions do not affect current balances
+
+- `account_query.current_balance` is computed from canonical transactions with `transaction_date <= today`,
+- `pocket_query.current_balance` is computed from canonical transactions with `transaction_date <= today`.
+
+### 3. Future transactions get separate feeds
+
+Recommended design:
+
+- keep historical/current feeds separate from future feeds,
+- project future transactions into dedicated read models,
+- include projected balances on future feed rows,
+- allow client-controlled range queries against future feeds.
+
+This is preferred over mixing future rows into the normal feeds because:
+
+- `current_balance` stays aligned with the latest historical row,
+- pagination semantics remain simple,
+- the client can opt in to future data explicitly,
+- future horizon can be extended independently.
+
+### 4. Recurring template archival replaces active flag
+
+- archived recurring templates are ignored by materialization,
+- no separate `isActive` flag is introduced.
+
+### 5. Recurring versioning is start-date driven
+
+No `effectiveFromDate` is required.
+
+Instead:
+
+- a new version is created with its own `firstOccurrenceDate`,
+- the previous version is closed by setting its `finalOccurrenceDate` to the **last occurrence strictly before** the new version's first occurrence,
+- old version end remains inclusive.
+
+Example:
+
+- old monthly version occurs on the 15th,
+- new version starts on `2025-06-15`,
+- old version ends on `2025-05-15`.
+
+### 6. Projection synchronization is asynchronous
+
+- command-side writes stay transactional against canonical tables,
+- feed/query projections are rebuilt asynchronously from canonical state,
+- correctness is ensured by idempotent rebuild logic and background jobs.
+
+---
+
+## Open decision: recurring template scoping columns
+
+There is still one explicit design decision to close:
+
+### Should `recurring_transactions.account_id` and `contract_id` remain persisted?
+
+They are technically derivable from the referenced pocket/contract relationship, but still useful for filtering and indexing.
+
+### Recommendation
+
+- treat them as **derived/query-support columns**, not source-of-truth invariants,
+- do not rely on them when validating business correctness,
+- keep them only if query patterns clearly benefit.
+
+### Verification task
+
+- `[ ]` Decide whether `account_id` remains in `recurring_transactions` as a derived/indexed column.
+- `[ ]` Decide whether `contract_id` remains in `recurring_transactions` as a derived/indexed column.
+- `[ ]` If retained, document that pocket/account/contract relationships remain the true invariants.
+- `[ ]` Add tests proving derived columns cannot drift from canonical relationships.
+
+Acceptance criteria:
+
+- one documented decision exists,
+- schema, repository mapping, and use case validation are consistent with that decision,
+- tests cover either the retained-column path or the removed-column path.
+
+---
+
+## Implementation phases
+
+# Phase 0 - freeze target semantics
+
+## 0.1 Finalize enum vocabulary and normalization
+
+- `[ ]` Replace free-form transaction `type` strings with the legacy enum vocabulary.
+- `[ ]` Replace free-form transaction `status` strings with the legacy enum vocabulary.
+- `[ ]` Replace free-form recurring `recurrenceType` strings with the legacy enum vocabulary.
+- `[ ]` Replace server weekend handling strings with the legacy enum vocabulary.
+- `[ ]` Normalize API payloads and persistence mappings to use one canonical casing strategy.
+
+Verification:
+
+- `[ ]` Domain tests reject non-enum values.
+- `[ ]` API tests reject invalid enum values.
+- `[ ]` persistence round-trip tests prove enum mapping is stable.
+
+## 0.2 Lock balance semantics
+
+- `[ ]` Define `current_balance` as balance using only `transaction_date <= today`.
+- `[ ]` Define future feed balances as projections that start from `current_balance` and accumulate future transactions only.
+- `[ ]` Document that future transactions never alter `current_balance`.
+
+Verification:
+
+- `[ ]` summary projection tests prove future transactions do not change `current_balance`.
+- `[ ]` future feed tests prove projected balances still include future transactions in order.
+
+## 0.3 Lock visibility semantics for modified recurring occurrences
+
+Adopt the legacy visibility rules:
+
+A transaction is visible if:
+
+- it is not archived,
+- it is not a hidden original replaced by a modification,
+- it is not a split child,
+- modified recurring occurrences remain visible.
+
+- `[ ]` Document the canonical visibility SQL/logic for the server.
+- `[ ]` Refactor repository/query code so visibility logic is centralized.
+
+Verification:
+
+- `[ ]` modified occurrence tests prove originals are hidden and modifications are visible.
+- `[ ]` split-child tests still behave correctly if split support remains relevant.
+
+---
+
+# Phase 1 - strengthen the canonical transaction ledger
+
+## 1.1 Evolve `transactions` into the materialized transaction ledger
+
+- `[ ]` Confirm the existing `transactions` table is the canonical materialized ledger.
+- `[ ]` Add or refine columns needed for materialization and tracing.
+- `[ ]` Preserve these link fields:
+  - `[ ]` `parent_transaction_id`
+  - `[ ]` `recurring_transaction_id`
+  - `[ ]` `modified_by_id`
+- `[ ]` Decide whether to add a `transaction_origin` column with values like:
+  - `MANUAL`
+  - `RECURRING_MATERIALIZED`
+  - `RECURRING_MODIFICATION`
+- `[ ]` Add indexes needed for materialization, visibility, and future feed projection.
+
+Recommended additional indexes:
+
+- `(account_id, transaction_date, created_at, id)`
+- `(source_pocket_id, transaction_date, created_at, id)`
+- `(destination_pocket_id, transaction_date, created_at, id)`
+- `(recurring_transaction_id, transaction_date)`
+- `(parent_transaction_id)`
+- `(modified_by_id)`
+
+Verification:
+
+- `[ ]` migration tests apply cleanly on an empty schema.
+- `[ ]` migration tests apply cleanly over current server schema.
+- `[ ]` repository tests verify all new columns round-trip.
+
+## 1.2 Enforce recurrence duplicate protection at the database level
+
+- `[ ]` Add a unique constraint or partial unique index that prevents duplicate canonical occurrence rows for the same recurring template and occurrence date.
+- `[ ]` Ensure modified child transactions do not violate that constraint.
+- `[ ]` Ensure archived originals still preserve duplicate-prevention semantics.
+
+Recommended invariant:
+
+- one root occurrence row per `(recurring_transaction_id, transaction_date)` where `parent_transaction_id IS NULL`.
+
+Verification:
+
+- `[ ]` duplicate materialization tests fail at DB level if code regresses.
+- `[ ]` modified occurrence tests still succeed with the constraint in place.
+
+## 1.3 Implement canonical visibility-aware repository methods
+
+- `[ ]` Replace simple `is_archived = FALSE` transaction reads with visibility-aware queries.
+- `[ ]` Introduce repository methods for:
+  - `[ ]` visible transactions by account
+  - `[ ]` visible transactions by pocket
+  - `[ ]` visible transactions by recurring template
+  - `[ ]` visible pending transactions
+  - `[ ]` visible future transactions by account/pocket/date range
+
+Verification:
+
+- `[ ]` repository tests prove hidden originals are excluded.
+- `[ ]` repository tests prove modified occurrences are included.
+- `[ ]` repository tests prove archived rows are excluded.
+
+---
+
+# Phase 2 - recurring template model and recurrence engine
+
+## 2.1 Extend recurring template model to full legacy recurrence support
+
+- `[ ]` Add `YEARLY` recurrence type support.
+- `[ ]` Add transient support for `maxRecurrenceCount` normalization on create/update requests.
+- `[ ]` Keep `finalOccurrenceDate` persisted as the normalized inclusive end date.
+- `[ ]` Normalize selector lists:
+  - `[ ]` sorted
+  - `[ ]` duplicate-free
+  - `[ ]` null when empty
+
+Verification:
+
+- `[ ]` domain tests cover all selector combinations.
+- `[ ]` request mapping tests prove normalization before persistence.
+- `[ ]` persistence tests prove normalized storage is stable.
+
+## 2.2 Introduce recurrence domain package in the server
+
+Create a dedicated recurrence domain similar in capability to legacy:
+
+- `[ ]` `RecurrencePattern`
+- `[ ]` `RecurrenceCalculator`
+- `[ ]` `NoRecurrence`
+- `[ ]` `DailyRecurrence`
+- `[ ]` `WeeklyRecurrence`
+- `[ ]` `MonthlyRecurrence`
+- `[ ]` `YearlyRecurrence`
+
+Required supported behavior:
+
+- `[ ]` skip counts
+- `[ ]` weekly multi-day patterns
+- `[ ]` monthly day-of-month selectors
+- `[ ]` negative day-of-month selectors
+- `[ ]` week-of-month selectors
+- `[ ]` negative week-of-month selectors
+- `[ ]` month restrictions
+- `[ ]` leap-year clamping for yearly recurrences
+- `[ ]` max-count normalization to `finalOccurrenceDate`
+
+Verification:
+
+- `[ ]` port/adapt the legacy recurrence test matrix to server-side unit tests.
+- `[ ]` prove deterministic date generation across all recurrence types.
+
+## 2.3 Decide recurring selector storage format
+
+Current server stores selectors as comma-separated strings.
+
+Recommended upgrade:
+
+- `[ ]` decide whether to keep CSV or migrate to canonical JSON/text array storage.
+- `[ ]` prefer a format that is deterministic and easy to normalize.
+
+Verification:
+
+- `[ ]` persistence tests prove sorted, duplicate-free storage.
+- `[ ]` migration tests prove old rows are migrated correctly.
+
+---
+
+# Phase 3 - recurring versioning and update model
+
+## 3.1 Replace `effective_from` semantics with start-date-driven versioning
+
+- `[ ]` remove or deprecate `effectiveFromDate` from the recurring update API.
+- `[ ]` replace `effective_from` update mode with a clearer "new version starting at date X" behavior.
+- `[ ]` retain `previousVersionId` or equivalent lineage tracking.
+
+Verification:
+
+- `[ ]` API tests prove no `effectiveFromDate` is required.
+- `[ ]` lineage tests prove the new version points to the previous one.
+
+## 3.2 Implement closing of old versions by predecessor occurrence
+
+When a new recurring version starts on date `D`:
+
+- calculate the old version's last occurrence strictly before `D`,
+- store that occurrence as the old version's inclusive `finalOccurrenceDate`,
+- reject the operation if the resulting version boundary would be invalid.
+
+- `[ ]` Implement predecessor-occurrence calculation.
+- `[ ]` Update version-creation use case to close old versions using that calculation.
+- `[ ]` Reject overlapping versions in the same version chain.
+
+Verification:
+
+- `[ ]` monthly versioning tests prove `2025-06-15` start closes old monthly version at `2025-05-15`.
+- `[ ]` weekly tests prove correct predecessor selection.
+- `[ ]` yearly tests prove correct predecessor selection.
+- `[ ]` overlap tests reject invalid boundaries.
+
+## 3.3 Decide which recurring update modes remain
+
+Current server has:
+
+- `overwrite`
+- `parallel`
+- `effective_from`
+
+Recommended target:
+
+- keep only modes that are easy to reason about and test.
+
+Suggested direction:
+
+- `[ ]` retain `overwrite` only for same-template edits where no version split is needed,
+- `[ ]` replace `effective_from` with explicit new-version creation using `firstOccurrenceDate`,
+- `[ ]` keep `parallel` only if there is a real business need for overlapping templates.
+
+Verification:
+
+- `[ ]` one documented decision exists.
+- `[ ]` API tests reflect only supported modes.
+- `[ ]` unsupported mode tests fail with validation errors.
+
+---
+
+# Phase 4 - recurring materialization service
+
+## 4.1 Build a server-side materializer
+
+Introduce a dedicated service, e.g. `RecurringTransactionMaterializer`, responsible for writing canonical transaction rows.
+
+Responsibilities:
+
+- `[ ]` find non-archived recurring templates,
+- `[ ]` calculate materialization targets,
+- `[ ]` create missing root occurrence transactions,
+- `[ ]` skip already materialized occurrences,
+- `[ ]` skip occurrences already represented by modified chains,
+- `[ ]` update `lastMaterializedDate`.
+
+Verification:
+
+- `[ ]` materializer unit tests cover duplicate skipping.
+- `[ ]` materializer integration tests verify inserted canonical rows.
+
+## 4.2 Implement future horizon policy
+
+Agreed target behavior:
+
+- always materialize all occurrences needed to cover the **full next calendar month**,
+- or at least the **next 5 future occurrences**,
+- whichever yields the broader useful future set.
+
+Recommended interpretation:
+
+- materialize enough future occurrences so both conditions are satisfied:
+  - coverage through the end of next calendar month,
+  - at least 5 future visible occurrences if the recurrence is sparse.
+
+Tasks:
+
+- `[ ]` Define the exact horizon algorithm in code and docs.
+- `[ ]` Implement horizon calculation for all recurrence types.
+- `[ ]` Ensure yearly/sparse recurrences still produce useful future data.
+
+Verification:
+
+- `[ ]` daily tests prove next calendar month is fully covered.
+- `[ ]` monthly tests prove full next month is covered.
+- `[ ]` yearly tests prove at least 5 future occurrences are materialized when next month would otherwise be too small.
+- `[ ]` sparse recurrence tests prove the minimum-occurrence rule works.
+
+## 4.3 Apply weekend handling during materialization
+
+- `[ ]` Load account weekend handling for the recurring template scope.
+- `[ ]` Adjust materialized transaction dates according to `NO_SHIFT`, `MOVE_BEFORE`, `MOVE_AFTER`.
+- `[ ]` Ensure duplicate checks use the final materialized date consistently.
+
+Verification:
+
+- `[ ]` Saturday/Sunday materialization tests for all 3 weekend modes.
+- `[ ]` duplicate tests for shifted dates.
+
+## 4.4 Materialize transactions with canonical status and linkage
+
+For materialized transactions:
+
+- status must be `PENDING`,
+- type must use canonical enum values,
+- `recurring_transaction_id` must be populated,
+- linkage fields must be correct,
+- manual transactions must remain unaffected.
+
+- `[ ]` Implement canonical row creation from recurring templates.
+- `[ ]` Preserve partner/source/destination pocket linkage.
+- `[ ]` Decide whether description is copied from title or kept separately.
+
+Verification:
+
+- `[ ]` field-level integration tests for created rows.
+- `[ ]` status tests prove materialized rows are always `PENDING`.
+
+## 4.5 Update `lastMaterializedDate`
+
+- `[ ]` Update `lastMaterializedDate` to the latest successfully materialized occurrence.
+- `[ ]` Ensure idempotent reruns do not regress the value.
+- `[ ]` Ensure archived templates are skipped.
+
+Verification:
+
+- `[ ]` tests prove `lastMaterializedDate` advances correctly.
+- `[ ]` rerun tests prove it does not drift backward.
+
+---
+
+# Phase 5 - modified recurring occurrences
+
+## 5.1 Introduce dedicated use case for modifying a recurring occurrence
+
+Add a dedicated command, e.g. `ModifyRecurringOccurrence`, instead of overloading generic update behavior.
+
+Expected behavior:
+
+1. keep the original root occurrence row,
+2. set original `modified_by_id` to the new modification,
+3. create a new child transaction row,
+4. set child `parent_transaction_id` to the original,
+5. copy `recurring_transaction_id` to the child,
+6. child becomes the visible transaction.
+
+Tasks:
+
+- `[ ]` Add use case and API contract for occurrence modification.
+- `[ ]` Prevent duplicate modification chains from being created accidentally.
+- `[ ]` Ensure only recurring-materialized root occurrences can be modified this way.
+
+Verification:
+
+- `[ ]` use case tests prove original/child linkage.
+- `[ ]` visibility tests prove original becomes hidden.
+- `[ ]` repeat-modification tests prove expected behavior is enforced.
+
+## 5.2 Make materializer aware of modified occurrences
+
+- `[ ]` Detect that an occurrence is already represented when a root occurrence exists and/or has a modification chain.
+- `[ ]` Do not materialize duplicates for dates already covered by an existing root occurrence.
+
+Verification:
+
+- `[ ]` materialization tests prove modified occurrences block duplicate rematerialization.
+
+---
+
+# Phase 6 - projection scheduling infrastructure
+
+## 6.1 Introduce dirty-scope tracking for projections
+
+Recommended mechanism:
+
+- a table such as `projection_dirty_scope` with scope type and scope id,
+- command-side writes mark affected account/pocket scopes dirty,
+- scheduler consumes dirty scopes and rebuilds projections.
+
+Tasks:
+
+- `[ ]` Create dirty-scope table.
+- `[ ]` Mark account scope dirty on transaction create/update/archive/unarchive/materialization.
+- `[ ]` Mark source and destination pocket scopes dirty when affected.
+- `[ ]` Mark metadata-related scopes dirty when pocket/partner/account metadata changes.
+
+Verification:
+
+- `[ ]` tests prove all relevant write flows enqueue dirty scopes.
+- `[ ]` duplicate dirty marks are deduplicated safely.
+
+## 6.2 Implement scheduled projection job
+
+- `[ ]` Add a scheduled job that processes dirty scopes on a short interval.
+- `[ ]` Rebuild only affected account/pocket read models.
+- `[ ]` Make the job idempotent.
+- `[ ]` Ensure failures leave scopes dirty for retry.
+
+Verification:
+
+- `[ ]` scheduler tests prove dirty scopes are consumed.
+- `[ ]` failure tests prove retry behavior.
+
+## 6.3 Add periodic full rebuild safety job
+
+- `[ ]` Add a cron-driven full rebuild job for all transaction-derived projections.
+- `[ ]` Keep it safe to rerun repeatedly.
+- `[ ]` Add observability/logging around rebuild duration and counts.
+
+Verification:
+
+- `[ ]` deterministic rebuild tests prove repeat rebuilds produce identical results.
+- `[ ]` integration test proves a full rebuild can recover from intentionally stale/missing feed rows.
+
+---
+
+# Phase 7 - account and pocket transaction read models
+
+## 7.1 Preserve current/historical feeds for `transaction_date <= today`
+
+- `[ ]` Keep `account_transaction_feed` for current+historical rows only.
+- `[ ]` Keep `pocket_transaction_feed` for current+historical rows only.
+- `[ ]` Rebuild these feeds from canonical visible transactions with `transaction_date <= today`.
+- `[ ]` Keep deterministic `history_position` ordering.
+- `[ ]` Keep running `balance_after` values.
+
+Verification:
+
+- `[ ]` current balances equal latest historical feed row balance.
+- `[ ]` future canonical transactions do not appear in historical feeds.
+
+## 7.2 Introduce future feed tables
+
+Recommended new read models:
+
+- `[ ]` `account_future_transaction_feed`
+- `[ ]` `pocket_future_transaction_feed`
+
+Suggested fields:
+
+- scope ids (`account_id` / `pocket_id`)
+- `transaction_id`
+- `future_position`
+- `transaction_date`
+- `type`
+- `status`
+- `description`
+- `transaction_amount`
+- `signed_amount`
+- `projected_balance_after`
+- denormalized pocket/partner display fields
+- optional `is_future_transaction = TRUE`
+
+Tasks:
+
+- `[ ]` create future feed schema,
+- `[ ]` add repositories,
+- `[ ]` add projection logic,
+- `[ ]` add date-range query support,
+- `[ ]` add pagination support appropriate for future ordering.
+
+Verification:
+
+- `[ ]` future feed tests prove only `transaction_date > today` rows are included.
+- `[ ]` projected balances start from current balance and accumulate future rows correctly.
+- `[ ]` same-account transfer tests prove account projected balance stays neutral while pocket projections change.
+
+## 7.3 Keep current and future feeds independent
+
+- `[ ]` ensure historical feed rebuild does not rely on future feed tables,
+- `[ ]` ensure future feed rebuild does not mutate `current_balance`,
+- `[ ]` ensure both feeds can be rebuilt independently or together.
+
+Verification:
+
+- `[ ]` tests prove deleting future feed rows and rebuilding them does not affect historical feed rows.
+- `[ ]` tests prove deleting historical feed rows and rebuilding them does not affect future feed rows.
+
+---
+
+# Phase 8 - summary read models
+
+## 8.1 Update account summary projection
+
+- `[ ]` compute `account_query.current_balance` from canonical visible transactions with `transaction_date <= today`.
+- `[ ]` keep metadata projection behavior.
+- `[ ]` keep archive-state projection behavior.
+
+Verification:
+
+- `[ ]` tests prove future transactions do not alter `account_query.current_balance`.
+- `[ ]` tests prove metadata changes remain projected correctly.
+
+## 8.2 Update pocket summary projection
+
+- `[ ]` compute `pocket_query.current_balance` from canonical visible transactions with `transaction_date <= today`.
+- `[ ]` keep metadata projection behavior.
+- `[ ]` keep archive-state projection behavior.
+
+Verification:
+
+- `[ ]` tests prove future transactions do not alter `pocket_query.current_balance`.
+- `[ ]` tests prove metadata changes remain projected correctly.
+
+---
+
+# Phase 9 - API changes
+
+## 9.1 Transaction ingress API
+
+- `[ ]` align transaction request/response DTOs with legacy enums.
+- `[ ]` expose linkage fields where useful:
+  - `[ ]` `parentTransactionId`
+  - `[ ]` `recurringTransactionId`
+  - `[ ]` `modifiedById`
+- `[ ]` decide whether to expose `transactionOrigin`.
+
+Verification:
+
+- `[ ]` API integration tests cover normal, materialized, and modified occurrence rows.
+
+## 9.2 Recurring transaction API
+
+- `[ ]` add `YEARLY` recurrence support to request validation.
+- `[ ]` add transient `maxRecurrenceCount` input support.
+- `[ ]` remove/deprecate `effectiveFromDate` if versioning is replaced.
+- `[ ]` expose lineage fields if they remain part of the model.
+
+Verification:
+
+- `[ ]` create/update recurring API tests cover all recurrence types.
+- `[ ]` version-creation tests prove boundary calculation works.
+
+## 9.3 Query API
+
+- `[ ]` keep historical feed endpoints:
+  - `[ ]` `GET /query/accounts/{id}/transactions`
+  - `[ ]` `GET /query/pockets/{id}/transactions`
+- `[ ]` add future feed endpoints, e.g.:
+  - `[ ]` `GET /query/accounts/{id}/future-transactions`
+  - `[ ]` `GET /query/pockets/{id}/future-transactions`
+- `[ ]` support client-controlled date range / limit for future feeds.
+
+Verification:
+
+- `[ ]` API tests prove historical and future feeds are clearly separated.
+- `[ ]` API tests prove future date range filtering works.
+
+---
+
+# Phase 10 - migration and backfill
+
+## 10.1 Schema migrations
+
+- `[ ]` create migrations for enum normalization changes.
+- `[ ]` create migrations for recurring template schema changes.
+- `[ ]` create migrations for future feed tables.
+- `[ ]` create migrations for dirty-scope/projection infrastructure.
+- `[ ]` create migrations for new indexes/constraints.
+
+Verification:
+
+- `[ ]` migration tests run from empty schema.
+- `[ ]` migration tests run from current repository schema state.
+
+## 10.2 Data backfill
+
+- `[ ]` backfill enum values where current strings differ from legacy vocabulary.
+- `[ ]` backfill recurring template rows to normalized selector storage.
+- `[ ]` backfill read models from canonical transactions after migration.
+
+Verification:
+
+- `[ ]` backfill tests prove canonical transactions project correctly after migration.
+
+---
+
+## Suggested task order
+
+## Step A - semantics and invariants
+
+- `[ ]` finalize enum vocabulary
+- `[ ]` finalize visibility rules
+- `[ ]` finalize current-balance semantics
+- `[ ]` decide recurring `account_id` / `contract_id` retention
+
+## Step B - canonical ledger and recurrence engine
+
+- `[ ]` strengthen `transactions` as canonical ledger
+- `[ ]` add duplicate-prevention constraints
+- `[ ]` implement recurrence engine with `YEARLY`
+- `[ ]` implement recurring template normalization
+
+## Step C - recurring generation
+
+- `[ ]` implement materializer
+- `[ ]` implement version-splitting by new `firstOccurrenceDate`
+- `[ ]` implement modified occurrence use case
+
+## Step D - async projection pipeline
+
+- `[ ]` add dirty-scope tracking
+- `[ ]` add scheduled targeted rebuild job
+- `[ ]` add full rebuild safety job
+
+## Step E - future read models
+
+- `[ ]` rebuild current/historical feeds from canonical `<= today`
+- `[ ]` add future feed read models
+- `[ ]` update summary balances
+- `[ ]` add future feed APIs
+
+## Step F - migration hardening
+
+- `[ ]` backfill old data
+- `[ ]` run full regression suite
+- `[ ]` run deterministic rebuild checks
+
+---
+
+## Extensive test plan
+
+The list below is intentionally broad. Each item should become an automated test unless explicitly documented otherwise.
+
+# A. Enum and validation tests
+
+## Transaction enums
+
+- `[ ]` reject unknown `TransactionType`
+- `[ ]` reject unknown `TransactionStatus`
+- `[ ]` accept `INCOME`
+- `[ ]` accept `EXPENSE`
+- `[ ]` accept `TRANSFER`
+- `[ ]` accept `PENDING`
+- `[ ]` accept `CLEARED`
+- `[ ]` accept `RECONCILED`
+
+## Recurrence enums
+
+- `[ ]` reject unknown `RecurrenceType`
+- `[ ]` accept `NONE`
+- `[ ]` accept `DAILY`
+- `[ ]` accept `WEEKLY`
+- `[ ]` accept `MONTHLY`
+- `[ ]` accept `YEARLY`
+
+## Weekend handling enums
+
+- `[ ]` reject unknown `WeekendHandling`
+- `[ ]` accept `NO_SHIFT`
+- `[ ]` accept `MOVE_BEFORE`
+- `[ ]` accept `MOVE_AFTER`
+
+# B. Recurrence engine tests
+
+## Common
+
+- `[ ]` negative `skipCount` rejected
+- `[ ]` `finalOccurrenceDate < firstOccurrenceDate` handled correctly
+- `[ ]` max-count normalization derives final date correctly
+- `[ ]` explicit final date overrides max-count input
+
+## NONE
+
+- `[ ]` emits only first date
+- `[ ]` emits nothing if final date is before first date
+
+## DAILY
+
+- `[ ]` daily recurrence with `skipCount = 0`
+- `[ ]` daily recurrence with `skipCount = 1`
+- `[ ]` daily recurrence honors final date
+
+## WEEKLY
+
+- `[ ]` weekly default weekday when `daysOfWeek` absent
+- `[ ]` weekly multiple weekdays in ascending order
+- `[ ]` weekly skip whole weeks
+- `[ ]` weekly first emitted date moves forward to next matching day
+
+## MONTHLY
+
+- `[ ]` monthly default day-of-month behavior
+- `[ ]` monthly `daysOfMonth` precedence
+- `[ ]` negative `daysOfMonth` support
+- `[ ]` `weeksOfMonth + daysOfWeek` support
+- `[ ]` negative `weeksOfMonth` support
+- `[ ]` month restrictions
+- `[ ]` clamping to month length
+
+## YEARLY
+
+- `[ ]` yearly same-date recurrence
+- `[ ]` leap-day clamping to Feb 28 in non-leap years
+- `[ ]` yearly with month restrictions
+- `[ ]` yearly with days-of-month restrictions
+- `[ ]` yearly with skip count
+
+# C. Recurring template persistence tests
+
+- `[ ]` create recurring template with yearly recurrence
+- `[ ]` normalize unordered selector lists on save
+- `[ ]` store null for empty selector lists
+- `[ ]` persist normalized final date from max-count input
+- `[ ]` round-trip all recurrence selectors
+- `[ ]` archived template excluded from materialization queries
+
+# D. Recurring versioning tests
+
+- `[ ]` new version starting on monthly occurrence closes old version at prior monthly occurrence
+- `[ ]` new weekly version closes prior version at correct predecessor weekday
+- `[ ]` new yearly version closes prior version at correct predecessor occurrence
+- `[ ]` reject overlapping versions
+- `[ ]` allow non-overlapping versions in same chain
+- `[ ]` preserve lineage via `previousVersionId`
+
+# E. Materialization tests
+
+## Canonical creation
+
+- `[ ]` materialize daily recurring expense into canonical transaction row
+- `[ ]` materialize income into canonical transaction row
+- `[ ]` materialize transfer into canonical transaction row
+- `[ ]` materialized transaction status is `PENDING`
+- `[ ]` manual transaction status is not forced to `PENDING`
+
+## Duplicate handling
+
+- `[ ]` duplicate run does not create duplicate root occurrences
+- `[ ]` DB constraint prevents duplicate occurrence rows
+- `[ ]` modified occurrence blocks duplicate rematerialization
+
+## Horizon logic
+
+- `[ ]` full next calendar month is materialized for dense recurrences
+- `[ ]` at least 5 future occurrences are materialized for sparse recurrences
+- `[ ]` yearly recurrence gets 5 future occurrences when next month would otherwise add too little
+- `[ ]` one-off recurrence only materializes once
+
+## Weekend handling
+
+- `[ ]` `NO_SHIFT` leaves Saturday unchanged
+- `[ ]` `MOVE_BEFORE` shifts Saturday to Friday
+- `[ ]` `MOVE_BEFORE` shifts Sunday to Friday
+- `[ ]` `MOVE_AFTER` shifts Saturday to Monday
+- `[ ]` `MOVE_AFTER` shifts Sunday to Monday
+
+## `lastMaterializedDate`
+
+- `[ ]` advances after successful materialization
+- `[ ]` does not advance when nothing new is materialized
+- `[ ]` remains stable on idempotent reruns
+
+# F. Modified occurrence tests
+
+- `[ ]` modifying recurring occurrence creates child transaction
+- `[ ]` original root gets `modified_by_id`
+- `[ ]` child gets `parent_transaction_id`
+- `[ ]` child keeps `recurring_transaction_id`
+- `[ ]` root becomes invisible in visible queries
+- `[ ]` child becomes visible in visible queries
+- `[ ]` future reruns do not recreate original occurrence for same date
+
+# G. Visibility tests
+
+- `[ ]` archived transaction excluded from visible queries
+- `[ ]` hidden original excluded from visible queries
+- `[ ]` modified child included in visible queries
+- `[ ]` split child excluded if split semantics remain supported
+- `[ ]` root recurring occurrence included when not modified
+
+# H. Historical/current feed projection tests
+
+## Account feed
+
+- `[ ]` includes only `transaction_date <= today`
+- `[ ]` excludes future canonical transactions
+- `[ ]` orders by deterministic history position descending
+- `[ ]` running balances are correct after historic inserts
+- `[ ]` running balances are correct after historic updates
+- `[ ]` running balances are correct after historic archives
+- `[ ]` same-account transfer has account `signed_amount = 0`
+- `[ ]` account latest historical row balance equals `account_query.current_balance`
+
+## Pocket feed
+
+- `[ ]` includes only `transaction_date <= today`
+- `[ ]` excludes future canonical transactions
+- `[ ]` running balances are correct for outgoing transactions
+- `[ ]` running balances are correct for incoming transactions
+- `[ ]` transfer source row is negative
+- `[ ]` transfer destination row is positive
+- `[ ]` latest historical row balance equals `pocket_query.current_balance`
+
+# I. Future feed projection tests
+
+## Account future feed
+
+- `[ ]` includes only `transaction_date > today`
+- `[ ]` future rows are ordered ascending by date/position
+- `[ ]` projected balances start from current account balance
+- `[ ]` same-account transfers keep account projected balance neutral
+- `[ ]` date-range query returns only requested future rows
+
+## Pocket future feed
+
+- `[ ]` includes only `transaction_date > today`
+- `[ ]` projected balances start from current pocket balance
+- `[ ]` future transfer source row decreases projected balance
+- `[ ]` future transfer destination row increases projected balance
+- `[ ]` date-range query returns only requested future rows
+
+# J. Summary projection tests
+
+- `[ ]` account current balance ignores all future canonical rows
+- `[ ]` pocket current balance ignores all future canonical rows
+- `[ ]` current balance includes today's rows
+- `[ ]` current balance excludes tomorrow's rows
+- `[ ]` metadata projection still updates summaries correctly
+
+# K. Dirty-scope and scheduler tests
+
+- `[ ]` create transaction marks account scope dirty
+- `[ ]` create transaction marks source pocket scope dirty
+- `[ ]` create transfer marks both pockets dirty
+- `[ ]` update transaction marks old and new scopes dirty
+- `[ ]` archive transaction marks affected scopes dirty
+- `[ ]` materialization marks affected scopes dirty
+- `[ ]` projection job rebuilds and clears dirty scopes
+- `[ ]` failed projection leaves dirty scopes for retry
+- `[ ]` repeated projector runs are idempotent
+
+# L. Full rebuild tests
+
+- `[ ]` deleting all feeds and running full rebuild restores historical feeds
+- `[ ]` deleting all future feeds and running full rebuild restores future feeds
+- `[ ]` deleting summaries and running full rebuild restores balances
+- `[ ]` two full rebuilds in a row produce identical rows
+
+# M. API integration tests
+
+## Transactions API
+
+- `[ ]` create manual transaction with canonical enums
+- `[ ]` update manual transaction with canonical enums
+- `[ ]` archive/unarchive manual transaction
+- `[ ]` modify recurring occurrence through dedicated endpoint/use case
+
+## Recurring API
+
+- `[ ]` create yearly recurring transaction
+- `[ ]` create recurring transaction with max-count normalization
+- `[ ]` create recurring version with new first occurrence date
+- `[ ]` archive recurring transaction excludes it from materialization
+
+## Query API
+
+- `[ ]` historical account feed excludes future rows
+- `[ ]` historical pocket feed excludes future rows
+- `[ ]` future account feed returns future rows only
+- `[ ]` future pocket feed returns future rows only
+- `[ ]` future feed date range works
+- `[ ]` current summary balances stay stable while future feed still grows
+
+# N. Regression tests from current server behavior
+
+- `[ ]` historical inserts still rewrite account feed positions correctly
+- `[ ]` historical updates still rewrite pocket feed positions correctly
+- `[ ]` metadata propagation for partner rename still works
+- `[ ]` metadata propagation for pocket rename/color still works
+- `[ ]` rollback tests still prove failed projections do not partially commit query rows
+
+---
+
+## Deliverables checklist
+
+### Architecture and domain
+
+- `[ ]` recurring/materialization design documented
+- `[ ]` canonical enums implemented
+- `[ ]` visibility semantics centralized
+
+### Persistence
+
+- `[ ]` canonical transaction ledger hardened
+- `[ ]` recurring schema upgraded
+- `[ ]` future feed tables created
+- `[ ]` dirty-scope table created
+
+### Use cases and services
+
+- `[ ]` recurrence engine implemented
+- `[ ]` recurring versioning implemented
+- `[ ]` materializer implemented
+- `[ ]` modified occurrence use case implemented
+- `[ ]` async projection scheduler implemented
+
+### Query side
+
+- `[ ]` historical feeds rebuilt from canonical ledger
+- `[ ]` future feeds implemented
+- `[ ]` current balances exclude future rows
+
+### Quality
+
+- `[ ]` migration suite updated
+- `[ ]` unit tests added
+- `[ ]` repository tests added
+- `[ ]` integration tests added
+- `[ ]` deterministic rebuild tests added
+- `[ ]` rollback/retry tests added
+
+---
+
+## Recommended first milestone
+
+A good first milestone is:
+
+- `[ ]` canonical enums adopted
+- `[ ]` visibility-aware canonical transaction repository implemented
+- `[ ]` recurrence engine with `YEARLY` implemented
+- `[ ]` materializer creates canonical `PENDING` transactions
+- `[ ]` current balances ignore future rows
+- `[ ]` future feed tables exist and can be rebuilt from canonical transactions
+
+This milestone would prove the core architecture before finishing every API and migration detail.
