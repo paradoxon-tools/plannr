@@ -1,0 +1,4 @@
+[submodule "reference/plannr-legacy"]
+	path = reference/plannr-legacy
+	url = https://github.com/chennemann/plannr
+	branch = develop
