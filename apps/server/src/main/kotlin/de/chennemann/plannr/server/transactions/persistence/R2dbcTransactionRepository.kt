@@ -97,6 +97,15 @@ class R2dbcTransactionRepository(
             pocketId,
         )
 
+    override suspend fun findByRecurringTransactionId(recurringTransactionId: String): List<TransactionRecord> =
+        findAll(
+            """
+            WHERE t.recurring_transaction_id = :scopeId
+            ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
+            """.trimIndent(),
+            recurringTransactionId,
+        )
+
     override suspend fun findVisibleByRecurringTransactionId(recurringTransactionId: String): List<TransactionRecord> =
         findAll(
             """

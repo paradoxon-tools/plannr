@@ -453,17 +453,17 @@ Introduce a dedicated service, e.g. `RecurringTransactionMaterializer`, responsi
 
 Responsibilities:
 
-- `[ ]` find non-archived recurring templates,
-- `[ ]` calculate materialization targets,
-- `[ ]` create missing root occurrence transactions,
-- `[ ]` skip already materialized occurrences,
-- `[ ]` skip occurrences already represented by modified chains,
-- `[ ]` update `lastMaterializedDate`.
+- `[x]` find non-archived recurring templates,
+- `[x]` calculate materialization targets,
+- `[x]` create missing root occurrence transactions,
+- `[x]` skip already materialized occurrences,
+- `[x]` skip occurrences already represented by modified chains,
+- `[x]` update `lastMaterializedDate`.
 
 Verification:
 
-- `[ ]` materializer unit tests cover duplicate skipping.
-- `[ ]` materializer integration tests verify inserted canonical rows.
+- `[x]` materializer unit tests cover duplicate skipping.
+- `[x]` materializer integration tests verify inserted canonical rows.
 
 ## 4.2 Implement future horizon policy
 
@@ -481,22 +481,22 @@ Recommended interpretation:
 
 Tasks:
 
-- `[ ]` Define the exact horizon algorithm in code and docs.
-- `[ ]` Implement horizon calculation for all recurrence types.
-- `[ ]` Ensure yearly/sparse recurrences still produce useful future data.
+- `[x]` Define the exact horizon algorithm in code and docs.
+- `[x]` Implement horizon calculation for all recurrence types.
+- `[x]` Ensure yearly/sparse recurrences still produce useful future data.
 
 Verification:
 
 - `[ ]` daily tests prove next calendar month is fully covered.
 - `[ ]` monthly tests prove full next month is covered.
-- `[ ]` yearly tests prove at least 5 future occurrences are materialized when next month would otherwise be too small.
-- `[ ]` sparse recurrence tests prove the minimum-occurrence rule works.
+- `[x]` yearly tests prove at least 5 future occurrences are materialized when next month would otherwise be too small.
+- `[x]` sparse recurrence tests prove the minimum-occurrence rule works.
 
 ## 4.3 Apply weekend handling during materialization
 
-- `[ ]` Load account weekend handling for the recurring template scope.
-- `[ ]` Adjust materialized transaction dates according to `NO_SHIFT`, `MOVE_BEFORE`, `MOVE_AFTER`.
-- `[ ]` Ensure duplicate checks use the final materialized date consistently.
+- `[x]` Load account weekend handling for the recurring template scope.
+- `[x]` Adjust materialized transaction dates according to `NO_SHIFT`, `MOVE_BEFORE`, `MOVE_AFTER`.
+- `[x]` Ensure duplicate checks use the final materialized date consistently.
 
 Verification:
 
@@ -513,25 +513,25 @@ For materialized transactions:
 - linkage fields must be correct,
 - manual transactions must remain unaffected.
 
-- `[ ]` Implement canonical row creation from recurring templates.
-- `[ ]` Preserve partner/source/destination pocket linkage.
-- `[ ]` Decide whether description is copied from title or kept separately.
+- `[x]` Implement canonical row creation from recurring templates.
+- `[x]` Preserve partner/source/destination pocket linkage.
+- `[x]` Decide whether description is copied from title or kept separately.
 
 Verification:
 
-- `[ ]` field-level integration tests for created rows.
-- `[ ]` status tests prove materialized rows are always `PENDING`.
+- `[x]` field-level integration tests for created rows.
+- `[x]` status tests prove materialized rows are always `PENDING`.
 
 ## 4.5 Update `lastMaterializedDate`
 
-- `[ ]` Update `lastMaterializedDate` to the latest successfully materialized occurrence.
-- `[ ]` Ensure idempotent reruns do not regress the value.
-- `[ ]` Ensure archived templates are skipped.
+- `[x]` Update `lastMaterializedDate` to the latest successfully materialized occurrence.
+- `[x]` Ensure idempotent reruns do not regress the value.
+- `[x]` Ensure archived templates are skipped.
 
 Verification:
 
-- `[ ]` tests prove `lastMaterializedDate` advances correctly.
-- `[ ]` rerun tests prove it does not drift backward.
+- `[x]` tests prove `lastMaterializedDate` advances correctly.
+- `[x]` rerun tests prove it does not drift backward.
 
 ---
 

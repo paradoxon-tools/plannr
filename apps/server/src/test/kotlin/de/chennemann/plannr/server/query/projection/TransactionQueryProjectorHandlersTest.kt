@@ -95,6 +95,8 @@ class TransactionQueryProjectorHandlersTest {
 
         override suspend fun findVisibleByPocketId(pocketId: String): List<TransactionRecord> = emptyList()
 
+        override suspend fun findByRecurringTransactionId(recurringTransactionId: String): List<TransactionRecord> = emptyList()
+
         override suspend fun findVisibleByRecurringTransactionId(recurringTransactionId: String): List<TransactionRecord> = emptyList()
 
         override suspend fun findVisiblePending(): List<TransactionRecord> = emptyList()
