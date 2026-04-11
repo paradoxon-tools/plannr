@@ -51,7 +51,7 @@ class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
@@ -60,8 +60,8 @@ class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
             runBlocking {
                 createTransaction(
                     CreateTransaction.Command(
-                        type = "expense",
-                        status = "booked",
+                        type = "EXPENSE",
+                        status = "CLEARED",
                         transactionDate = "2026-04-10",
                         amount = 100,
                         currencyCode = "EUR",

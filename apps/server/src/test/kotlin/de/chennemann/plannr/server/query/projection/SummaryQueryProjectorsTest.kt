@@ -46,7 +46,7 @@ class SummaryQueryProjectorsTest {
         val after = AccountFixtures.account(
             name = "Updated account",
             institution = "Updated bank",
-            weekendHandling = "same_day",
+            weekendHandling = "NO_SHIFT",
             isArchived = true,
         )
 
@@ -54,7 +54,7 @@ class SummaryQueryProjectorsTest {
 
         assertEquals("Updated account", repository.findById(after.id)?.name)
         assertEquals("Updated bank", repository.findById(after.id)?.institution)
-        assertEquals("same_day", repository.findById(after.id)?.weekendHandling)
+        assertEquals("NO_SHIFT", repository.findById(after.id)?.weekendHandling)
         assertEquals(true, repository.findById(after.id)?.isArchived)
         assertEquals(0L, repository.findById(after.id)?.currentBalance)
     }

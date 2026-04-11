@@ -1,5 +1,7 @@
 package de.chennemann.plannr.server.transactions.domain
 
+import de.chennemann.plannr.server.common.domain.normalizeTransactionStatus
+import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.ValidationException
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -51,8 +53,8 @@ data class TransactionRecord private constructor(
         ): TransactionRecord {
             val normalizedId = id.trim()
             val normalizedAccountId = accountId.trim()
-            val normalizedType = type.trim().lowercase()
-            val normalizedStatus = status.trim().lowercase()
+            val normalizedType = normalizeTransactionType(type)
+            val normalizedStatus = normalizeTransactionStatus(status)
             val normalizedTransactionDate = transactionDate.trim()
             val normalizedCurrencyCode = currencyCode.trim().uppercase()
             val normalizedExchangeRate = exchangeRate?.trim()?.takeIf { it.isNotBlank() }
@@ -112,7 +114,7 @@ data class TransactionRecord private constructor(
             destinationPocketId: String?,
         ) {
             when (type) {
-                "expense" -> {
+                "EXPENSE" -> {
                     if (sourcePocketId == null) {
                         throw ValidationException("validation_error", "Expense transaction requires source pocket")
                     }
@@ -120,7 +122,7 @@ data class TransactionRecord private constructor(
                         throw ValidationException("validation_error", "Expense transaction must not define destination pocket")
                     }
                 }
-                "income" -> {
+                "INCOME" -> {
                     if (destinationPocketId == null) {
                         throw ValidationException("validation_error", "Income transaction requires destination pocket")
                     }
@@ -128,7 +130,7 @@ data class TransactionRecord private constructor(
                         throw ValidationException("validation_error", "Income transaction must not define source pocket")
                     }
                 }
-                "transfer" -> {
+                "TRANSFER" -> {
                     if (sourcePocketId == null || destinationPocketId == null) {
                         throw ValidationException("validation_error", "Transfer transaction requires source and destination pockets")
                     }

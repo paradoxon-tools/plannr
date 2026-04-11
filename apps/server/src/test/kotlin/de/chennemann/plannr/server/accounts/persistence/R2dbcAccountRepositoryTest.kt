@@ -40,7 +40,7 @@ class R2dbcAccountRepositoryTest : ApiIntegrationTest() {
     @Test
     fun `updates and finds account by id`() = runBlocking {
         accountRepository.save(AccountFixtures.account())
-        val updated = AccountFixtures.account(name = "Updated", institution = "Updated Bank", weekendHandling = "same_day")
+        val updated = AccountFixtures.account(name = "Updated", institution = "Updated Bank", weekendHandling = "NO_SHIFT")
 
         accountRepository.update(updated)
 

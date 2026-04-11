@@ -28,8 +28,8 @@ class RecurringTransactionTest {
         assertEquals("Internet Bill", value.title)
         assertEquals("Monthly internet", value.description)
         assertEquals("EUR", value.currencyCode)
-        assertEquals("expense", value.transactionType)
-        assertEquals("monthly", value.recurrenceType)
+        assertEquals("EXPENSE", value.transactionType)
+        assertEquals("MONTHLY", value.recurrenceType)
         assertNull(value.finalOccurrenceDate)
     }
 
@@ -44,17 +44,17 @@ class RecurringTransactionTest {
     @Test
     fun `accepts all valid transaction type combinations`() {
         RecurringTransactionFixtures.recurringTransaction(
-            transactionType = "expense",
+            transactionType = "EXPENSE",
             sourcePocketId = "poc_123",
             destinationPocketId = null,
         )
         RecurringTransactionFixtures.recurringTransaction(
-            transactionType = "income",
+            transactionType = "INCOME",
             sourcePocketId = null,
             destinationPocketId = "poc_456",
         )
         RecurringTransactionFixtures.recurringTransaction(
-            transactionType = "transfer",
+            transactionType = "TRANSFER",
             sourcePocketId = "poc_123",
             destinationPocketId = "poc_456",
         )
@@ -63,25 +63,25 @@ class RecurringTransactionTest {
     @Test
     fun `rejects every invalid transaction type combination`() {
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "expense", sourcePocketId = null, destinationPocketId = null)
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "EXPENSE", sourcePocketId = null, destinationPocketId = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "expense", sourcePocketId = "poc_123", destinationPocketId = "poc_456")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "EXPENSE", sourcePocketId = "poc_123", destinationPocketId = "poc_456")
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "income", sourcePocketId = null, destinationPocketId = null)
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "INCOME", sourcePocketId = null, destinationPocketId = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "income", sourcePocketId = "poc_123", destinationPocketId = "poc_456")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "INCOME", sourcePocketId = "poc_123", destinationPocketId = "poc_456")
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "transfer", sourcePocketId = null, destinationPocketId = "poc_456")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = null, destinationPocketId = "poc_456")
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "transfer", sourcePocketId = "poc_123", destinationPocketId = null)
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = "poc_123", destinationPocketId = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "transfer", sourcePocketId = "poc_123", destinationPocketId = "poc_123")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = "poc_123", destinationPocketId = "poc_123")
         }
         assertFailsWith<ValidationException> {
             RecurringTransactionFixtures.recurringTransaction(transactionType = "unknown", sourcePocketId = "poc_123", destinationPocketId = null)
@@ -91,7 +91,7 @@ class RecurringTransactionTest {
     @Test
     fun `accepts all valid none recurrence combinations`() {
         RecurringTransactionFixtures.recurringTransaction(
-            recurrenceType = "none",
+            recurrenceType = "NONE",
             skipCount = 0,
             daysOfWeek = null,
             weeksOfMonth = null,
@@ -103,74 +103,74 @@ class RecurringTransactionTest {
     @Test
     fun `rejects every invalid none recurrence combination`() {
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "none", skipCount = 1, daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null)
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "NONE", skipCount = 1, daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "none", skipCount = 0, daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null)
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "NONE", skipCount = 0, daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "none", skipCount = 0, daysOfWeek = null, weeksOfMonth = listOf(1), daysOfMonth = null, monthsOfYear = null)
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "NONE", skipCount = 0, daysOfWeek = null, weeksOfMonth = listOf(1), daysOfMonth = null, monthsOfYear = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "none", skipCount = 0, daysOfWeek = null, weeksOfMonth = null, daysOfMonth = listOf(1), monthsOfYear = null)
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "NONE", skipCount = 0, daysOfWeek = null, weeksOfMonth = null, daysOfMonth = listOf(1), monthsOfYear = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "none", skipCount = 0, daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = listOf(1))
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "NONE", skipCount = 0, daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = listOf(1))
         }
     }
 
     @Test
     fun `accepts all valid daily recurrence combinations`() {
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "daily", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "daily", daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "daily", daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 2)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "DAILY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "DAILY", daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "DAILY", daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 2)
     }
 
     @Test
     fun `rejects every invalid daily recurrence combination`() {
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "daily", weeksOfMonth = listOf(1))
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "DAILY", weeksOfMonth = listOf(1))
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "daily", daysOfMonth = listOf(1))
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "DAILY", daysOfMonth = listOf(1))
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "daily", monthsOfYear = listOf(1))
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "DAILY", monthsOfYear = listOf(1))
         }
     }
 
     @Test
     fun `accepts all valid weekly recurrence combinations`() {
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "weekly", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "weekly", daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 1)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "weekly", daysOfWeek = null, weeksOfMonth = listOf(1, -1), daysOfMonth = null, monthsOfYear = null, skipCount = 0)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "weekly", daysOfWeek = listOf("MONDAY"), weeksOfMonth = listOf(1, -1), daysOfMonth = null, monthsOfYear = null, skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "WEEKLY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "WEEKLY", daysOfWeek = listOf("MONDAY"), weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 1)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "WEEKLY", daysOfWeek = null, weeksOfMonth = listOf(1, -1), daysOfMonth = null, monthsOfYear = null, skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "WEEKLY", daysOfWeek = listOf("MONDAY"), weeksOfMonth = listOf(1, -1), daysOfMonth = null, monthsOfYear = null, skipCount = 0)
     }
 
     @Test
     fun `rejects every invalid weekly recurrence combination`() {
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "weekly", daysOfMonth = listOf(1))
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "WEEKLY", daysOfMonth = listOf(1))
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "weekly", monthsOfYear = listOf(1))
+            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "WEEKLY", monthsOfYear = listOf(1))
         }
     }
 
     @Test
     fun `accepts all valid monthly recurrence combinations`() {
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "monthly", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "monthly", daysOfWeek = null, weeksOfMonth = listOf(1, -1), daysOfMonth = null, monthsOfYear = null, skipCount = 1)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "monthly", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = listOf(1, -1), monthsOfYear = null, skipCount = 0)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "monthly", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = listOf(1, 6), skipCount = 0)
-        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "monthly", daysOfWeek = listOf("MONDAY"), weeksOfMonth = listOf(1), daysOfMonth = listOf(-1), monthsOfYear = listOf(1), skipCount = 2)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "MONTHLY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null, skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "MONTHLY", daysOfWeek = null, weeksOfMonth = listOf(1, -1), daysOfMonth = null, monthsOfYear = null, skipCount = 1)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "MONTHLY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = listOf(1, -1), monthsOfYear = null, skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "MONTHLY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = listOf(1, 6), skipCount = 0)
+        RecurringTransactionFixtures.recurringTransaction(recurrenceType = "MONTHLY", daysOfWeek = listOf("MONDAY"), weeksOfMonth = listOf(1), daysOfMonth = listOf(-1), monthsOfYear = listOf(1), skipCount = 2)
     }
 
     @Test
-    fun `rejects invalid recurrence type`() {
-        assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(recurrenceType = "yearly")
-        }
+    fun `accepts yearly recurrence type`() {
+        val value = RecurringTransactionFixtures.recurringTransaction(recurrenceType = "YEARLY")
+
+        assertEquals("YEARLY", value.recurrenceType)
     }
 
     @Test

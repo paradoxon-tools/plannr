@@ -214,27 +214,27 @@ Example:
 
 ## 0.1 Finalize enum vocabulary and normalization
 
-- `[ ]` Replace free-form transaction `type` strings with the legacy enum vocabulary.
-- `[ ]` Replace free-form transaction `status` strings with the legacy enum vocabulary.
-- `[ ]` Replace free-form recurring `recurrenceType` strings with the legacy enum vocabulary.
-- `[ ]` Replace server weekend handling strings with the legacy enum vocabulary.
-- `[ ]` Normalize API payloads and persistence mappings to use one canonical casing strategy.
+- `[x]` Replace free-form transaction `type` strings with the legacy enum vocabulary.
+- `[x]` Replace free-form transaction `status` strings with the legacy enum vocabulary.
+- `[x]` Replace free-form recurring `recurrenceType` strings with the legacy enum vocabulary.
+- `[x]` Replace server weekend handling strings with the legacy enum vocabulary.
+- `[x]` Normalize API payloads and persistence mappings to use one canonical casing strategy.
 
 Verification:
 
-- `[ ]` Domain tests reject non-enum values.
-- `[ ]` API tests reject invalid enum values.
-- `[ ]` persistence round-trip tests prove enum mapping is stable.
+- `[x]` Domain tests reject non-enum values.
+- `[x]` API tests reject invalid enum values.
+- `[x]` persistence round-trip tests prove enum mapping is stable.
 
 ## 0.2 Lock balance semantics
 
-- `[ ]` Define `current_balance` as balance using only `transaction_date <= today`.
+- `[x]` Define `current_balance` as balance using only `transaction_date <= today`.
 - `[ ]` Define future feed balances as projections that start from `current_balance` and accumulate future transactions only.
-- `[ ]` Document that future transactions never alter `current_balance`.
+- `[x]` Document that future transactions never alter `current_balance`.
 
 Verification:
 
-- `[ ]` summary projection tests prove future transactions do not change `current_balance`.
+- `[x]` summary projection tests prove future transactions do not change `current_balance`.
 - `[ ]` future feed tests prove projected balances still include future transactions in order.
 
 ## 0.3 Lock visibility semantics for modified recurring occurrences
@@ -248,12 +248,12 @@ A transaction is visible if:
 - it is not a split child,
 - modified recurring occurrences remain visible.
 
-- `[ ]` Document the canonical visibility SQL/logic for the server.
-- `[ ]` Refactor repository/query code so visibility logic is centralized.
+- `[x]` Document the canonical visibility SQL/logic for the server.
+- `[x]` Refactor repository/query code so visibility logic is centralized.
 
 Verification:
 
-- `[ ]` modified occurrence tests prove originals are hidden and modifications are visible.
+- `[x]` modified occurrence tests prove originals are hidden and modifications are visible.
 - `[ ]` split-child tests still behave correctly if split support remains relevant.
 
 ---

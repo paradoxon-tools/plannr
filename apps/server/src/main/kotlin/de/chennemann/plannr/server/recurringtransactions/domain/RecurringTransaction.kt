@@ -1,5 +1,7 @@
 package de.chennemann.plannr.server.recurringtransactions.domain
 
+import de.chennemann.plannr.server.common.domain.normalizeRecurrenceType
+import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.ValidationException
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -72,10 +74,10 @@ data class RecurringTransaction private constructor(
             val normalizedTitle = title.trim()
             val normalizedDescription = description?.trim()?.takeIf { it.isNotBlank() }
             val normalizedCurrencyCode = currencyCode.trim().uppercase()
-            val normalizedTransactionType = transactionType.trim().lowercase()
+            val normalizedTransactionType = normalizeTransactionType(transactionType)
             val normalizedFirstOccurrenceDate = firstOccurrenceDate.trim()
             val normalizedFinalOccurrenceDate = finalOccurrenceDate?.trim()?.takeIf { it.isNotBlank() }
-            val normalizedRecurrenceType = recurrenceType.trim().lowercase()
+            val normalizedRecurrenceType = normalizeRecurrenceType(recurrenceType)
             val normalizedDaysOfWeek = daysOfWeek?.map { it.trim().uppercase() }?.filter { it.isNotBlank() }?.takeIf { it.isNotEmpty() }
             val normalizedWeeksOfMonth = weeksOfMonth?.takeIf { it.isNotEmpty() }
             val normalizedDaysOfMonth = daysOfMonth?.takeIf { it.isNotEmpty() }
@@ -156,7 +158,7 @@ data class RecurringTransaction private constructor(
             destinationPocketId: String?,
         ) {
             when (transactionType) {
-                "expense" -> {
+                "EXPENSE" -> {
                     if (sourcePocketId == null) {
                         throw ValidationException("validation_error", "Expense recurring transaction requires source pocket")
                     }
@@ -164,7 +166,7 @@ data class RecurringTransaction private constructor(
                         throw ValidationException("validation_error", "Expense recurring transaction must not define destination pocket")
                     }
                 }
-                "income" -> {
+                "INCOME" -> {
                     if (destinationPocketId == null) {
                         throw ValidationException("validation_error", "Income recurring transaction requires destination pocket")
                     }
@@ -172,7 +174,7 @@ data class RecurringTransaction private constructor(
                         throw ValidationException("validation_error", "Income recurring transaction must not define source pocket")
                     }
                 }
-                "transfer" -> {
+                "TRANSFER" -> {
                     if (sourcePocketId == null || destinationPocketId == null) {
                         throw ValidationException("validation_error", "Transfer recurring transaction requires source and destination pockets")
                     }
@@ -193,22 +195,22 @@ data class RecurringTransaction private constructor(
             monthsOfYear: List<Int>?,
         ) {
             when (recurrenceType) {
-                "none" -> {
+                "NONE" -> {
                     if (skipCount != 0 || daysOfWeek != null || weeksOfMonth != null || daysOfMonth != null || monthsOfYear != null) {
                         throw ValidationException("validation_error", "One-time recurring transactions must not define recurrence selectors or skip count")
                     }
                 }
-                "daily" -> {
+                "DAILY" -> {
                     if (weeksOfMonth != null || daysOfMonth != null || monthsOfYear != null) {
                         throw ValidationException("validation_error", "Daily recurring transactions only support daysOfWeek and skipCount")
                     }
                 }
-                "weekly" -> {
+                "WEEKLY" -> {
                     if (daysOfMonth != null || monthsOfYear != null) {
                         throw ValidationException("validation_error", "Weekly recurring transactions only support daysOfWeek, weeksOfMonth and skipCount")
                     }
                 }
-                "monthly" -> {
+                "MONTHLY", "YEARLY" -> {
                     // weeksOfMonth, daysOfMonth, monthsOfYear, skipCount are allowed.
                 }
                 else -> throw ValidationException("validation_error", "Recurring transaction recurrence type is invalid")

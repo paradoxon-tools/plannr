@@ -11,11 +11,11 @@ class AccountTest {
     fun `normalizes currency code and weekend handling`() {
         val account = AccountFixtures.account(
             currencyCode = " eur ",
-            weekendHandling = " NEXT_BUSINESS_DAY ",
+            weekendHandling = " MOVE_AFTER ",
         )
 
         assertEquals("EUR", account.currencyCode)
-        assertEquals("next_business_day", account.weekendHandling)
+        assertEquals("MOVE_AFTER", account.weekendHandling)
     }
 
     @Test

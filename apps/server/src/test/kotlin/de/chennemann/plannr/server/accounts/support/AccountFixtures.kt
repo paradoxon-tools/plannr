@@ -11,7 +11,7 @@ object AccountFixtures {
     const val DEFAULT_NAME = "Main Account"
     const val DEFAULT_INSTITUTION = "Demo Bank"
     const val DEFAULT_CURRENCY_CODE = "EUR"
-    const val DEFAULT_WEEKEND_HANDLING = "next_business_day"
+    const val DEFAULT_WEEKEND_HANDLING = "MOVE_AFTER"
     const val DEFAULT_CREATED_AT = 1_710_000_000L
 
     fun account(

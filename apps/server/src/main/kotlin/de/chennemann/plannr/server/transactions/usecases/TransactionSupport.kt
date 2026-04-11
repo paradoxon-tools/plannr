@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
@@ -20,7 +21,7 @@ internal class TransactionContextResolver(
         transactionType: String,
         currencyCode: String,
     ): ResolvedContext {
-        val normalizedTransactionType = transactionType.trim().lowercase()
+        val normalizedTransactionType = normalizeTransactionType(transactionType)
         val sourcePocket = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
             pocketRepository.findById(it)
                 ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
@@ -35,9 +36,9 @@ internal class TransactionContextResolver(
         }
 
         when (normalizedTransactionType) {
-            "expense" -> if (sourcePocket == null) throw ValidationException("validation_error", "Expense transaction requires source pocket")
-            "income" -> if (destinationPocket == null) throw ValidationException("validation_error", "Income transaction requires destination pocket")
-            "transfer" -> {
+            "EXPENSE" -> if (sourcePocket == null) throw ValidationException("validation_error", "Expense transaction requires source pocket")
+            "INCOME" -> if (destinationPocket == null) throw ValidationException("validation_error", "Income transaction requires destination pocket")
+            "TRANSFER" -> {
                 if (sourcePocket == null || destinationPocket == null) {
                     throw ValidationException("validation_error", "Transfer transaction requires source and destination pockets")
                 }

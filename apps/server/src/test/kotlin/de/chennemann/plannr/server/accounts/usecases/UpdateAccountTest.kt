@@ -33,7 +33,7 @@ class UpdateAccountTest {
                 name = "Updated Account",
                 institution = "Updated Bank",
                 currencyCode = "eur",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
 
@@ -41,7 +41,7 @@ class UpdateAccountTest {
         assertEquals("Updated Account", updated.name)
         assertEquals("Updated Bank", updated.institution)
         assertEquals("EUR", updated.currencyCode)
-        assertEquals("same_day", updated.weekendHandling)
+        assertEquals("NO_SHIFT", updated.weekendHandling)
         assertEquals(AccountFixtures.DEFAULT_CREATED_AT, updated.createdAt)
         assertEquals(updated, accountRepository.findById(AccountFixtures.DEFAULT_ID))
     }

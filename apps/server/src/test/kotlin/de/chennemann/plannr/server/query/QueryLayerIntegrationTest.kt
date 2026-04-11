@@ -57,7 +57,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
 
@@ -70,7 +70,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.name").isEqualTo("Main account")
             .jsonPath("$.institution").isEqualTo("Test Bank")
             .jsonPath("$.currencyCode").isEqualTo("EUR")
-            .jsonPath("$.weekendHandling").isEqualTo("same_day")
+            .jsonPath("$.weekendHandling").isEqualTo("NO_SHIFT")
             .jsonPath("$.currentBalance").isEqualTo(0)
             .jsonPath("$.isArchived").isEqualTo(false)
 
@@ -80,7 +80,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Updated account",
                 institution = "Updated Bank",
                 currencyCode = "EUR",
-                weekendHandling = "next_business_day",
+                weekendHandling = "MOVE_AFTER",
             ),
         )
 
@@ -91,7 +91,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .expectBody()
             .jsonPath("$.name").isEqualTo("Updated account")
             .jsonPath("$.institution").isEqualTo("Updated Bank")
-            .jsonPath("$.weekendHandling").isEqualTo("next_business_day")
+            .jsonPath("$.weekendHandling").isEqualTo("MOVE_AFTER")
             .jsonPath("$.currentBalance").isEqualTo(0)
     }
 
@@ -102,7 +102,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(
@@ -164,7 +164,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val sourcePocket = createPocket(CreatePocket.Command(account.id, "Source", null, 100, true))
@@ -240,7 +240,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Pocket", null, 100, true))
@@ -302,7 +302,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Pocket", null, 100, true))
@@ -379,7 +379,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Pocket", null, 100, true))
@@ -430,7 +430,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))

@@ -103,8 +103,8 @@ class TransactionQueryProjectorHandlersTest {
     ): TransactionRecord = TransactionRecord(
         id = id,
         accountId = "acc_123",
-        type = "expense",
-        status = "booked",
+        type = "EXPENSE",
+        status = "CLEARED",
         transactionDate = transactionDate,
         amount = 100,
         currencyCode = "EUR",

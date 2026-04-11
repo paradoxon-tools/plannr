@@ -30,7 +30,7 @@ class R2dbcAccountQueryRepositoryTest : ApiIntegrationTest() {
             name = "Main account",
             institution = "Demo Bank",
             currencyCode = "EUR",
-            weekendHandling = "same_day",
+            weekendHandling = "NO_SHIFT",
             isArchived = false,
             createdAt = 100L,
             currentBalance = 250L,
@@ -50,7 +50,7 @@ class R2dbcAccountQueryRepositoryTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
                 isArchived = false,
                 createdAt = 100L,
                 currentBalance = 0L,
@@ -63,7 +63,7 @@ class R2dbcAccountQueryRepositoryTest : ApiIntegrationTest() {
                 name = "Updated account",
                 institution = "Updated Bank",
                 currencyCode = "EUR",
-                weekendHandling = "next_business_day",
+                weekendHandling = "MOVE_AFTER",
                 isArchived = true,
                 createdAt = 100L,
                 currentBalance = 999L,
@@ -72,7 +72,7 @@ class R2dbcAccountQueryRepositoryTest : ApiIntegrationTest() {
 
         assertEquals("Updated account", updated.name)
         assertEquals("Updated Bank", updated.institution)
-        assertEquals("next_business_day", updated.weekendHandling)
+        assertEquals("MOVE_AFTER", updated.weekendHandling)
         assertEquals(true, updated.isArchived)
         assertEquals(999L, updated.currentBalance)
     }

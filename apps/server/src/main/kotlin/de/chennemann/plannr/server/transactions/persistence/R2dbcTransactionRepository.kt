@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.transactions.persistence
 
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
+import de.chennemann.plannr.server.transactions.domain.TransactionVisibility
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.r2dbc.core.DatabaseClient
@@ -79,7 +80,7 @@ class R2dbcTransactionRepository(
         findAll(
             """
             WHERE account_id = :scopeId
-              AND is_archived = FALSE
+              AND ${TransactionVisibility.SQL_PREDICATE}
             ORDER BY transaction_date ASC, created_at ASC, id ASC
             """.trimIndent(),
             accountId,
@@ -89,7 +90,7 @@ class R2dbcTransactionRepository(
         findAll(
             """
             WHERE (source_pocket_id = :scopeId OR destination_pocket_id = :scopeId)
-              AND is_archived = FALSE
+              AND ${TransactionVisibility.SQL_PREDICATE}
             ORDER BY transaction_date ASC, created_at ASC, id ASC
             """.trimIndent(),
             pocketId,

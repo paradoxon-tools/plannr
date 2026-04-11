@@ -17,10 +17,10 @@ object RecurringTransactionFixtures {
     const val DEFAULT_DESCRIPTION = "Monthly internet"
     const val DEFAULT_AMOUNT = 4999L
     const val DEFAULT_CURRENCY_CODE = "EUR"
-    const val DEFAULT_TRANSACTION_TYPE = "expense"
+    const val DEFAULT_TRANSACTION_TYPE = "EXPENSE"
     const val DEFAULT_FIRST_OCCURRENCE_DATE = "2024-01-01"
     const val DEFAULT_FINAL_OCCURRENCE_DATE = "2024-12-31"
-    const val DEFAULT_RECURRENCE_TYPE = "monthly"
+    const val DEFAULT_RECURRENCE_TYPE = "MONTHLY"
     const val DEFAULT_SKIP_COUNT = 0
     val DEFAULT_DAYS_OF_WEEK = listOf("MONDAY")
     val DEFAULT_WEEKS_OF_MONTH = listOf(1)

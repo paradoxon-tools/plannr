@@ -9,6 +9,7 @@ import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
 import de.chennemann.plannr.server.transactions.usecases.UnarchiveTransaction
 import de.chennemann.plannr.server.transactions.usecases.UpdateTransaction
+import java.time.LocalDate
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -47,13 +48,80 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
     }
 
     @Test
+    fun `future transactions do not alter current balances or historical feeds`() = runBlocking {
+        val today = LocalDate.now()
+        val account = createAccount(
+            CreateAccount.Command(
+                name = "Main account",
+                institution = "Demo Bank",
+                currencyCode = "EUR",
+                weekendHandling = "NO_SHIFT",
+            ),
+        )
+        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+
+        createTransaction(
+            CreateTransaction.Command(
+                type = "EXPENSE",
+                status = "CLEARED",
+                transactionDate = today.minusDays(1).toString(),
+                amount = 40,
+                currencyCode = "EUR",
+                exchangeRate = null,
+                destinationAmount = null,
+                description = "Yesterday",
+                partnerId = null,
+                sourcePocketId = pocket.id,
+                destinationPocketId = null,
+            ),
+        )
+        createTransaction(
+            CreateTransaction.Command(
+                type = "EXPENSE",
+                status = "PENDING",
+                transactionDate = today.plusDays(1).toString(),
+                amount = 60,
+                currencyCode = "EUR",
+                exchangeRate = null,
+                destinationAmount = null,
+                description = "Tomorrow",
+                partnerId = null,
+                sourcePocketId = pocket.id,
+                destinationPocketId = null,
+            ),
+        )
+
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(-40)
+
+        webTestClient.get()
+            .uri("/query/pockets/${pocket.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(-40)
+
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}/transactions?limit=10")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.items.length()").isEqualTo(1)
+            .jsonPath("$.items[0].description").isEqualTo("Yesterday")
+    }
+
+    @Test
     fun `projects transactions into account and pocket query models including historical rewrites`() = runBlocking {
         val account = createAccount(
             CreateAccount.Command(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(
@@ -68,8 +136,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
         val expense1 = createTransaction(
             CreateTransaction.Command(
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-10",
                 amount = 100,
                 currencyCode = "EUR",
@@ -83,8 +151,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
         )
         val income = createTransaction(
             CreateTransaction.Command(
-                type = "income",
-                status = "booked",
+                type = "INCOME",
+                status = "CLEARED",
                 transactionDate = "2026-04-15",
                 amount = 200,
                 currencyCode = "EUR",
@@ -121,8 +189,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
         val expense2 = createTransaction(
             CreateTransaction.Command(
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-12",
                 amount = 50,
                 currencyCode = "EUR",
@@ -168,8 +236,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
         updateTransaction(
             UpdateTransaction.Command(
                 id = expense2.id,
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-09",
                 amount = 70,
                 currencyCode = "EUR",
@@ -257,15 +325,15 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
 
         val first = createTransaction(
             CreateTransaction.Command(
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-10",
                 amount = 10,
                 currencyCode = "EUR",
@@ -279,8 +347,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
         )
         val second = createTransaction(
             CreateTransaction.Command(
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-10",
                 amount = 20,
                 currencyCode = "EUR",
@@ -322,7 +390,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val sourcePocket = createPocket(CreatePocket.Command(account.id, "Checking", null, 100, true))
@@ -330,8 +398,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
         val transfer = createTransaction(
             CreateTransaction.Command(
-                type = "transfer",
-                status = "booked",
+                type = "TRANSFER",
+                status = "CLEARED",
                 transactionDate = "2026-04-20",
                 amount = 40,
                 currencyCode = "EUR",
@@ -415,16 +483,16 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
 
-        val tx1 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
-        val tx2 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
+        val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
+        val tx2 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
 
-        updateTransaction(UpdateTransaction.Command(tx1.id, "expense", "booked", "2026-04-11", 15, "EUR", null, null, "t1", null, pocket.id, null))
-        updateTransaction(UpdateTransaction.Command(tx1.id, "expense", "booked", "2026-04-13", 25, "EUR", null, null, "t1", null, pocket.id, null))
+        updateTransaction(UpdateTransaction.Command(tx1.id, "EXPENSE", "CLEARED", "2026-04-11", 15, "EUR", null, null, "t1", null, pocket.id, null))
+        updateTransaction(UpdateTransaction.Command(tx1.id, "EXPENSE", "CLEARED", "2026-04-13", 25, "EUR", null, null, "t1", null, pocket.id, null))
 
         webTestClient.get()
             .uri("/query/accounts/${account.id}")
@@ -456,7 +524,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val sourcePocket = createPocket(CreatePocket.Command(account.id, "Checking", null, 100, true))
@@ -464,8 +532,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
         val transaction = createTransaction(
             CreateTransaction.Command(
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-20",
                 amount = 50,
                 currencyCode = "EUR",
@@ -481,8 +549,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
         updateTransaction(
             UpdateTransaction.Command(
                 id = transaction.id,
-                type = "transfer",
-                status = "booked",
+                type = "TRANSFER",
+                status = "CLEARED",
                 transactionDate = "2026-04-20",
                 amount = 50,
                 currencyCode = "EUR",
@@ -509,7 +577,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
             .expectBody()
             .jsonPath("$.items.length()").isEqualTo(1)
             .jsonPath("$.items[0].transactionId").isEqualTo(transaction.id)
-            .jsonPath("$.items[0].type").isEqualTo("transfer")
+            .jsonPath("$.items[0].type").isEqualTo("TRANSFER")
             .jsonPath("$.items[0].signedAmount").isEqualTo(0)
             .jsonPath("$.items[0].balanceAfter").isEqualTo(0)
             .jsonPath("$.items[0].sourcePocketName").isEqualTo("Checking")
@@ -547,7 +615,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val oldPocket = createPocket(CreatePocket.Command(account.id, "Old pocket", null, 100, true))
@@ -555,8 +623,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
         val transaction = createTransaction(
             CreateTransaction.Command(
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-20",
                 amount = 80,
                 currencyCode = "EUR",
@@ -572,8 +640,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
         updateTransaction(
             UpdateTransaction.Command(
                 id = transaction.id,
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-20",
                 amount = 80,
                 currencyCode = "EUR",
@@ -632,18 +700,18 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
 
-        val tx1 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
-        val tx2 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
-        val tx3 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-14", 30, "EUR", null, null, "t3", null, pocket.id, null))
+        val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
+        val tx2 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
+        val tx3 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-14", 30, "EUR", null, null, "t3", null, pocket.id, null))
 
-        updateTransaction(UpdateTransaction.Command(tx1.id, "expense", "booked", "2026-04-13", 10, "EUR", null, null, "t1", null, pocket.id, null))
+        updateTransaction(UpdateTransaction.Command(tx1.id, "EXPENSE", "CLEARED", "2026-04-13", 10, "EUR", null, null, "t1", null, pocket.id, null))
         archiveTransaction(tx2.id)
-        val tx4 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-11", 15, "EUR", null, null, "t4", null, pocket.id, null))
+        val tx4 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-11", 15, "EUR", null, null, "t4", null, pocket.id, null))
 
         webTestClient.get()
             .uri("/query/accounts/${account.id}/transactions?limit=1")
@@ -680,7 +748,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val sourcePocket = createPocket(CreatePocket.Command(account.id, "Checking", null, 100, true))
@@ -688,8 +756,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
         val transfer = createTransaction(
             CreateTransaction.Command(
-                type = "transfer",
-                status = "booked",
+                type = "TRANSFER",
+                status = "CLEARED",
                 transactionDate = "2026-04-21",
                 amount = 100,
                 currencyCode = "EUR",
@@ -749,15 +817,15 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
 
         val income = createTransaction(
             CreateTransaction.Command(
-                type = "income",
-                status = "booked",
+                type = "INCOME",
+                status = "CLEARED",
                 transactionDate = "2026-04-22",
                 amount = 75,
                 currencyCode = "EUR",
@@ -788,14 +856,14 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
         val transaction = createTransaction(
             CreateTransaction.Command(
-                type = "expense",
-                status = "booked",
+                type = "EXPENSE",
+                status = "CLEARED",
                 transactionDate = "2026-04-22",
                 amount = 33,
                 currencyCode = "EUR",
@@ -813,7 +881,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
             name = "Renamed account",
             institution = "New bank",
             currencyCode = "EUR",
-            weekendHandling = "next_business_day",
+            weekendHandling = "MOVE_AFTER",
         )
         updateAccount(updatedAccount)
 
@@ -835,19 +903,19 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
 
-        val tx1 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
-        val tx2 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
-        val tx3 = createTransaction(CreateTransaction.Command("income", "booked", "2026-04-15", 40, "EUR", null, null, "t3", null, null, pocket.id))
+        val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
+        val tx2 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
+        val tx3 = createTransaction(CreateTransaction.Command("INCOME", "CLEARED", "2026-04-15", 40, "EUR", null, null, "t3", null, null, pocket.id))
 
-        updateTransaction(UpdateTransaction.Command(tx1.id, "expense", "booked", "2026-04-14", 15, "EUR", null, null, "t1", null, pocket.id, null))
+        updateTransaction(UpdateTransaction.Command(tx1.id, "EXPENSE", "CLEARED", "2026-04-14", 15, "EUR", null, null, "t1", null, pocket.id, null))
         archiveTransaction(tx2.id)
         unarchiveTransaction(tx2.id)
-        updateTransaction(UpdateTransaction.Command(tx2.id, "expense", "booked", "2026-04-11", 25, "EUR", null, null, "t2", null, pocket.id, null))
+        updateTransaction(UpdateTransaction.Command(tx2.id, "EXPENSE", "CLEARED", "2026-04-11", 25, "EUR", null, null, "t2", null, pocket.id, null))
 
         assertEquals(
             singleLong("SELECT COUNT(*) AS value FROM account_transaction_feed WHERE account_id = '${account.id}'"),
@@ -884,12 +952,12 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
-                weekendHandling = "same_day",
+                weekendHandling = "NO_SHIFT",
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
-        val tx1 = createTransaction(CreateTransaction.Command("expense", "booked", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
-        val tx2 = createTransaction(CreateTransaction.Command("income", "booked", "2026-04-12", 30, "EUR", null, null, "t2", null, null, pocket.id))
+        val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
+        val tx2 = createTransaction(CreateTransaction.Command("INCOME", "CLEARED", "2026-04-12", 30, "EUR", null, null, "t2", null, null, pocket.id))
 
         transactionQueryProjectionService.rebuildFor(after = tx1)
         transactionQueryProjectionService.rebuildFor(after = tx2)

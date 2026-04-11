@@ -5,6 +5,7 @@ import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
+import java.time.LocalDate
 import de.chennemann.plannr.server.transactions.events.TransactionArchived
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
 import de.chennemann.plannr.server.transactions.events.TransactionUnarchived
@@ -82,7 +83,9 @@ class TransactionQueryProjectionService(
     }
 
     private suspend fun rebuildAccountFeed(accountId: String) {
+        val today = LocalDate.now().toString()
         val transactions = transactionRepository.findVisibleByAccountId(accountId)
+            .filter { it.transactionDate <= today }
         databaseClient.sql("DELETE FROM account_transaction_feed WHERE account_id = :accountId")
             .bind("accountId", accountId)
             .fetch()
@@ -135,7 +138,9 @@ class TransactionQueryProjectionService(
     }
 
     private suspend fun rebuildPocketFeed(pocketId: String) {
+        val today = LocalDate.now().toString()
         val transactions = transactionRepository.findVisibleByPocketId(pocketId)
+            .filter { it.transactionDate <= today }
         databaseClient.sql("DELETE FROM pocket_transaction_feed WHERE pocket_id = :pocketId")
             .bind("pocketId", pocketId)
             .fetch()
@@ -221,9 +226,9 @@ class TransactionQueryProjectionService(
 }
 
 private fun TransactionRecord.accountSignedAmount(): Long = when (type) {
-    "expense" -> -amount
-    "income" -> destinationAmount ?: amount
-    "transfer" -> 0L
+    "EXPENSE" -> -amount
+    "INCOME" -> destinationAmount ?: amount
+    "TRANSFER" -> 0L
     else -> 0L
 }
 

@@ -43,7 +43,7 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
     @Test
     fun `saves finds and filters`() = runBlocking {
         recurringTransactionRepository.save(RecurringTransactionFixtures.recurringTransaction())
-        recurringTransactionRepository.save(RecurringTransactionFixtures.recurringTransaction(id = "rtx_2", contractId = null, accountId = "acc_123", sourcePocketId = null, destinationPocketId = "poc_456", partnerId = null, transactionType = "income", isArchived = true))
+        recurringTransactionRepository.save(RecurringTransactionFixtures.recurringTransaction(id = "rtx_2", contractId = null, accountId = "acc_123", sourcePocketId = null, destinationPocketId = "poc_456", partnerId = null, transactionType = "INCOME", isArchived = true))
 
         assertEquals(RecurringTransactionFixtures.DEFAULT_ID, recurringTransactionRepository.findById(RecurringTransactionFixtures.DEFAULT_ID)?.id)
         assertEquals(listOf(RecurringTransactionFixtures.DEFAULT_ID), recurringTransactionRepository.findByContractId(ContractFixtures.DEFAULT_ID).map { it.id })

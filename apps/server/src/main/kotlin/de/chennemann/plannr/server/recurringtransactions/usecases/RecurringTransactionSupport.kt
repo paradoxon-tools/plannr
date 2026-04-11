@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.recurringtransactions.usecases
 
+import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
@@ -20,7 +21,7 @@ internal class RecurringTransactionContextResolver(
         partnerId: String?,
         transactionType: String,
     ): ResolvedContext {
-        val normalizedTransactionType = transactionType.trim().lowercase()
+        val normalizedTransactionType = normalizeTransactionType(transactionType)
         val contract = contractId?.trim()?.takeIf { it.isNotBlank() }?.let {
             contractRepository.findById(it)
                 ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to it))
@@ -39,9 +40,9 @@ internal class RecurringTransactionContextResolver(
         }
 
         when (normalizedTransactionType) {
-            "expense" -> if (sourcePocket == null) throw ValidationException("validation_error", "Expense recurring transaction requires source pocket")
-            "income" -> if (destinationPocket == null) throw ValidationException("validation_error", "Income recurring transaction requires destination pocket")
-            "transfer" -> {
+            "EXPENSE" -> if (sourcePocket == null) throw ValidationException("validation_error", "Expense recurring transaction requires source pocket")
+            "INCOME" -> if (destinationPocket == null) throw ValidationException("validation_error", "Income recurring transaction requires destination pocket")
+            "TRANSFER" -> {
                 if (sourcePocket == null || destinationPocket == null) {
                     throw ValidationException("validation_error", "Transfer recurring transaction requires source and destination pockets")
                 }
