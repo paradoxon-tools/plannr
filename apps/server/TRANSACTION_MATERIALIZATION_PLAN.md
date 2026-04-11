@@ -203,7 +203,8 @@ Example:
 - for non-transfer transactions this means persisting the single transaction `pocketId`,
 - for transfers this means persisting `sourcePocketId` and `destinationPocketId`,
 - `accountId` and optional `contractId` are derived from the persisted pocket relationship(s) and are not stored as canonical transaction columns,
-- projections may denormalize derived `account_id` and `contract_id` into query tables when needed for read performance.
+- projections may denormalize derived `account_id` and `contract_id` into query tables when needed for read performance,
+- because each contract has exactly one underlying pocket, contract transaction APIs should query the pocket-based projections by derived `contractId` rather than introducing a separate contract transaction feed.
 
 ---
 
@@ -625,7 +626,9 @@ Verification:
 
 - `[ ]` Keep `account_transaction_feed` for current+historical rows only.
 - `[ ]` Keep `pocket_transaction_feed` for current+historical rows only.
+- `[ ]` Make `pocket_transaction_feed` queryable by derived `contract_id` as well as `pocket_id`.
 - `[ ]` Rebuild these feeds from canonical visible transactions with `transaction_date <= today`.
+- `[ ]` Derive `contract_id` for pocket feed rows during projection from the pocket relationship.
 - `[ ]` Keep deterministic `history_position` ordering.
 - `[ ]` Keep running `balance_after` values.
 
@@ -644,6 +647,7 @@ Recommended new read models:
 Suggested fields:
 
 - scope ids (`account_id` / `pocket_id`)
+- optional derived `contract_id` on pocket-scoped rows
 - `transaction_id`
 - `future_position`
 - `transaction_date`
@@ -661,6 +665,7 @@ Tasks:
 - `[ ]` create future feed schema,
 - `[ ]` add repositories,
 - `[ ]` add projection logic,
+- `[ ]` derive `contract_id` for pocket-scoped future rows so they can be queried through contract APIs without a separate feed,
 - `[ ]` add date-range query support,
 - `[ ]` add pagination support appropriate for future ordering.
 
@@ -743,9 +748,13 @@ Verification:
 - `[ ]` keep historical feed endpoints:
   - `[ ]` `GET /query/accounts/{id}/transactions`
   - `[ ]` `GET /query/pockets/{id}/transactions`
+- `[ ]` add contract-facing historical transaction endpoint backed by `pocket_transaction_feed` filtered by derived `contractId`, e.g.:
+  - `[ ]` `GET /query/contracts/{id}/transactions`
 - `[ ]` add future feed endpoints, e.g.:
   - `[ ]` `GET /query/accounts/{id}/future-transactions`
   - `[ ]` `GET /query/pockets/{id}/future-transactions`
+- `[ ]` add contract-facing future transaction endpoint backed by pocket future feed filtered by derived `contractId`, e.g.:
+  - `[ ]` `GET /query/contracts/{id}/future-transactions`
 - `[ ]` support client-controlled date range / limit for future feeds.
 
 Verification:
@@ -993,6 +1002,7 @@ The list below is intentionally broad. Each item should become an automated test
 
 - `[ ]` includes only `transaction_date <= today`
 - `[ ]` excludes future canonical transactions
+- `[ ]` rows are queryable by derived `contract_id` when the pocket belongs to a contract
 - `[ ]` running balances are correct for outgoing transactions
 - `[ ]` running balances are correct for incoming transactions
 - `[ ]` transfer source row is negative
@@ -1012,6 +1022,7 @@ The list below is intentionally broad. Each item should become an automated test
 ## Pocket future feed
 
 - `[ ]` includes only `transaction_date > today`
+- `[ ]` rows are queryable by derived `contract_id` when the pocket belongs to a contract
 - `[ ]` projected balances start from current pocket balance
 - `[ ]` future transfer source row decreases projected balance
 - `[ ]` future transfer destination row increases projected balance
@@ -1067,8 +1078,10 @@ The list below is intentionally broad. Each item should become an automated test
 
 - `[ ]` historical account feed excludes future rows
 - `[ ]` historical pocket feed excludes future rows
+- `[ ]` historical contract feed is served from `pocket_transaction_feed` filtered by derived `contractId`
 - `[ ]` future account feed returns future rows only
 - `[ ]` future pocket feed returns future rows only
+- `[ ]` future contract feed is served from pocket future feed filtered by derived `contractId`
 - `[ ]` future feed date range works
 - `[ ]` current summary balances stay stable while future feed still grows
 
