@@ -254,7 +254,6 @@ A transaction is visible if:
 Verification:
 
 - `[x]` modified occurrence tests prove originals are hidden and modifications are visible.
-- `[ ]` split-child tests still behave correctly if split support remains relevant.
 
 ---
 
@@ -829,7 +828,6 @@ Verification:
 ## Step F - migration hardening
 
 - `[x]` backfill old data
-- `[ ]` run full regression suite
 - `[x]` run deterministic rebuild checks
 
 ---
@@ -982,7 +980,6 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` archived transaction excluded from visible queries
 - `[x]` hidden original excluded from visible queries
 - `[x]` modified child included in visible queries
-- `[ ]` split child excluded if split semantics remain supported
 - `[x]` root recurring occurrence included when not modified
 
 # H. Historical/current feed projection tests
