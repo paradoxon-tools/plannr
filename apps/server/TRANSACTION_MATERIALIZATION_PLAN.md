@@ -768,26 +768,26 @@ Verification:
 
 ## 10.1 Schema migrations
 
-- `[ ]` create migrations for enum normalization changes.
-- `[ ]` create migrations for recurring template schema changes.
-- `[ ]` create migrations for future feed tables.
-- `[ ]` create migrations for dirty-scope/projection infrastructure.
-- `[ ]` create migrations for new indexes/constraints.
+- `[x]` create migrations for enum normalization changes.
+- `[x]` create migrations for recurring template schema changes.
+- `[x]` create migrations for future feed tables.
+- `[x]` create migrations for dirty-scope/projection infrastructure.
+- `[x]` create migrations for new indexes/constraints.
 
 Verification:
 
-- `[ ]` migration tests run from empty schema.
-- `[ ]` migration tests run from current repository schema state.
+- `[x]` migration tests run from empty schema.
+- `[x]` migration tests run from current repository schema state.
 
 ## 10.2 Data backfill
 
-- `[ ]` backfill enum values where current strings differ from legacy vocabulary.
-- `[ ]` backfill recurring template rows to normalized selector storage.
-- `[ ]` backfill read models from canonical transactions after migration.
+- `[x]` backfill enum values where current strings differ from legacy vocabulary.
+- `[x]` backfill recurring template rows to normalized selector storage.
+- `[x]` backfill read models from canonical transactions after migration.
 
 Verification:
 
-- `[ ]` backfill tests prove canonical transactions project correctly after migration.
+- `[x]` backfill tests prove canonical transactions project correctly after migration.
 
 ---
 
