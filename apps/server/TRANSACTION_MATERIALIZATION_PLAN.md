@@ -197,6 +197,14 @@ Example:
 - projection code derives and denormalizes those values into query/read tables,
 - any indexing need for those values should be satisfied on query tables rather than by duplicating them in canonical storage.
 
+### 8. Command-side transactions persist pocket references, not derived account/contract scope
+
+- on the command side, transaction rows persist the relevant pocket reference(s) as the canonical scope anchor,
+- for non-transfer transactions this means persisting the single transaction `pocketId`,
+- for transfers this means persisting `sourcePocketId` and `destinationPocketId`,
+- `accountId` and optional `contractId` are derived from the persisted pocket relationship(s) and are not stored as canonical transaction columns,
+- projections may denormalize derived `account_id` and `contract_id` into query tables when needed for read performance.
+
 ---
 
 ## Implementation phases
@@ -255,6 +263,8 @@ Verification:
 
 - `[ ]` Confirm the existing `transactions` table is the canonical materialized ledger.
 - `[ ]` Add or refine columns needed for materialization and tracing.
+- `[ ]` Remove canonical transaction `account_id` / `contract_id` columns where they are derivable from persisted pocket relationships.
+- `[ ]` Standardize canonical transaction persistence around pocket references (`pocket_id` for non-transfers, `source_pocket_id` / `destination_pocket_id` for transfers).
 - `[ ]` Preserve these link fields:
   - `[ ]` `parent_transaction_id`
   - `[ ]` `recurring_transaction_id`
@@ -267,7 +277,7 @@ Verification:
 
 Recommended additional indexes:
 
-- `(account_id, transaction_date, created_at, id)`
+- `(pocket_id, transaction_date, created_at, id)` for non-transfer transaction lookup
 - `(source_pocket_id, transaction_date, created_at, id)`
 - `(destination_pocket_id, transaction_date, created_at, id)`
 - `(recurring_transaction_id, transaction_date)`
@@ -704,6 +714,8 @@ Verification:
 ## 9.1 Transaction ingress API
 
 - `[ ]` align transaction request/response DTOs with legacy enums.
+- `[ ]` make pocket references the command-side scope input (`pocketId` for non-transfers, `sourcePocketId` / `destinationPocketId` for transfers).
+- `[ ]` stop requiring canonical transaction `accountId` / `contractId` on command-side writes when they are derivable from the selected pocket(s).
 - `[ ]` expose linkage fields where useful:
   - `[ ]` `parentTransactionId`
   - `[ ]` `recurringTransactionId`
@@ -777,7 +789,7 @@ Verification:
 - `[ ]` finalize enum vocabulary
 - `[ ]` finalize visibility rules
 - `[ ]` finalize current-balance semantics
-- `[ ]` remove derived recurring `account_id` / `contract_id` from canonical schema and document projection-side denormalization
+- `[ ]` remove derived recurring and transaction-side `account_id` / `contract_id` from canonical schema and document projection-side denormalization
 
 ## Step B - canonical ledger and recurrence engine
 
@@ -1037,6 +1049,9 @@ The list below is intentionally broad. Each item should become an automated test
 ## Transactions API
 
 - `[ ]` create manual transaction with canonical enums
+- `[ ]` create non-transfer transaction using `pocketId` only on the command side
+- `[ ]` create transfer transaction using `sourcePocketId` and `destinationPocketId` only on the command side
+- `[ ]` reject command-side writes that require canonical transaction `accountId` / `contractId` when those values are derivable from pocket selection
 - `[ ]` update manual transaction with canonical enums
 - `[ ]` archive/unarchive manual transaction
 - `[ ]` modify recurring occurrence through dedicated endpoint/use case
