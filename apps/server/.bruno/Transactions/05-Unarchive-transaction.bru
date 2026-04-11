@@ -1,0 +1,15 @@
+meta {
+  name: Unarchive transaction
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/transactions/{{transactionId}}/unarchive
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

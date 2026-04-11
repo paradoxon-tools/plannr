@@ -1,0 +1,26 @@
+meta {
+  name: Create pocket
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{accountId}}",
+    "name": "General",
+    "description": "Primary pocket",
+    "color": 16711680,
+    "isDefault": true
+  }
+}

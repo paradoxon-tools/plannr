@@ -1,0 +1,39 @@
+meta {
+  name: Create recurring transaction
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/recurring-transactions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "contractId": "{{contractId}}",
+    "sourcePocketId": "{{pocketId}}",
+    "destinationPocketId": null,
+    "partnerId": "{{partnerId}}",
+    "title": "Monthly subscription",
+    "description": "Sample recurring expense",
+    "amount": 999,
+    "currencyCode": "{{currencyCode}}",
+    "transactionType": "EXPENSE",
+    "firstOccurrenceDate": "2026-04-15",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "MONTHLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [15],
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}

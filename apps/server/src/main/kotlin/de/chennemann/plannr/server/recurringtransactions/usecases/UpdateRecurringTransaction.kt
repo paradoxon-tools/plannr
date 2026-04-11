@@ -110,7 +110,7 @@ internal class UpdateRecurringTransactionUseCase(
             throw ValidationException("validation_error", "Recurring transaction version chain already has a successor version")
         }
         val predecessorOccurrence = versioningService.predecessorOccurrence(existing, normalizedRecurrence.firstOccurrenceDate)
-        recurringTransactionRepository.update(existing.copy(finalOccurrenceDate = predecessorOccurrence))
+        recurringTransactionRepository.update(existing.withFinalOccurrenceDate(predecessorOccurrence))
         return recurringTransactionRepository.save(
             RecurringTransaction(
                 id = recurringTransactionIdGenerator(),

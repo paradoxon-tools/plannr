@@ -1,0 +1,15 @@
+meta {
+  name: Archive transaction
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/transactions/{{transactionId}}/archive
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

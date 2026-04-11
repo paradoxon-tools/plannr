@@ -32,12 +32,68 @@ data class RecurringTransaction private constructor(
     val createdAt: Long,
 ) {
     fun archive(finalOccurrenceDate: String? = this.finalOccurrenceDate): RecurringTransaction =
-        copy(
+        recreate(
             finalOccurrenceDate = finalOccurrenceDate,
             isArchived = true,
         )
 
-    fun unarchive(): RecurringTransaction = copy(isArchived = false)
+    fun unarchive(): RecurringTransaction = recreate(isArchived = false)
+
+    fun withLastMaterializedDate(lastMaterializedDate: String): RecurringTransaction =
+        recreate(lastMaterializedDate = lastMaterializedDate)
+
+    fun withFinalOccurrenceDate(finalOccurrenceDate: String?): RecurringTransaction =
+        recreate(finalOccurrenceDate = finalOccurrenceDate)
+
+    private fun recreate(
+        id: String = this.id,
+        contractId: String? = this.contractId,
+        accountId: String = this.accountId,
+        sourcePocketId: String? = this.sourcePocketId,
+        destinationPocketId: String? = this.destinationPocketId,
+        partnerId: String? = this.partnerId,
+        title: String = this.title,
+        description: String? = this.description,
+        amount: Long = this.amount,
+        currencyCode: String = this.currencyCode,
+        transactionType: String = this.transactionType,
+        firstOccurrenceDate: String = this.firstOccurrenceDate,
+        finalOccurrenceDate: String? = this.finalOccurrenceDate,
+        recurrenceType: String = this.recurrenceType,
+        skipCount: Int = this.skipCount,
+        daysOfWeek: List<String>? = this.daysOfWeek,
+        weeksOfMonth: List<Int>? = this.weeksOfMonth,
+        daysOfMonth: List<Int>? = this.daysOfMonth,
+        monthsOfYear: List<Int>? = this.monthsOfYear,
+        lastMaterializedDate: String? = this.lastMaterializedDate,
+        previousVersionId: String? = this.previousVersionId,
+        isArchived: Boolean = this.isArchived,
+        createdAt: Long = this.createdAt,
+    ): RecurringTransaction = RecurringTransaction(
+        id = id,
+        contractId = contractId,
+        accountId = accountId,
+        sourcePocketId = sourcePocketId,
+        destinationPocketId = destinationPocketId,
+        partnerId = partnerId,
+        title = title,
+        description = description,
+        amount = amount,
+        currencyCode = currencyCode,
+        transactionType = transactionType,
+        firstOccurrenceDate = firstOccurrenceDate,
+        finalOccurrenceDate = finalOccurrenceDate,
+        recurrenceType = recurrenceType,
+        skipCount = skipCount,
+        daysOfWeek = daysOfWeek,
+        weeksOfMonth = weeksOfMonth,
+        daysOfMonth = daysOfMonth,
+        monthsOfYear = monthsOfYear,
+        lastMaterializedDate = lastMaterializedDate,
+        previousVersionId = previousVersionId,
+        isArchived = isArchived,
+        createdAt = createdAt,
+    )
 
     companion object {
         operator fun invoke(

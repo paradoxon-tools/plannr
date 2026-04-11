@@ -24,10 +24,12 @@ class RecurringTransactionNormalization(
             finalOccurrenceDate = explicitFinalOccurrenceDate,
             recurrenceType = recurrenceType,
             skipCount = command.skipCount,
-            daysOfWeek = command.daysOfWeek?.map { DayOfWeek.valueOf(it.trim().uppercase()) },
-            weeksOfMonth = command.weeksOfMonth,
-            daysOfMonth = command.daysOfMonth,
-            monthsOfYear = command.monthsOfYear,
+            daysOfWeek = command.daysOfWeek
+                ?.map { DayOfWeek.valueOf(it.trim().uppercase()) }
+                ?.takeIf { it.isNotEmpty() },
+            weeksOfMonth = command.weeksOfMonth?.takeIf { it.isNotEmpty() },
+            daysOfMonth = command.daysOfMonth?.takeIf { it.isNotEmpty() },
+            monthsOfYear = command.monthsOfYear?.takeIf { it.isNotEmpty() },
         )
         val normalizedFinalDate = recurrenceCalculator.normalizeFinalOccurrenceDate(pattern, command.maxRecurrenceCount)
 

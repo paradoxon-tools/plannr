@@ -1,0 +1,26 @@
+meta {
+  name: Update pocket
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/pockets/{{pocketId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{accountId}}",
+    "name": "General",
+    "description": "Primary pocket",
+    "color": 16711680,
+    "isDefault": true
+  }
+}

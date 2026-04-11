@@ -230,16 +230,20 @@ class UpdateRecurringTransactionTest {
         assertEquals("2024-02-15", updated.finalOccurrenceDate)
     }
 
-    private fun useCase(recurringRepository: InMemoryRecurringTransactionRepository): UpdateRecurringTransactionUseCase {
+    private suspend fun useCase(recurringRepository: InMemoryRecurringTransactionRepository): UpdateRecurringTransactionUseCase {
         val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
         val partnerRepository = InMemoryPartnerRepository().apply { save(PartnerFixtures.partner()) }
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
         val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
+        var versionCount = 0
         return UpdateRecurringTransactionUseCase(
             recurringRepository,
             EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
             contextResolver(pocketRepository, partnerRepository, contractRepository),
-            { "rtx_new" },
+            {
+                versionCount += 1
+                if (versionCount == 1) "rtx_new" else "rtx_new_$versionCount"
+            },
             { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
             RecurringTransactionNormalization(),
             RecurringVersioningService(),

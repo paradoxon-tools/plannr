@@ -1,0 +1,27 @@
+meta {
+  name: Create contract
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "pocketId": "{{pocketId}}",
+    "partnerId": "{{partnerId}}",
+    "name": "Mobile plan",
+    "startDate": "2026-01-01",
+    "endDate": null,
+    "notes": "Sample contract"
+  }
+}

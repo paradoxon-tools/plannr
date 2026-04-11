@@ -78,7 +78,11 @@ class RecurringTransactionMaterializer(
             }
         }
         if (latestCreatedDate != null) {
-            recurringTransactionRepository.update(recurring.copy(lastMaterializedDate = maxOf(recurring.lastMaterializedDate ?: latestCreatedDate, latestCreatedDate)))
+            recurringTransactionRepository.update(
+                recurring.withLastMaterializedDate(
+                    maxOf(recurring.lastMaterializedDate ?: latestCreatedDate, latestCreatedDate),
+                ),
+            )
             dirtyScopeService.markAccountDirty(recurring.accountId)
             setOfNotNull(recurring.sourcePocketId, recurring.destinationPocketId).forEach { dirtyScopeService.markPocketDirty(it) }
         }

@@ -1,0 +1,15 @@
+meta {
+  name: List account future transactions
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/query/accounts/{{accountId}}/future-transactions?fromDate={{fromDate}}&toDate={{toDate}}&after={{afterCursor}}&limit={{limit}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

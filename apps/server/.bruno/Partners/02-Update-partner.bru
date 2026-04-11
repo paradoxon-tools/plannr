@@ -1,0 +1,23 @@
+meta {
+  name: Update partner
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/partners/{{partnerId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Acme Inc",
+    "notes": "Updated sample partner"
+  }
+}

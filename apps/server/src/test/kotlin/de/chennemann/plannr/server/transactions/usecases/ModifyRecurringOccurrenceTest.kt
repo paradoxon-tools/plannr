@@ -66,7 +66,7 @@ class ModifyRecurringOccurrenceTest {
         }
     }
 
-    private fun useCase(transactionRepository: InMemoryTransactionRepository): ModifyRecurringOccurrenceUseCase {
+    private suspend fun useCase(transactionRepository: InMemoryTransactionRepository): ModifyRecurringOccurrenceUseCase {
         val accountRepository = InMemoryAccountRepository().apply { save(AccountFixtures.account()) }
         val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
         val partnerRepository = InMemoryPartnerRepository()

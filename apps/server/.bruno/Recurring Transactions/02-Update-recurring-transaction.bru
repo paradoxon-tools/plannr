@@ -1,0 +1,40 @@
+meta {
+  name: Update recurring transaction
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/recurring-transactions/{{recurringTransactionId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "updateMode": "overwrite",
+    "contractId": "{{contractId}}",
+    "sourcePocketId": "{{pocketId}}",
+    "destinationPocketId": null,
+    "partnerId": "{{partnerId}}",
+    "title": "Monthly subscription",
+    "description": "Updated recurring expense",
+    "amount": 1099,
+    "currencyCode": "{{currencyCode}}",
+    "transactionType": "EXPENSE",
+    "firstOccurrenceDate": "2026-04-15",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "MONTHLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [15],
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}

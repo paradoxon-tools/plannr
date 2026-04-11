@@ -1,0 +1,15 @@
+meta {
+  name: Archive pocket
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/pockets/{{pocketId}}/archive
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

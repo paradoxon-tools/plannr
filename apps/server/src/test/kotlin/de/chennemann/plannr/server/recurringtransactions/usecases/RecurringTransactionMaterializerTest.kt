@@ -282,18 +282,23 @@ class RecurringTransactionMaterializerTest {
         assertEquals(emptyList(), transactionRepository.all())
     }
 
-    private fun materializer(
+    private suspend fun materializer(
         recurringRepository: InMemoryRecurringTransactionRepository,
         transactionRepository: InMemoryTransactionRepository,
-        accountRepository: InMemoryAccountRepository = InMemoryAccountRepository().apply { save(AccountFixtures.account(weekendHandling = "NO_SHIFT")) },
+        accountRepository: InMemoryAccountRepository? = null,
         today: LocalDate = LocalDate.parse("2024-04-10"),
-    ): RecurringTransactionMaterializer = RecurringTransactionMaterializer(
+    ): RecurringTransactionMaterializer {
+        val resolvedAccountRepository = accountRepository ?: InMemoryAccountRepository().apply {
+            save(AccountFixtures.account(weekendHandling = "NO_SHIFT"))
+        }
+        return RecurringTransactionMaterializer(
             recurringTransactionRepository = recurringRepository,
             transactionRepository = transactionRepository,
-            accountRepository = accountRepository,
+            accountRepository = resolvedAccountRepository,
             transactionIdGenerator = { "txn_${transactionRepository.all().size + 1}" },
             localDateProvider = { today },
             timeProvider = { 1L },
             dirtyScopeService = ProjectionDirtyScopeService(InMemoryProjectionDirtyScopeRepository(), timeProvider = { 1L }),
         )
+    }
 }

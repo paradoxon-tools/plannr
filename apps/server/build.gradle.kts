@@ -1,3 +1,4 @@
+import java.util.concurrent.TimeUnit
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -48,8 +49,25 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-postgresql")
 }
 
+val dockerAvailable = runCatching {
+    val process = ProcessBuilder("docker", "info")
+        .redirectErrorStream(true)
+        .start()
+    process.inputStream.bufferedReader().use { it.readText() }
+    process.waitFor(10, TimeUnit.SECONDS) && process.exitValue() == 0
+}.getOrDefault(false)
+
 tasks.withType<Test> {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        if (!dockerAvailable) {
+            excludeTags("integration")
+        }
+    }
+    doFirst {
+        if (!dockerAvailable) {
+            logger.lifecycle("Docker is not available; skipping integration tests tagged 'integration'.")
+        }
+    }
 }
 
 tasks.withType<KotlinCompile> {

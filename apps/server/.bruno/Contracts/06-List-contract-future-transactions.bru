@@ -1,0 +1,15 @@
+meta {
+  name: List contract future transactions
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/query/contracts/{{contractId}}/future-transactions?fromDate={{fromDate}}&toDate={{toDate}}&after={{afterCursor}}&limit={{limit}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

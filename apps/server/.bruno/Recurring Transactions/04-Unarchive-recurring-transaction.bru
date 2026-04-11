@@ -1,0 +1,15 @@
+meta {
+  name: Unarchive recurring transaction
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/recurring-transactions/{{recurringTransactionId}}/unarchive
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

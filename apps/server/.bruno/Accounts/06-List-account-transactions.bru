@@ -1,0 +1,15 @@
+meta {
+  name: List account transactions
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/query/accounts/{{accountId}}/transactions?limit={{limit}}&before={{beforeCursor}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

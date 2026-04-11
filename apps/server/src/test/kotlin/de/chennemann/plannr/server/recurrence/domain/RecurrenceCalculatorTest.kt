@@ -198,7 +198,7 @@ class RecurrenceCalculatorTest {
     }
 
     @Test
-    fun `yearly recurrence supports same date and month/day restrictions with skip count`() {
+    fun `yearly recurrence supports same date and month-day restrictions with skip count`() {
         assertEquals(
             listOf("2024-06-15", "2026-06-15", "2028-06-15").map(LocalDate::parse),
             calculator.occurrences(
@@ -284,7 +284,7 @@ class RecurrenceCalculatorTest {
         firstOccurrenceDate: String = "2024-01-01",
         finalOccurrenceDate: String? = "2024-01-05",
         skipCount: Int = 0,
-        daysOfWeek: List<DayOfWeek>? = listOf(DayOfWeek.MONDAY),
+        daysOfWeek: List<DayOfWeek>? = null,
         weeksOfMonth: List<Int>? = null,
         daysOfMonth: List<Int>? = null,
         monthsOfYear: List<Int>? = null,

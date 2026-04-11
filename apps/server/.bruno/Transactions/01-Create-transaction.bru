@@ -1,0 +1,33 @@
+meta {
+  name: Create transaction
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/transactions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "type": "EXPENSE",
+    "status": "PENDING",
+    "transactionDate": "2026-04-01",
+    "amount": 1299,
+    "currencyCode": "{{currencyCode}}",
+    "exchangeRate": null,
+    "destinationAmount": null,
+    "description": "Coffee beans",
+    "partnerId": "{{partnerId}}",
+    "pocketId": "{{pocketId}}",
+    "sourcePocketId": null,
+    "destinationPocketId": null
+  }
+}

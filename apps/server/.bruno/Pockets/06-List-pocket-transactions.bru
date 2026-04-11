@@ -1,0 +1,15 @@
+meta {
+  name: List pocket transactions
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/query/pockets/{{pocketId}}/transactions?limit={{limit}}&before={{beforeCursor}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

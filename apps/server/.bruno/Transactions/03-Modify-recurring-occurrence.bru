@@ -1,0 +1,33 @@
+meta {
+  name: Modify recurring occurrence
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/transactions/{{transactionId}}/modify-recurring-occurrence
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "type": "EXPENSE",
+    "status": "CLEARED",
+    "transactionDate": "2026-04-02",
+    "amount": 1399,
+    "currencyCode": "{{currencyCode}}",
+    "exchangeRate": null,
+    "destinationAmount": null,
+    "description": "Modified recurring expense",
+    "partnerId": "{{partnerId}}",
+    "pocketId": "{{pocketId}}",
+    "sourcePocketId": null,
+    "destinationPocketId": null
+  }
+}

@@ -128,8 +128,13 @@ private fun monthAllowed(month: YearMonth, pattern: RecurrencePattern): Boolean 
     pattern.monthsOfYear?.contains(month.monthValue) ?: true
 
 private fun candidatesForMonth(pattern: RecurrencePattern, month: YearMonth): List<LocalDate> {
-    val byDayOfMonth = (pattern.daysOfMonth ?: listOf(pattern.firstOccurrenceDate.dayOfMonth))
-        .mapNotNull { selector -> selectDayOfMonth(month, selector) }
+    val byDayOfMonth = when {
+        pattern.daysOfMonth != null -> pattern.daysOfMonth
+            .mapNotNull { selector -> selectDayOfMonth(month, selector) }
+        pattern.weeksOfMonth != null && pattern.daysOfWeek != null -> emptyList()
+        else -> listOf(pattern.firstOccurrenceDate.dayOfMonth)
+            .mapNotNull { selector -> selectDayOfMonth(month, selector) }
+    }
 
     val byWeekAndWeekday = if (pattern.weeksOfMonth != null && pattern.daysOfWeek != null) {
         pattern.weeksOfMonth.flatMap { week ->

@@ -66,7 +66,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
         )
         archiveTransaction(transaction.id)
         updatePocket(de.chennemann.plannr.server.pockets.usecases.UpdatePocket.Command(pocket.id, account.id, "Wallet 2", null, 999, true))
-        updatePartner(de.chennemann.plannr.server.partners.usecases.UpdatePartner.Command(partner.id, "Shop 2"))
+        updatePartner(de.chennemann.plannr.server.partners.usecases.UpdatePartner.Command(partner.id, "Shop 2", null))
         dirtyScopeService.markPocketDirty(pocket.id)
         dirtyScopeService.markPocketDirty(pocket.id)
 

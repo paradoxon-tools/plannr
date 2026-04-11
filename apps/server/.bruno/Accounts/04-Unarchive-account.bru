@@ -1,0 +1,15 @@
+meta {
+  name: Unarchive account
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/accounts/{{accountId}}/unarchive
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

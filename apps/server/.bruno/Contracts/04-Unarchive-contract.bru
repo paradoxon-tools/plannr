@@ -1,0 +1,15 @@
+meta {
+  name: Unarchive contract
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/contracts/{{contractId}}/unarchive
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

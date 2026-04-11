@@ -1,0 +1,23 @@
+meta {
+  name: Create partner
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Acme Inc",
+    "notes": "Sample partner"
+  }
+}
