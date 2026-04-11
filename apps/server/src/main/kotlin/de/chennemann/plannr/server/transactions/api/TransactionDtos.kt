@@ -61,6 +61,36 @@ data class UpdateTransactionRequest(
     )
 }
 
+data class ModifyRecurringOccurrenceRequest(
+    val type: String,
+    val status: String,
+    val transactionDate: String,
+    val amount: Long,
+    val currencyCode: String,
+    val exchangeRate: String?,
+    val destinationAmount: Long?,
+    val description: String,
+    val partnerId: String?,
+    val sourcePocketId: String?,
+    val destinationPocketId: String?,
+) {
+    fun toCommand(transactionId: String): de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence.Command =
+        de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence.Command(
+            transactionId = transactionId,
+            type = type,
+            status = status,
+            transactionDate = transactionDate,
+            amount = amount,
+            currencyCode = currencyCode,
+            exchangeRate = exchangeRate,
+            destinationAmount = destinationAmount,
+            description = description,
+            partnerId = partnerId,
+            sourcePocketId = sourcePocketId,
+            destinationPocketId = destinationPocketId,
+        )
+}
+
 data class TransactionResponse(
     val id: String,
     val accountId: String,

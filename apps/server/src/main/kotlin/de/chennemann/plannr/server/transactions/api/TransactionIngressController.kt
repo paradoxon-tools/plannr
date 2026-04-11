@@ -3,6 +3,7 @@ package de.chennemann.plannr.server.transactions.api
 import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
 import de.chennemann.plannr.server.transactions.usecases.UnarchiveTransaction
+import de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence
 import de.chennemann.plannr.server.transactions.usecases.UpdateTransaction
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 class TransactionIngressController(
     private val createTransaction: CreateTransaction,
     private val updateTransaction: UpdateTransaction,
+    private val modifyRecurringOccurrence: ModifyRecurringOccurrence,
     private val archiveTransaction: ArchiveTransaction,
     private val unarchiveTransaction: UnarchiveTransaction,
 ) {
@@ -29,6 +31,10 @@ class TransactionIngressController(
     @PutMapping("/{id}")
     suspend fun update(@PathVariable id: String, @RequestBody request: UpdateTransactionRequest): TransactionResponse =
         TransactionResponse.from(updateTransaction(request.toCommand(id)))
+
+    @PostMapping("/{id}/modify-recurring-occurrence")
+    suspend fun modifyRecurringOccurrence(@PathVariable id: String, @RequestBody request: ModifyRecurringOccurrenceRequest): TransactionResponse =
+        TransactionResponse.from(modifyRecurringOccurrence(request.toCommand(id)))
 
     @PostMapping("/{id}/archive")
     suspend fun archive(@PathVariable id: String): TransactionResponse =

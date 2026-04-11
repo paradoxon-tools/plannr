@@ -552,24 +552,24 @@ Expected behavior:
 
 Tasks:
 
-- `[ ]` Add use case and API contract for occurrence modification.
-- `[ ]` Prevent duplicate modification chains from being created accidentally.
-- `[ ]` Ensure only recurring-materialized root occurrences can be modified this way.
+- `[x]` Add use case and API contract for occurrence modification.
+- `[x]` Prevent duplicate modification chains from being created accidentally.
+- `[x]` Ensure only recurring-materialized root occurrences can be modified this way.
 
 Verification:
 
-- `[ ]` use case tests prove original/child linkage.
-- `[ ]` visibility tests prove original becomes hidden.
-- `[ ]` repeat-modification tests prove expected behavior is enforced.
+- `[x]` use case tests prove original/child linkage.
+- `[x]` visibility tests prove original becomes hidden.
+- `[x]` repeat-modification tests prove expected behavior is enforced.
 
 ## 5.2 Make materializer aware of modified occurrences
 
-- `[ ]` Detect that an occurrence is already represented when a root occurrence exists and/or has a modification chain.
-- `[ ]` Do not materialize duplicates for dates already covered by an existing root occurrence.
+- `[x]` Detect that an occurrence is already represented when a root occurrence exists and/or has a modification chain.
+- `[x]` Do not materialize duplicates for dates already covered by an existing root occurrence.
 
 Verification:
 
-- `[ ]` materialization tests prove modified occurrences block duplicate rematerialization.
+- `[x]` materialization tests prove modified occurrences block duplicate rematerialization.
 
 ---
 
