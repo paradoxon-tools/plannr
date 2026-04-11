@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: plannr
+      POSTGRES_USER: plannr
+      POSTGRES_PASSWORD: plannr
+    ports:
+      - "5432:5432"
+    volumes:
+      - plannr-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plannr -d plannr"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  plannr-postgres-data:

@@ -8,15 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.testcontainers.postgresql.PostgreSQLContainer
 
 @Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-abstract class ApiIntegrationTest {
+abstract class ApiIntegrationTest : PostgresContainerSupport() {
     @LocalServerPort
     private var port: Int = 0
 
@@ -42,26 +39,4 @@ abstract class ApiIntegrationTest {
         DatabaseCleaner(databaseClient).deleteAllFrom(*tables)
     }
 
-    companion object {
-        @JvmField
-        protected val postgres = PostgreSQLContainer("postgres:17-alpine")
-            .withDatabaseName("plannr_test")
-            .withUsername("plannr")
-            .withPassword("plannr")
-            .apply { start() }
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun registerProperties(registry: DynamicPropertyRegistry) {
-            val jdbcUrl = postgres.jdbcUrl
-            val r2dbcUrl = "r2dbc:postgresql://${postgres.host}:${postgres.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT)}/${postgres.databaseName}"
-
-            registry.add("spring.datasource.url") { jdbcUrl }
-            registry.add("spring.datasource.username") { postgres.username }
-            registry.add("spring.datasource.password") { postgres.password }
-            registry.add("spring.r2dbc.url") { r2dbcUrl }
-            registry.add("spring.r2dbc.username") { postgres.username }
-            registry.add("spring.r2dbc.password") { postgres.password }
-        }
-    }
 }

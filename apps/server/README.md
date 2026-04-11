@@ -4,11 +4,21 @@ Coroutine-first Spring Boot backend for plannr.
 
 ## Run locally
 
+Prerequisite: Docker Desktop (or another local Docker engine) must be running.
+
 ```bash
 ./gradlew bootRun
 ```
 
-Default local database: in-memory H2 via R2DBC.
+Spring Boot will automatically start the Postgres service from `compose.yml` and connect the application to it. The same works when you run the app directly from IntelliJ.
+
+For non-local environments, configure the database via the standard Spring properties/environment variables:
+- `SPRING_R2DBC_URL`
+- `SPRING_R2DBC_USERNAME`
+- `SPRING_R2DBC_PASSWORD`
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
 
 ## Endpoint
 

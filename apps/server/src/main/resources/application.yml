@@ -1,14 +1,17 @@
 spring:
   application:
     name: plannr-server
+  docker:
+    compose:
+      lifecycle-management: start_and_stop
   r2dbc:
-    url: ${SPRING_R2DBC_URL:r2dbc:h2:mem:///plannr;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
-    username: ${SPRING_DB_USERNAME:sa}
-    password: ${SPRING_DB_PASSWORD:}
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/plannr}
+    username: ${SPRING_R2DBC_USERNAME:${SPRING_DB_USERNAME:plannr}}
+    password: ${SPRING_R2DBC_PASSWORD:${SPRING_DB_PASSWORD:plannr}}
   flyway:
-    url: ${SPRING_JDBC_URL:jdbc:h2:mem:///plannr;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
-    user: ${SPRING_DB_USERNAME:sa}
-    password: ${SPRING_DB_PASSWORD:}
+    url: ${SPRING_FLYWAY_URL:${SPRING_DATASOURCE_URL:${SPRING_JDBC_URL:jdbc:postgresql://localhost:5432/plannr}}}
+    user: ${SPRING_FLYWAY_USER:${SPRING_DATASOURCE_USERNAME:${SPRING_DB_USERNAME:plannr}}}
+    password: ${SPRING_FLYWAY_PASSWORD:${SPRING_DATASOURCE_PASSWORD:${SPRING_DB_PASSWORD:plannr}}}
 plannr:
   projections:
     dirty-scope-delay-ms: 30000
