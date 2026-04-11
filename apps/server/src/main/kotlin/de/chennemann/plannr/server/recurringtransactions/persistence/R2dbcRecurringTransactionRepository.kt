@@ -15,12 +15,12 @@ class R2dbcRecurringTransactionRepository(
         val spec = databaseClient.sql(
             """
             INSERT INTO recurring_transactions (
-                id, contract_id, account_id, source_pocket_id, destination_pocket_id, partner_id, title, description,
+                id, source_pocket_id, destination_pocket_id, partner_id, title, description,
                 amount, currency_code, transaction_type, first_occurrence_date, final_occurrence_date, recurrence_type,
                 skip_count, days_of_week, weeks_of_month, days_of_month, months_of_year, last_materialized_date,
                 previous_version_id, is_archived, created_at
             ) VALUES (
-                :id, :contractId, :accountId, :sourcePocketId, :destinationPocketId, :partnerId, :title, :description,
+                :id, :sourcePocketId, :destinationPocketId, :partnerId, :title, :description,
                 :amount, :currencyCode, :transactionType, :firstOccurrenceDate, :finalOccurrenceDate, :recurrenceType,
                 :skipCount, :daysOfWeek, :weeksOfMonth, :daysOfMonth, :monthsOfYear, :lastMaterializedDate,
                 :previousVersionId, :isArchived, :createdAt
@@ -35,8 +35,6 @@ class R2dbcRecurringTransactionRepository(
         val spec = databaseClient.sql(
             """
             UPDATE recurring_transactions SET
-                contract_id = :contractId,
-                account_id = :accountId,
                 source_pocket_id = :sourcePocketId,
                 destination_pocket_id = :destinationPocketId,
                 partner_id = :partnerId,
@@ -69,9 +67,9 @@ class R2dbcRecurringTransactionRepository(
         .fetch().one().map(::toRecurringTransaction).awaitSingleOrNull()
 
     override suspend fun findAll(accountId: String?, contractId: String?, archived: Boolean): List<RecurringTransaction> {
-        val conditions = mutableListOf("is_archived = :archived")
-        if (accountId != null) conditions += "account_id = :accountId"
-        if (contractId != null) conditions += "contract_id = :contractId"
+        val conditions = mutableListOf("rt.is_archived = :archived")
+        if (accountId != null) conditions += "COALESCE(sp.account_id, dp.account_id) = :accountId"
+        if (contractId != null) conditions += "c.id = :contractId"
         var spec = databaseClient.sql(selectSql("WHERE ${conditions.joinToString(" AND ")}"))
             .bind("archived", archived)
         if (accountId != null) spec = spec.bind("accountId", accountId)
@@ -80,7 +78,7 @@ class R2dbcRecurringTransactionRepository(
     }
 
     override suspend fun findByContractId(contractId: String): List<RecurringTransaction> =
-        databaseClient.sql(selectSql("WHERE contract_id = :contractId"))
+        databaseClient.sql(selectSql("WHERE c.id = :contractId"))
             .bind("contractId", contractId)
             .fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
 
@@ -91,15 +89,40 @@ class R2dbcRecurringTransactionRepository(
 
     private fun selectSql(whereClause: String) =
         """
-        SELECT * FROM recurring_transactions
+        SELECT rt.id,
+               c.id AS contract_id,
+               COALESCE(sp.account_id, dp.account_id) AS account_id,
+               rt.source_pocket_id,
+               rt.destination_pocket_id,
+               rt.partner_id,
+               rt.title,
+               rt.description,
+               rt.amount,
+               rt.currency_code,
+               rt.transaction_type,
+               rt.first_occurrence_date,
+               rt.final_occurrence_date,
+               rt.recurrence_type,
+               rt.skip_count,
+               rt.days_of_week,
+               rt.weeks_of_month,
+               rt.days_of_month,
+               rt.months_of_year,
+               rt.last_materialized_date,
+               rt.previous_version_id,
+               rt.is_archived,
+               rt.created_at
+        FROM recurring_transactions rt
+        LEFT JOIN pockets sp ON sp.id = rt.source_pocket_id
+        LEFT JOIN pockets dp ON dp.id = rt.destination_pocket_id
+        LEFT JOIN contracts c ON c.pocket_id = rt.source_pocket_id OR c.pocket_id = rt.destination_pocket_id
         $whereClause
-        ORDER BY created_at ASC, id ASC
+        ORDER BY rt.created_at ASC, rt.id ASC
         """.trimIndent()
 
     private fun bindAll(spec: DatabaseClient.GenericExecuteSpec, recurringTransaction: RecurringTransaction): DatabaseClient.GenericExecuteSpec {
         var current = spec
             .bind("id", recurringTransaction.id)
-            .bind("accountId", recurringTransaction.accountId)
             .bind("title", recurringTransaction.title)
             .bind("amount", recurringTransaction.amount)
             .bind("currencyCode", recurringTransaction.currencyCode)
@@ -109,7 +132,6 @@ class R2dbcRecurringTransactionRepository(
             .bind("skipCount", recurringTransaction.skipCount)
             .bind("isArchived", recurringTransaction.isArchived)
             .bind("createdAt", recurringTransaction.createdAt)
-        current = bindNullable(current, "contractId", recurringTransaction.contractId)
         current = bindNullable(current, "sourcePocketId", recurringTransaction.sourcePocketId)
         current = bindNullable(current, "destinationPocketId", recurringTransaction.destinationPocketId)
         current = bindNullable(current, "partnerId", recurringTransaction.partnerId)

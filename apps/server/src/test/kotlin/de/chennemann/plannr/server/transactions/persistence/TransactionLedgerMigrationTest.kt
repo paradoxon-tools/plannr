@@ -21,6 +21,8 @@ class TransactionLedgerMigrationTest : ApiIntegrationTest() {
 
         assertEquals(true, hasTransactionsColumn("pocket_id"))
         assertEquals(false, hasTransactionsColumn("account_id"))
+        assertEquals(false, hasRecurringTransactionsColumn("account_id"))
+        assertEquals(false, hasRecurringTransactionsColumn("contract_id"))
     }
 
     @Test
@@ -31,6 +33,8 @@ class TransactionLedgerMigrationTest : ApiIntegrationTest() {
 
         assertEquals(true, hasTransactionsColumn("pocket_id"))
         assertEquals(false, hasTransactionsColumn("account_id"))
+        assertEquals(false, hasRecurringTransactionsColumn("account_id"))
+        assertEquals(false, hasRecurringTransactionsColumn("contract_id"))
     }
 
     private fun flyway(target: String? = null): Flyway {
@@ -44,15 +48,20 @@ class TransactionLedgerMigrationTest : ApiIntegrationTest() {
         return configuration.load()
     }
 
-    private suspend fun hasTransactionsColumn(columnName: String): Boolean =
+    private suspend fun hasTransactionsColumn(columnName: String): Boolean = hasColumn("transactions", columnName)
+
+    private suspend fun hasRecurringTransactionsColumn(columnName: String): Boolean = hasColumn("recurring_transactions", columnName)
+
+    private suspend fun hasColumn(tableName: String, columnName: String): Boolean =
         ((databaseClient.sql(
             """
             SELECT COUNT(*) AS value
             FROM information_schema.columns
-            WHERE table_name = 'transactions'
+            WHERE table_name = :tableName
               AND column_name = :columnName
             """.trimIndent(),
         )
+            .bind("tableName", tableName)
             .bind("columnName", columnName)
             .fetch()
             .one()

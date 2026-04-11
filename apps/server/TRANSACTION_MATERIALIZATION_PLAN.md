@@ -798,7 +798,7 @@ Verification:
 - `[x]` finalize enum vocabulary
 - `[x]` finalize visibility rules
 - `[x]` finalize current-balance semantics
-- `[ ]` remove derived recurring and transaction-side `account_id` / `contract_id` from canonical schema and document projection-side denormalization
+- `[x]` remove derived recurring and transaction-side `account_id` / `contract_id` from canonical schema and document projection-side denormalization
 
 ## Step B - canonical ledger and recurrence engine
 
