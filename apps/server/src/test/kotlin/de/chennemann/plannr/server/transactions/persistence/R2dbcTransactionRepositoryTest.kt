@@ -95,6 +95,13 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
     }
 
     @Test
+    fun `visible unmodified recurring roots remain queryable`() = runBlocking {
+        transactionRepository.save(transaction(id = "txn_root", transactionDate = "2026-04-12", status = "PENDING", recurringTransactionId = "rtx_123", transactionOrigin = "RECURRING_MATERIALIZED"))
+
+        assertEquals(listOf("txn_root"), transactionRepository.findVisibleByRecurringTransactionId("rtx_123").map { it.id })
+    }
+
+    @Test
     fun `visible pending and future queries use visibility aware filtering`() = runBlocking {
         transactionRepository.save(transaction(id = "txn_pending_future", status = "PENDING", transactionDate = "2026-04-12"))
         transactionRepository.save(transaction(id = "txn_cleared_future", status = "CLEARED", transactionDate = "2026-04-13"))
@@ -121,6 +128,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         modifiedById: String? = null,
         status: String = "CLEARED",
         isArchived: Boolean = false,
+        transactionOrigin: String = "MANUAL",
     ): TransactionRecord = TransactionRecord(
         id = id,
         accountId = "acc_123",
@@ -139,7 +147,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         parentTransactionId = parentTransactionId,
         recurringTransactionId = recurringTransactionId,
         modifiedById = modifiedById,
-        transactionOrigin = "MANUAL",
+        transactionOrigin = transactionOrigin,
         isArchived = isArchived,
         createdAt = 1L,
     )

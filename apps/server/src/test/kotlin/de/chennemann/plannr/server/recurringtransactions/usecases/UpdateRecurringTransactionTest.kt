@@ -154,6 +154,52 @@ class UpdateRecurringTransactionTest {
     }
 
     @Test
+    fun `allows sequential non overlapping versions in the same chain`() = runTest {
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply {
+            save(
+                RecurringTransactionFixtures.recurringTransaction(
+                    firstOccurrenceDate = "2024-01-15",
+                    finalOccurrenceDate = null,
+                    recurrenceType = "MONTHLY",
+                    daysOfMonth = listOf(15),
+                    weeksOfMonth = null,
+                    daysOfWeek = null,
+                    monthsOfYear = null,
+                ),
+            )
+        }
+        val useCase = useCase(recurringRepository)
+
+        val firstVersion = useCase(
+            RecurringTransactionFixtures.updateRequest(
+                updateMode = "new_version",
+                firstOccurrenceDate = "2024-06-15",
+                finalOccurrenceDate = null,
+                recurrenceType = "MONTHLY",
+                daysOfMonth = listOf(15),
+                weeksOfMonth = null,
+                daysOfWeek = null,
+                monthsOfYear = null,
+            ).toCommand(RecurringTransactionFixtures.DEFAULT_ID),
+        )
+        val secondVersion = useCase(
+            RecurringTransactionFixtures.updateRequest(
+                updateMode = "new_version",
+                firstOccurrenceDate = "2024-09-15",
+                finalOccurrenceDate = null,
+                recurrenceType = "MONTHLY",
+                daysOfMonth = listOf(15),
+                weeksOfMonth = null,
+                daysOfWeek = null,
+                monthsOfYear = null,
+            ).toCommand(firstVersion.id),
+        )
+
+        assertEquals(firstVersion.id, secondVersion.previousVersionId)
+        assertEquals("2024-08-15", recurringRepository.findById(firstVersion.id)?.finalOccurrenceDate)
+    }
+
+    @Test
     fun `rejects unsupported update mode`() = runTest {
         val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction()) }
         val useCase = useCase(recurringRepository)

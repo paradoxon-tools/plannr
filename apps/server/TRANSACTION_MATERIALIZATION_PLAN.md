@@ -383,7 +383,7 @@ Recommended upgrade:
 Verification:
 
 - `[x]` persistence tests prove sorted, duplicate-free storage.
-- `[ ]` migration tests prove old rows are migrated correctly.
+- `[x]` migration tests prove old rows are migrated correctly.
 
 ---
 
@@ -487,8 +487,8 @@ Tasks:
 
 Verification:
 
-- `[ ]` daily tests prove next calendar month is fully covered.
-- `[ ]` monthly tests prove full next month is covered.
+- `[x]` daily tests prove next calendar month is fully covered.
+- `[x]` monthly tests prove full next month is covered.
 - `[x]` yearly tests prove at least 5 future occurrences are materialized when next month would otherwise be too small.
 - `[x]` sparse recurrence tests prove the minimum-occurrence rule works.
 
@@ -500,8 +500,8 @@ Verification:
 
 Verification:
 
-- `[ ]` Saturday/Sunday materialization tests for all 3 weekend modes.
-- `[ ]` duplicate tests for shifted dates.
+- `[x]` Saturday/Sunday materialization tests for all 3 weekend modes.
+- `[x]` duplicate tests for shifted dates.
 
 ## 4.4 Materialize transactions with canonical status and linkage
 
@@ -600,22 +600,22 @@ Verification:
 - `[x]` Add a scheduled job that processes dirty scopes on a short interval.
 - `[x]` Rebuild only affected account/pocket read models.
 - `[x]` Make the job idempotent.
-- `[ ]` Ensure failures leave scopes dirty for retry.
+- `[x]` Ensure failures leave scopes dirty for retry.
 
 Verification:
 
 - `[x]` scheduler tests prove dirty scopes are consumed.
-- `[ ]` failure tests prove retry behavior.
+- `[x]` failure tests prove retry behavior.
 
 ## 6.3 Add periodic full rebuild safety job
 
 - `[x]` Add a cron-driven full rebuild job for all transaction-derived projections.
 - `[x]` Keep it safe to rerun repeatedly.
-- `[ ]` Add observability/logging around rebuild duration and counts.
+- `[x]` Add observability/logging around rebuild duration and counts.
 
 Verification:
 
-- `[ ]` deterministic rebuild tests prove repeat rebuilds produce identical results.
+- `[x]` deterministic rebuild tests prove repeat rebuilds produce identical results.
 - `[x]` integration test proves a full rebuild can recover from intentionally stale/missing feed rows.
 
 ---
@@ -683,8 +683,8 @@ Verification:
 
 Verification:
 
-- `[ ]` tests prove deleting future feed rows and rebuilding them does not affect historical feed rows.
-- `[ ]` tests prove deleting historical feed rows and rebuilding them does not affect future feed rows.
+- `[x]` tests prove deleting future feed rows and rebuilding them does not affect historical feed rows.
+- `[x]` tests prove deleting historical feed rows and rebuilding them does not affect future feed rows.
 
 ---
 
@@ -830,7 +830,7 @@ Verification:
 
 - `[x]` backfill old data
 - `[ ]` run full regression suite
-- `[ ]` run deterministic rebuild checks
+- `[x]` run deterministic rebuild checks
 
 ---
 
@@ -849,7 +849,7 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` accept `TRANSFER`
 - `[x]` accept `PENDING`
 - `[x]` accept `CLEARED`
-- `[ ]` accept `RECONCILED`
+- `[x]` accept `RECONCILED`
 
 ## Recurrence enums
 
@@ -864,59 +864,59 @@ The list below is intentionally broad. Each item should become an automated test
 
 - `[x]` reject unknown `WeekendHandling`
 - `[x]` accept `NO_SHIFT`
-- `[ ]` accept `MOVE_BEFORE`
+- `[x]` accept `MOVE_BEFORE`
 - `[x]` accept `MOVE_AFTER`
 
 # B. Recurrence engine tests
 
 ## Common
 
-- `[ ]` negative `skipCount` rejected
-- `[ ]` `finalOccurrenceDate < firstOccurrenceDate` handled correctly
+- `[x]` negative `skipCount` rejected
+- `[x]` `finalOccurrenceDate < firstOccurrenceDate` handled correctly
 - `[x]` max-count normalization derives final date correctly
-- `[ ]` explicit final date overrides max-count input
+- `[x]` explicit final date overrides max-count input
 
 ## NONE
 
 - `[x]` emits only first date
-- `[ ]` emits nothing if final date is before first date
+- `[x]` emits nothing if final date is before first date
 
 ## DAILY
 
-- `[ ]` daily recurrence with `skipCount = 0`
+- `[x]` daily recurrence with `skipCount = 0`
 - `[x]` daily recurrence with `skipCount = 1`
-- `[ ]` daily recurrence honors final date
+- `[x]` daily recurrence honors final date
 
 ## WEEKLY
 
-- `[ ]` weekly default weekday when `daysOfWeek` absent
+- `[x]` weekly default weekday when `daysOfWeek` absent
 - `[x]` weekly multiple weekdays in ascending order
-- `[ ]` weekly skip whole weeks
-- `[ ]` weekly first emitted date moves forward to next matching day
+- `[x]` weekly skip whole weeks
+- `[x]` weekly first emitted date moves forward to next matching day
 
 ## MONTHLY
 
-- `[ ]` monthly default day-of-month behavior
-- `[ ]` monthly `daysOfMonth` precedence
+- `[x]` monthly default day-of-month behavior
+- `[x]` monthly `daysOfMonth` precedence
 - `[x]` negative `daysOfMonth` support
 - `[x]` `weeksOfMonth + daysOfWeek` support
-- `[ ]` negative `weeksOfMonth` support
-- `[ ]` month restrictions
-- `[ ]` clamping to month length
+- `[x]` negative `weeksOfMonth` support
+- `[x]` month restrictions
+- `[x]` clamping to month length
 
 ## YEARLY
 
-- `[ ]` yearly same-date recurrence
+- `[x]` yearly same-date recurrence
 - `[x]` leap-day clamping to Feb 28 in non-leap years
-- `[ ]` yearly with month restrictions
-- `[ ]` yearly with days-of-month restrictions
-- `[ ]` yearly with skip count
+- `[x]` yearly with month restrictions
+- `[x]` yearly with days-of-month restrictions
+- `[x]` yearly with skip count
 
 # C. Recurring template persistence tests
 
-- `[ ]` create recurring template with yearly recurrence
+- `[x]` create recurring template with yearly recurrence
 - `[x]` normalize unordered selector lists on save
-- `[ ]` store null for empty selector lists
+- `[x]` store null for empty selector lists
 - `[x]` persist normalized final date from max-count input
 - `[x]` round-trip all recurrence selectors
 - `[x]` archived template excluded from materialization queries
@@ -927,7 +927,7 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` new weekly version closes prior version at correct predecessor weekday
 - `[x]` new yearly version closes prior version at correct predecessor occurrence
 - `[x]` reject overlapping versions
-- `[ ]` allow non-overlapping versions in same chain
+- `[x]` allow non-overlapping versions in same chain
 - `[x]` preserve lineage via `previousVersionId`
 
 # E. Materialization tests
@@ -935,10 +935,10 @@ The list below is intentionally broad. Each item should become an automated test
 ## Canonical creation
 
 - `[x]` materialize daily recurring expense into canonical transaction row
-- `[ ]` materialize income into canonical transaction row
-- `[ ]` materialize transfer into canonical transaction row
+- `[x]` materialize income into canonical transaction row
+- `[x]` materialize transfer into canonical transaction row
 - `[x]` materialized transaction status is `PENDING`
-- `[ ]` manual transaction status is not forced to `PENDING`
+- `[x]` manual transaction status is not forced to `PENDING`
 
 ## Duplicate handling
 
@@ -948,18 +948,18 @@ The list below is intentionally broad. Each item should become an automated test
 
 ## Horizon logic
 
-- `[ ]` full next calendar month is materialized for dense recurrences
+- `[x]` full next calendar month is materialized for dense recurrences
 - `[x]` at least 5 future occurrences are materialized for sparse recurrences
 - `[x]` yearly recurrence gets 5 future occurrences when next month would otherwise add too little
-- `[ ]` one-off recurrence only materializes once
+- `[x]` one-off recurrence only materializes once
 
 ## Weekend handling
 
-- `[ ]` `NO_SHIFT` leaves Saturday unchanged
-- `[ ]` `MOVE_BEFORE` shifts Saturday to Friday
-- `[ ]` `MOVE_BEFORE` shifts Sunday to Friday
+- `[x]` `NO_SHIFT` leaves Saturday unchanged
+- `[x]` `MOVE_BEFORE` shifts Saturday to Friday
+- `[x]` `MOVE_BEFORE` shifts Sunday to Friday
 - `[x]` `MOVE_AFTER` shifts Saturday to Monday
-- `[ ]` `MOVE_AFTER` shifts Sunday to Monday
+- `[x]` `MOVE_AFTER` shifts Sunday to Monday
 
 ## `lastMaterializedDate`
 
@@ -983,7 +983,7 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` hidden original excluded from visible queries
 - `[x]` modified child included in visible queries
 - `[ ]` split child excluded if split semantics remain supported
-- `[ ]` root recurring occurrence included when not modified
+- `[x]` root recurring occurrence included when not modified
 
 # H. Historical/current feed projection tests
 
@@ -1025,7 +1025,7 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` rows are queryable by derived `contract_id` when the pocket belongs to a contract
 - `[x]` projected balances start from current pocket balance
 - `[x]` future transfer source row decreases projected balance
-- `[ ]` future transfer destination row increases projected balance
+- `[x]` future transfer destination row increases projected balance
 - `[x]` date-range query returns only requested future rows
 
 # J. Summary projection tests
@@ -1040,20 +1040,20 @@ The list below is intentionally broad. Each item should become an automated test
 
 - `[x]` create transaction marks account scope dirty
 - `[x]` create transaction marks source pocket scope dirty
-- `[ ]` create transfer marks both pockets dirty
+- `[x]` create transfer marks both pockets dirty
 - `[x]` update transaction marks old and new scopes dirty
 - `[x]` archive transaction marks affected scopes dirty
 - `[x]` materialization marks affected scopes dirty
 - `[x]` projection job rebuilds and clears dirty scopes
-- `[ ]` failed projection leaves dirty scopes for retry
+- `[x]` failed projection leaves dirty scopes for retry
 - `[x]` repeated projector runs are idempotent
 
 # L. Full rebuild tests
 
 - `[x]` deleting all feeds and running full rebuild restores historical feeds
-- `[ ]` deleting all future feeds and running full rebuild restores future feeds
-- `[ ]` deleting summaries and running full rebuild restores balances
-- `[ ]` two full rebuilds in a row produce identical rows
+- `[x]` deleting all future feeds and running full rebuild restores future feeds
+- `[x]` deleting summaries and running full rebuild restores balances
+- `[x]` two full rebuilds in a row produce identical rows
 
 # M. API integration tests
 
@@ -1062,9 +1062,9 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` create manual transaction with canonical enums
 - `[x]` create non-transfer transaction using `pocketId` only on the command side
 - `[x]` create transfer transaction using `sourcePocketId` and `destinationPocketId` only on the command side
-- `[ ]` reject command-side writes that require canonical transaction `accountId` / `contractId` when those values are derivable from pocket selection
-- `[ ]` update manual transaction with canonical enums
-- `[ ]` archive/unarchive manual transaction
+- `[x]` reject command-side writes that require canonical transaction `accountId` / `contractId` when those values are derivable from pocket selection
+- `[x]` update manual transaction with canonical enums
+- `[x]` archive/unarchive manual transaction
 - `[x]` modify recurring occurrence through dedicated endpoint/use case
 
 ## Recurring API
@@ -1072,7 +1072,7 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` create yearly recurring transaction
 - `[x]` create recurring transaction with max-count normalization
 - `[x]` create recurring version with new first occurrence date
-- `[ ]` archive recurring transaction excludes it from materialization
+- `[x]` archive recurring transaction excludes it from materialization
 
 ## Query API
 
@@ -1083,7 +1083,7 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` future pocket feed returns future rows only
 - `[x]` future contract feed is served from pocket future feed filtered by derived `contractId`
 - `[x]` future feed date range works
-- `[ ]` current summary balances stay stable while future feed still grows
+- `[x]` current summary balances stay stable while future feed still grows
 
 # N. Regression tests from current server behavior
 
@@ -1099,7 +1099,7 @@ The list below is intentionally broad. Each item should become an automated test
 
 ### Architecture and domain
 
-- `[ ]` recurring/materialization design documented
+- `[x]` recurring/materialization design documented
 - `[x]` canonical enums implemented
 - `[x]` visibility semantics centralized
 
@@ -1131,7 +1131,7 @@ The list below is intentionally broad. Each item should become an automated test
 - `[x]` repository tests added
 - `[x]` integration tests added
 - `[x]` deterministic rebuild tests added
-- `[ ]` rollback/retry tests added
+- `[x]` rollback/retry tests added
 
 ---
 

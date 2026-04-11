@@ -2,6 +2,7 @@ package de.chennemann.plannr.server
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.recurringtransactions.usecases.RecurringTransactionMaterializer
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.support.expectApiError
 import kotlinx.coroutines.reactor.awaitSingle
@@ -15,6 +16,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
     @Autowired lateinit var createAccount: CreateAccount
     @Autowired lateinit var createPocket: CreatePocket
+    @Autowired lateinit var recurringTransactionMaterializer: RecurringTransactionMaterializer
     @BeforeEach
     fun setUp() {
         cleanDatabase(
@@ -102,6 +104,70 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.pocketId").doesNotExist()
             .jsonPath("$.sourcePocketId").isEqualTo(sourcePocket.id)
             .jsonPath("$.destinationPocketId").isEqualTo(destinationPocket.id)
+    }
+
+    @Test
+    fun `transaction api supports canonical updates and archive lifecycle`() = runBlocking {
+        val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
+        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+
+        webTestClient.post()
+            .uri("/transactions")
+            .bodyValue(
+                mapOf(
+                    "type" to "EXPENSE",
+                    "status" to "RECONCILED",
+                    "transactionDate" to "2026-04-10",
+                    "amount" to 100,
+                    "currencyCode" to "EUR",
+                    "exchangeRate" to null,
+                    "destinationAmount" to null,
+                    "description" to "Groceries",
+                    "partnerId" to null,
+                    "pocketId" to pocket.id,
+                    "sourcePocketId" to null,
+                    "destinationPocketId" to null,
+                ),
+            )
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody()
+            .jsonPath("$.status").isEqualTo("RECONCILED")
+
+        val transactionId = querySingleValue("SELECT id AS value FROM transactions ORDER BY created_at ASC LIMIT 1")
+
+        webTestClient.put()
+            .uri("/transactions/$transactionId")
+            .bodyValue(
+                mapOf(
+                    "type" to "EXPENSE",
+                    "status" to "CLEARED",
+                    "transactionDate" to "2026-04-11",
+                    "amount" to 150,
+                    "currencyCode" to "EUR",
+                    "exchangeRate" to null,
+                    "destinationAmount" to null,
+                    "description" to "Groceries updated",
+                    "partnerId" to null,
+                    "pocketId" to pocket.id,
+                    "sourcePocketId" to null,
+                    "destinationPocketId" to null,
+                ),
+            )
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.status").isEqualTo("CLEARED")
+            .jsonPath("$.transactionDate").isEqualTo("2026-04-11")
+            .jsonPath("$.description").isEqualTo("Groceries updated")
+
+        webTestClient.post().uri("/transactions/$transactionId/archive").exchange()
+            .expectStatus().isOk
+            .expectBody().jsonPath("$.isArchived").isEqualTo(true)
+
+        webTestClient.post().uri("/transactions/$transactionId/unarchive").exchange()
+            .expectStatus().isOk
+            .expectBody().jsonPath("$.isArchived").isEqualTo(false)
     }
 
     @Test
@@ -267,6 +333,49 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
             .expectApiError("validation_error", "Recurring transaction update mode is invalid")
     }
 
+    @Test
+    fun `archived recurring transaction is skipped by materialization`() = runBlocking {
+        val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "MOVE_BEFORE"))
+        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+
+        webTestClient.post()
+            .uri("/recurring-transactions")
+            .bodyValue(
+                mapOf(
+                    "contractId" to null,
+                    "sourcePocketId" to pocket.id,
+                    "destinationPocketId" to null,
+                    "partnerId" to null,
+                    "title" to "Archived rent",
+                    "description" to "Archived rent",
+                    "amount" to 100,
+                    "currencyCode" to "EUR",
+                    "transactionType" to "EXPENSE",
+                    "firstOccurrenceDate" to "2024-04-13",
+                    "finalOccurrenceDate" to "2024-04-13",
+                    "recurrenceType" to "NONE",
+                    "skipCount" to 0,
+                    "daysOfWeek" to null,
+                    "weeksOfMonth" to null,
+                    "daysOfMonth" to null,
+                    "monthsOfYear" to null,
+                    "maxRecurrenceCount" to null,
+                ),
+            )
+            .exchange()
+            .expectStatus().isCreated
+
+        val recurringId = querySingleValue("SELECT id AS value FROM recurring_transactions ORDER BY created_at ASC LIMIT 1")
+        webTestClient.post().uri("/recurring-transactions/$recurringId/archive").exchange()
+            .expectStatus().isOk
+            .expectBody().jsonPath("$.isArchived").isEqualTo(true)
+
+        recurringTransactionMaterializer.materializeAll()
+
+        val count = queryLong("SELECT COUNT(*) AS value FROM transactions WHERE recurring_transaction_id = '$recurringId'")
+        assert(count == 0L)
+    }
+
     private fun insertCurrency(code: String) = runBlocking {
         databaseClient.sql(
             """
@@ -294,4 +403,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
 
     private suspend fun querySingleValue(sql: String): String =
         databaseClient.sql(sql).fetch().one().awaitSingle().getValue("value") as String
+
+    private suspend fun queryLong(sql: String): Long =
+        (databaseClient.sql(sql).fetch().one().awaitSingle().getValue("value") as Number).toLong()
 }

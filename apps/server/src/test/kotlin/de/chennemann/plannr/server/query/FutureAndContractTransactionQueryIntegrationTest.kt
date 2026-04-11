@@ -99,6 +99,29 @@ class FutureAndContractTransactionQueryIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.items.length()").isEqualTo(1)
             .jsonPath("$.items[0].description").isEqualTo("Future transfer")
             .jsonPath("$.items[0].contractId").isEqualTo(contract.id)
+
+        webTestClient.get()
+            .uri("/query/pockets/${otherPocket.id}/future-transactions?limit=10")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.items.length()").isEqualTo(1)
+            .jsonPath("$.items[0].description").isEqualTo("Future transfer")
+            .jsonPath("$.items[0].projectedBalanceAfter").isEqualTo(50)
+
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(-100)
+
+        webTestClient.get()
+            .uri("/query/pockets/${contractPocket.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(-100)
     }
 
     private fun insertCurrency(code: String) = runBlocking {

@@ -49,6 +49,12 @@ class TransactionUnarchivedQueryProjector(
     override suspend fun handle(event: TransactionUnarchived) { projectionService.rebuildFor(before = event.before, after = event.after) }
 }
 
+interface ProjectionRebuilder {
+    suspend fun rebuildAccountFeed(accountId: String)
+    suspend fun rebuildPocketFeed(pocketId: String)
+    suspend fun rebuildAll()
+}
+
 @Component
 class TransactionQueryProjectionService(
     private val transactionRepository: TransactionRepository,
@@ -58,7 +64,7 @@ class TransactionQueryProjectionService(
     private val accountRepository: AccountRepository,
     private val localDateProvider: LocalDateProvider,
     private val databaseClient: DatabaseClient,
-) {
+) : ProjectionRebuilder {
     suspend fun rebuildFor(transaction: TransactionRecord) { rebuildFor(after = transaction) }
 
     suspend fun rebuildFor(before: TransactionRecord? = null, after: TransactionRecord? = null) {
@@ -67,7 +73,7 @@ class TransactionQueryProjectionService(
             .forEach { rebuildPocketFeed(it) }
     }
 
-    suspend fun rebuildAccountFeed(accountId: String) {
+    override suspend fun rebuildAccountFeed(accountId: String) {
         val today = localDateProvider().toString()
         val visible = transactionRepository.findVisibleByAccountId(accountId)
         val historical = visible.filter { it.transactionDate <= today }
@@ -163,7 +169,7 @@ class TransactionQueryProjectionService(
         updateAccountCurrentBalance(accountId, currentBalance)
     }
 
-    suspend fun rebuildPocketFeed(pocketId: String) {
+    override suspend fun rebuildPocketFeed(pocketId: String) {
         val today = localDateProvider().toString()
         val visible = transactionRepository.findVisibleByPocketId(pocketId)
         val historical = visible.filter { it.transactionDate <= today }
@@ -252,7 +258,7 @@ class TransactionQueryProjectionService(
         updatePocketCurrentBalance(pocketId, currentBalance)
     }
 
-    suspend fun rebuildAll() {
+    override suspend fun rebuildAll() {
         accountRepository.findAll().forEach { rebuildAccountFeed(it.id) }
         pocketRepository.findAll().forEach { rebuildPocketFeed(it.id) }
     }

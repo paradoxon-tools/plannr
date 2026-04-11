@@ -63,6 +63,100 @@ class RecurringTransactionMaterializerTest {
     }
 
     @Test
+    fun `materializes income and transfer rows while manual statuses remain unchanged`() = runTest {
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply {
+            save(RecurringTransactionFixtures.recurringTransaction(id = "income", transactionType = "INCOME", sourcePocketId = null, destinationPocketId = "poc_123", recurrenceType = "NONE", firstOccurrenceDate = "2024-04-10", finalOccurrenceDate = "2024-04-10", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+            save(RecurringTransactionFixtures.recurringTransaction(id = "transfer", transactionType = "TRANSFER", sourcePocketId = "poc_123", destinationPocketId = "poc_456", recurrenceType = "NONE", firstOccurrenceDate = "2024-04-10", finalOccurrenceDate = "2024-04-10", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+        }
+        val transactionRepository = InMemoryTransactionRepository().apply {
+            save(
+                de.chennemann.plannr.server.transactions.domain.TransactionRecord(
+                    id = "manual",
+                    accountId = "acc_123",
+                    type = "EXPENSE",
+                    status = "CLEARED",
+                    transactionDate = "2024-04-09",
+                    amount = 100,
+                    currencyCode = "EUR",
+                    exchangeRate = null,
+                    destinationAmount = null,
+                    description = "Manual",
+                    partnerId = null,
+                    pocketId = "poc_123",
+                    sourcePocketId = "poc_123",
+                    destinationPocketId = null,
+                    parentTransactionId = null,
+                    recurringTransactionId = null,
+                    modifiedById = null,
+                    transactionOrigin = "MANUAL",
+                    isArchived = false,
+                    createdAt = 1L,
+                ),
+            )
+        }
+        val materializer = materializer(recurringRepository, transactionRepository)
+
+        materializer.materializeAll()
+
+        val income = transactionRepository.all().first { it.recurringTransactionId == "income" }
+        val transfer = transactionRepository.all().first { it.recurringTransactionId == "transfer" }
+        val manual = transactionRepository.all().first { it.id == "manual" }
+        assertEquals("PENDING", income.status)
+        assertEquals("INCOME", income.type)
+        assertEquals("poc_123", income.destinationPocketId)
+        assertEquals("PENDING", transfer.status)
+        assertEquals("TRANSFER", transfer.type)
+        assertEquals("poc_123", transfer.sourcePocketId)
+        assertEquals("poc_456", transfer.destinationPocketId)
+        assertEquals("CLEARED", manual.status)
+    }
+
+    @Test
+    fun `dense recurrences cover the full next calendar month and one off recurrence materializes once`() = runTest {
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply {
+            save(RecurringTransactionFixtures.recurringTransaction(id = "dense", firstOccurrenceDate = "2024-04-10", finalOccurrenceDate = null, recurrenceType = "DAILY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+            save(RecurringTransactionFixtures.recurringTransaction(id = "monthly_dense", firstOccurrenceDate = "2024-04-15", finalOccurrenceDate = null, recurrenceType = "MONTHLY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = listOf(15), monthsOfYear = null))
+            save(RecurringTransactionFixtures.recurringTransaction(id = "one_off", firstOccurrenceDate = "2024-04-11", finalOccurrenceDate = "2024-04-11", recurrenceType = "NONE", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+        }
+        val transactionRepository = InMemoryTransactionRepository()
+        val materializer = materializer(recurringRepository, transactionRepository, today = LocalDate.parse("2024-04-10"))
+
+        materializer.materializeAll()
+        materializer.materializeAll()
+
+        val denseDates = transactionRepository.all().filter { it.recurringTransactionId == "dense" }.map { it.transactionDate }
+        val monthlyDenseDates = transactionRepository.all().filter { it.recurringTransactionId == "monthly_dense" }.map { it.transactionDate }
+        val oneOffDates = transactionRepository.all().filter { it.recurringTransactionId == "one_off" }.map { it.transactionDate }
+        assertEquals(true, denseDates.contains("2024-05-31"))
+        assertEquals(true, monthlyDenseDates.contains("2024-05-15"))
+        assertEquals(listOf("2024-04-11"), oneOffDates)
+    }
+
+    @Test
+    fun `weekend handling covers no shift move before and sunday move after`() = runTest {
+        val transactionRepository = InMemoryTransactionRepository()
+        val accountRepository = InMemoryAccountRepository().apply {
+            save(AccountFixtures.account(id = "acc_123", weekendHandling = "NO_SHIFT"))
+            save(AccountFixtures.account(id = "acc_456", weekendHandling = "MOVE_BEFORE"))
+            save(AccountFixtures.account(id = "acc_789", weekendHandling = "MOVE_AFTER"))
+        }
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply {
+            save(RecurringTransactionFixtures.recurringTransaction(id = "sat_no_shift", accountId = "acc_123", firstOccurrenceDate = "2024-04-13", finalOccurrenceDate = "2024-04-13", recurrenceType = "NONE", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+            save(RecurringTransactionFixtures.recurringTransaction(id = "sat_move_before", accountId = "acc_456", firstOccurrenceDate = "2024-04-13", finalOccurrenceDate = "2024-04-13", recurrenceType = "NONE", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+            save(RecurringTransactionFixtures.recurringTransaction(id = "sun_move_before", accountId = "acc_456", firstOccurrenceDate = "2024-04-14", finalOccurrenceDate = "2024-04-14", recurrenceType = "NONE", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+            save(RecurringTransactionFixtures.recurringTransaction(id = "sun_move_after", accountId = "acc_789", firstOccurrenceDate = "2024-04-14", finalOccurrenceDate = "2024-04-14", recurrenceType = "NONE", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+        }
+        val materializer = materializer(recurringRepository, transactionRepository, accountRepository)
+
+        materializer.materializeAll()
+
+        assertEquals("2024-04-13", transactionRepository.all().first { it.recurringTransactionId == "sat_no_shift" }.transactionDate)
+        assertEquals("2024-04-12", transactionRepository.all().first { it.recurringTransactionId == "sat_move_before" }.transactionDate)
+        assertEquals("2024-04-12", transactionRepository.all().first { it.recurringTransactionId == "sun_move_before" }.transactionDate)
+        assertEquals("2024-04-15", transactionRepository.all().first { it.recurringTransactionId == "sun_move_after" }.transactionDate)
+    }
+
+    @Test
     fun `horizon covers end of next month and at least five future sparse occurrences`() = runTest {
         val recurringRepository = InMemoryRecurringTransactionRepository().apply {
             save(RecurringTransactionFixtures.recurringTransaction(firstOccurrenceDate = "2024-04-15", finalOccurrenceDate = null, recurrenceType = "YEARLY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = listOf(15), monthsOfYear = listOf(4)))
@@ -76,6 +170,19 @@ class RecurringTransactionMaterializerTest {
             listOf("2024-04-15", "2025-04-15", "2026-04-15", "2027-04-15", "2028-04-15"),
             transactionRepository.all().map { it.transactionDate }.take(5),
         )
+    }
+
+    @Test
+    fun `shifted duplicate dates are only materialized once`() = runTest {
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply {
+            save(RecurringTransactionFixtures.recurringTransaction(id = "shifted", accountId = "acc_456", firstOccurrenceDate = "2024-04-13", finalOccurrenceDate = "2024-04-14", recurrenceType = "DAILY", daysOfWeek = null, weeksOfMonth = null, daysOfMonth = null, monthsOfYear = null))
+        }
+        val transactionRepository = InMemoryTransactionRepository()
+        val accountRepository = InMemoryAccountRepository().apply { save(AccountFixtures.account(id = "acc_456", weekendHandling = "MOVE_BEFORE")) }
+        val materializer = materializer(recurringRepository, transactionRepository, accountRepository, today = LocalDate.parse("2024-04-10"))
+
+        assertEquals(1, materializer.materializeAll().createdCount)
+        assertEquals(listOf("2024-04-12"), transactionRepository.all().map { it.transactionDate })
     }
 
     @Test

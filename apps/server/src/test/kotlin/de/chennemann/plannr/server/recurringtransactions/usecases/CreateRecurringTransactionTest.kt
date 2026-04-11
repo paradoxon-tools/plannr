@@ -76,6 +76,43 @@ class CreateRecurringTransactionTest {
     }
 
     @Test
+    fun `creates yearly recurring transaction and stores null for empty selectors`() = runTest {
+        val recurringRepository = InMemoryRecurringTransactionRepository()
+        val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
+        val partnerRepository = InMemoryPartnerRepository().apply { save(PartnerFixtures.partner()) }
+        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
+        val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
+        val useCase = CreateRecurringTransactionUseCase(
+            recurringTransactionRepository = recurringRepository,
+            ensureCurrencyExists = EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
+            contextResolver = contextResolver(pocketRepository, partnerRepository, contractRepository),
+            recurringTransactionIdGenerator = { RecurringTransactionFixtures.DEFAULT_ID },
+            timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
+            normalization = RecurringTransactionNormalization(),
+        )
+
+        val created = useCase(
+            RecurringTransactionFixtures.createCommand(
+                recurrenceType = "YEARLY",
+                firstOccurrenceDate = "2024-02-29",
+                finalOccurrenceDate = null,
+                daysOfWeek = emptyList(),
+                weeksOfMonth = emptyList(),
+                daysOfMonth = emptyList(),
+                monthsOfYear = emptyList(),
+                maxRecurrenceCount = 2,
+            ),
+        )
+
+        assertEquals("YEARLY", created.recurrenceType)
+        assertEquals(null, created.daysOfWeek)
+        assertEquals(null, created.weeksOfMonth)
+        assertEquals(null, created.daysOfMonth)
+        assertEquals(null, created.monthsOfYear)
+        assertEquals("2025-02-28", created.finalOccurrenceDate)
+    }
+
+    @Test
     fun `fails when contract pocket is not referenced`() = runTest {
         val pocketRepository = InMemoryPocketRepository().apply {
             save(PocketFixtures.pocket())
