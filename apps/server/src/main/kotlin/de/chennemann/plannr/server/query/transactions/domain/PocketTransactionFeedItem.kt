@@ -3,6 +3,7 @@ package de.chennemann.plannr.server.query.transactions.domain
 data class PocketTransactionFeedItem(
     val pocketId: String,
     val accountId: String,
+    val contractId: String?,
     val transactionId: String,
     val historyPosition: Long,
     val transactionDate: String,

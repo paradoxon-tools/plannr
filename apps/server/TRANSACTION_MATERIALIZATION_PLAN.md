@@ -624,25 +624,25 @@ Verification:
 
 ## 7.1 Preserve current/historical feeds for `transaction_date <= today`
 
-- `[ ]` Keep `account_transaction_feed` for current+historical rows only.
-- `[ ]` Keep `pocket_transaction_feed` for current+historical rows only.
-- `[ ]` Make `pocket_transaction_feed` queryable by derived `contract_id` as well as `pocket_id`.
-- `[ ]` Rebuild these feeds from canonical visible transactions with `transaction_date <= today`.
-- `[ ]` Derive `contract_id` for pocket feed rows during projection from the pocket relationship.
-- `[ ]` Keep deterministic `history_position` ordering.
-- `[ ]` Keep running `balance_after` values.
+- `[x]` Keep `account_transaction_feed` for current+historical rows only.
+- `[x]` Keep `pocket_transaction_feed` for current+historical rows only.
+- `[x]` Make `pocket_transaction_feed` queryable by derived `contract_id` as well as `pocket_id`.
+- `[x]` Rebuild these feeds from canonical visible transactions with `transaction_date <= today`.
+- `[x]` Derive `contract_id` for pocket feed rows during projection from the pocket relationship.
+- `[x]` Keep deterministic `history_position` ordering.
+- `[x]` Keep running `balance_after` values.
 
 Verification:
 
-- `[ ]` current balances equal latest historical feed row balance.
-- `[ ]` future canonical transactions do not appear in historical feeds.
+- `[x]` current balances equal latest historical feed row balance.
+- `[x]` future canonical transactions do not appear in historical feeds.
 
 ## 7.2 Introduce future feed tables
 
 Recommended new read models:
 
-- `[ ]` `account_future_transaction_feed`
-- `[ ]` `pocket_future_transaction_feed`
+- `[x]` `account_future_transaction_feed`
+- `[x]` `pocket_future_transaction_feed`
 
 Suggested fields:
 
@@ -662,24 +662,24 @@ Suggested fields:
 
 Tasks:
 
-- `[ ]` create future feed schema,
-- `[ ]` add repositories,
-- `[ ]` add projection logic,
-- `[ ]` derive `contract_id` for pocket-scoped future rows so they can be queried through contract APIs without a separate feed,
-- `[ ]` add date-range query support,
-- `[ ]` add pagination support appropriate for future ordering.
+- `[x]` create future feed schema,
+- `[x]` add repositories,
+- `[x]` add projection logic,
+- `[x]` derive `contract_id` for pocket-scoped future rows so they can be queried through contract APIs without a separate feed,
+- `[x]` add date-range query support,
+- `[x]` add pagination support appropriate for future ordering.
 
 Verification:
 
-- `[ ]` future feed tests prove only `transaction_date > today` rows are included.
-- `[ ]` projected balances start from current balance and accumulate future rows correctly.
-- `[ ]` same-account transfer tests prove account projected balance stays neutral while pocket projections change.
+- `[x]` future feed tests prove only `transaction_date > today` rows are included.
+- `[x]` projected balances start from current balance and accumulate future rows correctly.
+- `[x]` same-account transfer tests prove account projected balance stays neutral while pocket projections change.
 
 ## 7.3 Keep current and future feeds independent
 
-- `[ ]` ensure historical feed rebuild does not rely on future feed tables,
-- `[ ]` ensure future feed rebuild does not mutate `current_balance`,
-- `[ ]` ensure both feeds can be rebuilt independently or together.
+- `[x]` ensure historical feed rebuild does not rely on future feed tables,
+- `[x]` ensure future feed rebuild does not mutate `current_balance`,
+- `[x]` ensure both feeds can be rebuilt independently or together.
 
 Verification:
 
@@ -745,22 +745,22 @@ Verification:
 
 ## 9.3 Query API
 
-- `[ ]` keep historical feed endpoints:
-  - `[ ]` `GET /query/accounts/{id}/transactions`
-  - `[ ]` `GET /query/pockets/{id}/transactions`
-- `[ ]` add contract-facing historical transaction endpoint backed by `pocket_transaction_feed` filtered by derived `contractId`, e.g.:
-  - `[ ]` `GET /query/contracts/{id}/transactions`
-- `[ ]` add future feed endpoints, e.g.:
-  - `[ ]` `GET /query/accounts/{id}/future-transactions`
-  - `[ ]` `GET /query/pockets/{id}/future-transactions`
-- `[ ]` add contract-facing future transaction endpoint backed by pocket future feed filtered by derived `contractId`, e.g.:
-  - `[ ]` `GET /query/contracts/{id}/future-transactions`
-- `[ ]` support client-controlled date range / limit for future feeds.
+- `[x]` keep historical feed endpoints:
+  - `[x]` `GET /query/accounts/{id}/transactions`
+  - `[x]` `GET /query/pockets/{id}/transactions`
+- `[x]` add contract-facing historical transaction endpoint backed by `pocket_transaction_feed` filtered by derived `contractId`, e.g.:
+  - `[x]` `GET /query/contracts/{id}/transactions`
+- `[x]` add future feed endpoints, e.g.:
+  - `[x]` `GET /query/accounts/{id}/future-transactions`
+  - `[x]` `GET /query/pockets/{id}/future-transactions`
+- `[x]` add contract-facing future transaction endpoint backed by pocket future feed filtered by derived `contractId`, e.g.:
+  - `[x]` `GET /query/contracts/{id}/future-transactions`
+- `[x]` support client-controlled date range / limit for future feeds.
 
 Verification:
 
-- `[ ]` API tests prove historical and future feeds are clearly separated.
-- `[ ]` API tests prove future date range filtering works.
+- `[x]` API tests prove historical and future feeds are clearly separated.
+- `[x]` API tests prove future date range filtering works.
 
 ---
 

@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.query.projection
 
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
+import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
@@ -71,7 +72,9 @@ class TransactionQueryProjectorHandlersTest {
         transactionRepository = InMemoryTransactionRepository(),
         pocketRepository = InMemoryPocketRepository(),
         partnerRepository = InMemoryPartnerRepository(),
+        contractRepository = InMemoryContractRepository(),
         accountRepository = InMemoryAccountRepository(),
+        localDateProvider = { java.time.LocalDate.parse("2026-04-10") },
         databaseClient = DatabaseClient.create(NoOpConnectionFactory),
     ) {
         val createdTransactions = mutableListOf<TransactionRecord>()
