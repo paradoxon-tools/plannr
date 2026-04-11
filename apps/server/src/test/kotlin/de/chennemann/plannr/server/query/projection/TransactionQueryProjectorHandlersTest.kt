@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.query.projection
 
+import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
@@ -70,6 +71,7 @@ class TransactionQueryProjectorHandlersTest {
         transactionRepository = InMemoryTransactionRepository(),
         pocketRepository = InMemoryPocketRepository(),
         partnerRepository = InMemoryPartnerRepository(),
+        accountRepository = InMemoryAccountRepository(),
         databaseClient = DatabaseClient.create(NoOpConnectionFactory),
     ) {
         val createdTransactions = mutableListOf<TransactionRecord>()

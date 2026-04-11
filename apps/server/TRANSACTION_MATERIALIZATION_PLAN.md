@@ -585,38 +585,38 @@ Recommended mechanism:
 
 Tasks:
 
-- `[ ]` Create dirty-scope table.
-- `[ ]` Mark account scope dirty on transaction create/update/archive/unarchive/materialization.
-- `[ ]` Mark source and destination pocket scopes dirty when affected.
-- `[ ]` Mark metadata-related scopes dirty when pocket/partner/account metadata changes.
+- `[x]` Create dirty-scope table.
+- `[x]` Mark account scope dirty on transaction create/update/archive/unarchive/materialization.
+- `[x]` Mark source and destination pocket scopes dirty when affected.
+- `[x]` Mark metadata-related scopes dirty when pocket/partner/account metadata changes.
 
 Verification:
 
-- `[ ]` tests prove all relevant write flows enqueue dirty scopes.
-- `[ ]` duplicate dirty marks are deduplicated safely.
+- `[x]` tests prove all relevant write flows enqueue dirty scopes.
+- `[x]` duplicate dirty marks are deduplicated safely.
 
 ## 6.2 Implement scheduled projection job
 
-- `[ ]` Add a scheduled job that processes dirty scopes on a short interval.
-- `[ ]` Rebuild only affected account/pocket read models.
-- `[ ]` Make the job idempotent.
+- `[x]` Add a scheduled job that processes dirty scopes on a short interval.
+- `[x]` Rebuild only affected account/pocket read models.
+- `[x]` Make the job idempotent.
 - `[ ]` Ensure failures leave scopes dirty for retry.
 
 Verification:
 
-- `[ ]` scheduler tests prove dirty scopes are consumed.
+- `[x]` scheduler tests prove dirty scopes are consumed.
 - `[ ]` failure tests prove retry behavior.
 
 ## 6.3 Add periodic full rebuild safety job
 
-- `[ ]` Add a cron-driven full rebuild job for all transaction-derived projections.
-- `[ ]` Keep it safe to rerun repeatedly.
+- `[x]` Add a cron-driven full rebuild job for all transaction-derived projections.
+- `[x]` Keep it safe to rerun repeatedly.
 - `[ ]` Add observability/logging around rebuild duration and counts.
 
 Verification:
 
 - `[ ]` deterministic rebuild tests prove repeat rebuilds produce identical results.
-- `[ ]` integration test proves a full rebuild can recover from intentionally stale/missing feed rows.
+- `[x]` integration test proves a full rebuild can recover from intentionally stale/missing feed rows.
 
 ---
 
@@ -1038,19 +1038,19 @@ The list below is intentionally broad. Each item should become an automated test
 
 # K. Dirty-scope and scheduler tests
 
-- `[ ]` create transaction marks account scope dirty
-- `[ ]` create transaction marks source pocket scope dirty
+- `[x]` create transaction marks account scope dirty
+- `[x]` create transaction marks source pocket scope dirty
 - `[ ]` create transfer marks both pockets dirty
-- `[ ]` update transaction marks old and new scopes dirty
-- `[ ]` archive transaction marks affected scopes dirty
-- `[ ]` materialization marks affected scopes dirty
-- `[ ]` projection job rebuilds and clears dirty scopes
+- `[x]` update transaction marks old and new scopes dirty
+- `[x]` archive transaction marks affected scopes dirty
+- `[x]` materialization marks affected scopes dirty
+- `[x]` projection job rebuilds and clears dirty scopes
 - `[ ]` failed projection leaves dirty scopes for retry
 - `[ ]` repeated projector runs are idempotent
 
 # L. Full rebuild tests
 
-- `[ ]` deleting all feeds and running full rebuild restores historical feeds
+- `[x]` deleting all feeds and running full rebuild restores historical feeds
 - `[ ]` deleting all future feeds and running full rebuild restores future feeds
 - `[ ]` deleting summaries and running full rebuild restores balances
 - `[ ]` two full rebuilds in a row produce identical rows

@@ -5,6 +5,7 @@ import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
+import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import java.time.LocalDate
 import de.chennemann.plannr.server.transactions.events.TransactionArchived
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
@@ -64,6 +65,7 @@ class TransactionQueryProjectionService(
     private val transactionRepository: TransactionRepository,
     private val pocketRepository: PocketRepository,
     private val partnerRepository: PartnerRepository,
+    private val accountRepository: AccountRepository,
     private val databaseClient: DatabaseClient,
 ) {
     suspend fun rebuildFor(transaction: TransactionRecord) {
@@ -82,7 +84,7 @@ class TransactionQueryProjectionService(
         ).forEach { rebuildPocketFeed(it) }
     }
 
-    private suspend fun rebuildAccountFeed(accountId: String) {
+    suspend fun rebuildAccountFeed(accountId: String) {
         val today = LocalDate.now().toString()
         val transactions = transactionRepository.findVisibleByAccountId(accountId)
             .filter { it.transactionDate <= today }
@@ -137,7 +139,7 @@ class TransactionQueryProjectionService(
         updateAccountCurrentBalance(accountId, runningBalance)
     }
 
-    private suspend fun rebuildPocketFeed(pocketId: String) {
+    suspend fun rebuildPocketFeed(pocketId: String) {
         val today = LocalDate.now().toString()
         val transactions = transactionRepository.findVisibleByPocketId(pocketId)
             .filter { it.transactionDate <= today }
@@ -185,6 +187,11 @@ class TransactionQueryProjectionService(
         }
 
         updatePocketCurrentBalance(pocketId, runningBalance)
+    }
+
+    suspend fun rebuildAll() {
+        accountRepository.findAll().forEach { rebuildAccountFeed(it.id) }
+        pocketRepository.findAll().forEach { rebuildPocketFeed(it.id) }
     }
 
     private suspend fun updateAccountCurrentBalance(accountId: String, currentBalance: Long) {

@@ -5,6 +5,7 @@ import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.recurrence.domain.RecurrenceCalculator
 import de.chennemann.plannr.server.recurrence.domain.RecurrencePattern
+import de.chennemann.plannr.server.query.projection.ProjectionDirtyScopeService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.support.TransactionIdGenerator
@@ -22,6 +23,7 @@ class RecurringTransactionMaterializer(
     private val transactionIdGenerator: TransactionIdGenerator,
     private val localDateProvider: LocalDateProvider,
     private val timeProvider: TimeProvider,
+    private val dirtyScopeService: ProjectionDirtyScopeService,
     private val recurrenceCalculator: RecurrenceCalculator = RecurrenceCalculator(),
 ) {
     suspend fun materializeAll(): MaterializationSummary {
@@ -77,6 +79,8 @@ class RecurringTransactionMaterializer(
         }
         if (latestCreatedDate != null) {
             recurringTransactionRepository.update(recurring.copy(lastMaterializedDate = maxOf(recurring.lastMaterializedDate ?: latestCreatedDate, latestCreatedDate)))
+            dirtyScopeService.markAccountDirty(recurring.accountId)
+            setOfNotNull(recurring.sourcePocketId, recurring.destinationPocketId).forEach { dirtyScopeService.markPocketDirty(it) }
         }
         return createdCount
     }

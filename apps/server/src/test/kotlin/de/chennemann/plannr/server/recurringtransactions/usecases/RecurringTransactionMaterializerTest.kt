@@ -2,6 +2,8 @@ package de.chennemann.plannr.server.recurringtransactions.usecases
 
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
+import de.chennemann.plannr.server.query.projection.InMemoryProjectionDirtyScopeRepository
+import de.chennemann.plannr.server.query.projection.ProjectionDirtyScopeService
 import de.chennemann.plannr.server.recurringtransactions.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.recurringtransactions.support.RecurringTransactionFixtures
 import de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository
@@ -185,5 +187,6 @@ class RecurringTransactionMaterializerTest {
             transactionIdGenerator = { "txn_${transactionRepository.all().size + 1}" },
             localDateProvider = { today },
             timeProvider = { 1L },
+            dirtyScopeService = ProjectionDirtyScopeService(InMemoryProjectionDirtyScopeRepository(), timeProvider = { 1L }),
         )
 }

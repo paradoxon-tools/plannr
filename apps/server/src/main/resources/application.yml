@@ -9,6 +9,10 @@ spring:
     url: ${SPRING_JDBC_URL:jdbc:h2:mem:///plannr;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
     user: ${SPRING_DB_USERNAME:sa}
     password: ${SPRING_DB_PASSWORD:}
+plannr:
+  projections:
+    dirty-scope-delay-ms: 30000
+    full-rebuild-delay-ms: 3600000
 management:
   endpoint:
     health:
