@@ -43,7 +43,8 @@ abstract class ApiIntegrationTest {
     }
 
     companion object {
-        private val postgres = PostgreSQLContainer("postgres:17-alpine")
+        @JvmField
+        protected val postgres = PostgreSQLContainer("postgres:17-alpine")
             .withDatabaseName("plannr_test")
             .withUsername("plannr")
             .withPassword("plannr")

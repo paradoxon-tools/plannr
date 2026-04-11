@@ -29,6 +29,7 @@ class R2dbcTransactionRepository(
                 """.trimIndent(),
             ),
             transaction,
+            includeCreatedAt = true,
         )
             .fetch()
             .rowsUpdated()
@@ -174,7 +175,11 @@ class R2dbcTransactionRepository(
             .all()
             .let { rows -> Flux.from(rows).map(::toTransaction).collectList().awaitSingle() }
 
-    private fun bindAll(spec: DatabaseClient.GenericExecuteSpec, transaction: TransactionRecord): DatabaseClient.GenericExecuteSpec {
+    private fun bindAll(
+        spec: DatabaseClient.GenericExecuteSpec,
+        transaction: TransactionRecord,
+        includeCreatedAt: Boolean = false,
+    ): DatabaseClient.GenericExecuteSpec {
         var current = spec
             .bind("id", transaction.id)
             .bind("type", transaction.type)
@@ -185,7 +190,9 @@ class R2dbcTransactionRepository(
             .bind("description", transaction.description)
             .bind("transactionOrigin", transaction.transactionOrigin)
             .bind("isArchived", transaction.isArchived)
-            .bind("createdAt", transaction.createdAt)
+        if (includeCreatedAt) {
+            current = current.bind("createdAt", transaction.createdAt)
+        }
         current = bindNullable(current, "pocketId", transaction.persistedPocketId(), String::class.java)
         current = bindNullable(current, "exchangeRate", transaction.exchangeRate, String::class.java)
         current = bindNullable(current, "destinationAmount", transaction.destinationAmount, Long::class.javaObjectType)

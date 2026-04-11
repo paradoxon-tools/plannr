@@ -7,11 +7,9 @@ import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.r2dbc.core.DatabaseClient
-import javax.sql.DataSource
 import kotlin.test.assertEquals
 
 class TransactionLedgerMigrationTest : ApiIntegrationTest() {
-    @Autowired lateinit var dataSource: DataSource
     @Autowired lateinit var databaseClient: DatabaseClient
 
     @Test
@@ -39,7 +37,7 @@ class TransactionLedgerMigrationTest : ApiIntegrationTest() {
 
     private fun flyway(target: String? = null): Flyway {
         val configuration = Flyway.configure()
-            .dataSource(dataSource)
+            .dataSource(postgres.jdbcUrl, postgres.username, postgres.password)
             .locations("classpath:db/migration")
             .cleanDisabled(false)
         if (target != null) {

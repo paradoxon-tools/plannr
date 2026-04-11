@@ -6,6 +6,8 @@ import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
+import de.chennemann.plannr.server.recurringtransactions.domain.RecurringTransactionRepository
+import de.chennemann.plannr.server.recurringtransactions.support.RecurringTransactionFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
@@ -21,15 +23,34 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var currencyRepository: CurrencyRepository
     @Autowired lateinit var accountRepository: AccountRepository
     @Autowired lateinit var pocketRepository: PocketRepository
+    @Autowired lateinit var recurringTransactionRepository: RecurringTransactionRepository
 
     @BeforeEach
     fun setUp() {
         runBlocking {
-            cleanDatabase("transactions", "pocket_transaction_feed", "account_transaction_feed", "pocket_query", "account_query", "pockets", "accounts", "currencies")
+            cleanDatabase("transactions", "recurring_transactions", "pocket_transaction_feed", "account_transaction_feed", "pocket_query", "account_query", "pockets", "accounts", "currencies")
             currencyRepository.save(CurrencyFixtures.currency())
             accountRepository.save(AccountFixtures.account())
             pocketRepository.save(PocketFixtures.pocket())
             pocketRepository.save(PocketFixtures.pocket(id = "poc_456", name = "Savings"))
+            recurringTransactionRepository.save(
+                RecurringTransactionFixtures.recurringTransaction(
+                    id = "rtx_123",
+                    contractId = null,
+                    accountId = "acc_123",
+                    sourcePocketId = "poc_123",
+                    destinationPocketId = null,
+                    partnerId = null,
+                    transactionType = "EXPENSE",
+                    recurrenceType = "NONE",
+                    firstOccurrenceDate = "2026-04-10",
+                    finalOccurrenceDate = "2026-04-10",
+                    daysOfWeek = null,
+                    weeksOfMonth = null,
+                    daysOfMonth = null,
+                    monthsOfYear = null,
+                ),
+            )
         }
     }
 
@@ -105,6 +126,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
     fun `visible pending and future queries use visibility aware filtering`() = runBlocking {
         transactionRepository.save(transaction(id = "txn_pending_future", status = "PENDING", transactionDate = "2026-04-12"))
         transactionRepository.save(transaction(id = "txn_cleared_future", status = "CLEARED", transactionDate = "2026-04-13"))
+        transactionRepository.save(transaction(id = "txn_mod", status = "CLEARED", transactionDate = "2026-05-01", isArchived = true))
         transactionRepository.save(transaction(id = "txn_hidden_future", status = "PENDING", transactionDate = "2026-04-14", modifiedById = "txn_mod"))
         transactionRepository.save(transaction(id = "txn_archived_future", status = "PENDING", transactionDate = "2026-04-15", isArchived = true))
 

@@ -46,11 +46,11 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
                     "name" to "Main account",
                     "institution" to "Demo Bank",
                     "currencyCode" to "EUR",
-                    "weekendHandling" to "same_day",
+                    "weekendHandling" to "not_a_weekend_mode",
                 ),
             )
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus().isEqualTo(422)
             .expectBody()
             .expectApiError("validation_error", "Account weekend handling is invalid")
     }
@@ -61,7 +61,7 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
             .uri("/transactions")
             .bodyValue(
                 mapOf(
-                    "type" to "expense",
+                    "type" to "not_a_transaction_type",
                     "status" to "booked",
                     "transactionDate" to "2026-04-10",
                     "amount" to 100,
@@ -75,7 +75,7 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
                 ),
             )
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus().isEqualTo(422)
             .expectBody()
             .expectApiError("validation_error", "Transaction type is invalid")
     }
@@ -97,7 +97,7 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
                     "transactionType" to "EXPENSE",
                     "firstOccurrenceDate" to "2026-04-10",
                     "finalOccurrenceDate" to null,
-                    "recurrenceType" to "monthly",
+                    "recurrenceType" to "not_a_recurrence_type",
                     "skipCount" to 0,
                     "daysOfWeek" to null,
                     "weeksOfMonth" to null,
@@ -106,7 +106,7 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
                 ),
             )
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus().isEqualTo(422)
             .expectBody()
             .expectApiError("validation_error", "Recurring transaction recurrence type is invalid")
     }

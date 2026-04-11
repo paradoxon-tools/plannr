@@ -45,24 +45,36 @@ END,
         ELSE UPPER(recurrence_type)
     END,
     days_of_week = NULLIF((
-        SELECT string_agg(DISTINCT UPPER(trim(value)), ',' ORDER BY UPPER(trim(value)))
-        FROM unnest(string_to_array(COALESCE(days_of_week, ''), ',')) AS value
-        WHERE trim(value) <> ''
+        SELECT string_agg(normalized_value, ',' ORDER BY normalized_value)
+        FROM (
+            SELECT DISTINCT UPPER(trim(value)) AS normalized_value
+            FROM unnest(string_to_array(COALESCE(days_of_week, ''), ',')) AS value
+            WHERE trim(value) <> ''
+        ) normalized_days
     ), ''),
     weeks_of_month = NULLIF((
-        SELECT string_agg(DISTINCT trim(value), ',' ORDER BY (trim(value))::INTEGER)
-        FROM unnest(string_to_array(COALESCE(weeks_of_month, ''), ',')) AS value
-        WHERE trim(value) <> ''
+        SELECT string_agg(normalized_value, ',' ORDER BY normalized_int)
+        FROM (
+            SELECT DISTINCT trim(value) AS normalized_value, (trim(value))::INTEGER AS normalized_int
+            FROM unnest(string_to_array(COALESCE(weeks_of_month, ''), ',')) AS value
+            WHERE trim(value) <> ''
+        ) normalized_weeks
     ), ''),
     days_of_month = NULLIF((
-        SELECT string_agg(DISTINCT trim(value), ',' ORDER BY (trim(value))::INTEGER)
-        FROM unnest(string_to_array(COALESCE(days_of_month, ''), ',')) AS value
-        WHERE trim(value) <> ''
+        SELECT string_agg(normalized_value, ',' ORDER BY normalized_int)
+        FROM (
+            SELECT DISTINCT trim(value) AS normalized_value, (trim(value))::INTEGER AS normalized_int
+            FROM unnest(string_to_array(COALESCE(days_of_month, ''), ',')) AS value
+            WHERE trim(value) <> ''
+        ) normalized_days
     ), ''),
     months_of_year = NULLIF((
-        SELECT string_agg(DISTINCT trim(value), ',' ORDER BY (trim(value))::INTEGER)
-        FROM unnest(string_to_array(COALESCE(months_of_year, ''), ',')) AS value
-        WHERE trim(value) <> ''
+        SELECT string_agg(normalized_value, ',' ORDER BY normalized_int)
+        FROM (
+            SELECT DISTINCT trim(value) AS normalized_value, (trim(value))::INTEGER AS normalized_int
+            FROM unnest(string_to_array(COALESCE(months_of_year, ''), ',')) AS value
+            WHERE trim(value) <> ''
+        ) normalized_months
     ), '');
 
 UPDATE account_transaction_feed

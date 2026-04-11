@@ -62,7 +62,7 @@ class R2dbcRecurringTransactionRepository(
         return recurringTransaction
     }
 
-    override suspend fun findById(id: String): RecurringTransaction? = databaseClient.sql(selectSql("WHERE id = :id"))
+    override suspend fun findById(id: String): RecurringTransaction? = databaseClient.sql(selectSql("WHERE rt.id = :id"))
         .bind("id", id)
         .fetch().one().map(::toRecurringTransaction).awaitSingleOrNull()
 
@@ -83,7 +83,7 @@ class R2dbcRecurringTransactionRepository(
             .fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
 
     override suspend fun findByPreviousVersionId(previousVersionId: String): List<RecurringTransaction> =
-        databaseClient.sql(selectSql("WHERE previous_version_id = :previousVersionId"))
+        databaseClient.sql(selectSql("WHERE rt.previous_version_id = :previousVersionId"))
             .bind("previousVersionId", previousVersionId)
             .fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
 

@@ -368,7 +368,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
         val recurringId = querySingleValue("SELECT id AS value FROM recurring_transactions ORDER BY created_at ASC LIMIT 1")
         webTestClient.post().uri("/recurring-transactions/$recurringId/archive").exchange()
             .expectStatus().isOk
-            .expectBody().jsonPath("$.isArchived").isEqualTo(true)
+            .expectBody().jsonPath("$.archived").isEqualTo(true)
 
         recurringTransactionMaterializer.materializeAll()
 

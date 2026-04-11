@@ -3,8 +3,8 @@ ALTER TABLE transactions
 
 UPDATE transactions
 SET pocket_id = CASE
-    WHEN type = 'EXPENSE' THEN source_pocket_id
-    WHEN type = 'INCOME' THEN destination_pocket_id
+    WHEN UPPER(type) = 'EXPENSE' THEN source_pocket_id
+    WHEN UPPER(type) = 'INCOME' THEN destination_pocket_id
     ELSE NULL
 END;
 
