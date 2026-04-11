@@ -15,7 +15,6 @@ interface UpdateRecurringTransaction {
     data class Command(
         val id: String,
         val updateMode: String,
-        val effectiveFromDate: String?,
         val contractId: String?,
         val sourcePocketId: String?,
         val destinationPocketId: String?,
@@ -45,6 +44,7 @@ internal class UpdateRecurringTransactionUseCase(
     private val recurringTransactionIdGenerator: RecurringTransactionIdGenerator,
     private val timeProvider: TimeProvider,
     private val normalization: RecurringTransactionNormalization,
+    private val versioningService: RecurringVersioningService,
 ) : UpdateRecurringTransaction {
     override suspend fun invoke(command: UpdateRecurringTransaction.Command): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(command.id.trim())
@@ -94,66 +94,49 @@ internal class UpdateRecurringTransactionUseCase(
                     createdAt = existing.createdAt,
                 ),
             )
-            "parallel" -> recurringTransactionRepository.save(
-                RecurringTransaction(
-                    id = recurringTransactionIdGenerator(),
-                    contractId = context.contractId,
-                    accountId = context.accountId,
-                    sourcePocketId = context.sourcePocketId,
-                    destinationPocketId = context.destinationPocketId,
-                    partnerId = context.partnerId,
-                    title = command.title,
-                    description = command.description,
-                    amount = command.amount,
-                    currencyCode = currency.code,
-                    transactionType = command.transactionType,
-                    firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
-                    finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
-                    recurrenceType = command.recurrenceType,
-                    skipCount = command.skipCount,
-                    daysOfWeek = command.daysOfWeek,
-                    weeksOfMonth = command.weeksOfMonth,
-                    daysOfMonth = command.daysOfMonth,
-                    monthsOfYear = command.monthsOfYear,
-                    lastMaterializedDate = null,
-                    previousVersionId = existing.id,
-                    isArchived = false,
-                    createdAt = timeProvider(),
-                ),
-            )
-            "effective_from" -> {
-                val effectiveFromDate = command.effectiveFromDate?.trim()?.takeIf { it.isNotBlank() }
-                    ?: throw ValidationException("validation_error", "effectiveFromDate is required for effective_from updates")
-                recurringTransactionRepository.update(existing.archive(finalOccurrenceDate = effectiveFromDate))
-                recurringTransactionRepository.save(
-                    RecurringTransaction(
-                        id = recurringTransactionIdGenerator(),
-                        contractId = context.contractId,
-                        accountId = context.accountId,
-                        sourcePocketId = context.sourcePocketId,
-                        destinationPocketId = context.destinationPocketId,
-                        partnerId = context.partnerId,
-                        title = command.title,
-                        description = command.description,
-                        amount = command.amount,
-                        currencyCode = currency.code,
-                        transactionType = command.transactionType,
-                        firstOccurrenceDate = effectiveFromDate,
-                        finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
-                        recurrenceType = command.recurrenceType,
-                        skipCount = command.skipCount,
-                        daysOfWeek = command.daysOfWeek,
-                        weeksOfMonth = command.weeksOfMonth,
-                        daysOfMonth = command.daysOfMonth,
-                        monthsOfYear = command.monthsOfYear,
-                        lastMaterializedDate = null,
-                        previousVersionId = existing.id,
-                        isArchived = false,
-                        createdAt = timeProvider(),
-                    ),
-                )
-            }
+            "new_version" -> createNewVersion(existing, context, command, currency.code, normalizedRecurrence)
             else -> throw ValidationException("validation_error", "Recurring transaction update mode is invalid")
         }
+    }
+
+    private suspend fun createNewVersion(
+        existing: RecurringTransaction,
+        context: RecurringTransactionContextResolver.ResolvedContext,
+        command: UpdateRecurringTransaction.Command,
+        currencyCode: String,
+        normalizedRecurrence: RecurringTransactionNormalization.NormalizedFields,
+    ): RecurringTransaction {
+        if (recurringTransactionRepository.findByPreviousVersionId(existing.id).isNotEmpty()) {
+            throw ValidationException("validation_error", "Recurring transaction version chain already has a successor version")
+        }
+        val predecessorOccurrence = versioningService.predecessorOccurrence(existing, normalizedRecurrence.firstOccurrenceDate)
+        recurringTransactionRepository.update(existing.copy(finalOccurrenceDate = predecessorOccurrence))
+        return recurringTransactionRepository.save(
+            RecurringTransaction(
+                id = recurringTransactionIdGenerator(),
+                contractId = context.contractId,
+                accountId = context.accountId,
+                sourcePocketId = context.sourcePocketId,
+                destinationPocketId = context.destinationPocketId,
+                partnerId = context.partnerId,
+                title = command.title,
+                description = command.description,
+                amount = command.amount,
+                currencyCode = currencyCode,
+                transactionType = command.transactionType,
+                firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
+                finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
+                recurrenceType = command.recurrenceType,
+                skipCount = command.skipCount,
+                daysOfWeek = command.daysOfWeek,
+                weeksOfMonth = command.weeksOfMonth,
+                daysOfMonth = command.daysOfMonth,
+                monthsOfYear = command.monthsOfYear,
+                lastMaterializedDate = null,
+                previousVersionId = existing.id,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
+        )
     }
 }

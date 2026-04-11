@@ -84,6 +84,11 @@ class R2dbcRecurringTransactionRepository(
             .bind("contractId", contractId)
             .fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
 
+    override suspend fun findByPreviousVersionId(previousVersionId: String): List<RecurringTransaction> =
+        databaseClient.sql(selectSql("WHERE previous_version_id = :previousVersionId"))
+            .bind("previousVersionId", previousVersionId)
+            .fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
+
     private fun selectSql(whereClause: String) =
         """
         SELECT * FROM recurring_transactions

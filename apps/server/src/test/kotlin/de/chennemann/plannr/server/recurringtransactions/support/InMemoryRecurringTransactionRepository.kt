@@ -17,4 +17,5 @@ class InMemoryRecurringTransactionRepository : RecurringTransactionRepository {
     override suspend fun findAll(accountId: String?, contractId: String?, archived: Boolean): List<RecurringTransaction> =
         values.values.filter { it.isArchived == archived && (accountId == null || it.accountId == accountId) && (contractId == null || it.contractId == contractId) }
     override suspend fun findByContractId(contractId: String): List<RecurringTransaction> = values.values.filter { it.contractId == contractId }
+    override suspend fun findByPreviousVersionId(previousVersionId: String): List<RecurringTransaction> = values.values.filter { it.previousVersionId == previousVersionId }
 }

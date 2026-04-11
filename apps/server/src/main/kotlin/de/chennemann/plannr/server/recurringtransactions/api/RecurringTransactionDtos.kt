@@ -33,7 +33,6 @@ data class CreateRecurringTransactionRequest(
 
 data class UpdateRecurringTransactionRequest(
     val updateMode: String,
-    val effectiveFromDate: String?,
     val contractId: String?,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
@@ -54,7 +53,7 @@ data class UpdateRecurringTransactionRequest(
     val maxRecurrenceCount: Int?,
 ) {
     fun toCommand(id: String) = UpdateRecurringTransaction.Command(
-        id, updateMode, effectiveFromDate, contractId, sourcePocketId, destinationPocketId, partnerId, title,
+        id, updateMode, contractId, sourcePocketId, destinationPocketId, partnerId, title,
         description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate,
         recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
     )

@@ -391,14 +391,14 @@ Verification:
 
 ## 3.1 Replace `effective_from` semantics with start-date-driven versioning
 
-- `[ ]` remove or deprecate `effectiveFromDate` from the recurring update API.
-- `[ ]` replace `effective_from` update mode with a clearer "new version starting at date X" behavior.
-- `[ ]` retain `previousVersionId` or equivalent lineage tracking.
+- `[x]` remove or deprecate `effectiveFromDate` from the recurring update API.
+- `[x]` replace `effective_from` update mode with a clearer "new version starting at date X" behavior.
+- `[x]` retain `previousVersionId` or equivalent lineage tracking.
 
 Verification:
 
-- `[ ]` API tests prove no `effectiveFromDate` is required.
-- `[ ]` lineage tests prove the new version points to the previous one.
+- `[x]` API tests prove no `effectiveFromDate` is required.
+- `[x]` lineage tests prove the new version points to the previous one.
 
 ## 3.2 Implement closing of old versions by predecessor occurrence
 
@@ -408,16 +408,16 @@ When a new recurring version starts on date `D`:
 - store that occurrence as the old version's inclusive `finalOccurrenceDate`,
 - reject the operation if the resulting version boundary would be invalid.
 
-- `[ ]` Implement predecessor-occurrence calculation.
-- `[ ]` Update version-creation use case to close old versions using that calculation.
-- `[ ]` Reject overlapping versions in the same version chain.
+- `[x]` Implement predecessor-occurrence calculation.
+- `[x]` Update version-creation use case to close old versions using that calculation.
+- `[x]` Reject overlapping versions in the same version chain.
 
 Verification:
 
-- `[ ]` monthly versioning tests prove `2025-06-15` start closes old monthly version at `2025-05-15`.
-- `[ ]` weekly tests prove correct predecessor selection.
-- `[ ]` yearly tests prove correct predecessor selection.
-- `[ ]` overlap tests reject invalid boundaries.
+- `[x]` monthly versioning tests prove `2025-06-15` start closes old monthly version at `2025-05-15`.
+- `[x]` weekly tests prove correct predecessor selection.
+- `[x]` yearly tests prove correct predecessor selection.
+- `[x]` overlap tests reject invalid boundaries.
 
 ## 3.3 Decide which recurring update modes remain
 
@@ -433,15 +433,15 @@ Recommended target:
 
 Suggested direction:
 
-- `[ ]` retain `overwrite` only for same-template edits where no version split is needed,
-- `[ ]` replace `effective_from` with explicit new-version creation using `firstOccurrenceDate`,
-- `[ ]` keep `parallel` only if there is a real business need for overlapping templates.
+- `[x]` retain `overwrite` only for same-template edits where no version split is needed,
+- `[x]` replace `effective_from` with explicit new-version creation using `firstOccurrenceDate`,
+- `[x]` keep `parallel` only if there is a real business need for overlapping templates.
 
 Verification:
 
-- `[ ]` one documented decision exists.
-- `[ ]` API tests reflect only supported modes.
-- `[ ]` unsupported mode tests fail with validation errors.
+- `[x]` one documented decision exists.
+- `[x]` API tests reflect only supported modes.
+- `[x]` unsupported mode tests fail with validation errors.
 
 ---
 

@@ -82,7 +82,6 @@ object RecurringTransactionFixtures {
 
     fun updateRequest(
         updateMode: String = "overwrite",
-        effectiveFromDate: String? = null,
         contractId: String? = DEFAULT_CONTRACT_ID,
         sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
         destinationPocketId: String? = null,
@@ -101,7 +100,7 @@ object RecurringTransactionFixtures {
         daysOfMonth: List<Int>? = DEFAULT_DAYS_OF_MONTH,
         monthsOfYear: List<Int>? = DEFAULT_MONTHS_OF_YEAR,
         maxRecurrenceCount: Int? = null,
-    ) = UpdateRecurringTransactionRequest(updateMode, effectiveFromDate, contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
+    ) = UpdateRecurringTransactionRequest(updateMode, contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
 
     fun createRequest(
         contractId: String? = DEFAULT_CONTRACT_ID,
