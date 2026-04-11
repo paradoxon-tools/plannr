@@ -48,6 +48,65 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
     }
 
     @Test
+    fun `current balances include today and ignore tomorrow`() = runBlocking {
+        val today = LocalDate.now()
+        val account = createAccount(
+            CreateAccount.Command(
+                name = "Main account",
+                institution = "Demo Bank",
+                currencyCode = "EUR",
+                weekendHandling = "NO_SHIFT",
+            ),
+        )
+        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+
+        createTransaction(
+            CreateTransaction.Command(
+                type = "INCOME",
+                status = "CLEARED",
+                transactionDate = today.toString(),
+                amount = 25,
+                currencyCode = "EUR",
+                exchangeRate = null,
+                destinationAmount = null,
+                description = "Today",
+                partnerId = null,
+                sourcePocketId = null,
+                destinationPocketId = pocket.id,
+            ),
+        )
+        createTransaction(
+            CreateTransaction.Command(
+                type = "EXPENSE",
+                status = "PENDING",
+                transactionDate = today.plusDays(1).toString(),
+                amount = 10,
+                currencyCode = "EUR",
+                exchangeRate = null,
+                destinationAmount = null,
+                description = "Tomorrow",
+                partnerId = null,
+                sourcePocketId = pocket.id,
+                destinationPocketId = null,
+            ),
+        )
+
+        webTestClient.get()
+            .uri("/query/accounts/${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(25)
+
+        webTestClient.get()
+            .uri("/query/pockets/${pocket.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.currentBalance").isEqualTo(25)
+    }
+
+    @Test
     fun `future transactions do not alter current balances or historical feeds`() = runBlocking {
         val today = LocalDate.now()
         val account = createAccount(

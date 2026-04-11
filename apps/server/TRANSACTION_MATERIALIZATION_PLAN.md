@@ -692,25 +692,25 @@ Verification:
 
 ## 8.1 Update account summary projection
 
-- `[ ]` compute `account_query.current_balance` from canonical visible transactions with `transaction_date <= today`.
-- `[ ]` keep metadata projection behavior.
-- `[ ]` keep archive-state projection behavior.
+- `[x]` compute `account_query.current_balance` from canonical visible transactions with `transaction_date <= today`.
+- `[x]` keep metadata projection behavior.
+- `[x]` keep archive-state projection behavior.
 
 Verification:
 
-- `[ ]` tests prove future transactions do not alter `account_query.current_balance`.
-- `[ ]` tests prove metadata changes remain projected correctly.
+- `[x]` tests prove future transactions do not alter `account_query.current_balance`.
+- `[x]` tests prove metadata changes remain projected correctly.
 
 ## 8.2 Update pocket summary projection
 
-- `[ ]` compute `pocket_query.current_balance` from canonical visible transactions with `transaction_date <= today`.
-- `[ ]` keep metadata projection behavior.
-- `[ ]` keep archive-state projection behavior.
+- `[x]` compute `pocket_query.current_balance` from canonical visible transactions with `transaction_date <= today`.
+- `[x]` keep metadata projection behavior.
+- `[x]` keep archive-state projection behavior.
 
 Verification:
 
-- `[ ]` tests prove future transactions do not alter `pocket_query.current_balance`.
-- `[ ]` tests prove metadata changes remain projected correctly.
+- `[x]` tests prove future transactions do not alter `pocket_query.current_balance`.
+- `[x]` tests prove metadata changes remain projected correctly.
 
 ---
 
