@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var transactionRepository: TransactionRepository
@@ -41,6 +42,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         assertEquals("EXPENSE", found?.type)
         assertEquals("CLEARED", found?.status)
         assertEquals("EUR", found?.currencyCode)
+        assertEquals("MANUAL", found?.transactionOrigin)
     }
 
     @Test
@@ -69,6 +71,43 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
 
         assertEquals(listOf(modification.id), transactionRepository.findVisibleByAccountId("acc_123").map { it.id })
         assertEquals(listOf(modification.id), transactionRepository.findVisibleByPocketId("poc_123").map { it.id })
+        assertEquals(listOf(modification.id), transactionRepository.findVisibleByRecurringTransactionId("rtx_123").map { it.id })
+    }
+
+    @Test
+    fun `duplicate root recurring occurrences are rejected by the database`() = runBlocking {
+        transactionRepository.save(transaction(id = "txn_first", transactionDate = "2026-04-12", recurringTransactionId = "rtx_123"))
+
+        assertFailsWith<Exception> {
+            transactionRepository.save(transaction(id = "txn_duplicate", transactionDate = "2026-04-12", recurringTransactionId = "rtx_123"))
+        }
+
+        transactionRepository.save(
+            transaction(
+                id = "txn_child_same_date",
+                transactionDate = "2026-04-12",
+                parentTransactionId = "txn_first",
+                recurringTransactionId = "rtx_123",
+            ),
+        )
+    }
+
+    @Test
+    fun `visible pending and future queries use visibility aware filtering`() = runBlocking {
+        transactionRepository.save(transaction(id = "txn_pending_future", status = "PENDING", transactionDate = "2026-04-12"))
+        transactionRepository.save(transaction(id = "txn_cleared_future", status = "CLEARED", transactionDate = "2026-04-13"))
+        transactionRepository.save(transaction(id = "txn_hidden_future", status = "PENDING", transactionDate = "2026-04-14", modifiedById = "txn_mod"))
+        transactionRepository.save(transaction(id = "txn_archived_future", status = "PENDING", transactionDate = "2026-04-15", isArchived = true))
+
+        assertEquals(listOf("txn_pending_future"), transactionRepository.findVisiblePending().map { it.id })
+        assertEquals(
+            listOf("txn_pending_future", "txn_cleared_future"),
+            transactionRepository.findVisibleFutureByAccountId("acc_123", "2026-04-12", "2026-04-13").map { it.id },
+        )
+        assertEquals(
+            listOf("txn_pending_future", "txn_cleared_future"),
+            transactionRepository.findVisibleFutureByPocketId("poc_123", "2026-04-12", "2026-04-13").map { it.id },
+        )
     }
 
     private fun transaction(
@@ -78,12 +117,14 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         parentTransactionId: String? = null,
         recurringTransactionId: String? = null,
         modifiedById: String? = null,
+        status: String = "CLEARED",
+        modifiedById: String? = null,
         isArchived: Boolean = false,
     ): TransactionRecord = TransactionRecord(
         id = id,
         accountId = "acc_123",
         type = "EXPENSE",
-        status = "CLEARED",
+        status = status,
         transactionDate = transactionDate,
         amount = amount,
         currencyCode = "EUR",
@@ -96,6 +137,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         parentTransactionId = parentTransactionId,
         recurringTransactionId = recurringTransactionId,
         modifiedById = modifiedById,
+        transactionOrigin = "MANUAL",
         isArchived = isArchived,
         createdAt = 1L,
     )

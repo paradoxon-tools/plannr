@@ -262,19 +262,19 @@ Verification:
 
 ## 1.1 Evolve `transactions` into the materialized transaction ledger
 
-- `[ ]` Confirm the existing `transactions` table is the canonical materialized ledger.
-- `[ ]` Add or refine columns needed for materialization and tracing.
+- `[x]` Confirm the existing `transactions` table is the canonical materialized ledger.
+- `[x]` Add or refine columns needed for materialization and tracing.
 - `[ ]` Remove canonical transaction `account_id` / `contract_id` columns where they are derivable from persisted pocket relationships.
 - `[ ]` Standardize canonical transaction persistence around pocket references (`pocket_id` for non-transfers, `source_pocket_id` / `destination_pocket_id` for transfers).
-- `[ ]` Preserve these link fields:
-  - `[ ]` `parent_transaction_id`
-  - `[ ]` `recurring_transaction_id`
-  - `[ ]` `modified_by_id`
-- `[ ]` Decide whether to add a `transaction_origin` column with values like:
+- `[x]` Preserve these link fields:
+  - `[x]` `parent_transaction_id`
+  - `[x]` `recurring_transaction_id`
+  - `[x]` `modified_by_id`
+- `[x]` Decide whether to add a `transaction_origin` column with values like:
   - `MANUAL`
   - `RECURRING_MATERIALIZED`
   - `RECURRING_MODIFICATION`
-- `[ ]` Add indexes needed for materialization, visibility, and future feed projection.
+- `[x]` Add indexes needed for materialization, visibility, and future feed projection.
 
 Recommended additional indexes:
 
@@ -289,13 +289,13 @@ Verification:
 
 - `[ ]` migration tests apply cleanly on an empty schema.
 - `[ ]` migration tests apply cleanly over current server schema.
-- `[ ]` repository tests verify all new columns round-trip.
+- `[x]` repository tests verify all new columns round-trip.
 
 ## 1.2 Enforce recurrence duplicate protection at the database level
 
-- `[ ]` Add a unique constraint or partial unique index that prevents duplicate canonical occurrence rows for the same recurring template and occurrence date.
-- `[ ]` Ensure modified child transactions do not violate that constraint.
-- `[ ]` Ensure archived originals still preserve duplicate-prevention semantics.
+- `[x]` Add a unique constraint or partial unique index that prevents duplicate canonical occurrence rows for the same recurring template and occurrence date.
+- `[x]` Ensure modified child transactions do not violate that constraint.
+- `[x]` Ensure archived originals still preserve duplicate-prevention semantics.
 
 Recommended invariant:
 
@@ -303,24 +303,24 @@ Recommended invariant:
 
 Verification:
 
-- `[ ]` duplicate materialization tests fail at DB level if code regresses.
-- `[ ]` modified occurrence tests still succeed with the constraint in place.
+- `[x]` duplicate materialization tests fail at DB level if code regresses.
+- `[x]` modified occurrence tests still succeed with the constraint in place.
 
 ## 1.3 Implement canonical visibility-aware repository methods
 
-- `[ ]` Replace simple `is_archived = FALSE` transaction reads with visibility-aware queries.
-- `[ ]` Introduce repository methods for:
-  - `[ ]` visible transactions by account
-  - `[ ]` visible transactions by pocket
-  - `[ ]` visible transactions by recurring template
-  - `[ ]` visible pending transactions
-  - `[ ]` visible future transactions by account/pocket/date range
+- `[x]` Replace simple `is_archived = FALSE` transaction reads with visibility-aware queries.
+- `[x]` Introduce repository methods for:
+  - `[x]` visible transactions by account
+  - `[x]` visible transactions by pocket
+  - `[x]` visible transactions by recurring template
+  - `[x]` visible pending transactions
+  - `[x]` visible future transactions by account/pocket/date range
 
 Verification:
 
-- `[ ]` repository tests prove hidden originals are excluded.
-- `[ ]` repository tests prove modified occurrences are included.
-- `[ ]` repository tests prove archived rows are excluded.
+- `[x]` repository tests prove hidden originals are excluded.
+- `[x]` repository tests prove modified occurrences are included.
+- `[x]` repository tests prove archived rows are excluded.
 
 ---
 

@@ -65,6 +65,7 @@ internal class CreateTransactionUseCase(
             parentTransactionId = null,
             recurringTransactionId = null,
             modifiedById = null,
+            transactionOrigin = "MANUAL",
             isArchived = false,
             createdAt = timeProvider(),
         )

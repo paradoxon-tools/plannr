@@ -65,6 +65,7 @@ internal class UpdateTransactionUseCase(
             parentTransactionId = existing.parentTransactionId,
             recurringTransactionId = existing.recurringTransactionId,
             modifiedById = existing.modifiedById,
+            transactionOrigin = existing.transactionOrigin,
             isArchived = existing.isArchived,
             createdAt = existing.createdAt,
         )

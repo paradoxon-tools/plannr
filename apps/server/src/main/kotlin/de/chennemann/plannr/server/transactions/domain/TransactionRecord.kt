@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.transactions.domain
 
+import de.chennemann.plannr.server.common.domain.normalizeTransactionOrigin
 import de.chennemann.plannr.server.common.domain.normalizeTransactionStatus
 import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.ValidationException
@@ -23,6 +24,7 @@ data class TransactionRecord private constructor(
     val parentTransactionId: String?,
     val recurringTransactionId: String?,
     val modifiedById: String?,
+    val transactionOrigin: String,
     val isArchived: Boolean,
     val createdAt: Long,
 ) {
@@ -48,6 +50,7 @@ data class TransactionRecord private constructor(
             parentTransactionId: String?,
             recurringTransactionId: String?,
             modifiedById: String?,
+            transactionOrigin: String,
             isArchived: Boolean,
             createdAt: Long,
         ): TransactionRecord {
@@ -65,6 +68,7 @@ data class TransactionRecord private constructor(
             val normalizedParentTransactionId = parentTransactionId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedRecurringTransactionId = recurringTransactionId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedModifiedById = modifiedById?.trim()?.takeIf { it.isNotBlank() }
+            val normalizedTransactionOrigin = normalizeTransactionOrigin(transactionOrigin)
 
             if (normalizedId.isBlank()) throw ValidationException("validation_error", "Transaction id must not be blank")
             if (normalizedAccountId.isBlank()) throw ValidationException("validation_error", "Transaction account id must not be blank")
@@ -96,6 +100,7 @@ data class TransactionRecord private constructor(
                 parentTransactionId = normalizedParentTransactionId,
                 recurringTransactionId = normalizedRecurringTransactionId,
                 modifiedById = normalizedModifiedById,
+                transactionOrigin = normalizedTransactionOrigin,
                 isArchived = isArchived,
                 createdAt = createdAt,
             )

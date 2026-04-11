@@ -73,6 +73,7 @@ class TransactionRecordTest {
         parentTransactionId = null,
         recurringTransactionId = null,
         modifiedById = null,
+        transactionOrigin = "MANUAL",
         isArchived = false,
         createdAt = 1L,
     )
