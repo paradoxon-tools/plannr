@@ -25,6 +25,8 @@ class TransactionRecordTest {
         assertEquals("CLEARED", value.status)
         assertEquals("EUR", value.currencyCode)
         assertEquals("1.25", value.exchangeRate)
+        assertEquals("poc_123", value.pocketId)
+        assertEquals("poc_123", value.sourcePocketId)
         assertNull(value.partnerId)
     }
 
@@ -36,10 +38,20 @@ class TransactionRecordTest {
 
     @Test
     fun `rejects invalid pocket combinations`() {
-        assertFailsWith<ValidationException> { transaction(type = "EXPENSE", sourcePocketId = null) }
-        assertFailsWith<ValidationException> { transaction(type = "INCOME", destinationPocketId = null, sourcePocketId = "poc_123") }
+        assertFailsWith<ValidationException> { transaction(type = "EXPENSE", sourcePocketId = null, pocketId = null) }
+        assertFailsWith<ValidationException> { transaction(type = "INCOME", destinationPocketId = null, sourcePocketId = "poc_123", pocketId = null) }
         assertFailsWith<ValidationException> { transaction(type = "TRANSFER", destinationPocketId = null) }
         assertFailsWith<ValidationException> { transaction(type = "TRANSFER", destinationPocketId = "poc_123") }
+        assertFailsWith<ValidationException> { transaction(type = "TRANSFER", pocketId = "poc_123", destinationPocketId = "poc_456", sourcePocketId = "poc_123") }
+    }
+
+    @Test
+    fun `canonicalizes non transfer pocket scope to pocket id`() {
+        val income = transaction(type = "INCOME", pocketId = null, sourcePocketId = null, destinationPocketId = "poc_456")
+
+        assertEquals("poc_456", income.pocketId)
+        assertNull(income.sourcePocketId)
+        assertEquals("poc_456", income.destinationPocketId)
     }
 
     private fun transaction(
@@ -54,6 +66,7 @@ class TransactionRecordTest {
         destinationAmount: Long? = null,
         description: String = "desc",
         partnerId: String? = null,
+        pocketId: String? = null,
         sourcePocketId: String? = "poc_123",
         destinationPocketId: String? = null,
     ): TransactionRecord = TransactionRecord(
@@ -68,6 +81,7 @@ class TransactionRecordTest {
         destinationAmount = destinationAmount,
         description = description,
         partnerId = partnerId,
+        pocketId = pocketId,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
         parentTransactionId = null,

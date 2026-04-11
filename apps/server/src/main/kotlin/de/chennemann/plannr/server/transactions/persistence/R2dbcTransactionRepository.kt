@@ -18,11 +18,11 @@ class R2dbcTransactionRepository(
             databaseClient.sql(
                 """
                 INSERT INTO transactions (
-                    id, account_id, type, status, transaction_date, amount, currency_code, exchange_rate,
+                    id, pocket_id, type, status, transaction_date, amount, currency_code, exchange_rate,
                     destination_amount, description, partner_id, source_pocket_id, destination_pocket_id,
                     parent_transaction_id, recurring_transaction_id, modified_by_id, transaction_origin, is_archived, created_at
                 ) VALUES (
-                    :id, :accountId, :type, :status, :transactionDate, :amount, :currencyCode, :exchangeRate,
+                    :id, :pocketId, :type, :status, :transactionDate, :amount, :currencyCode, :exchangeRate,
                     :destinationAmount, :description, :partnerId, :sourcePocketId, :destinationPocketId,
                     :parentTransactionId, :recurringTransactionId, :modifiedById, :transactionOrigin, :isArchived, :createdAt
                 )
@@ -41,7 +41,7 @@ class R2dbcTransactionRepository(
             databaseClient.sql(
                 """
                 UPDATE transactions
-                SET account_id = :accountId,
+                SET pocket_id = :pocketId,
                     type = :type,
                     status = :status,
                     transaction_date = :transactionDate,
@@ -70,7 +70,7 @@ class R2dbcTransactionRepository(
     }
 
     override suspend fun findById(id: String): TransactionRecord? =
-        databaseClient.sql("SELECT * FROM transactions WHERE id = :id")
+        databaseClient.sql("$baseSelect WHERE t.id = :id")
             .bind("id", id)
             .fetch()
             .one()
@@ -80,9 +80,9 @@ class R2dbcTransactionRepository(
     override suspend fun findVisibleByAccountId(accountId: String): List<TransactionRecord> =
         findAll(
             """
-            WHERE account_id = :scopeId
-              AND ${TransactionVisibility.SQL_PREDICATE}
-            ORDER BY transaction_date ASC, created_at ASC, id ASC
+            WHERE (p.account_id = :scopeId OR sp.account_id = :scopeId OR dp.account_id = :scopeId)
+              AND ${TransactionVisibility.SQL_PREDICATE.replace("modified_by_id", "t.modified_by_id").replace("is_archived", "t.is_archived")}
+            ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
             """.trimIndent(),
             accountId,
         )
@@ -90,9 +90,9 @@ class R2dbcTransactionRepository(
     override suspend fun findVisibleByPocketId(pocketId: String): List<TransactionRecord> =
         findAll(
             """
-            WHERE (source_pocket_id = :scopeId OR destination_pocket_id = :scopeId)
-              AND ${TransactionVisibility.SQL_PREDICATE}
-            ORDER BY transaction_date ASC, created_at ASC, id ASC
+            WHERE (t.pocket_id = :scopeId OR t.source_pocket_id = :scopeId OR t.destination_pocket_id = :scopeId)
+              AND ${TransactionVisibility.SQL_PREDICATE.replace("modified_by_id", "t.modified_by_id").replace("is_archived", "t.is_archived")}
+            ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
             """.trimIndent(),
             pocketId,
         )
@@ -100,9 +100,9 @@ class R2dbcTransactionRepository(
     override suspend fun findVisibleByRecurringTransactionId(recurringTransactionId: String): List<TransactionRecord> =
         findAll(
             """
-            WHERE recurring_transaction_id = :scopeId
-              AND ${TransactionVisibility.SQL_PREDICATE}
-            ORDER BY transaction_date ASC, created_at ASC, id ASC
+            WHERE t.recurring_transaction_id = :scopeId
+              AND ${TransactionVisibility.SQL_PREDICATE.replace("modified_by_id", "t.modified_by_id").replace("is_archived", "t.is_archived")}
+            ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
             """.trimIndent(),
             recurringTransactionId,
         )
@@ -110,10 +110,10 @@ class R2dbcTransactionRepository(
     override suspend fun findVisiblePending(): List<TransactionRecord> =
         databaseClient.sql(
             """
-            SELECT * FROM transactions
-            WHERE ${TransactionVisibility.SQL_PREDICATE}
-              AND status = 'PENDING'
-            ORDER BY transaction_date ASC, created_at ASC, id ASC
+            $baseSelect
+            WHERE ${TransactionVisibility.SQL_PREDICATE.replace("modified_by_id", "t.modified_by_id").replace("is_archived", "t.is_archived")}
+              AND t.status = 'PENDING'
+            ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
             """.trimIndent(),
         )
             .fetch()
@@ -122,22 +122,22 @@ class R2dbcTransactionRepository(
 
     override suspend fun findVisibleFutureByAccountId(accountId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord> =
         findAllByScopeAndDateRange(
-            "account_id = :scopeId",
-            accountId,
-            startDateInclusive,
-            endDateInclusive,
+            scopePredicate = "(p.account_id = :scopeId OR sp.account_id = :scopeId OR dp.account_id = :scopeId)",
+            scopeId = accountId,
+            startDateInclusive = startDateInclusive,
+            endDateInclusive = endDateInclusive,
         )
 
     override suspend fun findVisibleFutureByPocketId(pocketId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord> =
         findAllByScopeAndDateRange(
-            "(source_pocket_id = :scopeId OR destination_pocket_id = :scopeId)",
-            pocketId,
-            startDateInclusive,
-            endDateInclusive,
+            scopePredicate = "(t.pocket_id = :scopeId OR t.source_pocket_id = :scopeId OR t.destination_pocket_id = :scopeId)",
+            scopeId = pocketId,
+            startDateInclusive = startDateInclusive,
+            endDateInclusive = endDateInclusive,
         )
 
     private suspend fun findAll(whereClause: String, scopeId: String): List<TransactionRecord> =
-        databaseClient.sql("SELECT * FROM transactions $whereClause")
+        databaseClient.sql("$baseSelect $whereClause")
             .bind("scopeId", scopeId)
             .fetch()
             .all()
@@ -151,11 +151,11 @@ class R2dbcTransactionRepository(
     ): List<TransactionRecord> =
         databaseClient.sql(
             """
-            SELECT * FROM transactions
+            $baseSelect
             WHERE $scopePredicate
-              AND ${TransactionVisibility.SQL_PREDICATE}
-              AND transaction_date BETWEEN :startDateInclusive AND :endDateInclusive
-            ORDER BY transaction_date ASC, created_at ASC, id ASC
+              AND ${TransactionVisibility.SQL_PREDICATE.replace("modified_by_id", "t.modified_by_id").replace("is_archived", "t.is_archived")}
+              AND t.transaction_date BETWEEN :startDateInclusive AND :endDateInclusive
+            ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
             """.trimIndent(),
         )
             .bind("scopeId", scopeId)
@@ -168,7 +168,6 @@ class R2dbcTransactionRepository(
     private fun bindAll(spec: DatabaseClient.GenericExecuteSpec, transaction: TransactionRecord): DatabaseClient.GenericExecuteSpec {
         var current = spec
             .bind("id", transaction.id)
-            .bind("accountId", transaction.accountId)
             .bind("type", transaction.type)
             .bind("status", transaction.status)
             .bind("transactionDate", transaction.transactionDate)
@@ -178,11 +177,12 @@ class R2dbcTransactionRepository(
             .bind("transactionOrigin", transaction.transactionOrigin)
             .bind("isArchived", transaction.isArchived)
             .bind("createdAt", transaction.createdAt)
+        current = bindNullable(current, "pocketId", transaction.persistedPocketId(), String::class.java)
         current = bindNullable(current, "exchangeRate", transaction.exchangeRate, String::class.java)
         current = bindNullable(current, "destinationAmount", transaction.destinationAmount, Long::class.javaObjectType)
         current = bindNullable(current, "partnerId", transaction.partnerId, String::class.java)
-        current = bindNullable(current, "sourcePocketId", transaction.sourcePocketId, String::class.java)
-        current = bindNullable(current, "destinationPocketId", transaction.destinationPocketId, String::class.java)
+        current = bindNullable(current, "sourcePocketId", transaction.persistedSourcePocketId(), String::class.java)
+        current = bindNullable(current, "destinationPocketId", transaction.persistedDestinationPocketId(), String::class.java)
         current = bindNullable(current, "parentTransactionId", transaction.parentTransactionId, String::class.java)
         current = bindNullable(current, "recurringTransactionId", transaction.recurringTransactionId, String::class.java)
         current = bindNullable(current, "modifiedById", transaction.modifiedById, String::class.java)
@@ -209,6 +209,7 @@ class R2dbcTransactionRepository(
         destinationAmount = (row["destination_amount"] as Number?)?.toLong(),
         description = row.getValue("description") as String,
         partnerId = row["partner_id"] as String?,
+        pocketId = row["pocket_id"] as String?,
         sourcePocketId = row["source_pocket_id"] as String?,
         destinationPocketId = row["destination_pocket_id"] as String?,
         parentTransactionId = row["parent_transaction_id"] as String?,
@@ -218,4 +219,38 @@ class R2dbcTransactionRepository(
         isArchived = row.getValue("is_archived") as Boolean,
         createdAt = (row.getValue("created_at") as Number).toLong(),
     )
+
+    private companion object {
+        private val visibilityPredicate = TransactionVisibility.SQL_PREDICATE
+            .replace("modified_by_id", "t.modified_by_id")
+            .replace("is_archived", "t.is_archived")
+
+        private val baseSelect =
+            """
+            SELECT t.id,
+                   COALESCE(p.account_id, sp.account_id, dp.account_id) AS account_id,
+                   t.type,
+                   t.status,
+                   t.transaction_date,
+                   t.amount,
+                   t.currency_code,
+                   t.exchange_rate,
+                   t.destination_amount,
+                   t.description,
+                   t.partner_id,
+                   t.pocket_id,
+                   CASE WHEN t.type = 'EXPENSE' THEN t.pocket_id ELSE t.source_pocket_id END AS source_pocket_id,
+                   CASE WHEN t.type = 'INCOME' THEN t.pocket_id ELSE t.destination_pocket_id END AS destination_pocket_id,
+                   t.parent_transaction_id,
+                   t.recurring_transaction_id,
+                   t.modified_by_id,
+                   t.transaction_origin,
+                   t.is_archived,
+                   t.created_at
+            FROM transactions t
+            LEFT JOIN pockets p ON p.id = t.pocket_id
+            LEFT JOIN pockets sp ON sp.id = t.source_pocket_id
+            LEFT JOIN pockets dp ON dp.id = t.destination_pocket_id
+            """.trimIndent()
+    }
 }

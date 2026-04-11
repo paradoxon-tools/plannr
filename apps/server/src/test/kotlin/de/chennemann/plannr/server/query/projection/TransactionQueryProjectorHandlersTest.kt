@@ -120,6 +120,7 @@ class TransactionQueryProjectorHandlersTest {
         destinationAmount = null,
         description = "desc",
         partnerId = null,
+        pocketId = "poc_123",
         sourcePocketId = "poc_123",
         destinationPocketId = null,
         parentTransactionId = null,

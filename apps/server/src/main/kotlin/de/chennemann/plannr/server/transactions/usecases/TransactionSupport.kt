@@ -67,6 +67,11 @@ internal class TransactionContextResolver(
 
         return ResolvedContext(
             accountId = account.id,
+            pocketId = when (normalizedTransactionType) {
+                "EXPENSE" -> sourcePocket?.id
+                "INCOME" -> destinationPocket?.id
+                else -> null
+            },
             sourcePocketId = sourcePocket?.id,
             destinationPocketId = destinationPocket?.id,
             partnerId = resolvedPartnerId,
@@ -75,6 +80,7 @@ internal class TransactionContextResolver(
 
     data class ResolvedContext(
         val accountId: String,
+        val pocketId: String?,
         val sourcePocketId: String?,
         val destinationPocketId: String?,
         val partnerId: String?,

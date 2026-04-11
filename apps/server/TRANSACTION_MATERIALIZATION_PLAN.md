@@ -264,8 +264,8 @@ Verification:
 
 - `[x]` Confirm the existing `transactions` table is the canonical materialized ledger.
 - `[x]` Add or refine columns needed for materialization and tracing.
-- `[ ]` Remove canonical transaction `account_id` / `contract_id` columns where they are derivable from persisted pocket relationships.
-- `[ ]` Standardize canonical transaction persistence around pocket references (`pocket_id` for non-transfers, `source_pocket_id` / `destination_pocket_id` for transfers).
+- `[x]` Remove canonical transaction `account_id` / `contract_id` columns where they are derivable from persisted pocket relationships.
+- `[x]` Standardize canonical transaction persistence around pocket references (`pocket_id` for non-transfers, `source_pocket_id` / `destination_pocket_id` for transfers).
 - `[x]` Preserve these link fields:
   - `[x]` `parent_transaction_id`
   - `[x]` `recurring_transaction_id`
@@ -287,8 +287,8 @@ Recommended additional indexes:
 
 Verification:
 
-- `[ ]` migration tests apply cleanly on an empty schema.
-- `[ ]` migration tests apply cleanly over current server schema.
+- `[x]` migration tests apply cleanly on an empty schema.
+- `[x]` migration tests apply cleanly over current server schema.
 - `[x]` repository tests verify all new columns round-trip.
 
 ## 1.2 Enforce recurrence duplicate protection at the database level

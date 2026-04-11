@@ -19,6 +19,7 @@ data class TransactionRecord private constructor(
     val destinationAmount: Long?,
     val description: String,
     val partnerId: String?,
+    val pocketId: String?,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
     val parentTransactionId: String?,
@@ -31,6 +32,12 @@ data class TransactionRecord private constructor(
     fun archive(): TransactionRecord = copy(isArchived = true)
 
     fun unarchive(): TransactionRecord = copy(isArchived = false)
+
+    fun persistedPocketId(): String? = if (type == "TRANSFER") null else pocketId
+
+    fun persistedSourcePocketId(): String? = if (type == "TRANSFER") sourcePocketId else null
+
+    fun persistedDestinationPocketId(): String? = if (type == "TRANSFER") destinationPocketId else null
 
     companion object {
         operator fun invoke(
@@ -45,6 +52,7 @@ data class TransactionRecord private constructor(
             destinationAmount: Long?,
             description: String,
             partnerId: String?,
+            pocketId: String? = null,
             sourcePocketId: String?,
             destinationPocketId: String?,
             parentTransactionId: String?,
@@ -63,6 +71,7 @@ data class TransactionRecord private constructor(
             val normalizedExchangeRate = exchangeRate?.trim()?.takeIf { it.isNotBlank() }
             val normalizedDescription = description.trim()
             val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
+            val normalizedPocketId = pocketId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedSourcePocketId = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedDestinationPocketId = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedParentTransactionId = parentTransactionId?.trim()?.takeIf { it.isNotBlank() }
@@ -72,8 +81,6 @@ data class TransactionRecord private constructor(
 
             if (normalizedId.isBlank()) throw ValidationException("validation_error", "Transaction id must not be blank")
             if (normalizedAccountId.isBlank()) throw ValidationException("validation_error", "Transaction account id must not be blank")
-            if (normalizedType.isBlank()) throw ValidationException("validation_error", "Transaction type must not be blank")
-            if (normalizedStatus.isBlank()) throw ValidationException("validation_error", "Transaction status must not be blank")
             if (normalizedTransactionDate.isBlank()) throw ValidationException("validation_error", "Transaction date must not be blank")
             if (normalizedCurrencyCode.isBlank()) throw ValidationException("validation_error", "Transaction currency code must not be blank")
             if (normalizedDescription.isBlank()) throw ValidationException("validation_error", "Transaction description must not be blank")
@@ -81,7 +88,12 @@ data class TransactionRecord private constructor(
             if (destinationAmount != null && destinationAmount < 0) throw ValidationException("validation_error", "Transaction destination amount must not be negative")
 
             parseDate(normalizedTransactionDate, "Transaction date must be a plain date")
-            validateTypeCombination(normalizedType, normalizedSourcePocketId, normalizedDestinationPocketId)
+            val canonicalPockets = canonicalizePockets(
+                type = normalizedType,
+                pocketId = normalizedPocketId,
+                sourcePocketId = normalizedSourcePocketId,
+                destinationPocketId = normalizedDestinationPocketId,
+            )
 
             return TransactionRecord(
                 id = normalizedId,
@@ -95,8 +107,9 @@ data class TransactionRecord private constructor(
                 destinationAmount = destinationAmount,
                 description = normalizedDescription,
                 partnerId = normalizedPartnerId,
-                sourcePocketId = normalizedSourcePocketId,
-                destinationPocketId = normalizedDestinationPocketId,
+                pocketId = canonicalPockets.pocketId,
+                sourcePocketId = canonicalPockets.sourcePocketId,
+                destinationPocketId = canonicalPockets.destinationPocketId,
                 parentTransactionId = normalizedParentTransactionId,
                 recurringTransactionId = normalizedRecurringTransactionId,
                 modifiedById = normalizedModifiedById,
@@ -113,38 +126,59 @@ data class TransactionRecord private constructor(
                 throw ValidationException("validation_error", message)
             }
 
-        private fun validateTypeCombination(
+        private fun canonicalizePockets(
             type: String,
+            pocketId: String?,
             sourcePocketId: String?,
             destinationPocketId: String?,
-        ) {
-            when (type) {
-                "EXPENSE" -> {
-                    if (sourcePocketId == null) {
-                        throw ValidationException("validation_error", "Expense transaction requires source pocket")
-                    }
-                    if (destinationPocketId != null) {
-                        throw ValidationException("validation_error", "Expense transaction must not define destination pocket")
-                    }
+        ): CanonicalPockets = when (type) {
+            "EXPENSE" -> {
+                val resolvedPocketId = pocketId ?: sourcePocketId
+                    ?: throw ValidationException("validation_error", "Expense transaction requires source pocket")
+                if (destinationPocketId != null) {
+                    throw ValidationException("validation_error", "Expense transaction must not define destination pocket")
                 }
-                "INCOME" -> {
-                    if (destinationPocketId == null) {
-                        throw ValidationException("validation_error", "Income transaction requires destination pocket")
-                    }
-                    if (sourcePocketId != null) {
-                        throw ValidationException("validation_error", "Income transaction must not define source pocket")
-                    }
-                }
-                "TRANSFER" -> {
-                    if (sourcePocketId == null || destinationPocketId == null) {
-                        throw ValidationException("validation_error", "Transfer transaction requires source and destination pockets")
-                    }
-                    if (sourcePocketId == destinationPocketId) {
-                        throw ValidationException("validation_error", "Transfer transaction source and destination pockets must differ")
-                    }
-                }
-                else -> throw ValidationException("validation_error", "Transaction type is invalid")
+                CanonicalPockets(
+                    pocketId = resolvedPocketId,
+                    sourcePocketId = resolvedPocketId,
+                    destinationPocketId = null,
+                )
             }
+            "INCOME" -> {
+                val resolvedPocketId = pocketId ?: destinationPocketId
+                    ?: throw ValidationException("validation_error", "Income transaction requires destination pocket")
+                if (sourcePocketId != null) {
+                    throw ValidationException("validation_error", "Income transaction must not define source pocket")
+                }
+                CanonicalPockets(
+                    pocketId = resolvedPocketId,
+                    sourcePocketId = null,
+                    destinationPocketId = resolvedPocketId,
+                )
+            }
+            "TRANSFER" -> {
+                if (pocketId != null) {
+                    throw ValidationException("validation_error", "Transfer transaction must not define pocketId")
+                }
+                if (sourcePocketId == null || destinationPocketId == null) {
+                    throw ValidationException("validation_error", "Transfer transaction requires source and destination pockets")
+                }
+                if (sourcePocketId == destinationPocketId) {
+                    throw ValidationException("validation_error", "Transfer transaction source and destination pockets must differ")
+                }
+                CanonicalPockets(
+                    pocketId = null,
+                    sourcePocketId = sourcePocketId,
+                    destinationPocketId = destinationPocketId,
+                )
+            }
+            else -> throw ValidationException("validation_error", "Transaction type is invalid")
         }
+
+        private data class CanonicalPockets(
+            val pocketId: String?,
+            val sourcePocketId: String?,
+            val destinationPocketId: String?,
+        )
     }
 }

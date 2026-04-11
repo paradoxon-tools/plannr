@@ -43,6 +43,8 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         assertEquals("CLEARED", found?.status)
         assertEquals("EUR", found?.currencyCode)
         assertEquals("MANUAL", found?.transactionOrigin)
+        assertEquals("poc_123", found?.pocketId)
+        assertEquals("poc_123", found?.sourcePocketId)
     }
 
     @Test
@@ -118,7 +120,6 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         recurringTransactionId: String? = null,
         modifiedById: String? = null,
         status: String = "CLEARED",
-        modifiedById: String? = null,
         isArchived: Boolean = false,
     ): TransactionRecord = TransactionRecord(
         id = id,
@@ -132,6 +133,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         destinationAmount = null,
         description = "desc",
         partnerId = null,
+        pocketId = "poc_123",
         sourcePocketId = "poc_123",
         destinationPocketId = null,
         parentTransactionId = parentTransactionId,

@@ -60,6 +60,7 @@ internal class UpdateTransactionUseCase(
             destinationAmount = command.destinationAmount,
             description = command.description,
             partnerId = context.partnerId,
+            pocketId = context.pocketId,
             sourcePocketId = context.sourcePocketId,
             destinationPocketId = context.destinationPocketId,
             parentTransactionId = existing.parentTransactionId,
