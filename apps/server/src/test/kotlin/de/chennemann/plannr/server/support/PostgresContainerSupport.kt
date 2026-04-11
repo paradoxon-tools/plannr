@@ -16,15 +16,11 @@ abstract class PostgresContainerSupport {
         @JvmStatic
         @DynamicPropertySource
         fun registerProperties(registry: DynamicPropertyRegistry) {
-            val jdbcUrl = postgres.jdbcUrl
-            val r2dbcUrl = "r2dbc:postgresql://${postgres.host}:${postgres.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT)}/${postgres.databaseName}"
-
-            registry.add("spring.datasource.url") { jdbcUrl }
-            registry.add("spring.datasource.username") { postgres.username }
-            registry.add("spring.datasource.password") { postgres.password }
-            registry.add("spring.r2dbc.url") { r2dbcUrl }
-            registry.add("spring.r2dbc.username") { postgres.username }
-            registry.add("spring.r2dbc.password") { postgres.password }
+            registry.add("plannr.database.host") { postgres.host }
+            registry.add("plannr.database.port") { postgres.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT) }
+            registry.add("plannr.database.name") { postgres.databaseName }
+            registry.add("plannr.database.username") { postgres.username }
+            registry.add("plannr.database.password") { postgres.password }
         }
     }
 }

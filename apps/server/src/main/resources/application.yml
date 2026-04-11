@@ -5,14 +5,20 @@ spring:
     compose:
       lifecycle-management: start_and_stop
   r2dbc:
-    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/plannr}
-    username: ${SPRING_R2DBC_USERNAME:${SPRING_DB_USERNAME:plannr}}
-    password: ${SPRING_R2DBC_PASSWORD:${SPRING_DB_PASSWORD:plannr}}
+    url: r2dbc:postgresql://${plannr.database.host}:${plannr.database.port}/${plannr.database.name}
+    username: ${plannr.database.username}
+    password: ${plannr.database.password}
   flyway:
-    url: ${SPRING_FLYWAY_URL:${SPRING_DATASOURCE_URL:${SPRING_JDBC_URL:jdbc:postgresql://localhost:5432/plannr}}}
-    user: ${SPRING_FLYWAY_USER:${SPRING_DATASOURCE_USERNAME:${SPRING_DB_USERNAME:plannr}}}
-    password: ${SPRING_FLYWAY_PASSWORD:${SPRING_DATASOURCE_PASSWORD:${SPRING_DB_PASSWORD:plannr}}}
+    url: jdbc:postgresql://${plannr.database.host}:${plannr.database.port}/${plannr.database.name}
+    user: ${plannr.database.username}
+    password: ${plannr.database.password}
 plannr:
+  database:
+    host: ${PLANNR_DB_HOST:localhost}
+    port: ${PLANNR_DB_PORT:5432}
+    name: ${PLANNR_DB_NAME:plannr}
+    username: ${PLANNR_DB_USERNAME:plannr}
+    password: ${PLANNR_DB_PASSWORD:plannr}
   projections:
     dirty-scope-delay-ms: 30000
     full-rebuild-delay-ms: 3600000

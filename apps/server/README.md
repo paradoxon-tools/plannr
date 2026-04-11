@@ -12,13 +12,14 @@ Prerequisite: Docker Desktop (or another local Docker engine) must be running.
 
 Spring Boot will automatically start the Postgres service from `compose.yml` and connect the application to it. The same works when you run the app directly from IntelliJ.
 
-For non-local environments, configure the database via the standard Spring properties/environment variables:
-- `SPRING_R2DBC_URL`
-- `SPRING_R2DBC_USERNAME`
-- `SPRING_R2DBC_PASSWORD`
-- `SPRING_DATASOURCE_URL`
-- `SPRING_DATASOURCE_USERNAME`
-- `SPRING_DATASOURCE_PASSWORD`
+For non-local environments, configure the database with one shared set of variables:
+- `PLANNR_DB_HOST`
+- `PLANNR_DB_PORT`
+- `PLANNR_DB_NAME`
+- `PLANNR_DB_USERNAME`
+- `PLANNR_DB_PASSWORD`
+
+Spring derives both the R2DBC and Flyway JDBC connection settings from these values.
 
 ## Endpoint
 
