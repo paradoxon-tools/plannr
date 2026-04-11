@@ -189,34 +189,13 @@ Example:
 - feed/query projections are rebuilt asynchronously from canonical state,
 - correctness is ensured by idempotent rebuild logic and background jobs.
 
----
+### 7. Derived scoping columns belong only on query tables
 
-## Open decision: recurring template scoping columns
-
-There is still one explicit design decision to close:
-
-### Should `recurring_transactions.account_id` and `contract_id` remain persisted?
-
-They are technically derivable from the referenced pocket/contract relationship, but still useful for filtering and indexing.
-
-### Recommendation
-
-- treat them as **derived/query-support columns**, not source-of-truth invariants,
-- do not rely on them when validating business correctness,
-- keep them only if query patterns clearly benefit.
-
-### Verification task
-
-- `[ ]` Decide whether `account_id` remains in `recurring_transactions` as a derived/indexed column.
-- `[ ]` Decide whether `contract_id` remains in `recurring_transactions` as a derived/indexed column.
-- `[ ]` If retained, document that pocket/account/contract relationships remain the true invariants.
-- `[ ]` Add tests proving derived columns cannot drift from canonical relationships.
-
-Acceptance criteria:
-
-- one documented decision exists,
-- schema, repository mapping, and use case validation are consistent with that decision,
-- tests cover either the retained-column path or the removed-column path.
+- do **not** persist derived scoping columns such as `account_id` or `contract_id` in canonical recurring/materialization tables when they can be derived from canonical relationships,
+- canonical tables keep only source-of-truth relationships,
+- command-side validation must rely on canonical pocket/account/contract relationships, not duplicated derived columns,
+- projection code derives and denormalizes those values into query/read tables,
+- any indexing need for those values should be satisfied on query tables rather than by duplicating them in canonical storage.
 
 ---
 
@@ -798,7 +777,7 @@ Verification:
 - `[ ]` finalize enum vocabulary
 - `[ ]` finalize visibility rules
 - `[ ]` finalize current-balance semantics
-- `[ ]` decide recurring `account_id` / `contract_id` retention
+- `[ ]` remove derived recurring `account_id` / `contract_id` from canonical schema and document projection-side denormalization
 
 ## Step B - canonical ledger and recurrence engine
 
