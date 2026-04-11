@@ -42,10 +42,22 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `saves finds and filters`() = runBlocking {
-        recurringTransactionRepository.save(RecurringTransactionFixtures.recurringTransaction())
+        recurringTransactionRepository.save(
+            RecurringTransactionFixtures.recurringTransaction(
+                daysOfWeek = listOf("WEDNESDAY", "MONDAY", "MONDAY"),
+                weeksOfMonth = listOf(2, -1, 2),
+                daysOfMonth = listOf(10, -1, 10),
+                monthsOfYear = listOf(6, 1, 6),
+            ),
+        )
         recurringTransactionRepository.save(RecurringTransactionFixtures.recurringTransaction(id = "rtx_2", contractId = null, accountId = "acc_123", sourcePocketId = null, destinationPocketId = "poc_456", partnerId = null, transactionType = "INCOME", isArchived = true))
 
-        assertEquals(RecurringTransactionFixtures.DEFAULT_ID, recurringTransactionRepository.findById(RecurringTransactionFixtures.DEFAULT_ID)?.id)
+        val found = recurringTransactionRepository.findById(RecurringTransactionFixtures.DEFAULT_ID)
+        assertEquals(RecurringTransactionFixtures.DEFAULT_ID, found?.id)
+        assertEquals(listOf("MONDAY", "WEDNESDAY"), found?.daysOfWeek)
+        assertEquals(listOf(-1, 2), found?.weeksOfMonth)
+        assertEquals(listOf(-1, 10), found?.daysOfMonth)
+        assertEquals(listOf(1, 6), found?.monthsOfYear)
         assertEquals(listOf(RecurringTransactionFixtures.DEFAULT_ID), recurringTransactionRepository.findByContractId(ContractFixtures.DEFAULT_ID).map { it.id })
         assertEquals(listOf(RecurringTransactionFixtures.DEFAULT_ID), recurringTransactionRepository.findAll(accountId = "acc_123", contractId = ContractFixtures.DEFAULT_ID).map { it.id })
         assertEquals(listOf("rtx_2"), recurringTransactionRepository.findAll(archived = true).map { it.id })

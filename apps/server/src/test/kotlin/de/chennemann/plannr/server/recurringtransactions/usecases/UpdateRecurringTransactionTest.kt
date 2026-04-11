@@ -24,7 +24,14 @@ class UpdateRecurringTransactionTest {
         val partnerRepository = InMemoryPartnerRepository().apply { save(PartnerFixtures.partner()) }
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
         val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
-        val useCase = UpdateRecurringTransactionUseCase(recurringRepository, EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()), contextResolver(pocketRepository, partnerRepository, contractRepository), { "rtx_new" }, { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 })
+        val useCase = UpdateRecurringTransactionUseCase(
+            recurringRepository,
+            EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
+            contextResolver(pocketRepository, partnerRepository, contractRepository),
+            { "rtx_new" },
+            { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
+            RecurringTransactionNormalization(),
+        )
 
         val updated = useCase(RecurringTransactionFixtures.updateRequest(title = "Updated").toCommand(RecurringTransactionFixtures.DEFAULT_ID))
 
@@ -39,11 +46,50 @@ class UpdateRecurringTransactionTest {
         val partnerRepository = InMemoryPartnerRepository().apply { save(PartnerFixtures.partner()) }
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
         val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
-        val useCase = UpdateRecurringTransactionUseCase(recurringRepository, EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()), contextResolver(pocketRepository, partnerRepository, contractRepository), { "rtx_new" }, { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 })
+        val useCase = UpdateRecurringTransactionUseCase(
+            recurringRepository,
+            EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
+            contextResolver(pocketRepository, partnerRepository, contractRepository),
+            { "rtx_new" },
+            { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
+            RecurringTransactionNormalization(),
+        )
 
         val created = useCase(RecurringTransactionFixtures.updateRequest(updateMode = "parallel", title = "Parallel").toCommand(RecurringTransactionFixtures.DEFAULT_ID))
 
         assertEquals("rtx_new", created.id)
         assertEquals(RecurringTransactionFixtures.DEFAULT_ID, created.previousVersionId)
+    }
+
+    @Test
+    fun `normalizes final occurrence date from max recurrence count during update`() = runTest {
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction()) }
+        val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
+        val partnerRepository = InMemoryPartnerRepository().apply { save(PartnerFixtures.partner()) }
+        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
+        val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
+        val useCase = UpdateRecurringTransactionUseCase(
+            recurringRepository,
+            EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
+            contextResolver(pocketRepository, partnerRepository, contractRepository),
+            { "rtx_new" },
+            { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
+            RecurringTransactionNormalization(),
+        )
+
+        val updated = useCase(
+            RecurringTransactionFixtures.updateRequest(
+                firstOccurrenceDate = "2024-01-15",
+                finalOccurrenceDate = null,
+                recurrenceType = "MONTHLY",
+                daysOfMonth = listOf(15),
+                weeksOfMonth = null,
+                daysOfWeek = null,
+                monthsOfYear = null,
+                maxRecurrenceCount = 2,
+            ).toCommand(RecurringTransactionFixtures.DEFAULT_ID),
+        )
+
+        assertEquals("2024-02-15", updated.finalOccurrenceDate)
     }
 }

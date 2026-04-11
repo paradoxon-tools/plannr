@@ -22,11 +22,12 @@ data class CreateRecurringTransactionRequest(
     val weeksOfMonth: List<Int>?,
     val daysOfMonth: List<Int>?,
     val monthsOfYear: List<Int>?,
+    val maxRecurrenceCount: Int?,
 ) {
     fun toCommand() = CreateRecurringTransaction.Command(
         contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode,
         transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek,
-        weeksOfMonth, daysOfMonth, monthsOfYear,
+        weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
     )
 }
 
@@ -50,11 +51,12 @@ data class UpdateRecurringTransactionRequest(
     val weeksOfMonth: List<Int>?,
     val daysOfMonth: List<Int>?,
     val monthsOfYear: List<Int>?,
+    val maxRecurrenceCount: Int?,
 ) {
     fun toCommand(id: String) = UpdateRecurringTransaction.Command(
         id, updateMode, effectiveFromDate, contractId, sourcePocketId, destinationPocketId, partnerId, title,
         description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate,
-        recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear,
+        recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
     )
 }
 

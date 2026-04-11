@@ -328,48 +328,48 @@ Verification:
 
 ## 2.1 Extend recurring template model to full legacy recurrence support
 
-- `[ ]` Add `YEARLY` recurrence type support.
-- `[ ]` Add transient support for `maxRecurrenceCount` normalization on create/update requests.
-- `[ ]` Keep `finalOccurrenceDate` persisted as the normalized inclusive end date.
-- `[ ]` Normalize selector lists:
-  - `[ ]` sorted
-  - `[ ]` duplicate-free
-  - `[ ]` null when empty
+- `[x]` Add `YEARLY` recurrence type support.
+- `[x]` Add transient support for `maxRecurrenceCount` normalization on create/update requests.
+- `[x]` Keep `finalOccurrenceDate` persisted as the normalized inclusive end date.
+- `[x]` Normalize selector lists:
+  - `[x]` sorted
+  - `[x]` duplicate-free
+  - `[x]` null when empty
 
 Verification:
 
-- `[ ]` domain tests cover all selector combinations.
-- `[ ]` request mapping tests prove normalization before persistence.
-- `[ ]` persistence tests prove normalized storage is stable.
+- `[x]` domain tests cover all selector combinations.
+- `[x]` request mapping tests prove normalization before persistence.
+- `[x]` persistence tests prove normalized storage is stable.
 
 ## 2.2 Introduce recurrence domain package in the server
 
 Create a dedicated recurrence domain similar in capability to legacy:
 
-- `[ ]` `RecurrencePattern`
-- `[ ]` `RecurrenceCalculator`
-- `[ ]` `NoRecurrence`
-- `[ ]` `DailyRecurrence`
-- `[ ]` `WeeklyRecurrence`
-- `[ ]` `MonthlyRecurrence`
-- `[ ]` `YearlyRecurrence`
+- `[x]` `RecurrencePattern`
+- `[x]` `RecurrenceCalculator`
+- `[x]` `NoRecurrence`
+- `[x]` `DailyRecurrence`
+- `[x]` `WeeklyRecurrence`
+- `[x]` `MonthlyRecurrence`
+- `[x]` `YearlyRecurrence`
 
 Required supported behavior:
 
-- `[ ]` skip counts
-- `[ ]` weekly multi-day patterns
-- `[ ]` monthly day-of-month selectors
-- `[ ]` negative day-of-month selectors
-- `[ ]` week-of-month selectors
-- `[ ]` negative week-of-month selectors
-- `[ ]` month restrictions
-- `[ ]` leap-year clamping for yearly recurrences
-- `[ ]` max-count normalization to `finalOccurrenceDate`
+- `[x]` skip counts
+- `[x]` weekly multi-day patterns
+- `[x]` monthly day-of-month selectors
+- `[x]` negative day-of-month selectors
+- `[x]` week-of-month selectors
+- `[x]` negative week-of-month selectors
+- `[x]` month restrictions
+- `[x]` leap-year clamping for yearly recurrences
+- `[x]` max-count normalization to `finalOccurrenceDate`
 
 Verification:
 
-- `[ ]` port/adapt the legacy recurrence test matrix to server-side unit tests.
-- `[ ]` prove deterministic date generation across all recurrence types.
+- `[~]` port/adapt the legacy recurrence test matrix to server-side unit tests.
+- `[x]` prove deterministic date generation across all recurrence types.
 
 ## 2.3 Decide recurring selector storage format
 
@@ -377,12 +377,12 @@ Current server stores selectors as comma-separated strings.
 
 Recommended upgrade:
 
-- `[ ]` decide whether to keep CSV or migrate to canonical JSON/text array storage.
-- `[ ]` prefer a format that is deterministic and easy to normalize.
+- `[x]` decide whether to keep CSV or migrate to canonical JSON/text array storage.
+- `[x]` prefer a format that is deterministic and easy to normalize.
 
 Verification:
 
-- `[ ]` persistence tests prove sorted, duplicate-free storage.
+- `[x]` persistence tests prove sorted, duplicate-free storage.
 - `[ ]` migration tests prove old rows are migrated correctly.
 
 ---

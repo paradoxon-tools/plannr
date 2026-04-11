@@ -78,10 +78,24 @@ data class RecurringTransaction private constructor(
             val normalizedFirstOccurrenceDate = firstOccurrenceDate.trim()
             val normalizedFinalOccurrenceDate = finalOccurrenceDate?.trim()?.takeIf { it.isNotBlank() }
             val normalizedRecurrenceType = normalizeRecurrenceType(recurrenceType)
-            val normalizedDaysOfWeek = daysOfWeek?.map { it.trim().uppercase() }?.filter { it.isNotBlank() }?.takeIf { it.isNotEmpty() }
-            val normalizedWeeksOfMonth = weeksOfMonth?.takeIf { it.isNotEmpty() }
-            val normalizedDaysOfMonth = daysOfMonth?.takeIf { it.isNotEmpty() }
-            val normalizedMonthsOfYear = monthsOfYear?.takeIf { it.isNotEmpty() }
+            val normalizedDaysOfWeek = daysOfWeek
+                ?.map { it.trim().uppercase() }
+                ?.filter { it.isNotBlank() }
+                ?.distinct()
+                ?.sorted()
+                ?.takeIf { it.isNotEmpty() }
+            val normalizedWeeksOfMonth = weeksOfMonth
+                ?.distinct()
+                ?.sorted()
+                ?.takeIf { it.isNotEmpty() }
+            val normalizedDaysOfMonth = daysOfMonth
+                ?.distinct()
+                ?.sorted()
+                ?.takeIf { it.isNotEmpty() }
+            val normalizedMonthsOfYear = monthsOfYear
+                ?.distinct()
+                ?.sorted()
+                ?.takeIf { it.isNotEmpty() }
             val normalizedLastMaterializedDate = lastMaterializedDate?.trim()?.takeIf { it.isNotBlank() }
             val normalizedPreviousVersionId = previousVersionId?.trim()?.takeIf { it.isNotBlank() }
 

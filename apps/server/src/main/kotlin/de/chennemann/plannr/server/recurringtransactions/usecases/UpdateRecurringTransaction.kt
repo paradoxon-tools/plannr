@@ -33,6 +33,7 @@ interface UpdateRecurringTransaction {
         val weeksOfMonth: List<Int>?,
         val daysOfMonth: List<Int>?,
         val monthsOfYear: List<Int>?,
+        val maxRecurrenceCount: Int?,
     )
 }
 
@@ -43,12 +44,26 @@ internal class UpdateRecurringTransactionUseCase(
     private val contextResolver: RecurringTransactionContextResolver,
     private val recurringTransactionIdGenerator: RecurringTransactionIdGenerator,
     private val timeProvider: TimeProvider,
+    private val normalization: RecurringTransactionNormalization,
 ) : UpdateRecurringTransaction {
     override suspend fun invoke(command: UpdateRecurringTransaction.Command): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(command.id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to command.id.trim()))
         val currency = ensureCurrencyExists(command.currencyCode)
         val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
+        val normalizedRecurrence = normalization.normalize(
+            RecurringTransactionNormalization.Fields(
+                firstOccurrenceDate = command.firstOccurrenceDate,
+                finalOccurrenceDate = command.finalOccurrenceDate,
+                recurrenceType = command.recurrenceType,
+                skipCount = command.skipCount,
+                daysOfWeek = command.daysOfWeek,
+                weeksOfMonth = command.weeksOfMonth,
+                daysOfMonth = command.daysOfMonth,
+                monthsOfYear = command.monthsOfYear,
+                maxRecurrenceCount = command.maxRecurrenceCount,
+            ),
+        )
         val mode = command.updateMode.trim().lowercase()
 
         return when (mode) {
@@ -65,8 +80,8 @@ internal class UpdateRecurringTransactionUseCase(
                     amount = command.amount,
                     currencyCode = currency.code,
                     transactionType = command.transactionType,
-                    firstOccurrenceDate = command.firstOccurrenceDate,
-                    finalOccurrenceDate = command.finalOccurrenceDate,
+                    firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
+                    finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
                     recurrenceType = command.recurrenceType,
                     skipCount = command.skipCount,
                     daysOfWeek = command.daysOfWeek,
@@ -92,8 +107,8 @@ internal class UpdateRecurringTransactionUseCase(
                     amount = command.amount,
                     currencyCode = currency.code,
                     transactionType = command.transactionType,
-                    firstOccurrenceDate = command.firstOccurrenceDate,
-                    finalOccurrenceDate = command.finalOccurrenceDate,
+                    firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
+                    finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
                     recurrenceType = command.recurrenceType,
                     skipCount = command.skipCount,
                     daysOfWeek = command.daysOfWeek,
@@ -124,7 +139,7 @@ internal class UpdateRecurringTransactionUseCase(
                         currencyCode = currency.code,
                         transactionType = command.transactionType,
                         firstOccurrenceDate = effectiveFromDate,
-                        finalOccurrenceDate = command.finalOccurrenceDate,
+                        finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
                         recurrenceType = command.recurrenceType,
                         skipCount = command.skipCount,
                         daysOfWeek = command.daysOfWeek,

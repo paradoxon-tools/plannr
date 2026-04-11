@@ -34,12 +34,45 @@ class CreateRecurringTransactionTest {
             contextResolver = contextResolver(pocketRepository, partnerRepository, contractRepository),
             recurringTransactionIdGenerator = { RecurringTransactionFixtures.DEFAULT_ID },
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
+            normalization = RecurringTransactionNormalization(),
         )
 
         val created = useCase(RecurringTransactionFixtures.createCommand())
 
         assertEquals(RecurringTransactionFixtures.DEFAULT_ID, created.id)
         assertEquals(created, recurringRepository.findById(created.id))
+    }
+
+    @Test
+    fun `normalizes final occurrence date from max recurrence count`() = runTest {
+        val recurringRepository = InMemoryRecurringTransactionRepository()
+        val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
+        val partnerRepository = InMemoryPartnerRepository().apply { save(PartnerFixtures.partner()) }
+        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
+        val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
+        val useCase = CreateRecurringTransactionUseCase(
+            recurringTransactionRepository = recurringRepository,
+            ensureCurrencyExists = EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
+            contextResolver = contextResolver(pocketRepository, partnerRepository, contractRepository),
+            recurringTransactionIdGenerator = { RecurringTransactionFixtures.DEFAULT_ID },
+            timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
+            normalization = RecurringTransactionNormalization(),
+        )
+
+        val created = useCase(
+            RecurringTransactionFixtures.createCommand(
+                finalOccurrenceDate = null,
+                recurrenceType = "MONTHLY",
+                daysOfMonth = listOf(15),
+                weeksOfMonth = null,
+                daysOfWeek = null,
+                monthsOfYear = null,
+                maxRecurrenceCount = 3,
+                firstOccurrenceDate = "2024-01-15",
+            ),
+        )
+
+        assertEquals("2024-03-15", created.finalOccurrenceDate)
     }
 
     @Test
@@ -57,6 +90,7 @@ class CreateRecurringTransactionTest {
             contextResolver = contextResolver(pocketRepository, partnerRepository, contractRepository),
             recurringTransactionIdGenerator = { RecurringTransactionFixtures.DEFAULT_ID },
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
+            normalization = RecurringTransactionNormalization(),
         )
 
         assertFailsWith<ValidationException> {

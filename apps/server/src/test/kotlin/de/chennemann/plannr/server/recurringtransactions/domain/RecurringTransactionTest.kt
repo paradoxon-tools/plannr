@@ -174,6 +174,21 @@ class RecurringTransactionTest {
     }
 
     @Test
+    fun `normalizes selector lists to sorted distinct values and null when empty`() {
+        val value = RecurringTransactionFixtures.recurringTransaction(
+            daysOfWeek = listOf("WEDNESDAY", "MONDAY", "MONDAY"),
+            weeksOfMonth = listOf(-1, 2, 2),
+            daysOfMonth = listOf(10, -1, 10),
+            monthsOfYear = emptyList(),
+        )
+
+        assertEquals(listOf("MONDAY", "WEDNESDAY"), value.daysOfWeek)
+        assertEquals(listOf(-1, 2), value.weeksOfMonth)
+        assertEquals(listOf(-1, 10), value.daysOfMonth)
+        assertNull(value.monthsOfYear)
+    }
+
+    @Test
     fun `accepts negative selector values to count from the end`() {
         RecurringTransactionFixtures.recurringTransaction(weeksOfMonth = listOf(-1, -5))
         RecurringTransactionFixtures.recurringTransaction(daysOfMonth = listOf(-1, -31))

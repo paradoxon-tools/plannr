@@ -28,6 +28,7 @@ interface CreateRecurringTransaction {
         val weeksOfMonth: List<Int>?,
         val daysOfMonth: List<Int>?,
         val monthsOfYear: List<Int>?,
+        val maxRecurrenceCount: Int?,
     )
 }
 
@@ -38,10 +39,24 @@ internal class CreateRecurringTransactionUseCase(
     private val contextResolver: RecurringTransactionContextResolver,
     private val recurringTransactionIdGenerator: RecurringTransactionIdGenerator,
     private val timeProvider: TimeProvider,
+    private val normalization: RecurringTransactionNormalization,
 ) : CreateRecurringTransaction {
     override suspend fun invoke(command: CreateRecurringTransaction.Command): RecurringTransaction {
         val currency = ensureCurrencyExists(command.currencyCode)
         val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
+        val normalizedRecurrence = normalization.normalize(
+            RecurringTransactionNormalization.Fields(
+                firstOccurrenceDate = command.firstOccurrenceDate,
+                finalOccurrenceDate = command.finalOccurrenceDate,
+                recurrenceType = command.recurrenceType,
+                skipCount = command.skipCount,
+                daysOfWeek = command.daysOfWeek,
+                weeksOfMonth = command.weeksOfMonth,
+                daysOfMonth = command.daysOfMonth,
+                monthsOfYear = command.monthsOfYear,
+                maxRecurrenceCount = command.maxRecurrenceCount,
+            ),
+        )
         val recurringTransaction = RecurringTransaction(
             id = recurringTransactionIdGenerator(),
             contractId = context.contractId,
@@ -54,8 +69,8 @@ internal class CreateRecurringTransactionUseCase(
             amount = command.amount,
             currencyCode = currency.code,
             transactionType = command.transactionType,
-            firstOccurrenceDate = command.firstOccurrenceDate,
-            finalOccurrenceDate = command.finalOccurrenceDate,
+            firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
+            finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
             recurrenceType = command.recurrenceType,
             skipCount = command.skipCount,
             daysOfWeek = command.daysOfWeek,
