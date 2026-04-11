@@ -14,22 +14,32 @@ data class CreateTransactionRequest(
     val destinationAmount: Long?,
     val description: String,
     val partnerId: String?,
+    val pocketId: String?,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
 ) {
-    fun toCommand(): CreateTransaction.Command = CreateTransaction.Command(
-        type = type,
-        status = status,
-        transactionDate = transactionDate,
-        amount = amount,
-        currencyCode = currencyCode,
-        exchangeRate = exchangeRate,
-        destinationAmount = destinationAmount,
-        description = description,
-        partnerId = partnerId,
-        sourcePocketId = sourcePocketId,
-        destinationPocketId = destinationPocketId,
-    )
+    fun toCommand(): CreateTransaction.Command {
+        val normalizedType = type.trim().uppercase()
+        return CreateTransaction.Command(
+            type = type,
+            status = status,
+            transactionDate = transactionDate,
+            amount = amount,
+            currencyCode = currencyCode,
+            exchangeRate = exchangeRate,
+            destinationAmount = destinationAmount,
+            description = description,
+            partnerId = partnerId,
+            sourcePocketId = when (normalizedType) {
+                "EXPENSE" -> pocketId ?: sourcePocketId
+                else -> sourcePocketId
+            },
+            destinationPocketId = when (normalizedType) {
+                "INCOME" -> pocketId ?: destinationPocketId
+                else -> destinationPocketId
+            },
+        )
+    }
 }
 
 data class UpdateTransactionRequest(
@@ -42,23 +52,33 @@ data class UpdateTransactionRequest(
     val destinationAmount: Long?,
     val description: String,
     val partnerId: String?,
+    val pocketId: String?,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
 ) {
-    fun toCommand(id: String): UpdateTransaction.Command = UpdateTransaction.Command(
-        id = id,
-        type = type,
-        status = status,
-        transactionDate = transactionDate,
-        amount = amount,
-        currencyCode = currencyCode,
-        exchangeRate = exchangeRate,
-        destinationAmount = destinationAmount,
-        description = description,
-        partnerId = partnerId,
-        sourcePocketId = sourcePocketId,
-        destinationPocketId = destinationPocketId,
-    )
+    fun toCommand(id: String): UpdateTransaction.Command {
+        val normalizedType = type.trim().uppercase()
+        return UpdateTransaction.Command(
+            id = id,
+            type = type,
+            status = status,
+            transactionDate = transactionDate,
+            amount = amount,
+            currencyCode = currencyCode,
+            exchangeRate = exchangeRate,
+            destinationAmount = destinationAmount,
+            description = description,
+            partnerId = partnerId,
+            sourcePocketId = when (normalizedType) {
+                "EXPENSE" -> pocketId ?: sourcePocketId
+                else -> sourcePocketId
+            },
+            destinationPocketId = when (normalizedType) {
+                "INCOME" -> pocketId ?: destinationPocketId
+                else -> destinationPocketId
+            },
+        )
+    }
 }
 
 data class ModifyRecurringOccurrenceRequest(
@@ -71,11 +91,13 @@ data class ModifyRecurringOccurrenceRequest(
     val destinationAmount: Long?,
     val description: String,
     val partnerId: String?,
+    val pocketId: String?,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
 ) {
-    fun toCommand(transactionId: String): de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence.Command =
-        de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence.Command(
+    fun toCommand(transactionId: String): de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence.Command {
+        val normalizedType = type.trim().uppercase()
+        return de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence.Command(
             transactionId = transactionId,
             type = type,
             status = status,
@@ -86,9 +108,16 @@ data class ModifyRecurringOccurrenceRequest(
             destinationAmount = destinationAmount,
             description = description,
             partnerId = partnerId,
-            sourcePocketId = sourcePocketId,
-            destinationPocketId = destinationPocketId,
+            sourcePocketId = when (normalizedType) {
+                "EXPENSE" -> pocketId ?: sourcePocketId
+                else -> sourcePocketId
+            },
+            destinationPocketId = when (normalizedType) {
+                "INCOME" -> pocketId ?: destinationPocketId
+                else -> destinationPocketId
+            },
         )
+    }
 }
 
 data class TransactionResponse(
@@ -103,8 +132,13 @@ data class TransactionResponse(
     val destinationAmount: Long?,
     val description: String,
     val partnerId: String?,
+    val pocketId: String?,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
+    val parentTransactionId: String?,
+    val recurringTransactionId: String?,
+    val modifiedById: String?,
+    val transactionOrigin: String,
     val isArchived: Boolean,
     val createdAt: Long,
 ) {
@@ -121,8 +155,13 @@ data class TransactionResponse(
             destinationAmount = transaction.destinationAmount,
             description = transaction.description,
             partnerId = transaction.partnerId,
+            pocketId = transaction.pocketId,
             sourcePocketId = transaction.sourcePocketId,
             destinationPocketId = transaction.destinationPocketId,
+            parentTransactionId = transaction.parentTransactionId,
+            recurringTransactionId = transaction.recurringTransactionId,
+            modifiedById = transaction.modifiedById,
+            transactionOrigin = transaction.transactionOrigin,
             isArchived = transaction.isArchived,
             createdAt = transaction.createdAt,
         )

@@ -718,30 +718,30 @@ Verification:
 
 ## 9.1 Transaction ingress API
 
-- `[ ]` align transaction request/response DTOs with legacy enums.
-- `[ ]` make pocket references the command-side scope input (`pocketId` for non-transfers, `sourcePocketId` / `destinationPocketId` for transfers).
-- `[ ]` stop requiring canonical transaction `accountId` / `contractId` on command-side writes when they are derivable from the selected pocket(s).
-- `[ ]` expose linkage fields where useful:
-  - `[ ]` `parentTransactionId`
-  - `[ ]` `recurringTransactionId`
-  - `[ ]` `modifiedById`
-- `[ ]` decide whether to expose `transactionOrigin`.
+- `[x]` align transaction request/response DTOs with legacy enums.
+- `[x]` make pocket references the command-side scope input (`pocketId` for non-transfers, `sourcePocketId` / `destinationPocketId` for transfers).
+- `[x]` stop requiring canonical transaction `accountId` / `contractId` on command-side writes when they are derivable from the selected pocket(s).
+- `[x]` expose linkage fields where useful:
+  - `[x]` `parentTransactionId`
+  - `[x]` `recurringTransactionId`
+  - `[x]` `modifiedById`
+- `[x]` decide whether to expose `transactionOrigin`.
 
 Verification:
 
-- `[ ]` API integration tests cover normal, materialized, and modified occurrence rows.
+- `[x]` API integration tests cover normal, materialized, and modified occurrence rows.
 
 ## 9.2 Recurring transaction API
 
-- `[ ]` add `YEARLY` recurrence support to request validation.
-- `[ ]` add transient `maxRecurrenceCount` input support.
-- `[ ]` remove/deprecate `effectiveFromDate` if versioning is replaced.
-- `[ ]` expose lineage fields if they remain part of the model.
+- `[x]` add `YEARLY` recurrence support to request validation.
+- `[x]` add transient `maxRecurrenceCount` input support.
+- `[x]` remove/deprecate `effectiveFromDate` if versioning is replaced.
+- `[x]` expose lineage fields if they remain part of the model.
 
 Verification:
 
-- `[ ]` create/update recurring API tests cover all recurrence types.
-- `[ ]` version-creation tests prove boundary calculation works.
+- `[x]` create/update recurring API tests cover all recurrence types.
+- `[x]` version-creation tests prove boundary calculation works.
 
 ## 9.3 Query API
 
