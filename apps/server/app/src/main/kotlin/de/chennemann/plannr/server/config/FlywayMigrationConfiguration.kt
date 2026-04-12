@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.common
+package de.chennemann.plannr.server.config
 
 import org.flywaydb.core.Flyway
 import org.springframework.beans.factory.annotation.Value
