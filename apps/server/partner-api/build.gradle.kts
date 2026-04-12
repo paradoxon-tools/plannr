@@ -10,5 +10,5 @@ java {
 }
 
 dependencies {
-    implementation("org.springframework:spring-web")
+    implementation("org.springframework.boot:spring-boot-starter-web")
 }
