@@ -1,7 +1,0 @@
-spring:
-  flyway:
-    enabled: true
-management:
-  health:
-    db:
-      enabled: false
