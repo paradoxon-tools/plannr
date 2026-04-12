@@ -1,9 +1,9 @@
 package de.chennemann.plannr.server.transactions.api
 
-import de.chennemann.plannr.server.transactions.dto.CreateTransactionRequest
-import de.chennemann.plannr.server.transactions.dto.ModifyRecurringOccurrenceRequest
-import de.chennemann.plannr.server.transactions.dto.TransactionResponse
-import de.chennemann.plannr.server.transactions.dto.UpdateTransactionRequest
+import de.chennemann.plannr.server.transactions.api.dto.CreateTransactionRequest
+import de.chennemann.plannr.server.transactions.api.dto.ModifyRecurringOccurrenceRequest
+import de.chennemann.plannr.server.transactions.api.dto.TransactionResponse
+import de.chennemann.plannr.server.transactions.api.dto.UpdateTransactionRequest
 import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
 import de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence

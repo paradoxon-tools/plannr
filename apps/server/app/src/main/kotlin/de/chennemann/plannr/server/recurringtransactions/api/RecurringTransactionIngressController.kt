@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.recurringtransactions.api
 
-import de.chennemann.plannr.server.recurringtransactions.dto.CreateRecurringTransactionRequest
-import de.chennemann.plannr.server.recurringtransactions.dto.RecurringTransactionResponse
-import de.chennemann.plannr.server.recurringtransactions.dto.UpdateRecurringTransactionRequest
+import de.chennemann.plannr.server.recurringtransactions.api.dto.CreateRecurringTransactionRequest
+import de.chennemann.plannr.server.recurringtransactions.api.dto.RecurringTransactionResponse
+import de.chennemann.plannr.server.recurringtransactions.api.dto.UpdateRecurringTransactionRequest
 import de.chennemann.plannr.server.recurringtransactions.usecases.ArchiveRecurringTransaction
 import de.chennemann.plannr.server.recurringtransactions.usecases.CreateRecurringTransaction
 import de.chennemann.plannr.server.recurringtransactions.usecases.UnarchiveRecurringTransaction

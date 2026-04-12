@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.currencies.support
 
-import de.chennemann.plannr.server.currencies.dto.CreateCurrencyRequest
-import de.chennemann.plannr.server.currencies.dto.UpdateCurrencyRequest
+import de.chennemann.plannr.server.currencies.api.dto.CreateCurrencyRequest
+import de.chennemann.plannr.server.currencies.api.dto.UpdateCurrencyRequest
 import de.chennemann.plannr.server.currencies.usecases.CreateCurrency
 import de.chennemann.plannr.server.currencies.usecases.UpdateCurrency
 import de.chennemann.plannr.server.currencies.domain.Currency

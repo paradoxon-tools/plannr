@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.query.contracts.api
 
-import de.chennemann.plannr.server.query.transactions.dto.PocketFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.dto.PocketTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.api.dto.PocketFutureTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.api.dto.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.usecases.ListContractFutureTransactionFeed
 import de.chennemann.plannr.server.query.transactions.usecases.ListContractHistoricalTransactionFeed
 import org.springframework.web.bind.annotation.RestController

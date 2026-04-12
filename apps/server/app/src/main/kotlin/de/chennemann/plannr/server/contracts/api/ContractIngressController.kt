@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.contracts.api
 
-import de.chennemann.plannr.server.contracts.dto.ContractResponse
-import de.chennemann.plannr.server.contracts.dto.CreateContractRequest
-import de.chennemann.plannr.server.contracts.dto.UpdateContractRequest
+import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
+import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
 import de.chennemann.plannr.server.contracts.usecases.ArchiveContract
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.contracts.usecases.UnarchiveContract

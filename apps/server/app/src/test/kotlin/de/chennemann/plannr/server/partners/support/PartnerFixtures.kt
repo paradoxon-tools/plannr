@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.partners.support
 
-import de.chennemann.plannr.server.partners.dto.CreatePartnerRequest
-import de.chennemann.plannr.server.partners.dto.UpdatePartnerRequest
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerRequest
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerRequest
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.usecases.CreatePartner
 import de.chennemann.plannr.server.partners.usecases.UpdatePartner

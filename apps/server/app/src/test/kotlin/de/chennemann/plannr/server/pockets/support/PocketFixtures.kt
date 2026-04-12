@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.pockets.support
 
-import de.chennemann.plannr.server.pockets.dto.CreatePocketRequest
-import de.chennemann.plannr.server.pockets.dto.UpdatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketRequest
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
 import de.chennemann.plannr.server.pockets.usecases.UpdatePocket

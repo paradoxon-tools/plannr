@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.query.accounts.api
 
-import de.chennemann.plannr.server.query.accounts.dto.AccountQueryResponse
-import de.chennemann.plannr.server.query.transactions.dto.AccountFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.dto.AccountTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.accounts.api.dto.AccountQueryResponse
+import de.chennemann.plannr.server.query.transactions.api.dto.AccountFutureTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.api.dto.AccountTransactionFeedPageResponse
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.service.annotation.GetExchange

@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.pockets.api
 
-import de.chennemann.plannr.server.pockets.dto.CreatePocketRequest
-import de.chennemann.plannr.server.pockets.dto.PocketResponse
-import de.chennemann.plannr.server.pockets.dto.UpdatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.PocketResponse
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody

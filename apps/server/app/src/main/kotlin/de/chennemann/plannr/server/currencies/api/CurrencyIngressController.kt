@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.currencies.api
 
-import de.chennemann.plannr.server.currencies.dto.CreateCurrencyRequest
-import de.chennemann.plannr.server.currencies.dto.CurrencyResponse
-import de.chennemann.plannr.server.currencies.dto.UpdateCurrencyRequest
+import de.chennemann.plannr.server.currencies.api.dto.CreateCurrencyRequest
+import de.chennemann.plannr.server.currencies.api.dto.CurrencyResponse
+import de.chennemann.plannr.server.currencies.api.dto.UpdateCurrencyRequest
 import de.chennemann.plannr.server.currencies.usecases.CreateCurrency
 import de.chennemann.plannr.server.currencies.usecases.UpdateCurrency
 import org.springframework.web.bind.annotation.RestController
