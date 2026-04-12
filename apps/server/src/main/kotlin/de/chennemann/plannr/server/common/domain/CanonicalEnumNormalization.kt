@@ -2,38 +2,6 @@ package de.chennemann.plannr.server.common.domain
 
 import de.chennemann.plannr.server.common.error.ValidationException
 
-enum class TransactionType {
-    INCOME,
-    EXPENSE,
-    TRANSFER,
-}
-
-enum class TransactionStatus {
-    PENDING,
-    CLEARED,
-    RECONCILED,
-}
-
-enum class RecurrenceType {
-    NONE,
-    DAILY,
-    WEEKLY,
-    MONTHLY,
-    YEARLY,
-}
-
-enum class WeekendHandling {
-    NO_SHIFT,
-    MOVE_BEFORE,
-    MOVE_AFTER,
-}
-
-enum class TransactionOrigin {
-    MANUAL,
-    RECURRING_MATERIALIZED,
-    RECURRING_MODIFICATION,
-}
-
 internal fun normalizeTransactionType(value: String): String = normalizeEnumValue<TransactionType>(value, "Transaction type is invalid")
 
 internal fun normalizeTransactionStatus(value: String): String = normalizeEnumValue<TransactionStatus>(value, "Transaction status is invalid")
