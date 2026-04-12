@@ -11,10 +11,6 @@ COPY partner-api partner-api
 COPY pocket-api pocket-api
 COPY recurring-transaction-api recurring-transaction-api
 COPY transaction-api transaction-api
-COPY account-query-api account-query-api
-COPY contract-query-api contract-query-api
-COPY pocket-query-api pocket-query-api
-COPY transaction-query-api transaction-query-api
 RUN chmod +x gradlew && ./gradlew :app:bootJar --no-daemon
 
 FROM eclipse-temurin:25-jre

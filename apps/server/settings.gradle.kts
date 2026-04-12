@@ -12,8 +12,4 @@ include(
     ":pocket-api",
     ":recurring-transaction-api",
     ":transaction-api",
-    ":account-query-api",
-    ":contract-query-api",
-    ":pocket-query-api",
-    ":transaction-query-api",
 )
