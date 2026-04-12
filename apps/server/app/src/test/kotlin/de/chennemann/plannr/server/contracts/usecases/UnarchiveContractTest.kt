@@ -3,7 +3,7 @@ package de.chennemann.plannr.server.contracts.usecases
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
-import de.chennemann.plannr.server.recurringtransactions.support.InMemoryRecurringTransactionRepository
+import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

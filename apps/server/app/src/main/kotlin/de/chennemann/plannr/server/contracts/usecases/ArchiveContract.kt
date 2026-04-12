@@ -3,7 +3,7 @@ package de.chennemann.plannr.server.contracts.usecases
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.recurringtransactions.domain.RecurringTransactionRepository
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import org.springframework.stereotype.Component
 
 interface ArchiveContract {

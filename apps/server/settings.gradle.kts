@@ -10,6 +10,5 @@ include(
     ":currency-api",
     ":partner-api",
     ":pocket-api",
-    ":recurring-transaction-api",
     ":transaction-api",
 )

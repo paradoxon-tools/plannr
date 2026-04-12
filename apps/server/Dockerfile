@@ -9,7 +9,6 @@ COPY contract-api contract-api
 COPY currency-api currency-api
 COPY partner-api partner-api
 COPY pocket-api pocket-api
-COPY recurring-transaction-api recurring-transaction-api
 COPY transaction-api transaction-api
 RUN chmod +x gradlew && ./gradlew :app:bootJar --no-daemon
 

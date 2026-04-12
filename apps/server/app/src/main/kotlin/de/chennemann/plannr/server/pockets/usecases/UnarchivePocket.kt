@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.events.PocketUpdated
-import de.chennemann.plannr.server.recurringtransactions.domain.RecurringTransactionRepository
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

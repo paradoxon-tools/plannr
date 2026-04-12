@@ -83,7 +83,7 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
     @Test
     fun `recurring transaction api rejects invalid recurrence enum`() {
         webTestClient.post()
-            .uri("/recurring-transactions")
+            .uri("/transactions/recurring")
             .bodyValue(
                 mapOf(
                     "contractId" to null,

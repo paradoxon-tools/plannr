@@ -6,8 +6,8 @@ import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
-import de.chennemann.plannr.server.recurringtransactions.domain.RecurringTransactionRepository
-import de.chennemann.plannr.server.recurringtransactions.support.RecurringTransactionFixtures
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
+import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository

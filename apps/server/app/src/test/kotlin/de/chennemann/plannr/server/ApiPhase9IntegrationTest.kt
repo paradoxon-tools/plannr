@@ -2,7 +2,7 @@ package de.chennemann.plannr.server
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
-import de.chennemann.plannr.server.recurringtransactions.usecases.RecurringTransactionMaterializer
+import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionMaterializer
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.support.expectApiError
 import kotlinx.coroutines.reactor.awaitSingle
@@ -208,7 +208,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
         val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
 
         webTestClient.post()
-            .uri("/recurring-transactions")
+            .uri("/transactions/recurring")
             .bodyValue(
                 mapOf(
                     "contractId" to null,
@@ -243,7 +243,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
         val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
         webTestClient.post()
-            .uri("/recurring-transactions")
+            .uri("/transactions/recurring")
             .bodyValue(
                 mapOf(
                     "contractId" to null,
@@ -272,7 +272,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
         val storedId = querySingleValue("SELECT id AS value FROM recurring_transactions ORDER BY created_at ASC LIMIT 1")
 
         webTestClient.put()
-            .uri("/recurring-transactions/$storedId")
+            .uri("/transactions/recurring/$storedId")
             .bodyValue(
                 mapOf(
                     "updateMode" to "new_version",
@@ -303,7 +303,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.firstOccurrenceDate").isEqualTo("2024-06-15")
 
         webTestClient.put()
-            .uri("/recurring-transactions/$storedId")
+            .uri("/transactions/recurring/$storedId")
             .bodyValue(
                 mapOf(
                     "updateMode" to "parallel",
@@ -339,7 +339,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
         val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
 
         webTestClient.post()
-            .uri("/recurring-transactions")
+            .uri("/transactions/recurring")
             .bodyValue(
                 mapOf(
                     "contractId" to null,
@@ -366,7 +366,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
             .expectStatus().isCreated
 
         val recurringId = querySingleValue("SELECT id AS value FROM recurring_transactions ORDER BY created_at ASC LIMIT 1")
-        webTestClient.post().uri("/recurring-transactions/$recurringId/archive").exchange()
+        webTestClient.post().uri("/transactions/recurring/$recurringId/archive").exchange()
             .expectStatus().isOk
             .expectBody().jsonPath("$.archived").isEqualTo(true)
 
