@@ -5,38 +5,30 @@ import de.chennemann.plannr.server.query.transactions.api.PocketFutureTransactio
 import de.chennemann.plannr.server.query.transactions.api.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.usecases.ListPocketFutureTransactionFeed
 import de.chennemann.plannr.server.query.transactions.usecases.ListPocketTransactionFeed
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/query/pockets")
 class PocketQueryController(
     private val getPocketQuery: GetPocketQuery,
     private val listPocketTransactionFeed: ListPocketTransactionFeed,
     private val listPocketFutureTransactionFeed: ListPocketFutureTransactionFeed,
-) {
-    @GetMapping("/{id}")
-    suspend fun getById(@PathVariable id: String): PocketQueryResponse =
+) : PocketQueryApi {
+    override suspend fun getById(id: String): PocketQueryResponse =
         PocketQueryResponse.from(getPocketQuery(id))
 
-    @GetMapping("/{id}/transactions")
-    suspend fun listTransactions(
-        @PathVariable id: String,
-        @RequestParam(defaultValue = "50") limit: Int,
-        @RequestParam(required = false) before: Long?,
+    override suspend fun listTransactions(
+        id: String,
+        limit: Int,
+        before: Long?,
     ): PocketTransactionFeedPageResponse =
         PocketTransactionFeedPageResponse.from(listPocketTransactionFeed(id, before, limit))
 
-    @GetMapping("/{id}/future-transactions")
-    suspend fun listFutureTransactions(
-        @PathVariable id: String,
-        @RequestParam(required = false) fromDate: String?,
-        @RequestParam(required = false) toDate: String?,
-        @RequestParam(required = false) after: Long?,
-        @RequestParam(defaultValue = "50") limit: Int,
+    override suspend fun listFutureTransactions(
+        id: String,
+        fromDate: String?,
+        toDate: String?,
+        after: Long?,
+        limit: Int,
     ): PocketFutureTransactionFeedPageResponse =
         PocketFutureTransactionFeedPageResponse.from(listPocketFutureTransactionFeed(id, fromDate, toDate, after, limit))
 }
