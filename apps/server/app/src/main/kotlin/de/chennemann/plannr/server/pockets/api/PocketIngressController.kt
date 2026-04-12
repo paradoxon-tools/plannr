@@ -17,14 +17,14 @@ class PocketIngressController(
     private val unarchivePocket: UnarchivePocket,
 ) : PocketIngressApi {
     override suspend fun create(request: CreatePocketRequest): PocketResponse =
-        PocketResponse.from(createPocket(request.toCommand()))
+        createPocket(request.toCommand()).toResponse()
 
     override suspend fun update(id: String, request: UpdatePocketRequest): PocketResponse =
-        PocketResponse.from(updatePocket(request.toCommand(id)))
+        updatePocket(request.toCommand(id)).toResponse()
 
     override suspend fun archive(id: String): PocketResponse =
-        PocketResponse.from(archivePocket(id))
+        archivePocket(id).toResponse()
 
     override suspend fun unarchive(id: String): PocketResponse =
-        PocketResponse.from(unarchivePocket(id))
+        unarchivePocket(id).toResponse()
 }

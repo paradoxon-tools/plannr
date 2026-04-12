@@ -20,17 +20,17 @@ class TransactionIngressController(
     private val unarchiveTransaction: UnarchiveTransaction,
 ) : TransactionIngressApi {
     override suspend fun create(request: CreateTransactionRequest): TransactionResponse =
-        TransactionResponse.from(createTransaction(request.toCommand()))
+        createTransaction(request.toCommand()).toResponse()
 
     override suspend fun update(id: String, request: UpdateTransactionRequest): TransactionResponse =
-        TransactionResponse.from(updateTransaction(request.toCommand(id)))
+        updateTransaction(request.toCommand(id)).toResponse()
 
     override suspend fun modifyRecurringOccurrence(id: String, request: ModifyRecurringOccurrenceRequest): TransactionResponse =
-        TransactionResponse.from(modifyRecurringOccurrence(request.toCommand(id)))
+        modifyRecurringOccurrence(request.toCommand(id)).toResponse()
 
     override suspend fun archive(id: String): TransactionResponse =
-        TransactionResponse.from(archiveTransaction(id))
+        archiveTransaction(id).toResponse()
 
     override suspend fun unarchive(id: String): TransactionResponse =
-        TransactionResponse.from(unarchiveTransaction(id))
+        unarchiveTransaction(id).toResponse()
 }

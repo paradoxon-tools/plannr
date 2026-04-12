@@ -17,14 +17,14 @@ class PartnerIngressController(
     private val unarchivePartner: UnarchivePartner,
 ) : PartnerIngressApi {
     override suspend fun create(request: CreatePartnerRequest): PartnerResponse =
-        PartnerResponse.from(createPartner(request.toCommand()))
+        createPartner(request.toCommand()).toResponse()
 
     override suspend fun update(id: String, request: UpdatePartnerRequest): PartnerResponse =
-        PartnerResponse.from(updatePartner(request.toCommand(id)))
+        updatePartner(request.toCommand(id)).toResponse()
 
     override suspend fun archive(id: String): PartnerResponse =
-        PartnerResponse.from(archivePartner(id))
+        archivePartner(id).toResponse()
 
     override suspend fun unarchive(id: String): PartnerResponse =
-        PartnerResponse.from(unarchivePartner(id))
+        unarchivePartner(id).toResponse()
 }

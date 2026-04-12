@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.query.contracts.api
 
+import de.chennemann.plannr.server.query.transactions.api.toResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.PocketFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.usecases.ListContractFutureTransactionFeed
@@ -16,7 +17,7 @@ class ContractTransactionQueryController(
         limit: Int,
         before: Long?,
     ): PocketTransactionFeedPageResponse =
-        PocketTransactionFeedPageResponse.from(listContractHistoricalTransactionFeed(id, before, limit))
+        listContractHistoricalTransactionFeed(id, before, limit).toResponse()
 
     override suspend fun listFutureTransactions(
         id: String,
@@ -25,5 +26,5 @@ class ContractTransactionQueryController(
         after: Long?,
         limit: Int,
     ): PocketFutureTransactionFeedPageResponse =
-        PocketFutureTransactionFeedPageResponse.from(listContractFutureTransactionFeed(id, fromDate, toDate, after, limit))
+        listContractFutureTransactionFeed(id, fromDate, toDate, after, limit).toResponse()
 }

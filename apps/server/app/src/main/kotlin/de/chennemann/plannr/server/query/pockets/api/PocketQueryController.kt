@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.query.pockets.api
 
 import de.chennemann.plannr.server.query.pockets.api.dto.PocketQueryResponse
 import de.chennemann.plannr.server.query.pockets.usecases.GetPocketQuery
+import de.chennemann.plannr.server.query.transactions.api.toResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.PocketFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.usecases.ListPocketFutureTransactionFeed
@@ -15,14 +16,14 @@ class PocketQueryController(
     private val listPocketFutureTransactionFeed: ListPocketFutureTransactionFeed,
 ) : PocketQueryApi {
     override suspend fun getById(id: String): PocketQueryResponse =
-        PocketQueryResponse.from(getPocketQuery(id))
+        getPocketQuery(id).toResponse()
 
     override suspend fun listTransactions(
         id: String,
         limit: Int,
         before: Long?,
     ): PocketTransactionFeedPageResponse =
-        PocketTransactionFeedPageResponse.from(listPocketTransactionFeed(id, before, limit))
+        listPocketTransactionFeed(id, before, limit).toResponse()
 
     override suspend fun listFutureTransactions(
         id: String,
@@ -31,5 +32,5 @@ class PocketQueryController(
         after: Long?,
         limit: Int,
     ): PocketFutureTransactionFeedPageResponse =
-        PocketFutureTransactionFeedPageResponse.from(listPocketFutureTransactionFeed(id, fromDate, toDate, after, limit))
+        listPocketFutureTransactionFeed(id, fromDate, toDate, after, limit).toResponse()
 }

@@ -17,6 +17,10 @@ java {
 }
 
 dependencies {
+    rootProject.subprojects
+        .filter { it.path != project.path }
+        .forEach { implementation(project(it.path)) }
+
     runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")

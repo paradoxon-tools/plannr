@@ -13,8 +13,8 @@ class CurrencyIngressController(
     private val updateCurrency: UpdateCurrency,
 ) : CurrencyIngressApi {
     override suspend fun create(request: CreateCurrencyRequest): CurrencyResponse =
-        CurrencyResponse.from(createCurrency(request.toCommand()))
+        createCurrency(request.toCommand()).toResponse()
 
     override suspend fun update(code: String, request: UpdateCurrencyRequest): CurrencyResponse =
-        CurrencyResponse.from(updateCurrency(request.toCommand(code)))
+        updateCurrency(request.toCommand(code)).toResponse()
 }

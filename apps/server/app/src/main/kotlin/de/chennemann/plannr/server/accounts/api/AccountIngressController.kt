@@ -17,14 +17,14 @@ class AccountIngressController(
     private val unarchiveAccount: UnarchiveAccount,
 ) : AccountIngressApi {
     override suspend fun create(request: CreateAccountRequest): AccountResponse =
-        AccountResponse.from(createAccount(request.toCommand()))
+        createAccount(request.toCommand()).toResponse()
 
     override suspend fun update(id: String, request: UpdateAccountRequest): AccountResponse =
-        AccountResponse.from(updateAccount(request.toCommand(id)))
+        updateAccount(request.toCommand(id)).toResponse()
 
     override suspend fun archive(id: String): AccountResponse =
-        AccountResponse.from(archiveAccount(id))
+        archiveAccount(id).toResponse()
 
     override suspend fun unarchive(id: String): AccountResponse =
-        AccountResponse.from(unarchiveAccount(id))
+        unarchiveAccount(id).toResponse()
 }

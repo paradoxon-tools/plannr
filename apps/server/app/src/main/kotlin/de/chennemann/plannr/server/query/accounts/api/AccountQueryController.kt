@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.query.accounts.api
 
 import de.chennemann.plannr.server.query.accounts.api.dto.AccountQueryResponse
 import de.chennemann.plannr.server.query.accounts.usecases.GetAccountQuery
+import de.chennemann.plannr.server.query.transactions.api.toResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.AccountFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.AccountTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.usecases.ListAccountFutureTransactionFeed
@@ -15,14 +16,14 @@ class AccountQueryController(
     private val listAccountFutureTransactionFeed: ListAccountFutureTransactionFeed,
 ) : AccountQueryApi {
     override suspend fun getById(id: String): AccountQueryResponse =
-        AccountQueryResponse.from(getAccountQuery(id))
+        getAccountQuery(id).toResponse()
 
     override suspend fun listTransactions(
         id: String,
         limit: Int,
         before: Long?,
     ): AccountTransactionFeedPageResponse =
-        AccountTransactionFeedPageResponse.from(listAccountTransactionFeed(id, before, limit))
+        listAccountTransactionFeed(id, before, limit).toResponse()
 
     override suspend fun listFutureTransactions(
         id: String,
@@ -31,5 +32,5 @@ class AccountQueryController(
         after: Long?,
         limit: Int,
     ): AccountFutureTransactionFeedPageResponse =
-        AccountFutureTransactionFeedPageResponse.from(listAccountFutureTransactionFeed(id, fromDate, toDate, after, limit))
+        listAccountFutureTransactionFeed(id, fromDate, toDate, after, limit).toResponse()
 }

@@ -17,14 +17,14 @@ class ContractIngressController(
     private val unarchiveContract: UnarchiveContract,
 ) : ContractIngressApi {
     override suspend fun create(request: CreateContractRequest): ContractResponse =
-        ContractResponse.from(createContract(request.toCommand()))
+        createContract(request.toCommand()).toResponse()
 
     override suspend fun update(id: String, request: UpdateContractRequest): ContractResponse =
-        ContractResponse.from(updateContract(request.toCommand(id)))
+        updateContract(request.toCommand(id)).toResponse()
 
     override suspend fun archive(id: String): ContractResponse =
-        ContractResponse.from(archiveContract(id))
+        archiveContract(id).toResponse()
 
     override suspend fun unarchive(id: String): ContractResponse =
-        ContractResponse.from(unarchiveContract(id))
+        unarchiveContract(id).toResponse()
 }

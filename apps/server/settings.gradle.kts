@@ -3,4 +3,17 @@ plugins {
 }
 
 rootProject.name = "plannr-server"
-include(":app")
+include(
+    ":app",
+    ":account-api",
+    ":contract-api",
+    ":currency-api",
+    ":partner-api",
+    ":pocket-api",
+    ":recurring-transaction-api",
+    ":transaction-api",
+    ":account-query-api",
+    ":contract-query-api",
+    ":pocket-query-api",
+    ":transaction-query-api",
+)

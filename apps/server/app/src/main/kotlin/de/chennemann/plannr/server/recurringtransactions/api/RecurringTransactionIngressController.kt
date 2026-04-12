@@ -17,14 +17,14 @@ class RecurringTransactionIngressController(
     private val unarchiveRecurringTransaction: UnarchiveRecurringTransaction,
 ) : RecurringTransactionIngressApi {
     override suspend fun create(request: CreateRecurringTransactionRequest): RecurringTransactionResponse =
-        RecurringTransactionResponse.from(createRecurringTransaction(request.toCommand()))
+        createRecurringTransaction(request.toCommand()).toResponse()
 
     override suspend fun update(id: String, request: UpdateRecurringTransactionRequest): RecurringTransactionResponse =
-        RecurringTransactionResponse.from(updateRecurringTransaction(request.toCommand(id)))
+        updateRecurringTransaction(request.toCommand(id)).toResponse()
 
     override suspend fun archive(id: String): RecurringTransactionResponse =
-        RecurringTransactionResponse.from(archiveRecurringTransaction(id))
+        archiveRecurringTransaction(id).toResponse()
 
     override suspend fun unarchive(id: String): RecurringTransactionResponse =
-        RecurringTransactionResponse.from(unarchiveRecurringTransaction(id))
+        unarchiveRecurringTransaction(id).toResponse()
 }
