@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.recurringtransactions.usecases
 
 import de.chennemann.plannr.server.common.error.ValidationException
+import de.chennemann.plannr.server.recurringtransactions.api.toCommand
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
