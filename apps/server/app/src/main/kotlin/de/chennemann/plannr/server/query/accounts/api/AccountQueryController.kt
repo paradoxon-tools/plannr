@@ -1,8 +1,9 @@
 package de.chennemann.plannr.server.query.accounts.api
 
+import de.chennemann.plannr.server.query.accounts.dto.AccountQueryResponse
 import de.chennemann.plannr.server.query.accounts.usecases.GetAccountQuery
-import de.chennemann.plannr.server.query.transactions.api.AccountFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.api.AccountTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.dto.AccountFutureTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.dto.AccountTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.usecases.ListAccountFutureTransactionFeed
 import de.chennemann.plannr.server.query.transactions.usecases.ListAccountTransactionFeed
 import org.springframework.web.bind.annotation.RestController

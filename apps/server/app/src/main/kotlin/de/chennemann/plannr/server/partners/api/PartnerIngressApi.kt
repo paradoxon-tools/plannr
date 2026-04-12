@@ -1,5 +1,8 @@
 package de.chennemann.plannr.server.partners.api
 
+import de.chennemann.plannr.server.partners.dto.CreatePartnerRequest
+import de.chennemann.plannr.server.partners.dto.PartnerResponse
+import de.chennemann.plannr.server.partners.dto.UpdatePartnerRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody

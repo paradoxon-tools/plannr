@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.query.pockets.api
+package de.chennemann.plannr.server.query.pockets.dto
 
 import de.chennemann.plannr.server.query.pockets.domain.PocketQuery
 

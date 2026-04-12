@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.query.accounts.api
+package de.chennemann.plannr.server.query.accounts.dto
 
 import de.chennemann.plannr.server.query.accounts.domain.AccountQuery
 

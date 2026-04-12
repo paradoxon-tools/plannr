@@ -1,5 +1,8 @@
 package de.chennemann.plannr.server.accounts.api
 
+import de.chennemann.plannr.server.accounts.dto.AccountResponse
+import de.chennemann.plannr.server.accounts.dto.CreateAccountRequest
+import de.chennemann.plannr.server.accounts.dto.UpdateAccountRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody

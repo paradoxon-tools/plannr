@@ -1,7 +1,8 @@
 package de.chennemann.plannr.server.query.pockets.api
 
-import de.chennemann.plannr.server.query.transactions.api.PocketFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.api.PocketTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.pockets.dto.PocketQueryResponse
+import de.chennemann.plannr.server.query.transactions.dto.PocketFutureTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.dto.PocketTransactionFeedPageResponse
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.service.annotation.GetExchange

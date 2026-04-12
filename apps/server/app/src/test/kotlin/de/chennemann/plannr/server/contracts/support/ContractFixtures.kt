@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.contracts.support
 
-import de.chennemann.plannr.server.contracts.api.CreateContractRequest
-import de.chennemann.plannr.server.contracts.api.UpdateContractRequest
+import de.chennemann.plannr.server.contracts.dto.CreateContractRequest
+import de.chennemann.plannr.server.contracts.dto.UpdateContractRequest
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.contracts.usecases.UpdateContract

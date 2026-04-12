@@ -1,8 +1,9 @@
 package de.chennemann.plannr.server.query.pockets.api
 
+import de.chennemann.plannr.server.query.pockets.dto.PocketQueryResponse
 import de.chennemann.plannr.server.query.pockets.usecases.GetPocketQuery
-import de.chennemann.plannr.server.query.transactions.api.PocketFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.api.PocketTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.dto.PocketFutureTransactionFeedPageResponse
+import de.chennemann.plannr.server.query.transactions.dto.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.usecases.ListPocketFutureTransactionFeed
 import de.chennemann.plannr.server.query.transactions.usecases.ListPocketTransactionFeed
 import org.springframework.web.bind.annotation.RestController

@@ -1,5 +1,8 @@
 package de.chennemann.plannr.server.contracts.api
 
+import de.chennemann.plannr.server.contracts.dto.ContractResponse
+import de.chennemann.plannr.server.contracts.dto.CreateContractRequest
+import de.chennemann.plannr.server.contracts.dto.UpdateContractRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody

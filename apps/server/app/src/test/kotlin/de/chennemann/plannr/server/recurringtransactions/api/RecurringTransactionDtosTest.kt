@@ -1,5 +1,7 @@
 package de.chennemann.plannr.server.recurringtransactions.api
 
+import de.chennemann.plannr.server.recurringtransactions.dto.CreateRecurringTransactionRequest
+import de.chennemann.plannr.server.recurringtransactions.dto.UpdateRecurringTransactionRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
