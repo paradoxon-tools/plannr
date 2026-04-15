@@ -1,5 +1,13 @@
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+dependencyResolutionManagement {
+    versionCatalogs.create("libs").from(files("versions.toml"))
+}
+
+pluginManagement {
+    includeBuild(".build-configuration")
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
 }
 
 rootProject.name = "plannr-server"

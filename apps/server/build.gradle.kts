@@ -1,17 +1,47 @@
-plugins {
-    id("org.springframework.boot") version "4.0.5" apply false
-    id("io.spring.dependency-management") version "1.1.7" apply false
-    kotlin("jvm") version "2.3.20" apply false
-    kotlin("plugin.spring") version "2.3.20" apply false
-}
+@file:Suppress("UnstableApiUsage")
 
-allprojects {
-    group = "de.chennemann.plannr"
-    version = "1.0.0"
+import extensions.ApplicationType
+import extensions.DatabaseTechnology
+
+plugins {
+    id("dericon")
+
+//    https://github.com/autonomousapps/dependency-analysis-android-gradle-plugin
+//    id("com.autonomousapps.dependency-analysis") version "1.21.0"
 }
 
 subprojects {
     repositories {
         mavenCentral()
     }
+}
+
+dericon {
+
+    features {
+        applicationType = ApplicationType.WEB
+        dbTechnology = DatabaseTechnology.POSTGRES
+
+        starters.addAll(
+        )
+
+        commonLibs.addAll(
+        )
+        commonTestLibs.addAll(
+        )
+    }
+
+    docker {
+        appName = rootProject.name
+        baseDockerImageVersion = libs.versions.docker.baseImage
+    }
+
+    versions {
+        javaLanguage = libs.versions.java
+
+        springBoot = libs.versions.spring.boot
+        springCloud = libs.versions.spring.cloud
+        springOpenApi = libs.versions.spring.openapi
+    }
+
 }

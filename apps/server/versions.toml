@@ -1,0 +1,169 @@
+# @formatter:off
+[versions]
+
+# Gradle Plugins
+gradle-plugin-spring = "4.0.5"
+
+# Docker
+docker-baseImage = "3.0.0-RELEASE"
+
+# Kotlin
+java = "25"
+kotlin = "2.3.20"
+kotlinx-coroutines = "1.10.2"
+
+# Dericon
+dericon-stdlib = "0.4.0-RELEASE"
+
+dericon-commons = "2.1.0-RELEASE"
+derihistory = "2.3.1-RELEASE"
+rabbitfin = "3.9.2-RELEASE"
+mercury = "0.4.2-RELEASE"
+deribw = "2.10.0-RELEASE"
+allocator = "1.3.0-RELEASE"
+
+
+# Utils
+util-auth = "2.1.3-RELEASE"
+util-cache = "2.1.0-RELEASE"
+util-context-injector = "1.6.0-RELEASE"
+util-datetime = "2.1.1-RELEASE"
+util-dynamic-query = "1.1.0-RELEASE"
+util-exception = "2.2.0-RELEASE"
+util-finance = "0.9.0-RELEASE"
+util-ftp = "2.1.0-RELEASE"
+util-jobber = "1.0.0-RELEASE"
+util-logging = "1.2.0-RELEASE"
+util-map = "1.3.0-RELEASE"
+util-messaging = "2.1.0-RELEASE"
+util-microservice = "2.1.1-RELEASE"
+util-mongo = "2.0.1-RELEASE"
+util-restresponse = "1.5.0-RELEASE"
+util-translations = "2.1.0-RELEASE"
+
+# Spring
+spring-boot = "4.0.5"
+spring-cloud = "2024.0.0"
+spring-openapi = "2.8.5"
+
+# Miscellaneous
+kotlinx-html = "0.7.1"
+apache-poi = "5.4.0"
+arrow = "2.1.2"
+
+# Test
+kluent = "1.73"
+mockito = "5.4.0"
+
+[libraries]
+
+#######################################
+###          Project Libs
+#######################################
+
+
+
+springDataCommons = { module = "org.springframework.data:spring-data-commons"}
+springDataMongoDbStarter = { module = "org.springframework.boot:spring-boot-starter-data-mongodb-reactive" }
+springDataMongoDbCore = { module = "org.springframework.data:spring-data-mongodb" }
+
+
+
+
+
+
+
+
+
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines"}
+coroutines-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlinx-coroutines"}
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines"}
+coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinx-coroutines"}
+
+apache-poi = { module = "org.apache.poi:poi", version.ref = "apache-poi" }
+apache-poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "apache-poi" }
+
+#######################################
+###             DERICON
+#######################################
+
+dericonCommons = { module = "com.dericon.dericon-commons:types", version.ref = "dericon-commons"}
+
+allocator-session = { module = "com.dericon.allocator:allocator-session-api", version.ref = "allocator" }
+allocator-depot = { module = "com.dericon.allocator:allocator-depot-api", version.ref = "allocator" }
+derihistory = { module = "com.dericon.derihistory:historicaldata-api", version.ref = "derihistory" }
+rabbitfin = { module = "com.dericon.rabbitfin:core-shared", version.ref = "rabbitfin" }
+mercury = { module = "com.dericon.mercury:content-api", version.ref = "mercury" }
+deribw = { module = "com.dericon.deribw:id-list-api", version.ref = "deribw" }
+
+
+#######################################
+###            TESTING
+#######################################
+
+kluent = { module = "org.amshove.kluent:kluent", version.ref = "kluent" }
+mockitoKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
+
+
+#######################################
+###             UTILS
+#######################################
+
+util-auth = { module = "com.dericon.util-auth:auth", version.ref = "util-auth" }
+util-starter-auth = { module = "com.dericon.util-auth:auth-starter", version.ref = "util-auth" }
+
+util-cache = { module = "com.dericon.util-cache:cache", version.ref = "util-cache" }
+util-starter-cache = { module = "com.dericon.util-cache:cache-starter", version.ref = "util-cache" }
+
+util-contextInjector = { module = "com.dericon.util-context-injector:context-injector", version.ref = "util-context-injector"}
+util-starter-contextInjector = { module = "com.dericon.util-context-injector:context-injector-hystrix-starter", version.ref = "util-context-injector" }
+
+util-datetime = { module = "com.dericon.util-datetime:datetime", version.ref = "util-datetime" }
+util-starter-datetime = { module = "com.dericon.util-datetime:datetime-starter", version.ref = "util-datetime" }
+
+util-dynamicQuery-core = { module = "com.dericon.util-dynamic-query:dynamic-query-core", version.ref = "util-dynamic-query" }
+util-dynamicQuery-mongo = { module = "com.dericon.util-dynamic-query:dynamic-query-mongo", version.ref = "util-dynamic-query" }
+util-dynamicQuery-web = { module = "com.dericon.util-dynamic-query:dynamic-query-web", version.ref = "util-dynamic-query" }
+util-starter-dynamicQuery = { module = "com.dericon.util-dynamic-query:dynamic-query-starter", version.ref = "util-dynamic-query" }
+
+util-exception = { module = "com.dericon.util-exception:exception", version.ref = "util-exception" }
+util-starter-exception = { module = "com.dericon.util-exception:exception-starter", version.ref = "util-exception" }
+
+util-finance = { module = "com.dericon.util-finance:finance", version.ref = "util-finance" }
+
+util-ftp = { module = "com.dericon.util-ftp:ftp", version.ref = "util-ftp" }
+util-starter-ftp = { module = "com.dericon.util-ftp:ftp-starter", version.ref = "util-ftp" }
+
+util-jobber = { module = "com.dericon.util-jobber:jobber", version.ref = "util-jobber" }
+util-starter-jobber = { module = "com.dericon.util-jobber:jobber-starter", version.ref = "util-jobber" }
+
+util-logging = { module = "com.dericon.util-logging:logging", version.ref = "util-logging" }
+
+util-map = { module = "com.dericon.util-map:map", version.ref = "util-map" }
+
+util-messaging = { module = "com.dericon.util-messaging:messaging", version.ref = "util-messaging"}
+util-starter-messaging = { module = "com.dericon.util-messaging:messaging-starter", version.ref = "util-messaging" }
+
+util-microservice = { module = "com.dericon.util-microservice:microservice", version.ref = "util-microservice" }
+util-starter-microservice = { module = "com.dericon.util-microservice:microservice-starter", version.ref = "util-microservice" }
+
+util-starter-mongo = { module = "com.dericon.util-mongo:mongo-starter", version.ref = "util-mongo" }
+util-mongo-converter = { module = "com.dericon.util-mongo:mongo-converter", version.ref = "util-mongo" }
+
+util-restresponse = { module = "com.dericon.util-restresponse:restresponse", version.ref = "util-restresponse" }
+util-legacy-restresponse = { module = "com.dericon.util-restresponse:legacy-adapter", version.ref = "util-restresponse" }
+
+util-translations = { module = "com.dericon.util-translations:translations", version.ref = "util-translations" }
+util-starter-translations = { module = "com.dericon.util-translations:translations-starter", version.ref = "util-translations" }
+
+
+#######################################
+###             MISC
+#######################################
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+arrow-jackson = { module = "io.arrow-kt:arrow-core-jackson", version.ref = "arrow" }
+openfeign-core = { module = "io.github.openfeign:feign-core" }
+
+

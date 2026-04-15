@@ -1,16 +1,7 @@
 plugins {
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
-    kotlin("jvm")
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+    id("artifact-api")
 }
 
 dependencies {
     implementation(project(":transaction-api"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
 }
