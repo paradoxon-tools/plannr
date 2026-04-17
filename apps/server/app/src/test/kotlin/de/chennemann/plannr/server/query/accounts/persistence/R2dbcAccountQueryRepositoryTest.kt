@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.query.accounts.persistence
 
-import de.chennemann.plannr.server.query.accounts.domain.AccountQuery
-import de.chennemann.plannr.server.query.accounts.domain.AccountQueryRepository
+import de.chennemann.plannr.server.accounts.domain.AccountQuery
+import de.chennemann.plannr.server.accounts.domain.AccountQueryRepository
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking

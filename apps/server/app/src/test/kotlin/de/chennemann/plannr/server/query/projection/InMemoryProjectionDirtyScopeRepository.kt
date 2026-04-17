@@ -1,5 +1,8 @@
 package de.chennemann.plannr.server.query.projection
 
+import de.chennemann.plannr.server.projection.ProjectionDirtyScope
+import de.chennemann.plannr.server.projection.ProjectionDirtyScopeRepository
+
 class InMemoryProjectionDirtyScopeRepository : ProjectionDirtyScopeRepository {
     private val values = linkedMapOf<Pair<String, String>, ProjectionDirtyScope>()
 

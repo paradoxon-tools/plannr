@@ -2,8 +2,8 @@ package de.chennemann.plannr.server.transactions.recurring.usecases
 
 import de.chennemann.plannr.server.common.domain.RecurrenceType
 import de.chennemann.plannr.server.common.error.ValidationException
-import de.chennemann.plannr.server.recurrence.domain.RecurrenceCalculator
-import de.chennemann.plannr.server.recurrence.domain.RecurrencePattern
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurrenceCalculator
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurrencePattern
 import java.time.DayOfWeek
 import java.time.LocalDate
 import org.springframework.stereotype.Component

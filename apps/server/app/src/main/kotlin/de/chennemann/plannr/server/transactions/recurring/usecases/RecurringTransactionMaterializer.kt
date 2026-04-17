@@ -1,11 +1,12 @@
 package de.chennemann.plannr.server.transactions.recurring.usecases
 
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.common.domain.RecurrenceType
 import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.recurrence.domain.RecurrenceCalculator
-import de.chennemann.plannr.server.recurrence.domain.RecurrencePattern
-import de.chennemann.plannr.server.query.projection.ProjectionDirtyScopeService
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurrenceCalculator
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurrencePattern
+import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.support.TransactionIdGenerator
@@ -102,7 +103,7 @@ class RecurringTransactionMaterializer(
         RecurrencePattern(
             firstOccurrenceDate = LocalDate.parse(firstOccurrenceDate),
             finalOccurrenceDate = finalOccurrenceDate?.let(LocalDate::parse),
-            recurrenceType = de.chennemann.plannr.server.common.domain.RecurrenceType.valueOf(recurrenceType),
+            recurrenceType = RecurrenceType.valueOf(recurrenceType),
             skipCount = skipCount,
             daysOfWeek = daysOfWeek?.map(DayOfWeek::valueOf),
             weeksOfMonth = weeksOfMonth,

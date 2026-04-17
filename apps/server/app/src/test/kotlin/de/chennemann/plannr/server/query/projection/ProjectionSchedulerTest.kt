@@ -1,5 +1,10 @@
 package de.chennemann.plannr.server.query.projection
 
+import de.chennemann.plannr.server.projection.ProjectionDirtyScope
+import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
+import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService.ScopeType
+import de.chennemann.plannr.server.projection.ProjectionRebuilder
+import de.chennemann.plannr.server.projection.ProjectionScheduler
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,7 +23,7 @@ class ProjectionSchedulerTest {
             scheduler.processDirtyScopes()
         }
         assertEquals(
-            listOf(ProjectionDirtyScope(ProjectionDirtyScopeService.ScopeType.ACCOUNT.name, "acc_123", 1)),
+            listOf(ProjectionDirtyScope(ScopeType.ACCOUNT.name, "acc_123", 1)),
             repository.listAll(),
         )
 

@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.migration
 
-import de.chennemann.plannr.server.query.projection.TransactionQueryProjectionService
+import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking

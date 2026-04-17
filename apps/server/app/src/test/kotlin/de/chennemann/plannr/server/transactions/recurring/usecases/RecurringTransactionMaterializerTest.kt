@@ -3,7 +3,7 @@ package de.chennemann.plannr.server.transactions.recurring.usecases
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.query.projection.InMemoryProjectionDirtyScopeRepository
-import de.chennemann.plannr.server.query.projection.ProjectionDirtyScopeService
+import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository

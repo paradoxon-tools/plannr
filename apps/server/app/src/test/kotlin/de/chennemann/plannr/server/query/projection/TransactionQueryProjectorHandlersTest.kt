@@ -4,6 +4,11 @@ import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
+import de.chennemann.plannr.server.projection.TransactionArchivedQueryProjector
+import de.chennemann.plannr.server.projection.TransactionCreatedQueryProjector
+import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
+import de.chennemann.plannr.server.projection.TransactionUnarchivedQueryProjector
+import de.chennemann.plannr.server.projection.TransactionUpdatedQueryProjector
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionArchived

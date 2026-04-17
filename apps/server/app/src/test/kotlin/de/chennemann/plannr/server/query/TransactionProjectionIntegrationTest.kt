@@ -3,7 +3,7 @@ package de.chennemann.plannr.server.query
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
-import de.chennemann.plannr.server.query.projection.TransactionQueryProjectionService
+import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction

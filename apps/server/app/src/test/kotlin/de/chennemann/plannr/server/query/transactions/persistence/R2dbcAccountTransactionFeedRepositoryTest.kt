@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.query.transactions.persistence
 
-import de.chennemann.plannr.server.query.transactions.domain.AccountTransactionFeedRepository
+import de.chennemann.plannr.server.transactions.domain.AccountTransactionFeedRepository
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking

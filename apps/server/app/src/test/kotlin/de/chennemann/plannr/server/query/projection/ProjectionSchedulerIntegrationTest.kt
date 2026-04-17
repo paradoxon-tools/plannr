@@ -5,6 +5,9 @@ import de.chennemann.plannr.server.partners.usecases.CreatePartner
 import de.chennemann.plannr.server.partners.usecases.UpdatePartner
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
 import de.chennemann.plannr.server.pockets.usecases.UpdatePocket
+import de.chennemann.plannr.server.projection.ProjectionDirtyScopeRepository
+import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
+import de.chennemann.plannr.server.projection.ProjectionScheduler
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
