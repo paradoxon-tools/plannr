@@ -24,4 +24,7 @@ data class RecurringTransactionResponse(
     val previousVersionId: String?,
     val isArchived: Boolean,
     val createdAt: Long,
-)
+) {
+    val archived: Boolean
+        get() = isArchived
+}

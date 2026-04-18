@@ -8,9 +8,11 @@ plugins {
 
 dependencies {
 
-    implementation(config.versions.springCloud.map {
-        platform("org.springframework.cloud:spring-cloud-dependencies:$it")
-    })
+    if (config.features.springCloudEnabled.get()) {
+        implementation(config.versions.springCloud.map {
+            platform("org.springframework.cloud:spring-cloud-dependencies:$it")
+        })
+    }
 
     implementation(config.versions.springBoot.map {
         platform("org.springframework.boot:spring-boot-dependencies:$it")
@@ -23,7 +25,7 @@ dependencies {
 
     constraints {
         implementation(config.versions.springOpenApi.map {
-            "org.springdoc:springdoc-openapi-starter-webmvc-ui:$it"
+            "org.springdoc:springdoc-openapi-starter-webflux-ui:$it"
         })
     }
 }

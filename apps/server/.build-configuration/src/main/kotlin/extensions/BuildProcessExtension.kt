@@ -7,7 +7,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import javax.inject.Inject
 
-abstract class DericonExtension {
+abstract class BuildProcessExtension {
 
     @get:Inject
     protected abstract val objects: ObjectFactory
@@ -44,6 +44,7 @@ abstract class DericonExtension {
      *
      * - `applicationType: Property<`[ApplicationType]`>`
      * - `dbTechnology: Property<`[DatabaseTechnology]`>`
+     * - `springCloudEnabled: Property<Boolean>`
      * - `commonLibs: SetProperty<Provider<MinimalExternalModuleDependency>>`
      * - `commonTestLibs: SetProperty<Provider<MinimalExternalModuleDependency>>`
      *
@@ -110,6 +111,7 @@ enum class DatabaseTechnology {
 interface Features {
     val applicationType: Property<ApplicationType>
     val dbTechnology: Property<DatabaseTechnology>
+    val springCloudEnabled: Property<Boolean>
     val testFramework: Property<TestFrameworkType>
     /**
      * Everything defined in here is included into the main application module 'id("executable")'.

@@ -4,10 +4,7 @@ import extensions.ApplicationType
 import extensions.DatabaseTechnology
 
 plugins {
-    id("dericon")
-
-//    https://github.com/autonomousapps/dependency-analysis-android-gradle-plugin
-//    id("com.autonomousapps.dependency-analysis") version "1.21.0"
+    id("build-process")
 }
 
 subprojects {
@@ -16,11 +13,12 @@ subprojects {
     }
 }
 
-dericon {
+buildProcess {
 
     features {
         applicationType = ApplicationType.WEB
         dbTechnology = DatabaseTechnology.POSTGRES
+        springCloudEnabled = true
 
         starters.addAll(
         )

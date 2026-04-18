@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: plannr
       POSTGRES_PASSWORD: plannr
     ports:
-      - "5432:5432"
+      - "${PLANNR_DB_HOST_PORT:-15432}:5432"
     volumes:
       - plannr-postgres-data:/var/lib/postgresql/data
     healthcheck:

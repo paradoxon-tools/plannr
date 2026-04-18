@@ -1,8 +1,10 @@
 spring:
   application:
     name: plannr-server
+  @springConfigImport@
   docker:
     compose:
+      file: ${PLANNR_DOCKER_COMPOSE_FILE:apps/server/compose.yml}
       lifecycle-management: start_and_stop
   r2dbc:
     url: r2dbc:postgresql://${plannr.database.host}:${plannr.database.port}/${plannr.database.name}
@@ -15,7 +17,7 @@ spring:
 plannr:
   database:
     host: ${PLANNR_DB_HOST:localhost}
-    port: ${PLANNR_DB_PORT:5432}
+    port: ${PLANNR_DB_PORT:15432}
     name: ${PLANNR_DB_NAME:plannr}
     username: ${PLANNR_DB_USERNAME:plannr}
     password: ${PLANNR_DB_PASSWORD:plannr}

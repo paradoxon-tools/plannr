@@ -43,8 +43,8 @@ util-translations = "2.1.0-RELEASE"
 
 # Spring
 spring-boot = "4.0.5"
-spring-cloud = "2024.0.0"
-spring-openapi = "2.8.5"
+spring-cloud = "2025.1.1"
+spring-openapi = "3.0.3"
 
 # Miscellaneous
 kotlinx-html = "0.7.1"

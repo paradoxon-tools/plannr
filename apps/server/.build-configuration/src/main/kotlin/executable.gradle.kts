@@ -1,6 +1,9 @@
 import extensions.DatabaseTechnology.MONGO
 import extensions.DatabaseTechnology.POSTGRES
 import extensions.config
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.language.jvm.tasks.ProcessResources
+import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     id("internal.common")
@@ -13,6 +16,29 @@ configurations.configureEach {
 
 springBoot {
     buildInfo()
+}
+
+val monorepoRoot = rootProject.projectDir.parentFile?.parentFile ?: rootProject.projectDir
+
+tasks.withType<BootRun> {
+    workingDir(monorepoRoot)
+}
+
+val springCloudEnabled = config.features.springCloudEnabled.get()
+val springConfigImport = if (springCloudEnabled) {
+    "config:${System.lineSeparator()}    import: \"optional:configserver:\""
+} else {
+    "config: {}"
+}
+
+tasks.withType<ProcessResources> {
+    filesMatching("application*.yml") {
+        filter<ReplaceTokens>(
+            "tokens" to mapOf(
+                "springConfigImport" to springConfigImport
+            )
+        )
+    }
 }
 
 dependencies {
@@ -44,8 +70,9 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
-    implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui")
+    if (springCloudEnabled) {
+        implementation("org.springframework.cloud:spring-cloud-starter-config")
+    }
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }

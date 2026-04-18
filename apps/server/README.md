@@ -12,6 +12,8 @@ Prerequisite: Docker Desktop (or another local Docker engine) must be running.
 
 Spring Boot will automatically start the Postgres service from `compose.yml` and connect the application to it. The same works when you run the app directly from IntelliJ.
 
+The local Compose Postgres container is exposed on host port `15432` by default to avoid conflicts with an existing local Postgres on `5432`. Override it with `PLANNR_DB_HOST_PORT` for Docker Compose and `PLANNR_DB_PORT` for the application if needed.
+
 For non-local environments, configure the database with one shared set of variables:
 - `PLANNR_DB_HOST`
 - `PLANNR_DB_PORT`
@@ -24,13 +26,13 @@ Spring derives both the R2DBC and Flyway JDBC connection settings from these val
 ## Endpoint
 
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8080/actuator/health
 ```
 
 Expected success response:
 
-```text
-ok
+```json
+{"status":"UP"}
 ```
 
 ## Build Docker image

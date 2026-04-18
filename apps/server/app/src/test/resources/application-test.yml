@@ -1,6 +1,9 @@
 spring:
   flyway:
     enabled: true
+  cloud:
+    config:
+      enabled: false
 management:
   health:
     db:
