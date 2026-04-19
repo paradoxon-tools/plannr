@@ -53,5 +53,18 @@ class InMemoryTransactionRepository : TransactionRepository {
     override suspend fun findVisibleFutureByPocketId(pocketId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord> =
         findVisibleByPocketId(pocketId).filter { it.transactionDate in startDateInclusive..endDateInclusive }
 
+    override suspend fun findAll(accountId: String?, pocketId: String?, archived: Boolean): List<TransactionRecord> =
+        values.values
+            .filter { accountId == null || it.accountId == accountId }
+            .filter { pocketId == null || it.pocketId == pocketId || it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
+            .filter {
+                if (archived) {
+                    it.isArchived
+                } else {
+                    TransactionVisibility.includes(it)
+                }
+            }
+            .sortedWith(compareBy<TransactionRecord> { it.transactionDate }.thenBy { it.createdAt }.thenBy { it.id })
+
     fun all(): List<TransactionRecord> = values.values.toList()
 }

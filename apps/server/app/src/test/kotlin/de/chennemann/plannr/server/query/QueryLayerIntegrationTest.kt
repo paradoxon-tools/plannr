@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.accounts.usecases.ArchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.accounts.usecases.UnarchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
+import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.partners.usecases.CreatePartner
 import de.chennemann.plannr.server.partners.usecases.UpdatePartner
 import de.chennemann.plannr.server.pockets.usecases.ArchivePocket
@@ -12,6 +13,7 @@ import de.chennemann.plannr.server.pockets.usecases.UnarchivePocket
 import de.chennemann.plannr.server.pockets.usecases.UpdatePocket
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.support.expectApiError
+import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -32,12 +34,18 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var unarchivePocket: UnarchivePocket
     @Autowired lateinit var createPartner: CreatePartner
     @Autowired lateinit var updatePartner: UpdatePartner
+    @Autowired lateinit var createContract: CreateContract
+    @Autowired lateinit var createTransaction: CreateTransaction
 
     @BeforeEach
     fun setUp() {
         cleanDatabase(
+            "projection_dirty_scope",
+            "account_future_transaction_feed",
+            "pocket_future_transaction_feed",
             "pocket_transaction_feed",
             "account_transaction_feed",
+            "transactions",
             "pocket_query",
             "account_query",
             "recurring_transactions",
@@ -485,6 +493,75 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .expectStatus().isNotFound
             .expectBody()
             .expectApiError(code = "not_found", details = mapOf("id" to "poc_missing"))
+    }
+
+    @Test
+    fun `list query endpoints return active resources`() = runBlocking {
+        val account = createAccount(CreateAccount.Command("Main account", "Test Bank", "EUR", "NO_SHIFT"))
+        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+        val partner = createPartner(CreatePartner.Command(name = "Acme Inc", notes = "Sample partner"))
+        val contract = createContract(CreateContract.Command(pocket.id, partner.id, "Internet", "2026-01-01", null, null))
+        val transaction = createTransaction(
+            CreateTransaction.Command(
+                type = "EXPENSE",
+                status = "CLEARED",
+                transactionDate = "2026-04-10",
+                amount = 100,
+                currencyCode = "EUR",
+                exchangeRate = null,
+                destinationAmount = null,
+                description = "Internet bill",
+                partnerId = partner.id,
+                sourcePocketId = pocket.id,
+                destinationPocketId = null,
+            ),
+        )
+
+        webTestClient.get()
+            .uri("/query/accounts")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(account.id)
+            .jsonPath("$[0].currentBalance").isEqualTo(-100)
+
+        webTestClient.get()
+            .uri("/query/pockets?accountId=${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(pocket.id)
+            .jsonPath("$[0].currentBalance").isEqualTo(-100)
+
+        webTestClient.get()
+            .uri("/query/contracts?accountId=${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(contract.id)
+            .jsonPath("$[0].pocketId").isEqualTo(pocket.id)
+
+        webTestClient.get()
+            .uri("/query/currencies")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$[0].code").isEqualTo("EUR")
+
+        webTestClient.get()
+            .uri("/query/partners?query=Acme")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(partner.id)
+
+        webTestClient.get()
+            .uri("/query/transactions?accountId=${account.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(transaction.id)
+            .jsonPath("$[0].pocketId").isEqualTo(pocket.id)
     }
 
     private fun insertCurrency(code: String) {

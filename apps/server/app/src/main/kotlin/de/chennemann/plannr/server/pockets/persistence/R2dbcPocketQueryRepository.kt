@@ -88,6 +88,34 @@ class R2dbcPocketQueryRepository(
             .map(::toPocketQuery)
             .awaitSingleOrNull()
 
+    override suspend fun findAll(accountId: String?, archived: Boolean): List<PocketQuery> {
+        val conditions = mutableListOf("is_archived = :archived")
+        if (accountId != null) {
+            conditions += "account_id = :accountId"
+        }
+        val whereClause = "WHERE ${conditions.joinToString(" AND ")}"
+
+        var spec = databaseClient.sql(
+            """
+            SELECT pocket_id, account_id, name, description, color, is_default, is_archived, created_at, current_balance
+            FROM pocket_query
+            $whereClause
+            ORDER BY created_at ASC, pocket_id ASC
+            """.trimIndent(),
+        )
+            .bind("archived", archived)
+
+        if (accountId != null) {
+            spec = spec.bind("accountId", accountId)
+        }
+
+        return spec.fetch()
+            .all()
+            .map(::toPocketQuery)
+            .collectList()
+            .awaitSingle()
+    }
+
     private fun bindAll(spec: GenericExecuteSpec, pocketQuery: PocketQuery): GenericExecuteSpec {
         var current = spec
             .bind("pocketId", pocketQuery.pocketId)

@@ -146,6 +146,40 @@ class R2dbcTransactionRepository(
             endDateInclusive = endDateInclusive,
         )
 
+    override suspend fun findAll(accountId: String?, pocketId: String?, archived: Boolean): List<TransactionRecord> {
+        val conditions = mutableListOf<String>()
+        if (accountId != null) {
+            conditions += "(p.account_id = :accountId OR sp.account_id = :accountId OR dp.account_id = :accountId)"
+        }
+        if (pocketId != null) {
+            conditions += "(t.pocket_id = :pocketId OR t.source_pocket_id = :pocketId OR t.destination_pocket_id = :pocketId)"
+        }
+        conditions += if (archived) {
+            "t.is_archived = TRUE"
+        } else {
+            visibilityPredicate
+        }
+        val whereClause = "WHERE ${conditions.joinToString(" AND ")}"
+
+        var spec = databaseClient.sql(
+            """
+            $baseSelect
+            $whereClause
+            ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
+            """.trimIndent(),
+        )
+        if (accountId != null) {
+            spec = spec.bind("accountId", accountId)
+        }
+        if (pocketId != null) {
+            spec = spec.bind("pocketId", pocketId)
+        }
+
+        return spec.fetch()
+            .all()
+            .let { rows -> Flux.from(rows).map(::toTransaction).collectList().awaitSingle() }
+    }
+
     private suspend fun findAll(whereClause: String, scopeId: String): List<TransactionRecord> =
         databaseClient.sql("$baseSelect $whereClause")
             .bind("scopeId", scopeId)

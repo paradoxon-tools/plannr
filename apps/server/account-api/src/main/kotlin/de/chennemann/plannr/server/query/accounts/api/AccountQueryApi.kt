@@ -10,6 +10,11 @@ import org.springframework.web.service.annotation.HttpExchange
 
 @HttpExchange("/query/accounts")
 interface AccountQueryApi {
+    @GetExchange
+    suspend fun list(
+        @RequestParam(defaultValue = "false") archived: Boolean,
+    ): List<AccountQueryResponse>
+
     @GetExchange("/{id}")
     suspend fun getById(@PathVariable id: String): AccountQueryResponse
 

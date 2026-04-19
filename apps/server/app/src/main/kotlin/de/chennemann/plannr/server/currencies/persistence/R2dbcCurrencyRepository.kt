@@ -67,6 +67,19 @@ class R2dbcCurrencyRepository(
             .map(::toCurrency)
             .awaitSingleOrNull()
 
+    override suspend fun findAll(): List<Currency> =
+        databaseClient.sql(
+            """
+            SELECT code, name, symbol, decimal_places, symbol_position
+            FROM currencies
+            ORDER BY code ASC
+            """.trimIndent(),
+            )
+            .fetch()
+            .all()
+            .map(::toCurrency)
+            .collectList()
+            .awaitSingle()
 
     private fun toCurrency(row: Map<String, Any>): Currency =
         Currency(

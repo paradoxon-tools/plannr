@@ -1,0 +1,15 @@
+meta {
+  name: List partners
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/query/partners?query=Acme&archived=false
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

@@ -92,6 +92,22 @@ class R2dbcAccountQueryRepository(
             .map(::toAccountQuery)
             .awaitSingleOrNull()
 
+    override suspend fun findAll(archived: Boolean): List<AccountQuery> =
+        databaseClient.sql(
+            """
+            SELECT account_id, name, institution, currency_code, weekend_handling, is_archived, created_at, current_balance
+            FROM account_query
+            WHERE is_archived = :archived
+            ORDER BY created_at ASC, account_id ASC
+            """.trimIndent(),
+        )
+            .bind("archived", archived)
+            .fetch()
+            .all()
+            .map(::toAccountQuery)
+            .collectList()
+            .awaitSingle()
+
     private fun toAccountQuery(row: Map<String, Any?>): AccountQuery = AccountQuery(
         accountId = row.getValue("account_id") as String,
         name = row.getValue("name") as String,

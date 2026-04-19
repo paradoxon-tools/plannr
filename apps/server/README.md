@@ -35,6 +35,16 @@ Expected success response:
 {"status":"UP"}
 ```
 
+## Development seed data
+
+With the `local` Spring profile active, the development seed endpoint is enabled by default:
+
+```bash
+curl -X POST http://localhost:8080/internal/dev/seed
+```
+
+Set `PLANNR_DEV_SEED_ENABLED=false` to disable it for a local run.
+
 ## Build Docker image
 
 ```bash

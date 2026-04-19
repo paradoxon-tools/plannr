@@ -1,0 +1,15 @@
+meta {
+  name: Seed default development data
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/internal/dev/seed
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

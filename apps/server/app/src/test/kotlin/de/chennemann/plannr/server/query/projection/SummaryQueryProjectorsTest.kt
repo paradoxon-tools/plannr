@@ -119,6 +119,9 @@ class SummaryQueryProjectorsTest {
         }
 
         override suspend fun findById(accountId: String): AccountQuery? = values[accountId]
+
+        override suspend fun findAll(archived: Boolean): List<AccountQuery> =
+            values.values.filter { it.isArchived == archived }
     }
 
     private class InMemoryPocketQueryRepository : PocketQueryRepository {
@@ -130,5 +133,10 @@ class SummaryQueryProjectorsTest {
         }
 
         override suspend fun findById(pocketId: String): PocketQuery? = values[pocketId]
+
+        override suspend fun findAll(accountId: String?, archived: Boolean): List<PocketQuery> =
+            values.values
+                .filter { accountId == null || it.accountId == accountId }
+                .filter { it.isArchived == archived }
     }
 }

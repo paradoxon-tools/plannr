@@ -11,4 +11,5 @@ interface TransactionRepository {
     suspend fun findVisiblePending(): List<TransactionRecord>
     suspend fun findVisibleFutureByAccountId(accountId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord>
     suspend fun findVisibleFutureByPocketId(pocketId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord>
+    suspend fun findAll(accountId: String? = null, pocketId: String? = null, archived: Boolean = false): List<TransactionRecord>
 }

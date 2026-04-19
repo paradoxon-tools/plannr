@@ -1,0 +1,15 @@
+meta {
+  name: List currencies
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/query/currencies
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,15 @@
+meta {
+  name: List transactions
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/query/transactions?accountId={{accountId}}&pocketId={{pocketId}}&archived=false
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

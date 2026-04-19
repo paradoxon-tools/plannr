@@ -17,4 +17,6 @@ class InMemoryCurrencyRepository : CurrencyRepository {
     }
 
     override suspend fun findByCode(code: String): Currency? = currencies[code]
+
+    override suspend fun findAll(): List<Currency> = currencies.values.sortedBy { it.code }
 }

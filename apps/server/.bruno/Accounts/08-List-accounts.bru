@@ -1,0 +1,15 @@
+meta {
+  name: List accounts
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/query/accounts?archived=false
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

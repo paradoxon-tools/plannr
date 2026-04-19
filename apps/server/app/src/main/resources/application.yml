@@ -24,6 +24,8 @@ plannr:
   projections:
     dirty-scope-delay-ms: 30000
     full-rebuild-delay-ms: 3600000
+  dev-seed:
+    enabled: ${PLANNR_DEV_SEED_ENABLED:false}
 management:
   endpoint:
     health:

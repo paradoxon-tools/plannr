@@ -10,6 +10,12 @@ import org.springframework.web.service.annotation.HttpExchange
 
 @HttpExchange("/query/pockets")
 interface PocketQueryApi {
+    @GetExchange
+    suspend fun list(
+        @RequestParam(required = false) accountId: String?,
+        @RequestParam(defaultValue = "false") archived: Boolean,
+    ): List<PocketQueryResponse>
+
     @GetExchange("/{id}")
     suspend fun getById(@PathVariable id: String): PocketQueryResponse
 

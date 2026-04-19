@@ -114,6 +114,8 @@ class TransactionQueryProjectorHandlersTest {
         override suspend fun findVisibleFutureByAccountId(accountId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord> = emptyList()
 
         override suspend fun findVisibleFutureByPocketId(pocketId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord> = emptyList()
+
+        override suspend fun findAll(accountId: String?, pocketId: String?, archived: Boolean): List<TransactionRecord> = emptyList()
     }
 
     private fun transaction(

@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.query.contracts.api
 
+import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.PocketFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.PocketTransactionFeedPageResponse
 import org.springframework.web.bind.annotation.PathVariable
@@ -9,6 +10,12 @@ import org.springframework.web.service.annotation.HttpExchange
 
 @HttpExchange("/query/contracts")
 interface ContractTransactionQueryApi {
+    @GetExchange
+    suspend fun list(
+        @RequestParam(required = false) accountId: String?,
+        @RequestParam(defaultValue = "false") archived: Boolean,
+    ): List<ContractResponse>
+
     @GetExchange("/{id}/transactions")
     suspend fun listTransactions(
         @PathVariable id: String,
