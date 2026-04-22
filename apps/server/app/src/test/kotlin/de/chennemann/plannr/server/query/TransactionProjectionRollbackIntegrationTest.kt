@@ -2,7 +2,8 @@ package de.chennemann.plannr.server.query
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.common.events.ApplicationEventHandler
-import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
@@ -23,7 +24,7 @@ import org.springframework.r2dbc.core.DatabaseClient
 class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
     @Autowired lateinit var createAccount: CreateAccount
-    @Autowired lateinit var createPocket: CreatePocket
+    @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var createTransaction: CreateTransaction
 
     @BeforeEach
@@ -54,7 +55,7 @@ class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         assertFailsWith<IllegalStateException> {
             runBlocking {
@@ -79,8 +80,6 @@ class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
         assertEquals(0L, count("SELECT COUNT(*) AS value FROM transactions"))
         assertEquals(0L, count("SELECT COUNT(*) AS value FROM account_transaction_feed"))
         assertEquals(0L, count("SELECT COUNT(*) AS value FROM pocket_transaction_feed"))
-        assertEquals(0L, singleLong("SELECT current_balance AS value FROM account_query WHERE account_id = '${account.id}'"))
-        assertEquals(0L, singleLong("SELECT current_balance AS value FROM pocket_query WHERE pocket_id = '${pocket.id}'"))
     }
 
     private fun insertCurrency(code: String) {

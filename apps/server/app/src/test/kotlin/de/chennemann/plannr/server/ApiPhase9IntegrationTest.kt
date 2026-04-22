@@ -1,7 +1,8 @@
 package de.chennemann.plannr.server
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
-import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionMaterializer
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.support.expectApiError
@@ -15,7 +16,7 @@ import org.springframework.r2dbc.core.DatabaseClient
 class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
     @Autowired lateinit var createAccount: CreateAccount
-    @Autowired lateinit var createPocket: CreatePocket
+    @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var recurringTransactionMaterializer: RecurringTransactionMaterializer
     @BeforeEach
     fun setUp() {
@@ -41,7 +42,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Test
     fun `transaction api accepts pocketId for non transfer and exposes linkage fields`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         webTestClient.post()
             .uri("/transactions")
@@ -77,8 +78,8 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Test
     fun `transaction api accepts transfer using source and destination pockets only`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
-        val sourcePocket = createPocket(CreatePocket.Command(account.id, "Checking", null, 123, true))
-        val destinationPocket = createPocket(CreatePocket.Command(account.id, "Savings", null, 456, false))
+        val sourcePocket = pocketService.create(CreatePocketCommand(account.id, "Checking", null, 123, true))
+        val destinationPocket = pocketService.create(CreatePocketCommand(account.id, "Savings", null, 456, false))
 
         webTestClient.post()
             .uri("/transactions")
@@ -109,7 +110,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Test
     fun `transaction api supports canonical updates and archive lifecycle`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         webTestClient.post()
             .uri("/transactions")
@@ -173,7 +174,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Test
     fun `modify recurring occurrence endpoint exposes modification linkage`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
         insertRecurringRootTransaction(pocket.id)
 
         webTestClient.post()
@@ -205,7 +206,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Test
     fun `recurring api supports yearly and max recurrence count normalization`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
-        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
 
         webTestClient.post()
             .uri("/transactions/recurring")
@@ -241,7 +242,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Test
     fun `recurring update api uses new_version without effectiveFromDate`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
-        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
         webTestClient.post()
             .uri("/transactions/recurring")
             .bodyValue(
@@ -336,7 +337,7 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     @Test
     fun `archived recurring transaction is skipped by materialization`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "MOVE_BEFORE"))
-        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
 
         webTestClient.post()
             .uri("/transactions/recurring")

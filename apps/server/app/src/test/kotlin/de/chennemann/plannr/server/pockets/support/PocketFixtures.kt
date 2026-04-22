@@ -3,8 +3,8 @@ package de.chennemann.plannr.server.pockets.support
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketRequest
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketRequest
 import de.chennemann.plannr.server.pockets.domain.Pocket
-import de.chennemann.plannr.server.pockets.usecases.CreatePocket
-import de.chennemann.plannr.server.pockets.usecases.UpdatePocket
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
 
 object PocketFixtures {
     const val DEFAULT_ID = "poc_123"
@@ -24,16 +24,7 @@ object PocketFixtures {
         isArchived: Boolean = false,
         createdAt: Long = DEFAULT_CREATED_AT,
     ): Pocket =
-        Pocket(
-            id = id,
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-            isArchived = isArchived,
-            createdAt = createdAt,
-        )
+        Pocket(id, accountId, name, description, color, isDefault, isArchived, createdAt)
 
     fun createPocketCommand(
         accountId: String = DEFAULT_ACCOUNT_ID,
@@ -41,14 +32,8 @@ object PocketFixtures {
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
-    ): CreatePocket.Command =
-        CreatePocket.Command(
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-        )
+    ): CreatePocketCommand =
+        CreatePocketCommand(accountId, name, description, color, isDefault)
 
     fun updatePocketCommand(
         id: String = DEFAULT_ID,
@@ -57,15 +42,8 @@ object PocketFixtures {
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
-    ): UpdatePocket.Command =
-        UpdatePocket.Command(
-            id = id,
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-        )
+    ): UpdatePocketCommand =
+        UpdatePocketCommand(id, accountId, name, description, color, isDefault)
 
     fun createPocketRequest(
         accountId: String = DEFAULT_ACCOUNT_ID,
@@ -74,13 +52,7 @@ object PocketFixtures {
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
     ): CreatePocketRequest =
-        CreatePocketRequest(
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-        )
+        CreatePocketRequest(accountId, name, description, color, isDefault)
 
     fun updatePocketRequest(
         accountId: String = DEFAULT_ACCOUNT_ID,
@@ -89,11 +61,5 @@ object PocketFixtures {
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
     ): UpdatePocketRequest =
-        UpdatePocketRequest(
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-        )
+        UpdatePocketRequest(accountId, name, description, color, isDefault)
 }

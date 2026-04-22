@@ -4,7 +4,7 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.accounts.usecases.GetAccountQuery
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.pockets.usecases.GetPocketQuery
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.domain.AccountFutureTransactionFeedItem
 import de.chennemann.plannr.server.transactions.domain.AccountFutureTransactionFeedRepository
 import de.chennemann.plannr.server.transactions.domain.PocketFutureTransactionFeedItem
@@ -49,11 +49,11 @@ internal class ListAccountFutureTransactionFeedUseCase(
 
 @Component
 internal class ListPocketFutureTransactionFeedUseCase(
-    private val getPocketQuery: GetPocketQuery,
+    private val pocketService: PocketService,
     private val repository: PocketFutureTransactionFeedRepository,
 ) : ListPocketFutureTransactionFeed {
     override suspend fun invoke(pocketId: String, fromDate: String?, toDate: String?, after: Long?, limit: Int): ListPocketFutureTransactionFeed.Page {
-        getPocketQuery(pocketId.trim())
+        pocketService.getQuery(pocketId.trim())
         val normalizedLimit = normalizeLimit(limit, ListPocketFutureTransactionFeed.MAX_LIMIT)
         val items = repository.findPageByPocketId(pocketId.trim(), fromDate, toDate, after, normalizedLimit)
         return ListPocketFutureTransactionFeed.Page(items, items.lastOrNull()?.futurePosition)

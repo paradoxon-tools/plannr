@@ -20,6 +20,7 @@ include(
     ":currency-api",
     ":partner",
     ":partner-api",
+    ":pocket",
     ":pocket-api",
     ":transaction-api",
 )

@@ -3,10 +3,10 @@ package de.chennemann.plannr.server.transactions.usecases
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.FakeCurrencyService
 import de.chennemann.plannr.server.support.FakePartnerService
+import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository
 import kotlinx.coroutines.test.runTest
@@ -65,11 +65,11 @@ class ModifyRecurringOccurrenceTest {
 
     private suspend fun useCase(transactionRepository: InMemoryTransactionRepository): ModifyRecurringOccurrenceUseCase {
         val accountRepository = InMemoryAccountRepository().apply { save(AccountFixtures.account()) }
-        val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
+        val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         return ModifyRecurringOccurrenceUseCase(
             transactionRepository = transactionRepository,
             currencyService = FakeCurrencyService(),
-            contextResolver = TransactionContextResolver(accountRepository, pocketRepository, FakePartnerService(emptyList())),
+            contextResolver = TransactionContextResolver(accountRepository, pocketService, FakePartnerService(emptyList())),
             transactionIdGenerator = { "txn_mod" },
         )
     }

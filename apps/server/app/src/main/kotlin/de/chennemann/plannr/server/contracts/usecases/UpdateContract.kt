@@ -5,7 +5,7 @@ import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.stereotype.Component
 
 interface UpdateContract {
@@ -25,7 +25,7 @@ interface UpdateContract {
 @Component
 internal class UpdateContractUseCase(
     private val contractRepository: ContractRepository,
-    private val pocketRepository: PocketRepository,
+    private val pocketService: PocketService,
     private val partnerService: PartnerService,
 ) : UpdateContract {
     override suspend fun invoke(command: UpdateContract.Command): Contract {
@@ -37,7 +37,7 @@ internal class UpdateContractUseCase(
             )
 
         val pocketId = command.pocketId.trim()
-        val pocket = pocketRepository.findById(pocketId)
+        val pocket = pocketService.getById(pocketId)
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Pocket not found",

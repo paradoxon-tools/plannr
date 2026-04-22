@@ -8,10 +8,9 @@ import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
-import de.chennemann.plannr.server.pockets.usecases.ArchivePocket
-import de.chennemann.plannr.server.pockets.usecases.CreatePocket
-import de.chennemann.plannr.server.pockets.usecases.UnarchivePocket
-import de.chennemann.plannr.server.pockets.usecases.UpdatePocket
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.support.expectApiError
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
@@ -29,10 +28,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var updateAccount: UpdateAccount
     @Autowired lateinit var archiveAccount: ArchiveAccount
     @Autowired lateinit var unarchiveAccount: UnarchiveAccount
-    @Autowired lateinit var createPocket: CreatePocket
-    @Autowired lateinit var updatePocket: UpdatePocket
-    @Autowired lateinit var archivePocket: ArchivePocket
-    @Autowired lateinit var unarchivePocket: UnarchivePocket
+    @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var createContract: CreateContract
     @Autowired lateinit var createTransaction: CreateTransaction
@@ -113,8 +109,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(
-            CreatePocket.Command(
+        val pocket = pocketService.create(
+            CreatePocketCommand(
                 accountId = account.id,
                 name = "Bills",
                 description = "Monthly bills",
@@ -136,8 +132,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.isDefault").isEqualTo(true)
             .jsonPath("$.currentBalance").isEqualTo(0)
 
-        updatePocket(
-            UpdatePocket.Command(
+        pocketService.update(
+            UpdatePocketCommand(
                 id = pocket.id,
                 accountId = account.id,
                 name = "Updated bills",
@@ -175,8 +171,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val sourcePocket = createPocket(CreatePocket.Command(account.id, "Source", null, 100, true))
-        val destinationPocket = createPocket(CreatePocket.Command(account.id, "Destination", null, 200, false))
+        val sourcePocket = pocketService.create(CreatePocketCommand(account.id, "Source", null, 100, true))
+        val destinationPocket = pocketService.create(CreatePocketCommand(account.id, "Destination", null, 200, false))
 
         insertAccountFeedRow(
             accountId = account.id,
@@ -251,8 +247,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Pocket", null, 100, true))
-        val transferPocket = createPocket(CreatePocket.Command(account.id, "Savings", null, 200, false))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Pocket", null, 100, true))
+        val transferPocket = pocketService.create(CreatePocketCommand(account.id, "Savings", null, 200, false))
 
         insertPocketFeedRow(
             pocketId = pocket.id,
@@ -313,8 +309,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Pocket", null, 100, true))
-        val otherPocket = createPocket(CreatePocket.Command(account.id, "Other", null, 200, false))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Pocket", null, 100, true))
+        val otherPocket = pocketService.create(CreatePocketCommand(account.id, "Other", null, 200, false))
 
         insertAccountFeedRow(
             accountId = account.id,
@@ -357,8 +353,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             transferPocketColor = pocket.color,
         )
 
-        updatePocket(
-            UpdatePocket.Command(
+        pocketService.update(
+            UpdatePocketCommand(
                 id = pocket.id,
                 accountId = account.id,
                 name = "Renamed pocket",
@@ -390,7 +386,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Pocket", null, 100, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Pocket", null, 100, true))
         val partner = partnerService.create(CreatePartnerCommand(name = "Old partner", notes = null))
 
         insertAccountFeedRow(
@@ -441,10 +437,10 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
 
         archiveAccount(account.id)
-        archivePocket(pocket.id)
+        pocketService.archive(pocket.id)
 
         webTestClient.get()
             .uri("/query/accounts/${account.id}")
@@ -461,7 +457,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.isArchived").isEqualTo(true)
 
         unarchiveAccount(account.id)
-        unarchivePocket(pocket.id)
+        pocketService.unarchive(pocket.id)
 
         webTestClient.get()
             .uri("/query/accounts/${account.id}")
@@ -498,7 +494,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
     @Test
     fun `list query endpoints return active resources`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Test Bank", "EUR", "NO_SHIFT"))
-        val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
         val partner = partnerService.create(CreatePartnerCommand(name = "Acme Inc", notes = "Sample partner"))
         val contract = createContract(CreateContract.Command(pocket.id, partner.id, "Internet", "2026-01-01", null, null))
         val transaction = createTransaction(

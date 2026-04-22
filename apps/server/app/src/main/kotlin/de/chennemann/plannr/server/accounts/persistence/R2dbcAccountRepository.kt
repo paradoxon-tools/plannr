@@ -81,7 +81,7 @@ class R2dbcAccountRepository(
         )
             .fetch()
             .all()
-            .map { toAccount(it as Map<String, Any>) }
+            .map { toAccount(it) }
             .collectList()
             .awaitSingle()
 

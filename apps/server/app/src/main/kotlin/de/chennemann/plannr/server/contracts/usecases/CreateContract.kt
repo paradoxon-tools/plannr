@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.support.ContractIdGenerator
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.stereotype.Component
 
 interface CreateContract {
@@ -26,14 +26,14 @@ interface CreateContract {
 @Component
 internal class CreateContractUseCase(
     private val contractRepository: ContractRepository,
-    private val pocketRepository: PocketRepository,
+    private val pocketService: PocketService,
     private val partnerService: PartnerService,
     private val contractIdGenerator: ContractIdGenerator,
     private val timeProvider: TimeProvider,
 ) : CreateContract {
     override suspend fun invoke(command: CreateContract.Command): Contract {
         val pocketId = command.pocketId.trim()
-        val pocket = pocketRepository.findById(pocketId)
+        val pocket = pocketService.getById(pocketId)
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Pocket not found",

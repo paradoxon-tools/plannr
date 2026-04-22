@@ -14,8 +14,6 @@ java {
 }
 
 dependencies {
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")

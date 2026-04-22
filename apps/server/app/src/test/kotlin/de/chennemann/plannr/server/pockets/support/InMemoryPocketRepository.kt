@@ -16,11 +16,12 @@ class InMemoryPocketRepository : PocketRepository {
         return pocket
     }
 
-    override suspend fun findById(id: String): Pocket? = pockets[id]
+    override suspend fun findById(id: String): Pocket? =
+        pockets[id]
 
     override suspend fun findAll(accountId: String?, archived: Boolean?): List<Pocket> =
-        pockets.values.filter { pocket ->
-            (accountId == null || pocket.accountId == accountId) &&
-                (archived == null || pocket.isArchived == archived)
-        }
+        pockets.values
+            .filter { accountId == null || it.accountId == accountId }
+            .filter { archived == null || it.isArchived == archived }
+            .sortedWith(compareBy<Pocket> { it.createdAt }.thenBy { it.id })
 }

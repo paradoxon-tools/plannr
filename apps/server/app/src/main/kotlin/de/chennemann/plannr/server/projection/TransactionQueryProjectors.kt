@@ -5,9 +5,12 @@ import de.chennemann.plannr.server.common.events.ApplicationEventHandler
 import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
+import de.chennemann.plannr.server.transactions.domain.accountSignedAmount
+import de.chennemann.plannr.server.transactions.domain.pocketSignedAmount
+import de.chennemann.plannr.server.transactions.domain.transferPocketIdFor
 import de.chennemann.plannr.server.transactions.events.TransactionArchived
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
 import de.chennemann.plannr.server.transactions.events.TransactionUnarchived
@@ -59,7 +62,7 @@ interface ProjectionRebuilder {
 @Component
 class TransactionQueryProjectionService(
     private val transactionRepository: TransactionRepository,
-    private val pocketRepository: PocketRepository,
+    private val pocketService: PocketService,
     private val partnerService: PartnerService,
     private val contractRepository: ContractRepository,
     private val accountRepository: AccountRepository,
@@ -86,8 +89,8 @@ class TransactionQueryProjectionService(
         var currentBalance = 0L
         historical.forEachIndexed { index, transaction ->
             currentBalance += transaction.accountSignedAmount()
-            val sourcePocket = transaction.sourcePocketId?.let { pocketRepository.findById(it) }
-            val destinationPocket = transaction.destinationPocketId?.let { pocketRepository.findById(it) }
+            val sourcePocket = transaction.sourcePocketId?.let { pocketService.getById(it) }
+            val destinationPocket = transaction.destinationPocketId?.let { pocketService.getById(it) }
             val partner = transaction.partnerId?.let { partnerService.getById(it) }
             var spec = databaseClient.sql(
                 """
@@ -128,8 +131,8 @@ class TransactionQueryProjectionService(
         var projectedBalance = currentBalance
         future.forEachIndexed { index, transaction ->
             projectedBalance += transaction.accountSignedAmount()
-            val sourcePocket = transaction.sourcePocketId?.let { pocketRepository.findById(it) }
-            val destinationPocket = transaction.destinationPocketId?.let { pocketRepository.findById(it) }
+            val sourcePocket = transaction.sourcePocketId?.let { pocketService.getById(it) }
+            val destinationPocket = transaction.destinationPocketId?.let { pocketService.getById(it) }
             val partner = transaction.partnerId?.let { partnerService.getById(it) }
             var spec = databaseClient.sql(
                 """
@@ -166,8 +169,6 @@ class TransactionQueryProjectionService(
             spec = bindNullable(spec, "destinationPocketColor", destinationPocket?.color, Int::class.javaObjectType)
             spec.fetch().rowsUpdated().awaitSingle()
         }
-
-        updateAccountCurrentBalance(accountId, currentBalance)
     }
 
     override suspend fun rebuildPocketFeed(pocketId: String) {
@@ -184,7 +185,7 @@ class TransactionQueryProjectionService(
         historical.forEachIndexed { index, transaction ->
             currentBalance += transaction.pocketSignedAmount(pocketId)
             val partner = transaction.partnerId?.let { partnerService.getById(it) }
-            val transferPocket = transaction.transferPocketIdFor(pocketId)?.let { pocketRepository.findById(it) }
+            val transferPocket = transaction.transferPocketIdFor(pocketId)?.let { pocketService.getById(it) }
             var spec = databaseClient.sql(
                 """
                 INSERT INTO pocket_transaction_feed (
@@ -222,7 +223,7 @@ class TransactionQueryProjectionService(
         future.forEachIndexed { index, transaction ->
             projectedBalance += transaction.pocketSignedAmount(pocketId)
             val partner = transaction.partnerId?.let { partnerService.getById(it) }
-            val transferPocket = transaction.transferPocketIdFor(pocketId)?.let { pocketRepository.findById(it) }
+            val transferPocket = transaction.transferPocketIdFor(pocketId)?.let { pocketService.getById(it) }
             var spec = databaseClient.sql(
                 """
                 INSERT INTO pocket_future_transaction_feed (
@@ -255,48 +256,13 @@ class TransactionQueryProjectionService(
             spec = bindNullable(spec, "transferPocketColor", transferPocket?.color, Int::class.javaObjectType)
             spec.fetch().rowsUpdated().awaitSingle()
         }
-
-        updatePocketCurrentBalance(pocketId, currentBalance)
     }
 
     override suspend fun rebuildAll() {
         accountRepository.findAll().forEach { rebuildAccountFeed(it.id) }
-        pocketRepository.findAll().forEach { rebuildPocketFeed(it.id) }
-    }
-
-    private suspend fun updateAccountCurrentBalance(accountId: String, currentBalance: Long) {
-        databaseClient.sql("UPDATE account_query SET current_balance = :currentBalance WHERE account_id = :accountId")
-            .bind("accountId", accountId)
-            .bind("currentBalance", currentBalance)
-            .fetch().rowsUpdated().awaitSingle()
-    }
-
-    private suspend fun updatePocketCurrentBalance(pocketId: String, currentBalance: Long) {
-        databaseClient.sql("UPDATE pocket_query SET current_balance = :currentBalance WHERE pocket_id = :pocketId")
-            .bind("pocketId", pocketId)
-            .bind("currentBalance", currentBalance)
-            .fetch().rowsUpdated().awaitSingle()
+        pocketService.list().forEach { rebuildPocketFeed(it.id) }
     }
 
     private fun <T : Any> bindNullable(spec: GenericExecuteSpec, name: String, value: T?, type: Class<T>): GenericExecuteSpec =
         if (value == null) spec.bindNull(name, type) else spec.bind(name, value)
-}
-
-private fun TransactionRecord.accountSignedAmount(): Long = when (type) {
-    "EXPENSE" -> -amount
-    "INCOME" -> destinationAmount ?: amount
-    "TRANSFER" -> 0L
-    else -> 0L
-}
-
-private fun TransactionRecord.pocketSignedAmount(pocketId: String): Long = when {
-    sourcePocketId == pocketId -> -amount
-    destinationPocketId == pocketId -> destinationAmount ?: amount
-    else -> 0L
-}
-
-private fun TransactionRecord.transferPocketIdFor(pocketId: String): String? = when {
-    sourcePocketId == pocketId -> destinationPocketId
-    destinationPocketId == pocketId -> sourcePocketId
-    else -> null
 }

@@ -4,10 +4,10 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.transactions.recurring.api.toCommand
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
-import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.FakeCurrencyService
 import de.chennemann.plannr.server.support.FakePartnerService
+import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import kotlinx.coroutines.test.runTest
@@ -228,14 +228,14 @@ class UpdateRecurringTransactionTest {
     }
 
     private suspend fun useCase(recurringRepository: InMemoryRecurringTransactionRepository): UpdateRecurringTransactionUseCase {
-        val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
+        val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
         var versionCount = 0
         return UpdateRecurringTransactionUseCase(
             recurringRepository,
             FakeCurrencyService(),
-            contextResolver(pocketRepository, partnerService, contractRepository),
+            contextResolver(pocketService, partnerService, contractRepository),
             {
                 versionCount += 1
                 if (versionCount == 1) "rtx_new" else "rtx_new_$versionCount"

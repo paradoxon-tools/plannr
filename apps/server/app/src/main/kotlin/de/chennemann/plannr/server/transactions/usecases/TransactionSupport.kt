@@ -5,13 +5,13 @@ import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.stereotype.Component
 
 @Component
 internal class TransactionContextResolver(
     private val accountRepository: AccountRepository,
-    private val pocketRepository: PocketRepository,
+    private val pocketService: PocketService,
     private val partnerService: PartnerService,
 ) {
     suspend fun resolve(
@@ -23,11 +23,11 @@ internal class TransactionContextResolver(
     ): ResolvedContext {
         val normalizedTransactionType = normalizeTransactionType(transactionType)
         val sourcePocket = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
-            pocketRepository.findById(it)
+            pocketService.getById(it)
                 ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
         }
         val destinationPocket = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
-            pocketRepository.findById(it)
+            pocketService.getById(it)
                 ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
         }
         val resolvedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {

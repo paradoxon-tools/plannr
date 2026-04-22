@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.error.ValidationException
-import de.chennemann.plannr.server.pockets.usecases.GetPocketQuery
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.domain.PocketTransactionFeedItem
 import de.chennemann.plannr.server.transactions.domain.PocketTransactionFeedRepository
 import de.chennemann.plannr.server.transactions.usecases.ListPocketTransactionFeed.Page
@@ -23,13 +23,13 @@ interface ListPocketTransactionFeed {
 
 @Component
 internal class ListPocketTransactionFeedUseCase(
-    private val getPocketQuery: GetPocketQuery,
+    private val pocketService: PocketService,
     private val pocketTransactionFeedRepository: PocketTransactionFeedRepository,
 ) : ListPocketTransactionFeed {
     override suspend fun invoke(pocketId: String, before: Long?, limit: Int): Page {
         val normalizedLimit = normalizeLimit(limit)
         val normalizedPocketId = pocketId.trim()
-        getPocketQuery(normalizedPocketId)
+        pocketService.getQuery(normalizedPocketId)
         val items = pocketTransactionFeedRepository.findPage(normalizedPocketId, before, normalizedLimit)
         return Page(
             items = items,

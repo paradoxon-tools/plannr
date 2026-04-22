@@ -13,8 +13,8 @@ import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.domain.Pocket
-import de.chennemann.plannr.server.pockets.domain.PocketRepository
-import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransaction
@@ -24,11 +24,10 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class DevelopmentDataSeeder(
     private val accountRepository: AccountRepository,
-    private val pocketRepository: PocketRepository,
     private val contractRepository: ContractRepository,
     private val recurringTransactionRepository: RecurringTransactionRepository,
     private val createAccount: CreateAccount,
-    private val createPocket: CreatePocket,
+    private val pocketService: PocketService,
     private val partnerService: PartnerService,
     private val createContract: CreateContract,
     private val createRecurringTransaction: CreateRecurringTransaction,
@@ -217,11 +216,11 @@ class DevelopmentDataSeeder(
         isDefault: Boolean,
         collector: DevelopmentSeedCollector,
     ): Pocket {
-        val existing = pocketRepository.findAll(accountId = accountId)
+        val existing = pocketService.list(accountId = accountId)
             .firstOrNull { it.name == name }
         if (existing == null) {
-            return createPocket(
-                CreatePocket.Command(
+            return pocketService.create(
+                CreatePocketCommand(
                     accountId = accountId,
                     name = name,
                     description = description,
@@ -231,7 +230,7 @@ class DevelopmentDataSeeder(
             ).also { collector.pocket(it, SeededResourceStatus.CREATED) }
         }
         if (existing.isArchived) {
-            return pocketRepository.update(existing.unarchive())
+            return pocketService.unarchive(existing.id)
                 .also { collector.pocket(it, SeededResourceStatus.UPDATED) }
         }
         collector.pocket(existing, SeededResourceStatus.EXISTING)

@@ -6,9 +6,7 @@ import de.chennemann.plannr.server.accounts.events.AccountUpdated
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
-import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.pockets.domain.PocketRepository
-import de.chennemann.plannr.server.pockets.events.PocketUpdated
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -21,8 +19,7 @@ interface ArchiveAccount {
 @Transactional
 internal class ArchiveAccountUseCase(
     private val accountRepository: AccountRepository,
-    private val pocketRepository: PocketRepository,
-    private val contractRepository: ContractRepository,
+    private val pocketService: PocketService,
     private val recurringTransactionRepository: RecurringTransactionRepository,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : ArchiveAccount {
@@ -37,11 +34,7 @@ internal class ArchiveAccountUseCase(
 
         val updatedAccount = accountRepository.update(existing.archive())
 
-        pocketRepository.findAll(accountId = accountId).forEach { pocket ->
-            val updatedPocket = pocketRepository.update(pocket.archive())
-            contractRepository.findByPocketId(updatedPocket.id)?.let { contractRepository.update(it.archive()) }
-            applicationEventBus.publish(PocketUpdated(pocket, updatedPocket))
-        }
+        pocketService.list(accountId = accountId).forEach { pocketService.archive(it.id) }
         recurringTransactionRepository.findAll(accountId = accountId, archived = false)
             .forEach { recurringTransactionRepository.update(it.archive()) }
 

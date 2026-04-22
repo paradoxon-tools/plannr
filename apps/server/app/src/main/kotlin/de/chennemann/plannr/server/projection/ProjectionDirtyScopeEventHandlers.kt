@@ -3,9 +3,9 @@ package de.chennemann.plannr.server.projection
 import de.chennemann.plannr.server.accounts.events.AccountUpdated
 import de.chennemann.plannr.server.common.events.ApplicationEventHandler
 import de.chennemann.plannr.server.partners.events.PartnerUpdated
-import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.events.PocketCreated
 import de.chennemann.plannr.server.pockets.events.PocketUpdated
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.events.TransactionArchived
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
 import de.chennemann.plannr.server.transactions.events.TransactionUnarchived
@@ -94,13 +94,13 @@ class PocketCreatedDirtyScopeHandler(
 @Component
 class AccountMetadataDirtyScopeHandler(
     private val dirtyScopeService: ProjectionDirtyScopeService,
-    private val pocketRepository: PocketRepository,
+    private val pocketService: PocketService,
 ) : ApplicationEventHandler<AccountUpdated> {
     override val eventType: KClass<AccountUpdated> = AccountUpdated::class
 
     override suspend fun handle(event: AccountUpdated) {
         dirtyScopeService.markAccountDirty(event.after.id)
-        pocketRepository.findAll(accountId = event.after.id).forEach { dirtyScopeService.markPocketDirty(it.id) }
+        pocketService.list(accountId = event.after.id).forEach { dirtyScopeService.markPocketDirty(it.id) }
     }
 }
 

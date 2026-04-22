@@ -2,13 +2,13 @@ package de.chennemann.plannr.server.query.projection
 
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
-import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.projection.TransactionArchivedQueryProjector
 import de.chennemann.plannr.server.projection.TransactionCreatedQueryProjector
 import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
 import de.chennemann.plannr.server.projection.TransactionUnarchivedQueryProjector
 import de.chennemann.plannr.server.projection.TransactionUpdatedQueryProjector
 import de.chennemann.plannr.server.support.FakePartnerService
+import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionArchived
@@ -75,7 +75,7 @@ class TransactionQueryProjectorHandlersTest {
 
     private class RecordingTransactionQueryProjectionService : TransactionQueryProjectionService(
         transactionRepository = InMemoryTransactionRepository(),
-        pocketRepository = InMemoryPocketRepository(),
+        pocketService = FakePocketService(emptyList()),
         partnerService = FakePartnerService(emptyList()),
         contractRepository = InMemoryContractRepository(),
         accountRepository = InMemoryAccountRepository(),

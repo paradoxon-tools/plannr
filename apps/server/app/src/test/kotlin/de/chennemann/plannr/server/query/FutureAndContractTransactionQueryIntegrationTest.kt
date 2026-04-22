@@ -2,7 +2,8 @@ package de.chennemann.plannr.server.query
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
-import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
 import kotlinx.coroutines.reactor.awaitSingle
@@ -15,7 +16,7 @@ import org.springframework.r2dbc.core.DatabaseClient
 class FutureAndContractTransactionQueryIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
     @Autowired lateinit var createAccount: CreateAccount
-    @Autowired lateinit var createPocket: CreatePocket
+    @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var createContract: CreateContract
     @Autowired lateinit var createTransaction: CreateTransaction
 
@@ -43,8 +44,8 @@ class FutureAndContractTransactionQueryIntegrationTest : ApiIntegrationTest() {
     @Test
     fun `historical and future feeds are separated and contract queries use pocket projections`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
-        val contractPocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
-        val otherPocket = createPocket(CreatePocket.Command(account.id, "Savings", null, 456, false))
+        val contractPocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
+        val otherPocket = pocketService.create(CreatePocketCommand(account.id, "Savings", null, 456, false))
         val contract = createContract(CreateContract.Command(contractPocket.id, null, "Rent", "2024-01-01", null, null))
 
         createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 100, "EUR", null, null, "Past expense", null, contractPocket.id, null))

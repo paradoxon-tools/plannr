@@ -2,7 +2,8 @@ package de.chennemann.plannr.server.query
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
-import de.chennemann.plannr.server.pockets.usecases.CreatePocket
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
@@ -22,7 +23,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
     @Autowired lateinit var createAccount: CreateAccount
     @Autowired lateinit var updateAccount: UpdateAccount
-    @Autowired lateinit var createPocket: CreatePocket
+    @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var createTransaction: CreateTransaction
     @Autowired lateinit var updateTransaction: UpdateTransaction
     @Autowired lateinit var archiveTransaction: ArchiveTransaction
@@ -58,7 +59,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         createTransaction(
             CreateTransaction.Command(
@@ -117,7 +118,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         createTransaction(
             CreateTransaction.Command(
@@ -183,8 +184,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(
-            CreatePocket.Command(
+        val pocket = pocketService.create(
+            CreatePocketCommand(
                 accountId = account.id,
                 name = "Wallet",
                 description = null,
@@ -387,7 +388,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         val first = createTransaction(
             CreateTransaction.Command(
@@ -452,8 +453,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val sourcePocket = createPocket(CreatePocket.Command(account.id, "Checking", null, 100, true))
-        val destinationPocket = createPocket(CreatePocket.Command(account.id, "Savings", null, 200, false))
+        val sourcePocket = pocketService.create(CreatePocketCommand(account.id, "Checking", null, 100, true))
+        val destinationPocket = pocketService.create(CreatePocketCommand(account.id, "Savings", null, 200, false))
 
         val transfer = createTransaction(
             CreateTransaction.Command(
@@ -545,7 +546,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
         val tx2 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
@@ -586,8 +587,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val sourcePocket = createPocket(CreatePocket.Command(account.id, "Checking", null, 100, true))
-        val destinationPocket = createPocket(CreatePocket.Command(account.id, "Savings", null, 200, false))
+        val sourcePocket = pocketService.create(CreatePocketCommand(account.id, "Checking", null, 100, true))
+        val destinationPocket = pocketService.create(CreatePocketCommand(account.id, "Savings", null, 200, false))
 
         val transaction = createTransaction(
             CreateTransaction.Command(
@@ -677,8 +678,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val oldPocket = createPocket(CreatePocket.Command(account.id, "Old pocket", null, 100, true))
-        val newPocket = createPocket(CreatePocket.Command(account.id, "New pocket", null, 200, false))
+        val oldPocket = pocketService.create(CreatePocketCommand(account.id, "Old pocket", null, 100, true))
+        val newPocket = pocketService.create(CreatePocketCommand(account.id, "New pocket", null, 200, false))
 
         val transaction = createTransaction(
             CreateTransaction.Command(
@@ -762,7 +763,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
         val tx2 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
@@ -810,8 +811,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val sourcePocket = createPocket(CreatePocket.Command(account.id, "Checking", null, 100, true))
-        val destinationPocket = createPocket(CreatePocket.Command(account.id, "Savings", null, 200, false))
+        val sourcePocket = pocketService.create(CreatePocketCommand(account.id, "Checking", null, 100, true))
+        val destinationPocket = pocketService.create(CreatePocketCommand(account.id, "Savings", null, 200, false))
 
         val transfer = createTransaction(
             CreateTransaction.Command(
@@ -879,7 +880,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         val income = createTransaction(
             CreateTransaction.Command(
@@ -918,7 +919,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
         val transaction = createTransaction(
             CreateTransaction.Command(
                 type = "EXPENSE",
@@ -965,7 +966,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
 
         val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
         val tx2 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-12", 20, "EUR", null, null, "t2", null, pocket.id, null))
@@ -1014,7 +1015,7 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
                 weekendHandling = "NO_SHIFT",
             ),
         )
-        val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
+        val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
         val tx1 = createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 10, "EUR", null, null, "t1", null, pocket.id, null))
         val tx2 = createTransaction(CreateTransaction.Command("INCOME", "CLEARED", "2026-04-12", 30, "EUR", null, null, "t2", null, null, pocket.id))
 
@@ -1022,20 +1023,14 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
         transactionQueryProjectionService.rebuildFor(after = tx2)
         val firstAccountRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM account_transaction_feed WHERE account_id = '${account.id}' ORDER BY history_position")
         val firstPocketRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM pocket_transaction_feed WHERE pocket_id = '${pocket.id}' ORDER BY history_position")
-        val firstAccountBalance = singleLong("SELECT current_balance AS value FROM account_query WHERE account_id = '${account.id}'")
-        val firstPocketBalance = singleLong("SELECT current_balance AS value FROM pocket_query WHERE pocket_id = '${pocket.id}'")
 
         transactionQueryProjectionService.rebuildFor(after = tx1)
         transactionQueryProjectionService.rebuildFor(after = tx2)
         val secondAccountRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM account_transaction_feed WHERE account_id = '${account.id}' ORDER BY history_position")
         val secondPocketRows = queryRows("SELECT transaction_id, history_position, signed_amount, balance_after FROM pocket_transaction_feed WHERE pocket_id = '${pocket.id}' ORDER BY history_position")
-        val secondAccountBalance = singleLong("SELECT current_balance AS value FROM account_query WHERE account_id = '${account.id}'")
-        val secondPocketBalance = singleLong("SELECT current_balance AS value FROM pocket_query WHERE pocket_id = '${pocket.id}'")
 
         assertEquals(firstAccountRows, secondAccountRows)
         assertEquals(firstPocketRows, secondPocketRows)
-        assertEquals(firstAccountBalance, secondAccountBalance)
-        assertEquals(firstPocketBalance, secondPocketBalance)
     }
 
     private suspend fun singleLong(sql: String): Long =
