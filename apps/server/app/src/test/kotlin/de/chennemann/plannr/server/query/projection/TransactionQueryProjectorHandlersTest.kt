@@ -1,12 +1,12 @@
 package de.chennemann.plannr.server.query.projection
 
-import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.projection.TransactionArchivedQueryProjector
 import de.chennemann.plannr.server.projection.TransactionCreatedQueryProjector
 import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
 import de.chennemann.plannr.server.projection.TransactionUnarchivedQueryProjector
 import de.chennemann.plannr.server.projection.TransactionUpdatedQueryProjector
+import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
@@ -78,7 +78,7 @@ class TransactionQueryProjectorHandlersTest {
         pocketService = FakePocketService(emptyList()),
         partnerService = FakePartnerService(emptyList()),
         contractRepository = InMemoryContractRepository(),
-        accountRepository = InMemoryAccountRepository(),
+        accountService = FakeAccountService(emptyList()),
         localDateProvider = { java.time.LocalDate.parse("2026-04-10") },
         databaseClient = DatabaseClient.create(NoOpConnectionFactory),
     ) {

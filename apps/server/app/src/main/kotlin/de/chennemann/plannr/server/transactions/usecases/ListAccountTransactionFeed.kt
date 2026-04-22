@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.transactions.usecases
 
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.error.ValidationException
-import de.chennemann.plannr.server.accounts.usecases.GetAccountQuery
 import de.chennemann.plannr.server.transactions.domain.AccountTransactionFeedItem
 import de.chennemann.plannr.server.transactions.domain.AccountTransactionFeedRepository
 import de.chennemann.plannr.server.transactions.usecases.ListAccountTransactionFeed.Page
@@ -23,13 +23,13 @@ interface ListAccountTransactionFeed {
 
 @Component
 internal class ListAccountTransactionFeedUseCase(
-    private val getAccountQuery: GetAccountQuery,
+    private val accountService: AccountService,
     private val accountTransactionFeedRepository: AccountTransactionFeedRepository,
 ) : ListAccountTransactionFeed {
     override suspend fun invoke(accountId: String, before: Long?, limit: Int): Page {
         val normalizedLimit = normalizeLimit(limit)
         val normalizedAccountId = accountId.trim()
-        getAccountQuery(normalizedAccountId)
+        accountService.getQuery(normalizedAccountId)
         val items = accountTransactionFeedRepository.findPage(normalizedAccountId, before, normalizedLimit)
         return Page(
             items = items,

@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.projection
 
-import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.events.ApplicationEventHandler
 import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
@@ -65,7 +65,7 @@ class TransactionQueryProjectionService(
     private val pocketService: PocketService,
     private val partnerService: PartnerService,
     private val contractRepository: ContractRepository,
-    private val accountRepository: AccountRepository,
+    private val accountService: AccountService,
     private val localDateProvider: LocalDateProvider,
     private val databaseClient: DatabaseClient,
 ) : ProjectionRebuilder {
@@ -259,7 +259,7 @@ class TransactionQueryProjectionService(
     }
 
     override suspend fun rebuildAll() {
-        accountRepository.findAll().forEach { rebuildAccountFeed(it.id) }
+        accountService.list().forEach { rebuildAccountFeed(it.id) }
         pocketService.list().forEach { rebuildPocketFeed(it.id) }
     }
 

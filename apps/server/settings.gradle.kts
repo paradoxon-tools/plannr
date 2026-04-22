@@ -13,6 +13,7 @@ pluginManagement {
 rootProject.name = "plannr-server"
 include(
     ":app",
+    ":account",
     ":account-api",
     ":common",
     ":contract-api",

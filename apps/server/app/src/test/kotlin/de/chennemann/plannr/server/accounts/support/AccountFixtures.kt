@@ -2,9 +2,9 @@ package de.chennemann.plannr.server.accounts.support
 
 import de.chennemann.plannr.server.accounts.api.dto.CreateAccountRequest
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountRequest
-import de.chennemann.plannr.server.accounts.usecases.CreateAccount
-import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
 
 object AccountFixtures {
     const val DEFAULT_ID = "acc_123"
@@ -23,28 +23,15 @@ object AccountFixtures {
         isArchived: Boolean = false,
         createdAt: Long = DEFAULT_CREATED_AT,
     ): Account =
-        Account(
-            id = id,
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-            isArchived = isArchived,
-            createdAt = createdAt,
-        )
+        Account(id, name, institution, currencyCode, weekendHandling, isArchived, createdAt)
 
     fun createAccountCommand(
         name: String = DEFAULT_NAME,
         institution: String = DEFAULT_INSTITUTION,
         currencyCode: String = DEFAULT_CURRENCY_CODE,
         weekendHandling: String = DEFAULT_WEEKEND_HANDLING,
-    ): CreateAccount.Command =
-        CreateAccount.Command(
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-        )
+    ): CreateAccountCommand =
+        CreateAccountCommand(name, institution, currencyCode, weekendHandling)
 
     fun createAccountRequest(
         name: String = DEFAULT_NAME,
@@ -52,12 +39,7 @@ object AccountFixtures {
         currencyCode: String = DEFAULT_CURRENCY_CODE,
         weekendHandling: String = DEFAULT_WEEKEND_HANDLING,
     ): CreateAccountRequest =
-        CreateAccountRequest(
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-        )
+        CreateAccountRequest(name, institution, currencyCode, weekendHandling)
 
     fun updateAccountCommand(
         id: String = DEFAULT_ID,
@@ -65,14 +47,8 @@ object AccountFixtures {
         institution: String = DEFAULT_INSTITUTION,
         currencyCode: String = DEFAULT_CURRENCY_CODE,
         weekendHandling: String = DEFAULT_WEEKEND_HANDLING,
-    ): UpdateAccount.Command =
-        UpdateAccount.Command(
-            id = id,
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-        )
+    ): UpdateAccountCommand =
+        UpdateAccountCommand(id, name, institution, currencyCode, weekendHandling)
 
     fun updateAccountRequest(
         name: String = DEFAULT_NAME,
@@ -80,10 +56,5 @@ object AccountFixtures {
         currencyCode: String = DEFAULT_CURRENCY_CODE,
         weekendHandling: String = DEFAULT_WEEKEND_HANDLING,
     ): UpdateAccountRequest =
-        UpdateAccountRequest(
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-        )
+        UpdateAccountRequest(name, institution, currencyCode, weekendHandling)
 }

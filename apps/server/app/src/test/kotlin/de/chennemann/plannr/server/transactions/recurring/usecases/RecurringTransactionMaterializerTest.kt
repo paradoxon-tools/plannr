@@ -2,8 +2,10 @@ package de.chennemann.plannr.server.transactions.recurring.usecases
 
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.query.projection.InMemoryProjectionDirtyScopeRepository
 import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
+import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository
@@ -291,10 +293,11 @@ class RecurringTransactionMaterializerTest {
         val resolvedAccountRepository = accountRepository ?: InMemoryAccountRepository().apply {
             save(AccountFixtures.account(weekendHandling = "NO_SHIFT"))
         }
+        val accountService = FakeAccountService(resolvedAccountRepository.findAll())
         return RecurringTransactionMaterializer(
             recurringTransactionRepository = recurringRepository,
             transactionRepository = transactionRepository,
-            accountRepository = resolvedAccountRepository,
+            accountService = accountService,
             transactionIdGenerator = { "txn_${transactionRepository.all().size + 1}" },
             localDateProvider = { today },
             timeProvider = { 1L },

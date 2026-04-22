@@ -1,9 +1,8 @@
 package de.chennemann.plannr.server.query
 
-import de.chennemann.plannr.server.accounts.usecases.ArchiveAccount
-import de.chennemann.plannr.server.accounts.usecases.CreateAccount
-import de.chennemann.plannr.server.accounts.usecases.UnarchiveAccount
-import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
+import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
@@ -24,10 +23,7 @@ import kotlin.test.assertEquals
 
 class QueryLayerIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
-    @Autowired lateinit var createAccount: CreateAccount
-    @Autowired lateinit var updateAccount: UpdateAccount
-    @Autowired lateinit var archiveAccount: ArchiveAccount
-    @Autowired lateinit var unarchiveAccount: UnarchiveAccount
+    @Autowired lateinit var accountService: AccountService
     @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var createContract: CreateContract
@@ -56,8 +52,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `account detail query returns projected account and current balance`() = runBlocking {
-        val created = createAccount(
-            CreateAccount.Command(
+        val created = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
@@ -78,8 +74,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.currentBalance").isEqualTo(0)
             .jsonPath("$.isArchived").isEqualTo(false)
 
-        updateAccount(
-            UpdateAccount.Command(
+        accountService.update(
+            UpdateAccountCommand(
                 id = created.id,
                 name = "Updated account",
                 institution = "Updated Bank",
@@ -101,8 +97,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `pocket detail query returns projected pocket and empty feed`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
@@ -163,8 +159,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `account transaction feed query paginates by history position descending`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
@@ -239,8 +235,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `pocket transaction feed query paginates by history position descending`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
@@ -301,8 +297,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `pocket updates propagate denormalized feed metadata`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
@@ -378,8 +374,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `partner updates propagate denormalized feed metadata`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
@@ -429,8 +425,8 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `account and pocket archive state is projected to query summaries`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Test Bank",
                 currencyCode = "EUR",
@@ -439,7 +435,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
         val pocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
 
-        archiveAccount(account.id)
+        accountService.archive(account.id)
         pocketService.archive(pocket.id)
 
         webTestClient.get()
@@ -456,7 +452,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .expectBody()
             .jsonPath("$.isArchived").isEqualTo(true)
 
-        unarchiveAccount(account.id)
+        accountService.unarchive(account.id)
         pocketService.unarchive(pocket.id)
 
         webTestClient.get()
@@ -493,7 +489,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `list query endpoints return active resources`() = runBlocking {
-        val account = createAccount(CreateAccount.Command("Main account", "Test Bank", "EUR", "NO_SHIFT"))
+        val account = accountService.create(CreateAccountCommand("Main account", "Test Bank", "EUR", "NO_SHIFT"))
         val pocket = pocketService.create(CreatePocketCommand(account.id, "Bills", null, 123, true))
         val partner = partnerService.create(CreatePartnerCommand(name = "Acme Inc", notes = "Sample partner"))
         val contract = createContract(CreateContract.Command(pocket.id, partner.id, "Internet", "2026-01-01", null, null))

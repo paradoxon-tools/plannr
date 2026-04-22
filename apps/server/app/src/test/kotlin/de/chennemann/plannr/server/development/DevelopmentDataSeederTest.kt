@@ -1,13 +1,12 @@
 package de.chennemann.plannr.server.development
 
-import de.chennemann.plannr.server.accounts.support.AccountIdGenerator
-import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.accounts.usecases.CreateAccountUseCase
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.support.ContractIdGenerator
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.contracts.usecases.CreateContractUseCase
 import de.chennemann.plannr.server.support.FakeCurrencyService
+import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.support.TestCurrencies
@@ -37,7 +36,7 @@ class DevelopmentDataSeederTest {
         assertTrue(first.resources().all { it.status == SeededResourceStatus.CREATED })
         assertTrue(second.resources().all { it.status == SeededResourceStatus.EXISTING })
 
-        assertEquals(1, fixture.accountRepository.findAll().size)
+        assertEquals(1, fixture.accountService.list().size)
         assertEquals(4, fixture.pocketService.list().size)
         assertEquals(3, fixture.partnerService.list().size)
         assertEquals(3, fixture.contractRepository.findAll().size)
@@ -48,7 +47,6 @@ class DevelopmentDataSeederTest {
         accounts + pockets + partners + contracts + recurringTransactions
 
     private fun seederFixture(): SeederFixture {
-        val accountRepository = InMemoryAccountRepository()
         val contractRepository = InMemoryContractRepository()
         val recurringTransactionRepository = InMemoryRecurringTransactionRepository()
         val currencyService = FakeCurrencyService(
@@ -66,12 +64,10 @@ class DevelopmentDataSeederTest {
             idGenerator = idGenerator("poc"),
             timeProvider = { timeProvider() },
         )
-
-        val createAccount = CreateAccountUseCase(
-            accountRepository = accountRepository,
-            currencyService = currencyService,
-            accountIdGenerator = accountIdGenerator("acc"),
-            timeProvider = timeProvider,
+        val accountService = FakeAccountService(
+            initialAccounts = emptyList(),
+            idGenerator = idGenerator("acc"),
+            timeProvider = { timeProvider() },
         )
         val createContract = CreateContractUseCase(
             contractRepository = contractRepository,
@@ -91,26 +87,20 @@ class DevelopmentDataSeederTest {
 
         return SeederFixture(
             seeder = DevelopmentDataSeeder(
-                accountRepository = accountRepository,
                 contractRepository = contractRepository,
                 recurringTransactionRepository = recurringTransactionRepository,
-                createAccount = createAccount,
+                accountService = accountService,
                 pocketService = pocketService,
                 partnerService = partnerService,
                 createContract = createContract,
                 createRecurringTransaction = createRecurringTransaction,
             ),
-            accountRepository = accountRepository,
+            accountService = accountService,
             pocketService = pocketService,
             partnerService = partnerService,
             contractRepository = contractRepository,
             recurringTransactionRepository = recurringTransactionRepository,
         )
-    }
-
-    private fun accountIdGenerator(prefix: String): AccountIdGenerator {
-        var counter = 0
-        return AccountIdGenerator { "${prefix}_${++counter}" }
     }
 
     private fun idGenerator(prefix: String): () -> String {
@@ -130,7 +120,7 @@ class DevelopmentDataSeederTest {
 
     private data class SeederFixture(
         val seeder: DevelopmentDataSeeder,
-        val accountRepository: InMemoryAccountRepository,
+        val accountService: AccountService,
         val pocketService: FakePocketService,
         val partnerService: FakePartnerService,
         val contractRepository: InMemoryContractRepository,

@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.development
 
 import de.chennemann.plannr.server.accounts.domain.Account
-import de.chennemann.plannr.server.accounts.domain.AccountRepository
-import de.chennemann.plannr.server.accounts.usecases.CreateAccount
+import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.common.domain.RecurrenceType
 import de.chennemann.plannr.server.common.domain.TransactionType
 import de.chennemann.plannr.server.common.domain.WeekendHandling
@@ -23,10 +23,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class DevelopmentDataSeeder(
-    private val accountRepository: AccountRepository,
     private val contractRepository: ContractRepository,
     private val recurringTransactionRepository: RecurringTransactionRepository,
-    private val createAccount: CreateAccount,
+    private val accountService: AccountService,
     private val pocketService: PocketService,
     private val partnerService: PartnerService,
     private val createContract: CreateContract,
@@ -184,15 +183,15 @@ class DevelopmentDataSeeder(
         weekendHandling: String,
         collector: DevelopmentSeedCollector,
     ): Account {
-        val existing = accountRepository.findAll()
+        val existing = accountService.list()
             .firstOrNull {
                 it.name == name &&
                     it.institution == institution &&
                     it.currencyCode == currencyCode
             }
         if (existing == null) {
-            return createAccount(
-                CreateAccount.Command(
+            return accountService.create(
+                CreateAccountCommand(
                     name = name,
                     institution = institution,
                     currencyCode = currencyCode,
@@ -201,7 +200,7 @@ class DevelopmentDataSeeder(
             ).also { collector.account(it, SeededResourceStatus.CREATED) }
         }
         if (existing.isArchived) {
-            return accountRepository.update(existing.unarchive())
+            return accountService.unarchive(existing.id)
                 .also { collector.account(it, SeededResourceStatus.UPDATED) }
         }
         collector.account(existing, SeededResourceStatus.EXISTING)

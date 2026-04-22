@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.query.projection
 
-import de.chennemann.plannr.server.accounts.usecases.CreateAccount
+import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
@@ -27,7 +28,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var dirtyScopeRepository: ProjectionDirtyScopeRepository
     @Autowired lateinit var dirtyScopeService: ProjectionDirtyScopeService
     @Autowired lateinit var projectionScheduler: ProjectionScheduler
-    @Autowired lateinit var createAccount: CreateAccount
+    @Autowired lateinit var accountService: AccountService
     @Autowired lateinit var pocketService: PocketService
         @Autowired lateinit var createTransaction: CreateTransaction
     @Autowired lateinit var updateTransaction: UpdateTransaction
@@ -57,7 +58,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `transaction and metadata writes enqueue dirty scopes and dedupe them`() = runBlocking {
-        val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
+        val account = accountService.create(CreateAccountCommand("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
         val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
         val partner = partnerService.create(CreatePartnerCommand("Shop", null))
         val transaction = createTransaction(
@@ -82,7 +83,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `scheduled dirty scope processing rebuilds projections and clears scopes`() = runBlocking {
-        val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
+        val account = accountService.create(CreateAccountCommand("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
         val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
         createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 100, "EUR", null, null, "Groceries", null, pocket.id, null))
 
@@ -95,7 +96,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `transfer writes mark both pocket scopes dirty`() = runBlocking {
-        val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
+        val account = accountService.create(CreateAccountCommand("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
         val sourcePocket = pocketService.create(CreatePocketCommand(account.id, "Checking", null, 111, true))
         val destinationPocket = pocketService.create(CreatePocketCommand(account.id, "Savings", null, 222, false))
 
@@ -108,7 +109,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `full rebuild safety job restores missing projections`() = runBlocking {
-        val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
+        val account = accountService.create(CreateAccountCommand("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
         val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
         createTransaction(CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 100, "EUR", null, null, "Groceries", null, pocket.id, null))
 

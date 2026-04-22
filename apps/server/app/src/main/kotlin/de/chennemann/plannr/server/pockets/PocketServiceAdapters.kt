@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.pockets
 
-import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component
 
 @Component
 internal class RepositoryPocketAccountLookup(
-    private val accountRepository: AccountRepository,
+    private val accountService: AccountService,
 ) : PocketAccountLookup {
     override suspend fun exists(accountId: String): Boolean =
-        accountRepository.findById(accountId) != null
+        accountService.getById(accountId) != null
 }
 
 @Component

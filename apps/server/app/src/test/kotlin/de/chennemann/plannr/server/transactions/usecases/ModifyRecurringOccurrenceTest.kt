@@ -2,9 +2,9 @@ package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
-import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.FakeCurrencyService
+import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
@@ -64,12 +64,12 @@ class ModifyRecurringOccurrenceTest {
     }
 
     private suspend fun useCase(transactionRepository: InMemoryTransactionRepository): ModifyRecurringOccurrenceUseCase {
-        val accountRepository = InMemoryAccountRepository().apply { save(AccountFixtures.account()) }
+        val accountService = FakeAccountService(listOf(AccountFixtures.account()))
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         return ModifyRecurringOccurrenceUseCase(
             transactionRepository = transactionRepository,
             currencyService = FakeCurrencyService(),
-            contextResolver = TransactionContextResolver(accountRepository, pocketService, FakePartnerService(emptyList())),
+            contextResolver = TransactionContextResolver(accountService, pocketService, FakePartnerService(emptyList())),
             transactionIdGenerator = { "txn_mod" },
         )
     }

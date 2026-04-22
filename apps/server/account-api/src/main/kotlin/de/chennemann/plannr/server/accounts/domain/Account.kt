@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.accounts.domain
 
-import de.chennemann.plannr.server.common.domain.normalizeWeekendHandling
 import de.chennemann.plannr.server.common.error.ValidationException
 
 data class Account private constructor(
@@ -54,5 +53,16 @@ data class Account private constructor(
                 createdAt = createdAt,
             )
         }
+    }
+}
+
+private fun normalizeWeekendHandling(value: String): String {
+    val normalized = value.trim().uppercase()
+    if (normalized.isBlank()) {
+        throw ValidationException("validation_error", "Account weekend handling is invalid")
+    }
+    return when (normalized) {
+        "NO_SHIFT", "MOVE_BEFORE", "MOVE_AFTER" -> normalized
+        else -> throw ValidationException("validation_error", "Account weekend handling is invalid")
     }
 }

@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.transactions.api
 
-import de.chennemann.plannr.server.accounts.usecases.CreateAccount
+import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
@@ -14,7 +15,7 @@ import kotlin.test.assertEquals
 
 class ModifyRecurringOccurrenceApiIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
-    @Autowired lateinit var createAccount: CreateAccount
+    @Autowired lateinit var accountService: AccountService
     @Autowired lateinit var pocketService: PocketService
 
     @BeforeEach
@@ -37,7 +38,7 @@ class ModifyRecurringOccurrenceApiIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `modify recurring occurrence endpoint hides original and projects child`() = runBlocking {
-        val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
+        val account = accountService.create(CreateAccountCommand("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
         val pocket = pocketService.create(CreatePocketCommand(account.id, "Wallet", null, 123, true))
         insertRecurringRootTransaction(account.id, pocket.id)
 

@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.transactions.recurring.usecases
 
-import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.domain.RecurrenceType
 import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.common.time.TimeProvider
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 class RecurringTransactionMaterializer(
     private val recurringTransactionRepository: de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository,
     private val transactionRepository: TransactionRepository,
-    private val accountRepository: AccountRepository,
+    private val accountService: AccountService,
     private val transactionIdGenerator: TransactionIdGenerator,
     private val localDateProvider: LocalDateProvider,
     private val timeProvider: TimeProvider,
@@ -40,7 +40,7 @@ class RecurringTransactionMaterializer(
     suspend fun materialize(recurring: de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction, today: LocalDate = localDateProvider()): Int {
         if (recurring.isArchived) return 0
 
-        val account = accountRepository.findById(recurring.accountId) ?: return 0
+        val account = accountService.getById(recurring.accountId) ?: return 0
         val existingDates = transactionRepository.findByRecurringTransactionId(recurring.id)
             .map { it.transactionDate }
             .toMutableSet()

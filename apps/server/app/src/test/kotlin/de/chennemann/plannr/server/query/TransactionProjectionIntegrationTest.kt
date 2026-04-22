@@ -1,7 +1,8 @@
 package de.chennemann.plannr.server.query
 
-import de.chennemann.plannr.server.accounts.usecases.CreateAccount
-import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
+import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
@@ -21,8 +22,7 @@ import kotlin.test.assertEquals
 
 class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
-    @Autowired lateinit var createAccount: CreateAccount
-    @Autowired lateinit var updateAccount: UpdateAccount
+    @Autowired lateinit var accountService: AccountService
     @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var createTransaction: CreateTransaction
     @Autowired lateinit var updateTransaction: UpdateTransaction
@@ -51,8 +51,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
     @Test
     fun `current balances include today and ignore tomorrow`() = runBlocking {
         val today = LocalDate.now()
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -110,8 +110,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
     @Test
     fun `future transactions do not alter current balances or historical feeds`() = runBlocking {
         val today = LocalDate.now()
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -176,8 +176,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `projects transactions into account and pocket query models including historical rewrites`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -380,8 +380,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `same date transactions keep deterministic history order`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -445,8 +445,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `same account transfer projects one account row and two pocket rows`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -538,8 +538,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `repeated updates of the same historical transaction remain consistent`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -579,8 +579,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `updating expense to transfer rewrites affected account and pocket histories`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -670,8 +670,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `updating transaction source pocket moves it between pocket histories`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -755,8 +755,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `pagination remains valid after repeated historical rewrites`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -803,8 +803,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `transfer destination amount is used for destination pocket while account stays neutral`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -872,8 +872,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `income destination row uses positive signed amount in pocket feed`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -911,8 +911,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `account metadata changes do not break feed readability or association`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -936,14 +936,14 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
             ),
         )
 
-        val updatedAccount = UpdateAccount.Command(
+        val updatedAccount = UpdateAccountCommand(
             id = account.id,
             name = "Renamed account",
             institution = "New bank",
             currencyCode = "EUR",
             weekendHandling = "MOVE_AFTER",
         )
-        updateAccount(updatedAccount)
+        accountService.update(updatedAccount)
 
         webTestClient.get()
             .uri("/query/accounts/${account.id}/transactions?limit=10")
@@ -958,8 +958,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `history positions remain unique after repeated rewrites`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
@@ -1007,8 +1007,8 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `rebuilding the same projection state is deterministic`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",

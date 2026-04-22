@@ -1,8 +1,7 @@
 package de.chennemann.plannr.server.accounts.api
 
 import de.chennemann.plannr.server.query.accounts.api.dto.AccountQueryResponse
-import de.chennemann.plannr.server.accounts.usecases.GetAccountQuery
-import de.chennemann.plannr.server.accounts.usecases.ListAccountQueries
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.query.accounts.api.AccountQueryApi
 import de.chennemann.plannr.server.transactions.api.toResponse
 import de.chennemann.plannr.server.query.transactions.api.dto.AccountFutureTransactionFeedPageResponse
@@ -13,16 +12,15 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class AccountQueryController(
-    private val getAccountQuery: GetAccountQuery,
-    private val listAccountQueries: ListAccountQueries,
+    private val accountService: AccountService,
     private val listAccountTransactionFeed: ListAccountTransactionFeed,
     private val listAccountFutureTransactionFeed: ListAccountFutureTransactionFeed,
 ) : AccountQueryApi {
     override suspend fun list(archived: Boolean): List<AccountQueryResponse> =
-        listAccountQueries(archived).map { it.toResponse() }
+        accountService.listQueries(archived).map { it.toResponse() }
 
     override suspend fun getById(id: String): AccountQueryResponse =
-        getAccountQuery(id).toResponse()
+        accountService.getQuery(id).toResponse()
 
     override suspend fun listTransactions(
         id: String,

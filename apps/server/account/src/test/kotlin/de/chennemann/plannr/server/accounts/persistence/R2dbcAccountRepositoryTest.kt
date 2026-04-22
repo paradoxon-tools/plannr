@@ -7,16 +7,12 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.r2dbc.core.DatabaseClient
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class R2dbcAccountRepositoryTest : ApiIntegrationTest() {
     @Autowired
     lateinit var accountRepository: AccountRepository
-
-    @Autowired
-    lateinit var databaseClient: DatabaseClient
 
     @BeforeEach
     fun setUp() {

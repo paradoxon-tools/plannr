@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.accounts.usecases.GetAccountQuery
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.domain.AccountFutureTransactionFeedItem
@@ -36,11 +36,11 @@ interface ListContractFutureTransactionFeed {
 
 @Component
 internal class ListAccountFutureTransactionFeedUseCase(
-    private val getAccountQuery: GetAccountQuery,
+    private val accountService: AccountService,
     private val repository: AccountFutureTransactionFeedRepository,
 ) : ListAccountFutureTransactionFeed {
     override suspend fun invoke(accountId: String, fromDate: String?, toDate: String?, after: Long?, limit: Int): ListAccountFutureTransactionFeed.Page {
-        getAccountQuery(accountId.trim())
+        accountService.getQuery(accountId.trim())
         val normalizedLimit = normalizeLimit(limit, ListAccountFutureTransactionFeed.MAX_LIMIT)
         val items = repository.findPage(accountId.trim(), fromDate, toDate, after, normalizedLimit)
         return ListAccountFutureTransactionFeed.Page(items, items.lastOrNull()?.futurePosition)

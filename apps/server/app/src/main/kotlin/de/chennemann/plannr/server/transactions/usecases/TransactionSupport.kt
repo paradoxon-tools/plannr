@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.transactions.usecases
 
-import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 
 @Component
 internal class TransactionContextResolver(
-    private val accountRepository: AccountRepository,
+    private val accountService: AccountService,
     private val pocketService: PocketService,
     private val partnerService: PartnerService,
 ) {
@@ -59,7 +59,7 @@ internal class TransactionContextResolver(
             }
         }
 
-        val account = accountRepository.findById(accountId)
+        val account = accountService.getById(accountId)
             ?: throw NotFoundException("not_found", "Account not found", mapOf("id" to accountId))
         if (account.currencyCode != currencyCode.trim().uppercase()) {
             throw ValidationException("validation_error", "Transaction currency must match account currency")

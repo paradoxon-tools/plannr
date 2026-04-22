@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.query
 
-import de.chennemann.plannr.server.accounts.usecases.CreateAccount
+import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.common.events.ApplicationEventHandler
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
@@ -23,7 +24,7 @@ import org.springframework.r2dbc.core.DatabaseClient
 @Import(TransactionProjectionRollbackIntegrationTest.FailingProjectorConfiguration::class)
 class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
-    @Autowired lateinit var createAccount: CreateAccount
+    @Autowired lateinit var accountService: AccountService
     @Autowired lateinit var pocketService: PocketService
     @Autowired lateinit var createTransaction: CreateTransaction
 
@@ -47,8 +48,8 @@ class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
 
     @Test
     fun `projector failure rolls back command and query writes`() = runBlocking {
-        val account = createAccount(
-            CreateAccount.Command(
+        val account = accountService.create(
+            CreateAccountCommand(
                 name = "Main account",
                 institution = "Demo Bank",
                 currencyCode = "EUR",
