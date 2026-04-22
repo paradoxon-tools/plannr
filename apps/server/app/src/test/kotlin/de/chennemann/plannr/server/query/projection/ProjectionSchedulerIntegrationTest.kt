@@ -1,8 +1,9 @@
 package de.chennemann.plannr.server.query.projection
 
 import de.chennemann.plannr.server.accounts.usecases.CreateAccount
-import de.chennemann.plannr.server.partners.usecases.CreatePartner
-import de.chennemann.plannr.server.partners.usecases.UpdatePartner
+import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.service.PartnerService
+import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
 import de.chennemann.plannr.server.pockets.usecases.UpdatePocket
 import de.chennemann.plannr.server.projection.ProjectionDirtyScopeRepository
@@ -31,8 +32,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var createTransaction: CreateTransaction
     @Autowired lateinit var updateTransaction: UpdateTransaction
     @Autowired lateinit var archiveTransaction: ArchiveTransaction
-    @Autowired lateinit var createPartner: CreatePartner
-    @Autowired lateinit var updatePartner: UpdatePartner
+    @Autowired lateinit var partnerService: PartnerService
 
     @BeforeEach
     fun setUp() {
@@ -59,7 +59,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
     fun `transaction and metadata writes enqueue dirty scopes and dedupe them`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Demo Bank", "EUR", "NO_SHIFT"))
         val pocket = createPocket(CreatePocket.Command(account.id, "Wallet", null, 123, true))
-        val partner = createPartner(de.chennemann.plannr.server.partners.usecases.CreatePartner.Command("Shop", null))
+        val partner = partnerService.create(CreatePartnerCommand("Shop", null))
         val transaction = createTransaction(
             CreateTransaction.Command("EXPENSE", "CLEARED", "2026-04-10", 100, "EUR", null, null, "Groceries", partner.id, pocket.id, null),
         )
@@ -69,7 +69,7 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
         )
         archiveTransaction(transaction.id)
         updatePocket(de.chennemann.plannr.server.pockets.usecases.UpdatePocket.Command(pocket.id, account.id, "Wallet 2", null, 999, true))
-        updatePartner(de.chennemann.plannr.server.partners.usecases.UpdatePartner.Command(partner.id, "Shop 2", null))
+        partnerService.update(UpdatePartnerCommand(partner.id, "Shop 2", null))
         dirtyScopeService.markPocketDirty(pocket.id)
         dirtyScopeService.markPocketDirty(pocket.id)
 

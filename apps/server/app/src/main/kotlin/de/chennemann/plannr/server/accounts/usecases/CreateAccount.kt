@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.accounts.support.AccountIdGenerator
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExists
+import de.chennemann.plannr.server.currencies.service.CurrencyService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,13 +26,13 @@ interface CreateAccount {
 @Transactional
 internal class CreateAccountUseCase(
     private val accountRepository: AccountRepository,
-    private val ensureCurrencyExists: EnsureCurrencyExists,
+    private val currencyService: CurrencyService,
     private val accountIdGenerator: AccountIdGenerator,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : CreateAccount {
     override suspend fun invoke(command: CreateAccount.Command): Account {
-        val currency = ensureCurrencyExists(command.currencyCode)
+        val currency = currencyService.ensureExists(command.currencyCode)
         val account = Account(
             id = accountIdGenerator(),
             name = command.name,

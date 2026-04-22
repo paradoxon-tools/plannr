@@ -4,10 +4,9 @@ import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
-import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
-import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
-import de.chennemann.plannr.server.partners.domain.PartnerRepository
-import de.chennemann.plannr.server.partners.support.PartnerFixtures
+import de.chennemann.plannr.server.currencies.service.CurrencyService
+import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
@@ -21,22 +20,22 @@ import kotlin.test.assertEquals
 
 class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var recurringTransactionRepository: RecurringTransactionRepository
-    @Autowired lateinit var currencyRepository: CurrencyRepository
+    @Autowired lateinit var currencyService: CurrencyService
     @Autowired lateinit var accountRepository: AccountRepository
     @Autowired lateinit var pocketRepository: PocketRepository
-    @Autowired lateinit var partnerRepository: PartnerRepository
+    @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var contractRepository: ContractRepository
 
     @BeforeEach
     fun setUp() {
         runBlocking {
             cleanDatabase("recurring_transactions", "contracts", "partners", "pockets", "accounts", "currencies")
-            currencyRepository.save(CurrencyFixtures.currency())
+            currencyService.ensureExists("EUR")
             accountRepository.save(AccountFixtures.account())
             pocketRepository.save(PocketFixtures.pocket())
             pocketRepository.save(PocketFixtures.pocket(id = "poc_456", accountId = "acc_123", name = "Income"))
-            partnerRepository.save(PartnerFixtures.partner())
-            contractRepository.save(ContractFixtures.contract(partnerId = PartnerFixtures.DEFAULT_ID))
+            val defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", notes = "Preferred partner")).id
+            contractRepository.save(ContractFixtures.contract(partnerId = defaultPartnerId))
         }
     }
 

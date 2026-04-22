@@ -2,8 +2,7 @@ package de.chennemann.plannr.server.pockets.persistence
 
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
-import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
-import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
+import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
@@ -22,13 +21,13 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
     lateinit var accountRepository: AccountRepository
 
     @Autowired
-    lateinit var currencyRepository: CurrencyRepository
+    lateinit var currencyService: CurrencyService
 
     @BeforeEach
     fun setUp() {
         runBlocking {
             cleanDatabase("pockets", "accounts", "currencies")
-            currencyRepository.save(CurrencyFixtures.currency())
+            currencyService.ensureExists("EUR")
             accountRepository.save(AccountFixtures.account())
             accountRepository.save(AccountFixtures.account(id = "acc_456", name = "Savings"))
         }

@@ -4,7 +4,7 @@ import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.common.events.ApplicationEventHandler
 import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
@@ -60,7 +60,7 @@ interface ProjectionRebuilder {
 class TransactionQueryProjectionService(
     private val transactionRepository: TransactionRepository,
     private val pocketRepository: PocketRepository,
-    private val partnerRepository: PartnerRepository,
+    private val partnerService: PartnerService,
     private val contractRepository: ContractRepository,
     private val accountRepository: AccountRepository,
     private val localDateProvider: LocalDateProvider,
@@ -88,7 +88,7 @@ class TransactionQueryProjectionService(
             currentBalance += transaction.accountSignedAmount()
             val sourcePocket = transaction.sourcePocketId?.let { pocketRepository.findById(it) }
             val destinationPocket = transaction.destinationPocketId?.let { pocketRepository.findById(it) }
-            val partner = transaction.partnerId?.let { partnerRepository.findById(it) }
+            val partner = transaction.partnerId?.let { partnerService.getById(it) }
             var spec = databaseClient.sql(
                 """
                 INSERT INTO account_transaction_feed (
@@ -130,7 +130,7 @@ class TransactionQueryProjectionService(
             projectedBalance += transaction.accountSignedAmount()
             val sourcePocket = transaction.sourcePocketId?.let { pocketRepository.findById(it) }
             val destinationPocket = transaction.destinationPocketId?.let { pocketRepository.findById(it) }
-            val partner = transaction.partnerId?.let { partnerRepository.findById(it) }
+            val partner = transaction.partnerId?.let { partnerService.getById(it) }
             var spec = databaseClient.sql(
                 """
                 INSERT INTO account_future_transaction_feed (
@@ -183,7 +183,7 @@ class TransactionQueryProjectionService(
         var currentBalance = 0L
         historical.forEachIndexed { index, transaction ->
             currentBalance += transaction.pocketSignedAmount(pocketId)
-            val partner = transaction.partnerId?.let { partnerRepository.findById(it) }
+            val partner = transaction.partnerId?.let { partnerService.getById(it) }
             val transferPocket = transaction.transferPocketIdFor(pocketId)?.let { pocketRepository.findById(it) }
             var spec = databaseClient.sql(
                 """
@@ -221,7 +221,7 @@ class TransactionQueryProjectionService(
         var projectedBalance = currentBalance
         future.forEachIndexed { index, transaction ->
             projectedBalance += transaction.pocketSignedAmount(pocketId)
-            val partner = transaction.partnerId?.let { partnerRepository.findById(it) }
+            val partner = transaction.partnerId?.let { partnerService.getById(it) }
             val transferPocket = transaction.transferPocketIdFor(pocketId)?.let { pocketRepository.findById(it) }
             var spec = databaseClient.sql(
                 """

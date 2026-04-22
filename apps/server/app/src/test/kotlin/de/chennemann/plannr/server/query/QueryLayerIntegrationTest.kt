@@ -5,8 +5,9 @@ import de.chennemann.plannr.server.accounts.usecases.CreateAccount
 import de.chennemann.plannr.server.accounts.usecases.UnarchiveAccount
 import de.chennemann.plannr.server.accounts.usecases.UpdateAccount
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
-import de.chennemann.plannr.server.partners.usecases.CreatePartner
-import de.chennemann.plannr.server.partners.usecases.UpdatePartner
+import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.service.PartnerService
+import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
 import de.chennemann.plannr.server.pockets.usecases.ArchivePocket
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
 import de.chennemann.plannr.server.pockets.usecases.UnarchivePocket
@@ -32,8 +33,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var updatePocket: UpdatePocket
     @Autowired lateinit var archivePocket: ArchivePocket
     @Autowired lateinit var unarchivePocket: UnarchivePocket
-    @Autowired lateinit var createPartner: CreatePartner
-    @Autowired lateinit var updatePartner: UpdatePartner
+    @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var createContract: CreateContract
     @Autowired lateinit var createTransaction: CreateTransaction
 
@@ -391,7 +391,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             ),
         )
         val pocket = createPocket(CreatePocket.Command(account.id, "Pocket", null, 100, true))
-        val partner = createPartner(CreatePartner.Command(name = "Old partner", notes = null))
+        val partner = partnerService.create(CreatePartnerCommand(name = "Old partner", notes = null))
 
         insertAccountFeedRow(
             accountId = account.id,
@@ -422,7 +422,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             partnerName = partner.name,
         )
 
-        updatePartner(UpdatePartner.Command(id = partner.id, name = "New partner", notes = null))
+        partnerService.update(UpdatePartnerCommand(id = partner.id, name = "New partner", notes = null))
 
         val accountRow = querySingle("SELECT partner_name FROM account_transaction_feed WHERE transaction_id = 'tx_partner'")
         val pocketRow = querySingle("SELECT partner_name FROM pocket_transaction_feed WHERE transaction_id = 'ptx_partner'")
@@ -499,7 +499,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
     fun `list query endpoints return active resources`() = runBlocking {
         val account = createAccount(CreateAccount.Command("Main account", "Test Bank", "EUR", "NO_SHIFT"))
         val pocket = createPocket(CreatePocket.Command(account.id, "Bills", null, 123, true))
-        val partner = createPartner(CreatePartner.Command(name = "Acme Inc", notes = "Sample partner"))
+        val partner = partnerService.create(CreatePartnerCommand(name = "Acme Inc", notes = "Sample partner"))
         val contract = createContract(CreateContract.Command(pocket.id, partner.id, "Internet", "2026-01-01", null, null))
         val transaction = createTransaction(
             CreateTransaction.Command(

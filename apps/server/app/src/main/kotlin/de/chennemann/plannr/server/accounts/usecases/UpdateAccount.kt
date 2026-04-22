@@ -6,7 +6,7 @@ import de.chennemann.plannr.server.accounts.events.AccountUpdated
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExists
+import de.chennemann.plannr.server.currencies.service.CurrencyService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,7 +26,7 @@ interface UpdateAccount {
 @Transactional
 internal class UpdateAccountUseCase(
     private val accountRepository: AccountRepository,
-    private val ensureCurrencyExists: EnsureCurrencyExists,
+    private val currencyService: CurrencyService,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : UpdateAccount {
     override suspend fun invoke(command: UpdateAccount.Command): Account {
@@ -37,7 +37,7 @@ internal class UpdateAccountUseCase(
                 details = mapOf("id" to command.id.trim()),
             )
 
-        val currency = ensureCurrencyExists(command.currencyCode)
+        val currency = currencyService.ensureExists(command.currencyCode)
         val updated = Account(
             id = existing.id,
             name = command.name,

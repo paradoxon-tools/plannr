@@ -10,8 +10,8 @@ import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.partners.domain.Partner
-import de.chennemann.plannr.server.partners.domain.PartnerRepository
-import de.chennemann.plannr.server.partners.usecases.CreatePartner
+import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.usecases.CreatePocket
@@ -25,12 +25,11 @@ import org.springframework.transaction.annotation.Transactional
 class DevelopmentDataSeeder(
     private val accountRepository: AccountRepository,
     private val pocketRepository: PocketRepository,
-    private val partnerRepository: PartnerRepository,
     private val contractRepository: ContractRepository,
     private val recurringTransactionRepository: RecurringTransactionRepository,
     private val createAccount: CreateAccount,
     private val createPocket: CreatePocket,
-    private val createPartner: CreatePartner,
+    private val partnerService: PartnerService,
     private val createContract: CreateContract,
     private val createRecurringTransaction: CreateRecurringTransaction,
 ) {
@@ -244,21 +243,21 @@ class DevelopmentDataSeeder(
         notes: String?,
         collector: DevelopmentSeedCollector,
     ): Partner {
-        val existing = partnerRepository.findAll(query = name, archived = false)
+        val existing = partnerService.list(query = name, archived = false)
             .firstOrNull { it.name == name }
         if (existing != null) {
             collector.partner(existing, SeededResourceStatus.EXISTING)
             return existing
         }
 
-        val archived = partnerRepository.findAll(query = name, archived = true)
+        val archived = partnerService.list(query = name, archived = true)
             .firstOrNull { it.name == name }
         if (archived != null) {
-            return partnerRepository.update(archived.unarchive())
+            return partnerService.unarchive(archived.id)
                 .also { collector.partner(it, SeededResourceStatus.UPDATED) }
         }
 
-        return createPartner(CreatePartner.Command(name = name, notes = notes))
+        return partnerService.create(CreatePartnerCommand(name = name, notes = notes))
             .also { collector.partner(it, SeededResourceStatus.CREATED) }
     }
 

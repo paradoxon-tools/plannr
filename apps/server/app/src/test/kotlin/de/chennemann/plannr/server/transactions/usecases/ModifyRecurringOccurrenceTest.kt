@@ -1,15 +1,12 @@
 package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.error.ValidationException
-import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
-import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyRepository
-import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExistsUseCase
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
+import de.chennemann.plannr.server.support.FakeCurrencyService
+import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository
 import kotlinx.coroutines.test.runTest
@@ -69,12 +66,10 @@ class ModifyRecurringOccurrenceTest {
     private suspend fun useCase(transactionRepository: InMemoryTransactionRepository): ModifyRecurringOccurrenceUseCase {
         val accountRepository = InMemoryAccountRepository().apply { save(AccountFixtures.account()) }
         val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
-        val partnerRepository = InMemoryPartnerRepository()
-        val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
         return ModifyRecurringOccurrenceUseCase(
             transactionRepository = transactionRepository,
-            ensureCurrencyExists = EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
-            contextResolver = TransactionContextResolver(accountRepository, pocketRepository, partnerRepository),
+            currencyService = FakeCurrencyService(),
+            contextResolver = TransactionContextResolver(accountRepository, pocketRepository, FakePartnerService(emptyList())),
             transactionIdGenerator = { "txn_mod" },
         )
     }

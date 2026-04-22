@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.transactions.recurring.usecases
 
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExists
+import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionIdGenerator
@@ -35,14 +35,14 @@ interface CreateRecurringTransaction {
 @Component
 internal class CreateRecurringTransactionUseCase(
     private val recurringTransactionRepository: RecurringTransactionRepository,
-    private val ensureCurrencyExists: EnsureCurrencyExists,
+    private val currencyService: CurrencyService,
     private val contextResolver: RecurringTransactionContextResolver,
     private val recurringTransactionIdGenerator: RecurringTransactionIdGenerator,
     private val timeProvider: TimeProvider,
     private val normalization: RecurringTransactionNormalization,
 ) : CreateRecurringTransaction {
     override suspend fun invoke(command: CreateRecurringTransaction.Command): RecurringTransaction {
-        val currency = ensureCurrencyExists(command.currencyCode)
+        val currency = currencyService.ensureExists(command.currencyCode)
         val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(

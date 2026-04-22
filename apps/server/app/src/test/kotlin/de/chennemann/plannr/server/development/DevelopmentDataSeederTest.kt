@@ -7,16 +7,12 @@ import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.support.ContractIdGenerator
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.contracts.usecases.CreateContractUseCase
-import de.chennemann.plannr.server.currencies.domain.Currency
-import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyRepository
-import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExistsUseCase
-import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
-import de.chennemann.plannr.server.partners.support.PartnerIdGenerator
-import de.chennemann.plannr.server.partners.usecases.CreatePartnerUseCase
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketIdGenerator
 import de.chennemann.plannr.server.pockets.usecases.CreatePocketUseCase
+import de.chennemann.plannr.server.support.FakeCurrencyService
+import de.chennemann.plannr.server.support.FakePartnerService
+import de.chennemann.plannr.server.support.TestCurrencies
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionIdGenerator
 import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransactionUseCase
@@ -45,7 +41,7 @@ class DevelopmentDataSeederTest {
 
         assertEquals(1, fixture.accountRepository.findAll().size)
         assertEquals(4, fixture.pocketRepository.findAll().size)
-        assertEquals(3, fixture.partnerRepository.findAll().size)
+        assertEquals(3, fixture.partnerService.list().size)
         assertEquals(3, fixture.contractRepository.findAll().size)
         assertEquals(3, fixture.recurringTransactionRepository.findAll().size)
     }
@@ -56,19 +52,22 @@ class DevelopmentDataSeederTest {
     private fun seederFixture(): SeederFixture {
         val accountRepository = InMemoryAccountRepository()
         val pocketRepository = InMemoryPocketRepository()
-        val partnerRepository = InMemoryPartnerRepository()
         val contractRepository = InMemoryContractRepository()
         val recurringTransactionRepository = InMemoryRecurringTransactionRepository()
-        val currencyRepository = InMemoryCurrencyRepository()
-        val currencyCatalog = InMemoryCurrencyTemplateCatalog(
-            mapOf("EUR" to Currency("EUR", "Euro", "EUR", 2, "before")),
+        val currencyService = FakeCurrencyService(
+            initialCurrencies = emptyList(),
+            templates = mapOf("EUR" to TestCurrencies.eur()),
         )
-        val ensureCurrencyExists = EnsureCurrencyExistsUseCase(currencyRepository, currencyCatalog)
         val timeProvider = TimeProvider { 1L }
+        val partnerService = FakePartnerService(
+            initialPartners = emptyList(),
+            idGenerator = idGenerator("par"),
+            timeProvider = { timeProvider() },
+        )
 
         val createAccount = CreateAccountUseCase(
             accountRepository = accountRepository,
-            ensureCurrencyExists = ensureCurrencyExists,
+            currencyService = currencyService,
             accountIdGenerator = accountIdGenerator("acc"),
             timeProvider = timeProvider,
         )
@@ -78,22 +77,17 @@ class DevelopmentDataSeederTest {
             pocketIdGenerator = pocketIdGenerator("poc"),
             timeProvider = timeProvider,
         )
-        val createPartner = CreatePartnerUseCase(
-            partnerRepository = partnerRepository,
-            partnerIdGenerator = partnerIdGenerator("par"),
-            timeProvider = timeProvider,
-        )
         val createContract = CreateContractUseCase(
             contractRepository = contractRepository,
             pocketRepository = pocketRepository,
-            partnerRepository = partnerRepository,
+            partnerService = partnerService,
             contractIdGenerator = contractIdGenerator("con"),
             timeProvider = timeProvider,
         )
         val createRecurringTransaction = CreateRecurringTransactionUseCase(
             recurringTransactionRepository = recurringTransactionRepository,
-            ensureCurrencyExists = ensureCurrencyExists,
-            contextResolver = RecurringTransactionContextResolver(contractRepository, pocketRepository, partnerRepository),
+            currencyService = currencyService,
+            contextResolver = RecurringTransactionContextResolver(contractRepository, pocketRepository, partnerService),
             recurringTransactionIdGenerator = recurringTransactionIdGenerator("rtx"),
             timeProvider = timeProvider,
             normalization = RecurringTransactionNormalization(),
@@ -103,18 +97,17 @@ class DevelopmentDataSeederTest {
             seeder = DevelopmentDataSeeder(
                 accountRepository = accountRepository,
                 pocketRepository = pocketRepository,
-                partnerRepository = partnerRepository,
                 contractRepository = contractRepository,
                 recurringTransactionRepository = recurringTransactionRepository,
                 createAccount = createAccount,
                 createPocket = createPocket,
-                createPartner = createPartner,
+                partnerService = partnerService,
                 createContract = createContract,
                 createRecurringTransaction = createRecurringTransaction,
             ),
             accountRepository = accountRepository,
             pocketRepository = pocketRepository,
-            partnerRepository = partnerRepository,
+            partnerService = partnerService,
             contractRepository = contractRepository,
             recurringTransactionRepository = recurringTransactionRepository,
         )
@@ -130,9 +123,9 @@ class DevelopmentDataSeederTest {
         return PocketIdGenerator { "${prefix}_${++counter}" }
     }
 
-    private fun partnerIdGenerator(prefix: String): PartnerIdGenerator {
+    private fun idGenerator(prefix: String): () -> String {
         var counter = 0
-        return PartnerIdGenerator { "${prefix}_${++counter}" }
+        return { "${prefix}_${++counter}" }
     }
 
     private fun contractIdGenerator(prefix: String): ContractIdGenerator {
@@ -149,7 +142,7 @@ class DevelopmentDataSeederTest {
         val seeder: DevelopmentDataSeeder,
         val accountRepository: InMemoryAccountRepository,
         val pocketRepository: InMemoryPocketRepository,
-        val partnerRepository: InMemoryPartnerRepository,
+        val partnerService: FakePartnerService,
         val contractRepository: InMemoryContractRepository,
         val recurringTransactionRepository: InMemoryRecurringTransactionRepository,
     )

@@ -6,7 +6,7 @@ import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.support.ContractIdGenerator
-import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import org.springframework.stereotype.Component
 
@@ -27,7 +27,7 @@ interface CreateContract {
 internal class CreateContractUseCase(
     private val contractRepository: ContractRepository,
     private val pocketRepository: PocketRepository,
-    private val partnerRepository: PartnerRepository,
+    private val partnerService: PartnerService,
     private val contractIdGenerator: ContractIdGenerator,
     private val timeProvider: TimeProvider,
 ) : CreateContract {
@@ -48,7 +48,7 @@ internal class CreateContractUseCase(
         }
 
         val partnerId = command.partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {
-            partnerRepository.findById(it)?.id
+            partnerService.getById(it)?.id
                 ?: throw NotFoundException(
                     code = "not_found",
                     message = "Partner not found",

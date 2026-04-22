@@ -4,7 +4,7 @@ import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExists
+import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
@@ -36,7 +36,7 @@ interface ModifyRecurringOccurrence {
 @Transactional
 internal class ModifyRecurringOccurrenceUseCase(
     private val transactionRepository: TransactionRepository,
-    private val ensureCurrencyExists: EnsureCurrencyExists,
+    private val currencyService: CurrencyService,
     private val contextResolver: TransactionContextResolver,
     private val transactionIdGenerator: TransactionIdGenerator,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
@@ -46,7 +46,7 @@ internal class ModifyRecurringOccurrenceUseCase(
             ?: throw NotFoundException("not_found", "Transaction not found", mapOf("id" to command.transactionId.trim()))
         validateModifiableOccurrence(existing)
 
-        val currency = ensureCurrencyExists(command.currencyCode)
+        val currency = currencyService.ensureExists(command.currencyCode)
         val context = contextResolver.resolve(
             sourcePocketId = command.sourcePocketId,
             destinationPocketId = command.destinationPocketId,

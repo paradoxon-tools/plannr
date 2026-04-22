@@ -4,14 +4,10 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.transactions.recurring.api.toCommand
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
-import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
-import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyRepository
-import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExistsUseCase
-import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
-import de.chennemann.plannr.server.partners.support.PartnerFixtures
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
+import de.chennemann.plannr.server.support.FakeCurrencyService
+import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import kotlinx.coroutines.test.runTest
@@ -233,14 +229,13 @@ class UpdateRecurringTransactionTest {
 
     private suspend fun useCase(recurringRepository: InMemoryRecurringTransactionRepository): UpdateRecurringTransactionUseCase {
         val pocketRepository = InMemoryPocketRepository().apply { save(PocketFixtures.pocket()) }
-        val partnerRepository = InMemoryPartnerRepository().apply { save(PartnerFixtures.partner()) }
+        val partnerService = FakePartnerService()
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
-        val currencyRepository = InMemoryCurrencyRepository().apply { save(CurrencyFixtures.currency()) }
         var versionCount = 0
         return UpdateRecurringTransactionUseCase(
             recurringRepository,
-            EnsureCurrencyExistsUseCase(currencyRepository, InMemoryCurrencyTemplateCatalog()),
-            contextResolver(pocketRepository, partnerRepository, contractRepository),
+            FakeCurrencyService(),
+            contextResolver(pocketRepository, partnerService, contractRepository),
             {
                 versionCount += 1
                 if (versionCount == 1) "rtx_new" else "rtx_new_$versionCount"

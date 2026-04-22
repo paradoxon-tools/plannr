@@ -3,7 +3,7 @@ package de.chennemann.plannr.server.transactions.recurring.usecases
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.currencies.usecases.EnsureCurrencyExists
+import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionIdGenerator
@@ -39,7 +39,7 @@ interface UpdateRecurringTransaction {
 @Component
 internal class UpdateRecurringTransactionUseCase(
     private val recurringTransactionRepository: RecurringTransactionRepository,
-    private val ensureCurrencyExists: EnsureCurrencyExists,
+    private val currencyService: CurrencyService,
     private val contextResolver: RecurringTransactionContextResolver,
     private val recurringTransactionIdGenerator: RecurringTransactionIdGenerator,
     private val timeProvider: TimeProvider,
@@ -49,7 +49,7 @@ internal class UpdateRecurringTransactionUseCase(
     override suspend fun invoke(command: UpdateRecurringTransaction.Command): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(command.id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to command.id.trim()))
-        val currency = ensureCurrencyExists(command.currencyCode)
+        val currency = currencyService.ensureExists(command.currencyCode)
         val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(
