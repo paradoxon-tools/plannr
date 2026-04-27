@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.transactions.persistence
 
-import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.domain.TransactionVisibility
 import kotlinx.coroutines.reactor.awaitSingle
@@ -13,32 +12,49 @@ import reactor.core.publisher.Flux
 class R2dbcTransactionRepository(
     private val databaseClient: DatabaseClient,
 ) : TransactionRepository {
-    override suspend fun save(transaction: TransactionRecord): TransactionRecord {
-        bindAll(
+    override suspend fun save(transaction: TransactionModel): de.chennemann.plannr.server.transactions.domain.TransactionRecord {
+        return bindAll(
             databaseClient.sql(
-                """
-                INSERT INTO transactions (
-                    id, pocket_id, type, status, transaction_date, amount, currency_code, exchange_rate,
-                    destination_amount, description, partner_id, source_pocket_id, destination_pocket_id,
-                    parent_transaction_id, recurring_transaction_id, modified_by_id, transaction_origin, is_archived, created_at
-                ) VALUES (
-                    :id, :pocketId, :type, :status, :transactionDate, :amount, :currencyCode, :exchangeRate,
-                    :destinationAmount, :description, :partnerId, :sourcePocketId, :destinationPocketId,
-                    :parentTransactionId, :recurringTransactionId, :modifiedById, :transactionOrigin, :isArchived, :createdAt
-                )
-                """.trimIndent(),
+                if (transaction.id == null) {
+                    """
+                    INSERT INTO transactions (
+                        pocket_id, type, status, transaction_date, amount, currency_code, exchange_rate,
+                        destination_amount, description, partner_id, source_pocket_id, destination_pocket_id,
+                        parent_transaction_id, recurring_transaction_id, modified_by_id, transaction_origin, is_archived, created_at
+                    ) VALUES (
+                        :pocketId, :type, :status, :transactionDate, :amount, :currencyCode, :exchangeRate,
+                        :destinationAmount, :description, :partnerId, :sourcePocketId, :destinationPocketId,
+                        :parentTransactionId, :recurringTransactionId, :modifiedById, :transactionOrigin, :isArchived, :createdAt
+                    )
+                    RETURNING id
+                    """.trimIndent()
+                } else {
+                    """
+                    INSERT INTO transactions (
+                        id, pocket_id, type, status, transaction_date, amount, currency_code, exchange_rate,
+                        destination_amount, description, partner_id, source_pocket_id, destination_pocket_id,
+                        parent_transaction_id, recurring_transaction_id, modified_by_id, transaction_origin, is_archived, created_at
+                    ) VALUES (
+                        :id, :pocketId, :type, :status, :transactionDate, :amount, :currencyCode, :exchangeRate,
+                        :destinationAmount, :description, :partnerId, :sourcePocketId, :destinationPocketId,
+                        :parentTransactionId, :recurringTransactionId, :modifiedById, :transactionOrigin, :isArchived, :createdAt
+                    )
+                    RETURNING id
+                    """.trimIndent()
+                },
             ),
             transaction,
             includeCreatedAt = true,
         )
             .fetch()
-            .rowsUpdated()
+            .one()
+            .map { it.getValue("id") as String }
             .awaitSingle()
-        return transaction
+            .let { findById(it)!! }
     }
 
-    override suspend fun update(transaction: TransactionRecord): TransactionRecord {
-        bindAll(
+    override suspend fun update(transaction: TransactionModel): de.chennemann.plannr.server.transactions.domain.TransactionRecord {
+        return bindAll(
             databaseClient.sql(
                 """
                 UPDATE transactions
@@ -60,17 +76,19 @@ class R2dbcTransactionRepository(
                     transaction_origin = :transactionOrigin,
                     is_archived = :isArchived
                 WHERE id = :id
+                RETURNING id
                 """.trimIndent(),
             ),
             transaction,
         )
             .fetch()
-            .rowsUpdated()
+            .one()
+            .map { it.getValue("id") as String }
             .awaitSingle()
-        return transaction
+            .let { findById(it)!! }
     }
 
-    override suspend fun findById(id: String): TransactionRecord? =
+    override suspend fun findById(id: String): de.chennemann.plannr.server.transactions.domain.TransactionRecord? =
         databaseClient.sql("$baseSelect WHERE t.id = :id")
             .bind("id", id)
             .fetch()
@@ -78,7 +96,7 @@ class R2dbcTransactionRepository(
             .map(::toTransaction)
             .awaitSingleOrNull()
 
-    override suspend fun findVisibleByAccountId(accountId: String): List<TransactionRecord> =
+    override suspend fun findVisibleByAccountId(accountId: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAll(
             """
             WHERE (p.account_id = :scopeId OR sp.account_id = :scopeId OR dp.account_id = :scopeId)
@@ -88,7 +106,7 @@ class R2dbcTransactionRepository(
             accountId,
         )
 
-    override suspend fun findVisibleByPocketId(pocketId: String): List<TransactionRecord> =
+    override suspend fun findVisibleByPocketId(pocketId: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAll(
             """
             WHERE (t.pocket_id = :scopeId OR t.source_pocket_id = :scopeId OR t.destination_pocket_id = :scopeId)
@@ -98,7 +116,7 @@ class R2dbcTransactionRepository(
             pocketId,
         )
 
-    override suspend fun findByRecurringTransactionId(recurringTransactionId: String): List<TransactionRecord> =
+    override suspend fun findByRecurringTransactionId(recurringTransactionId: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAll(
             """
             WHERE t.recurring_transaction_id = :scopeId
@@ -107,7 +125,7 @@ class R2dbcTransactionRepository(
             recurringTransactionId,
         )
 
-    override suspend fun findVisibleByRecurringTransactionId(recurringTransactionId: String): List<TransactionRecord> =
+    override suspend fun findVisibleByRecurringTransactionId(recurringTransactionId: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAll(
             """
             WHERE t.recurring_transaction_id = :scopeId
@@ -117,7 +135,7 @@ class R2dbcTransactionRepository(
             recurringTransactionId,
         )
 
-    override suspend fun findVisiblePending(): List<TransactionRecord> =
+    override suspend fun findVisiblePending(): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         databaseClient.sql(
             """
             $baseSelect
@@ -130,7 +148,7 @@ class R2dbcTransactionRepository(
             .all()
             .let { rows -> Flux.from(rows).map(::toTransaction).collectList().awaitSingle() }
 
-    override suspend fun findVisibleFutureByAccountId(accountId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord> =
+    override suspend fun findVisibleFutureByAccountId(accountId: String, startDateInclusive: String, endDateInclusive: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAllByScopeAndDateRange(
             scopePredicate = "(p.account_id = :scopeId OR sp.account_id = :scopeId OR dp.account_id = :scopeId)",
             scopeId = accountId,
@@ -138,7 +156,7 @@ class R2dbcTransactionRepository(
             endDateInclusive = endDateInclusive,
         )
 
-    override suspend fun findVisibleFutureByPocketId(pocketId: String, startDateInclusive: String, endDateInclusive: String): List<TransactionRecord> =
+    override suspend fun findVisibleFutureByPocketId(pocketId: String, startDateInclusive: String, endDateInclusive: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAllByScopeAndDateRange(
             scopePredicate = "(t.pocket_id = :scopeId OR t.source_pocket_id = :scopeId OR t.destination_pocket_id = :scopeId)",
             scopeId = pocketId,
@@ -146,7 +164,7 @@ class R2dbcTransactionRepository(
             endDateInclusive = endDateInclusive,
         )
 
-    override suspend fun findAll(accountId: String?, pocketId: String?, archived: Boolean): List<TransactionRecord> {
+    override suspend fun findAll(accountId: String?, pocketId: String?, archived: Boolean): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> {
         val conditions = mutableListOf<String>()
         if (accountId != null) {
             conditions += "(p.account_id = :accountId OR sp.account_id = :accountId OR dp.account_id = :accountId)"
@@ -180,7 +198,7 @@ class R2dbcTransactionRepository(
             .let { rows -> Flux.from(rows).map(::toTransaction).collectList().awaitSingle() }
     }
 
-    private suspend fun findAll(whereClause: String, scopeId: String): List<TransactionRecord> =
+    private suspend fun findAll(whereClause: String, scopeId: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         databaseClient.sql("$baseSelect $whereClause")
             .bind("scopeId", scopeId)
             .fetch()
@@ -192,7 +210,7 @@ class R2dbcTransactionRepository(
         scopeId: String,
         startDateInclusive: String,
         endDateInclusive: String,
-    ): List<TransactionRecord> =
+    ): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         databaseClient.sql(
             """
             $baseSelect
@@ -211,11 +229,10 @@ class R2dbcTransactionRepository(
 
     private fun bindAll(
         spec: DatabaseClient.GenericExecuteSpec,
-        transaction: TransactionRecord,
+        transaction: TransactionModel,
         includeCreatedAt: Boolean = false,
     ): DatabaseClient.GenericExecuteSpec {
         var current = spec
-            .bind("id", transaction.id)
             .bind("type", transaction.type)
             .bind("status", transaction.status)
             .bind("transactionDate", transaction.transactionDate)
@@ -224,6 +241,9 @@ class R2dbcTransactionRepository(
             .bind("description", transaction.description)
             .bind("transactionOrigin", transaction.transactionOrigin)
             .bind("isArchived", transaction.isArchived)
+        if (transaction.id != null) {
+            current = current.bind("id", transaction.id)
+        }
         if (includeCreatedAt) {
             current = current.bind("createdAt", transaction.createdAt)
         }
@@ -247,7 +267,7 @@ class R2dbcTransactionRepository(
     ): DatabaseClient.GenericExecuteSpec =
         if (value == null) spec.bindNull(name, type) else spec.bind(name, value)
 
-    private fun toTransaction(row: Map<String, Any?>): TransactionRecord = TransactionRecord(
+    private fun toTransaction(row: Map<String, Any?>): de.chennemann.plannr.server.transactions.domain.TransactionRecord = de.chennemann.plannr.server.transactions.domain.TransactionRecord(
         id = row.getValue("id") as String,
         accountId = row.getValue("account_id") as String,
         type = row.getValue("type") as String,

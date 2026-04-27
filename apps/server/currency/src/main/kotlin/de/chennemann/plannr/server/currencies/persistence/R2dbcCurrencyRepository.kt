@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.currencies.persistence
 
-import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Repository
 class R2dbcCurrencyRepository(
     private val databaseClient: DatabaseClient,
 ) : CurrencyRepository {
-    override suspend fun save(currency: Currency): Currency {
+    override suspend fun save(currency: CurrencyModel): de.chennemann.plannr.server.currencies.domain.Currency {
         databaseClient.sql(
             """
             INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position)
@@ -27,10 +26,10 @@ class R2dbcCurrencyRepository(
             .rowsUpdated()
             .awaitSingle()
 
-        return currency
+        return currency.toDomain()
     }
 
-    override suspend fun update(currency: Currency): Currency {
+    override suspend fun update(currency: CurrencyModel): de.chennemann.plannr.server.currencies.domain.Currency {
         databaseClient.sql(
             """
             UPDATE currencies
@@ -50,10 +49,10 @@ class R2dbcCurrencyRepository(
             .rowsUpdated()
             .awaitSingle()
 
-        return currency
+        return currency.toDomain()
     }
 
-    override suspend fun findByCode(code: String): Currency? =
+    override suspend fun findByCode(code: String): de.chennemann.plannr.server.currencies.domain.Currency? =
         databaseClient.sql(
             """
             SELECT code, name, symbol, decimal_places, symbol_position
@@ -67,7 +66,7 @@ class R2dbcCurrencyRepository(
             .map(::toCurrency)
             .awaitSingleOrNull()
 
-    override suspend fun findAll(): List<Currency> =
+    override suspend fun findAll(): List<de.chennemann.plannr.server.currencies.domain.Currency> =
         databaseClient.sql(
             """
             SELECT code, name, symbol, decimal_places, symbol_position
@@ -81,12 +80,12 @@ class R2dbcCurrencyRepository(
             .collectList()
             .awaitSingle()
 
-    private fun toCurrency(row: Map<String, Any>): Currency =
-        Currency(
+    private fun toCurrency(row: Map<String, Any>): de.chennemann.plannr.server.currencies.domain.Currency =
+        CurrencyModel(
             code = row.getValue("code") as String,
             name = row.getValue("name") as String,
             symbol = row.getValue("symbol") as String,
             decimalPlaces = (row.getValue("decimal_places") as Number).toInt(),
             symbolPosition = row.getValue("symbol_position") as String,
-        )
+        ).toDomain()
 }

@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
-import de.chennemann.plannr.server.transactions.support.TransactionIdGenerator
+import de.chennemann.plannr.server.transactions.persistence.TransactionModel
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -35,7 +35,6 @@ internal class CreateTransactionUseCase(
     private val transactionRepository: TransactionRepository,
     private val currencyService: CurrencyService,
     private val contextResolver: TransactionContextResolver,
-    private val transactionIdGenerator: TransactionIdGenerator,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : CreateTransaction {
@@ -48,29 +47,29 @@ internal class CreateTransactionUseCase(
             transactionType = command.type,
             currencyCode = currency.code,
         )
-        val transaction = TransactionRecord(
-            id = transactionIdGenerator(),
-            accountId = context.accountId,
-            type = command.type,
-            status = command.status,
-            transactionDate = command.transactionDate,
-            amount = command.amount,
-            currencyCode = currency.code,
-            exchangeRate = command.exchangeRate,
-            destinationAmount = command.destinationAmount,
-            description = command.description,
-            partnerId = context.partnerId,
-            pocketId = context.pocketId,
-            sourcePocketId = context.sourcePocketId,
-            destinationPocketId = context.destinationPocketId,
-            parentTransactionId = null,
-            recurringTransactionId = null,
-            modifiedById = null,
-            transactionOrigin = "MANUAL",
-            isArchived = false,
-            createdAt = timeProvider(),
+        val created = transactionRepository.save(
+            TransactionModel(
+                id = null,
+                type = command.type,
+                status = command.status,
+                transactionDate = command.transactionDate,
+                amount = command.amount,
+                currencyCode = currency.code,
+                exchangeRate = command.exchangeRate,
+                destinationAmount = command.destinationAmount,
+                description = command.description,
+                partnerId = context.partnerId,
+                pocketId = context.pocketId,
+                sourcePocketId = context.sourcePocketId,
+                destinationPocketId = context.destinationPocketId,
+                parentTransactionId = null,
+                recurringTransactionId = null,
+                modifiedById = null,
+                transactionOrigin = "MANUAL",
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         )
-        val created = transactionRepository.save(transaction)
         applicationEventBus.publish(TransactionCreated(created))
         return created
     }

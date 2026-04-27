@@ -5,7 +5,7 @@ import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.contracts.support.ContractIdGenerator
+import de.chennemann.plannr.server.contracts.persistence.ContractModel
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.stereotype.Component
@@ -28,7 +28,6 @@ internal class CreateContractUseCase(
     private val contractRepository: ContractRepository,
     private val pocketService: PocketService,
     private val partnerService: PartnerService,
-    private val contractIdGenerator: ContractIdGenerator,
     private val timeProvider: TimeProvider,
 ) : CreateContract {
     override suspend fun invoke(command: CreateContract.Command): Contract {
@@ -55,19 +54,18 @@ internal class CreateContractUseCase(
                     details = mapOf("id" to it),
                 )
         }
-        val contract = Contract(
-            id = contractIdGenerator(),
-            accountId = pocket.accountId,
-            pocketId = pocket.id,
-            partnerId = partnerId,
-            name = command.name,
-            startDate = command.startDate,
-            endDate = command.endDate,
-            notes = command.notes,
-            isArchived = false,
-            createdAt = timeProvider(),
+        return contractRepository.save(
+            ContractModel(
+                id = null,
+                pocketId = pocket.id,
+                partnerId = partnerId,
+                name = command.name,
+                startDate = command.startDate,
+                endDate = command.endDate,
+                notes = command.notes,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         )
-
-        return contractRepository.save(contract)
     }
 }

@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.pockets.persistence
 
-import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -11,14 +10,26 @@ import org.springframework.stereotype.Repository
 class R2dbcPocketRepository(
     private val databaseClient: DatabaseClient,
 ) : PocketRepository {
-    override suspend fun save(pocket: Pocket): Pocket {
+    override suspend fun save(pocket: PocketModel): de.chennemann.plannr.server.pockets.domain.Pocket {
         var spec = databaseClient.sql(
-            """
-            INSERT INTO pockets (id, account_id, name, description, color, is_default, is_archived, created_at)
-            VALUES (:id, :accountId, :name, :description, :color, :isDefault, :isArchived, :createdAt)
-            """.trimIndent(),
+            if (pocket.id == null) {
+                """
+                INSERT INTO pockets (account_id, name, description, color, is_default, is_archived, created_at)
+                VALUES (:accountId, :name, :description, :color, :isDefault, :isArchived, :createdAt)
+                RETURNING id, account_id, name, description, color, is_default, is_archived, created_at
+                """.trimIndent()
+            } else {
+                """
+                INSERT INTO pockets (id, account_id, name, description, color, is_default, is_archived, created_at)
+                VALUES (:id, :accountId, :name, :description, :color, :isDefault, :isArchived, :createdAt)
+                RETURNING id, account_id, name, description, color, is_default, is_archived, created_at
+                """.trimIndent()
+            },
         )
-            .bind("id", pocket.id)
+        if (pocket.id != null) {
+            spec = spec.bind("id", pocket.id)
+        }
+        spec = spec
             .bind("accountId", pocket.accountId)
             .bind("name", pocket.name)
             .bind("color", pocket.color)
@@ -33,14 +44,10 @@ class R2dbcPocketRepository(
             spec.bindNull("description", String::class.java)
         }
 
-        spec.fetch()
-            .rowsUpdated()
-            .awaitSingle()
-
-        return pocket
+        return spec.fetch().one().map(::toPocket).awaitSingle()
     }
 
-    override suspend fun update(pocket: Pocket): Pocket {
+    override suspend fun update(pocket: PocketModel): de.chennemann.plannr.server.pockets.domain.Pocket {
         var spec = databaseClient.sql(
             """
             UPDATE pockets
@@ -51,9 +58,10 @@ class R2dbcPocketRepository(
                 is_default = :isDefault,
                 is_archived = :isArchived
             WHERE id = :id
+            RETURNING id, account_id, name, description, color, is_default, is_archived, created_at
             """.trimIndent(),
         )
-            .bind("id", pocket.id)
+            .bind("id", requireNotNull(pocket.id))
             .bind("accountId", pocket.accountId)
             .bind("name", pocket.name)
             .bind("color", pocket.color)
@@ -67,14 +75,10 @@ class R2dbcPocketRepository(
             spec.bindNull("description", String::class.java)
         }
 
-        spec.fetch()
-            .rowsUpdated()
-            .awaitSingle()
-
-        return pocket
+        return spec.fetch().one().map(::toPocket).awaitSingle()
     }
 
-    override suspend fun findById(id: String): Pocket? =
+    override suspend fun findById(id: String): de.chennemann.plannr.server.pockets.domain.Pocket? =
         databaseClient.sql(
             """
             SELECT id, account_id, name, description, color, is_default, is_archived, created_at
@@ -88,7 +92,7 @@ class R2dbcPocketRepository(
             .map(::toPocket)
             .awaitSingleOrNull()
 
-    override suspend fun findAll(accountId: String?, archived: Boolean?): List<Pocket> {
+    override suspend fun findAll(accountId: String?, archived: Boolean?): List<de.chennemann.plannr.server.pockets.domain.Pocket> {
         val conditions = mutableListOf<String>()
         if (accountId != null) {
             conditions += "account_id = :accountId"
@@ -121,8 +125,8 @@ class R2dbcPocketRepository(
             .awaitSingle()
     }
 
-    private fun toPocket(row: Map<String, Any?>): Pocket =
-        Pocket(
+    private fun toPocket(row: Map<String, Any?>): de.chennemann.plannr.server.pockets.domain.Pocket =
+        PocketModel(
             id = row.getValue("id") as String,
             accountId = row.getValue("account_id") as String,
             name = row.getValue("name") as String,
@@ -131,5 +135,5 @@ class R2dbcPocketRepository(
             isDefault = row.getValue("is_default") as Boolean,
             isArchived = row.getValue("is_archived") as Boolean,
             createdAt = (row.getValue("created_at") as Number).toLong(),
-        )
+        ).toDomain()
 }

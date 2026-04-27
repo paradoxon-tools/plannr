@@ -5,7 +5,8 @@ import de.chennemann.plannr.server.accounts.domain.AccountQuery
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.events.AccountCreated
 import de.chennemann.plannr.server.accounts.events.AccountUpdated
-import de.chennemann.plannr.server.accounts.support.AccountIdGenerator
+import de.chennemann.plannr.server.accounts.persistence.AccountModel
+import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
@@ -21,23 +22,22 @@ internal class AccountServiceImpl(
     private val currencyService: CurrencyService,
     private val archiveCascade: AccountArchiveCascade,
     private val balanceProvider: AccountBalanceProvider,
-    private val accountIdGenerator: AccountIdGenerator,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
         val currency = currencyService.ensureExists(command.currencyCode)
-        val account = Account(
-            id = accountIdGenerator(),
-            name = command.name,
-            institution = command.institution,
-            currencyCode = currency.code,
-            weekendHandling = command.weekendHandling,
-            isArchived = false,
-            createdAt = timeProvider(),
+        val created = accountRepository.save(
+            AccountModel(
+                id = null,
+                name = command.name,
+                institution = command.institution,
+                currencyCode = currency.code,
+                weekendHandling = command.weekendHandling,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         )
-
-        val created = accountRepository.save(account)
         applicationEventBus.publish(AccountCreated(created))
         return created
     }
@@ -45,24 +45,24 @@ internal class AccountServiceImpl(
     override suspend fun update(command: UpdateAccountCommand): Account {
         val existing = existingAccount(command.id)
         val currency = currencyService.ensureExists(command.currencyCode)
-        val updated = Account(
-            id = existing.id,
-            name = command.name,
-            institution = command.institution,
-            currencyCode = currency.code,
-            weekendHandling = command.weekendHandling,
-            isArchived = existing.isArchived,
-            createdAt = existing.createdAt,
+        val persisted = accountRepository.update(
+            Account(
+                id = existing.id,
+                name = command.name,
+                institution = command.institution,
+                currencyCode = currency.code,
+                weekendHandling = command.weekendHandling,
+                isArchived = existing.isArchived,
+                createdAt = existing.createdAt,
+            ).toModel(),
         )
-
-        val persisted = accountRepository.update(updated)
         applicationEventBus.publish(AccountUpdated(existing, persisted))
         return persisted
     }
 
     override suspend fun archive(id: String): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.update(existing.archive())
+        val updated = accountRepository.update(existing.archive().toModel())
         archiveCascade.archiveFor(updated)
         applicationEventBus.publish(AccountUpdated(existing, updated))
         return updated
@@ -70,7 +70,7 @@ internal class AccountServiceImpl(
 
     override suspend fun unarchive(id: String): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.update(existing.unarchive())
+        val updated = accountRepository.update(existing.unarchive().toModel())
         archiveCascade.unarchiveFor(updated)
         applicationEventBus.publish(AccountUpdated(existing, updated))
         return updated

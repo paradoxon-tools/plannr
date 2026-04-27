@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.partners.persistence
 
-import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -11,26 +10,43 @@ import org.springframework.stereotype.Repository
 class R2dbcPartnerRepository(
     private val databaseClient: DatabaseClient,
 ) : PartnerRepository {
-    override suspend fun save(partner: Partner): Partner {
-        var spec = databaseClient.sql(
-            """
-            INSERT INTO partners (id, name, notes, is_archived, created_at)
-            VALUES (:id, :name, :notes, :isArchived, :createdAt)
-            """.trimIndent(),
-        )
-            .bind("id", partner.id)
-            .bind("name", partner.name)
-            .bind("isArchived", partner.isArchived)
-            .bind("createdAt", partner.createdAt)
+    override suspend fun save(partner: PartnerModel): de.chennemann.plannr.server.partners.domain.Partner =
+        if (partner.id == null) {
+            bindNullableFields(
+                databaseClient.sql(
+                    """
+                    INSERT INTO partners (name, notes, is_archived, created_at)
+                    VALUES (:name, :notes, :isArchived, :createdAt)
+                    RETURNING id, name, notes, is_archived, created_at
+                    """.trimIndent(),
+                )
+                    .bind("name", partner.name)
+                    .bind("isArchived", partner.isArchived)
+                    .bind("createdAt", partner.createdAt),
+                partner.notes,
+            )
+                .fetch()
+                .one()
+                .map(::toPartner)
+                .awaitSingle()
+        } else {
+            var spec = databaseClient.sql(
+                """
+                INSERT INTO partners (id, name, notes, is_archived, created_at)
+                VALUES (:id, :name, :notes, :isArchived, :createdAt)
+                RETURNING id, name, notes, is_archived, created_at
+                """.trimIndent(),
+            )
+                .bind("id", partner.id)
+                .bind("name", partner.name)
+                .bind("isArchived", partner.isArchived)
+                .bind("createdAt", partner.createdAt)
 
-        val notes = partner.notes
-        spec = if (notes != null) spec.bind("notes", notes) else spec.bindNull("notes", String::class.java)
+            spec = bindNullableFields(spec, partner.notes)
+            spec.fetch().one().map(::toPartner).awaitSingle()
+        }
 
-        spec.fetch().rowsUpdated().awaitSingle()
-        return partner
-    }
-
-    override suspend fun update(partner: Partner): Partner {
+    override suspend fun update(partner: PartnerModel): de.chennemann.plannr.server.partners.domain.Partner {
         var spec = databaseClient.sql(
             """
             UPDATE partners
@@ -38,20 +54,17 @@ class R2dbcPartnerRepository(
                 notes = :notes,
                 is_archived = :isArchived
             WHERE id = :id
+            RETURNING id, name, notes, is_archived, created_at
             """.trimIndent(),
         )
-            .bind("id", partner.id)
+            .bind("id", requireNotNull(partner.id))
             .bind("name", partner.name)
             .bind("isArchived", partner.isArchived)
-
-        val notes = partner.notes
-        spec = if (notes != null) spec.bind("notes", notes) else spec.bindNull("notes", String::class.java)
-
-        spec.fetch().rowsUpdated().awaitSingle()
-        return partner
+        spec = bindNullableFields(spec, partner.notes)
+        return spec.fetch().one().map(::toPartner).awaitSingle()
     }
 
-    override suspend fun findById(id: String): Partner? =
+    override suspend fun findById(id: String): de.chennemann.plannr.server.partners.domain.Partner? =
         databaseClient.sql(
             """
             SELECT id, name, notes, is_archived, created_at
@@ -65,7 +78,7 @@ class R2dbcPartnerRepository(
             .map(::toPartner)
             .awaitSingleOrNull()
 
-    override suspend fun findAll(query: String?, archived: Boolean): List<Partner> {
+    override suspend fun findAll(query: String?, archived: Boolean): List<de.chennemann.plannr.server.partners.domain.Partner> {
         val conditions = mutableListOf<String>()
         if (query != null && query.isNotBlank()) {
             conditions += "LOWER(name) LIKE :query"
@@ -94,12 +107,18 @@ class R2dbcPartnerRepository(
             .awaitSingle()
     }
 
-    private fun toPartner(row: Map<String, Any?>): Partner =
-        Partner(
+    private fun bindNullableFields(
+        spec: DatabaseClient.GenericExecuteSpec,
+        notes: String?,
+    ): DatabaseClient.GenericExecuteSpec =
+        if (notes != null) spec.bind("notes", notes) else spec.bindNull("notes", String::class.java)
+
+    private fun toPartner(row: Map<String, Any?>): de.chennemann.plannr.server.partners.domain.Partner =
+        PartnerModel(
             id = row.getValue("id") as String,
             name = row.getValue("name") as String,
             notes = row["notes"] as String?,
             isArchived = row.getValue("is_archived") as Boolean,
             createdAt = (row.getValue("created_at") as Number).toLong(),
-        )
+        ).toDomain()
 }

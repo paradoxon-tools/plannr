@@ -8,6 +8,7 @@ import de.chennemann.plannr.server.common.domain.TransactionType
 import de.chennemann.plannr.server.common.domain.WeekendHandling
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
+import de.chennemann.plannr.server.contracts.persistence.toModel
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
@@ -17,6 +18,7 @@ import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
+import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransaction
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -281,7 +283,7 @@ class DevelopmentDataSeeder(
             ).also { collector.contract(it, SeededResourceStatus.CREATED) }
         }
         if (existing.isArchived) {
-            return contractRepository.update(existing.unarchive())
+            return contractRepository.update(existing.unarchive().toModel())
                 .also { collector.contract(it, SeededResourceStatus.UPDATED) }
         }
         collector.contract(existing, SeededResourceStatus.EXISTING)
@@ -327,7 +329,7 @@ class DevelopmentDataSeeder(
             ).also { collector.recurringTransaction(it, SeededResourceStatus.CREATED) }
         }
         if (existing.isArchived) {
-            return recurringTransactionRepository.update(existing.unarchive())
+            return recurringTransactionRepository.update(existing.unarchive().toModel())
                 .also { collector.recurringTransaction(it, SeededResourceStatus.UPDATED) }
         }
         collector.recurringTransaction(existing, SeededResourceStatus.EXISTING)

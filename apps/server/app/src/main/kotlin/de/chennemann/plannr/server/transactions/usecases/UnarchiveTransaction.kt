@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionUnarchived
+import de.chennemann.plannr.server.transactions.persistence.toModel
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,7 +23,7 @@ internal class UnarchiveTransactionUseCase(
     override suspend fun invoke(id: String): TransactionRecord {
         val existing = transactionRepository.findById(id.trim())
             ?: throw NotFoundException("not_found", "Transaction not found", mapOf("id" to id.trim()))
-        val updated = transactionRepository.update(existing.unarchive())
+        val updated = transactionRepository.update(existing.unarchive().toModel())
         applicationEventBus.publish(TransactionUnarchived(existing, updated))
         return updated
     }

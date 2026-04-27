@@ -1,8 +1,10 @@
 package de.chennemann.plannr.server.transactions.domain
 
+import de.chennemann.plannr.server.transactions.persistence.TransactionModel
+
 interface TransactionRepository {
-    suspend fun save(transaction: TransactionRecord): TransactionRecord
-    suspend fun update(transaction: TransactionRecord): TransactionRecord
+    suspend fun save(transaction: TransactionModel): TransactionRecord
+    suspend fun update(transaction: TransactionModel): TransactionRecord
     suspend fun findById(id: String): TransactionRecord?
     suspend fun findVisibleByAccountId(accountId: String): List<TransactionRecord>
     suspend fun findVisibleByPocketId(pocketId: String): List<TransactionRecord>

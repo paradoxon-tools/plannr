@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
+import de.chennemann.plannr.server.contracts.persistence.toModel
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.stereotype.Component
@@ -73,6 +74,6 @@ internal class UpdateContractUseCase(
             createdAt = existing.createdAt,
         )
 
-        return contractRepository.update(updated)
+        return contractRepository.update(updated.toModel())
     }
 }

@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.contracts.persistence
 
-import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -11,14 +10,26 @@ import org.springframework.stereotype.Repository
 class R2dbcContractRepository(
     private val databaseClient: DatabaseClient,
 ) : ContractRepository {
-    override suspend fun save(contract: Contract): Contract {
+    override suspend fun save(contract: ContractModel): de.chennemann.plannr.server.contracts.domain.Contract {
         var spec = databaseClient.sql(
-            """
-            INSERT INTO contracts (id, pocket_id, partner_id, name, start_date, end_date, notes, is_archived, created_at)
-            VALUES (:id, :pocketId, :partnerId, :name, :startDate, :endDate, :notes, :isArchived, :createdAt)
-            """.trimIndent(),
+            if (contract.id == null) {
+                """
+                INSERT INTO contracts (pocket_id, partner_id, name, start_date, end_date, notes, is_archived, created_at)
+                VALUES (:pocketId, :partnerId, :name, :startDate, :endDate, :notes, :isArchived, :createdAt)
+                RETURNING id
+                """.trimIndent()
+            } else {
+                """
+                INSERT INTO contracts (id, pocket_id, partner_id, name, start_date, end_date, notes, is_archived, created_at)
+                VALUES (:id, :pocketId, :partnerId, :name, :startDate, :endDate, :notes, :isArchived, :createdAt)
+                RETURNING id
+                """.trimIndent()
+            },
         )
-            .bind("id", contract.id)
+        if (contract.id != null) {
+            spec = spec.bind("id", contract.id)
+        }
+        spec = spec
             .bind("pocketId", contract.pocketId)
             .bind("name", contract.name)
             .bind("startDate", contract.startDate)
@@ -26,11 +37,11 @@ class R2dbcContractRepository(
             .bind("createdAt", contract.createdAt)
 
         spec = bindNullableValues(spec, contract)
-        spec.fetch().rowsUpdated().awaitSingle()
-        return contract
+        val id = spec.fetch().one().map { it.getValue("id") as String }.awaitSingle()
+        return findById(id)!!
     }
 
-    override suspend fun update(contract: Contract): Contract {
+    override suspend fun update(contract: ContractModel): de.chennemann.plannr.server.contracts.domain.Contract {
         var spec = databaseClient.sql(
             """
             UPDATE contracts
@@ -42,20 +53,21 @@ class R2dbcContractRepository(
                 notes = :notes,
                 is_archived = :isArchived
             WHERE id = :id
+            RETURNING id
             """.trimIndent(),
         )
-            .bind("id", contract.id)
+            .bind("id", requireNotNull(contract.id))
             .bind("pocketId", contract.pocketId)
             .bind("name", contract.name)
             .bind("startDate", contract.startDate)
             .bind("isArchived", contract.isArchived)
 
         spec = bindNullableValues(spec, contract)
-        spec.fetch().rowsUpdated().awaitSingle()
-        return contract
+        val id = spec.fetch().one().map { it.getValue("id") as String }.awaitSingle()
+        return findById(id)!!
     }
 
-    override suspend fun findById(id: String): Contract? =
+    override suspend fun findById(id: String): de.chennemann.plannr.server.contracts.domain.Contract? =
         databaseClient.sql(
             selectSql("WHERE c.id = :id"),
         )
@@ -65,7 +77,7 @@ class R2dbcContractRepository(
             .map(::toContract)
             .awaitSingleOrNull()
 
-    override suspend fun findByPocketId(pocketId: String): Contract? =
+    override suspend fun findByPocketId(pocketId: String): de.chennemann.plannr.server.contracts.domain.Contract? =
         databaseClient.sql(
             selectSql("WHERE c.pocket_id = :pocketId"),
         )
@@ -75,7 +87,7 @@ class R2dbcContractRepository(
             .map(::toContract)
             .awaitSingleOrNull()
 
-    override suspend fun findAll(accountId: String?, archived: Boolean): List<Contract> {
+    override suspend fun findAll(accountId: String?, archived: Boolean): List<de.chennemann.plannr.server.contracts.domain.Contract> {
         val conditions = mutableListOf<String>()
         if (accountId != null) {
             conditions += "p.account_id = :accountId"
@@ -108,7 +120,7 @@ class R2dbcContractRepository(
 
     private fun bindNullableValues(
         spec: DatabaseClient.GenericExecuteSpec,
-        contract: Contract,
+        contract: ContractModel,
     ): DatabaseClient.GenericExecuteSpec {
         var current = if (contract.partnerId != null) spec.bind("partnerId", contract.partnerId) else spec.bindNull("partnerId", String::class.java)
         current = if (contract.endDate != null) current.bind("endDate", contract.endDate) else current.bindNull("endDate", String::class.java)
@@ -116,8 +128,8 @@ class R2dbcContractRepository(
         return current
     }
 
-    private fun toContract(row: Map<String, Any?>): Contract =
-        Contract(
+    private fun toContract(row: Map<String, Any?>): de.chennemann.plannr.server.contracts.domain.Contract =
+        de.chennemann.plannr.server.contracts.domain.Contract(
             id = row.getValue("id") as String,
             accountId = row.getValue("account_id") as String,
             pocketId = row.getValue("pocket_id") as String,

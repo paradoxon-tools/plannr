@@ -9,7 +9,8 @@ import de.chennemann.plannr.server.pockets.domain.PocketQuery
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.events.PocketCreated
 import de.chennemann.plannr.server.pockets.events.PocketUpdated
-import de.chennemann.plannr.server.pockets.support.PocketIdGenerator
+import de.chennemann.plannr.server.pockets.persistence.PocketModel
+import de.chennemann.plannr.server.pockets.persistence.toModel
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,24 +21,23 @@ internal class PocketServiceImpl(
     private val accountLookup: PocketAccountLookup,
     private val archiveCascade: PocketArchiveCascade,
     private val balanceProvider: PocketBalanceProvider,
-    private val pocketIdGenerator: PocketIdGenerator,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
-        val pocket = Pocket(
-            id = pocketIdGenerator(),
-            accountId = accountId,
-            name = command.name,
-            description = command.description,
-            color = command.color,
-            isDefault = command.isDefault,
-            isArchived = false,
-            createdAt = timeProvider(),
+        val created = pocketRepository.save(
+            PocketModel(
+                id = null,
+                accountId = accountId,
+                name = command.name,
+                description = command.description,
+                color = command.color,
+                isDefault = command.isDefault,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         )
-
-        val created = pocketRepository.save(pocket)
         applicationEventBus.publish(PocketCreated(created))
         return created
     }
@@ -45,25 +45,25 @@ internal class PocketServiceImpl(
     override suspend fun update(command: UpdatePocketCommand): Pocket {
         val existing = existingPocket(command.id)
         val accountId = existingAccountId(command.accountId)
-        val updated = Pocket(
-            id = existing.id,
-            accountId = accountId,
-            name = command.name,
-            description = command.description,
-            color = command.color,
-            isDefault = command.isDefault,
-            isArchived = existing.isArchived,
-            createdAt = existing.createdAt,
+        val persisted = pocketRepository.update(
+            Pocket(
+                id = existing.id,
+                accountId = accountId,
+                name = command.name,
+                description = command.description,
+                color = command.color,
+                isDefault = command.isDefault,
+                isArchived = existing.isArchived,
+                createdAt = existing.createdAt,
+            ).toModel(),
         )
-
-        val persisted = pocketRepository.update(updated)
         applicationEventBus.publish(PocketUpdated(existing, persisted))
         return persisted
     }
 
     override suspend fun archive(id: String): Pocket {
         val existing = existingPocket(id)
-        val updated = pocketRepository.update(existing.archive())
+        val updated = pocketRepository.update(existing.archive().toModel())
         archiveCascade.archiveFor(updated)
         applicationEventBus.publish(PocketUpdated(existing, updated))
         return updated
@@ -71,7 +71,7 @@ internal class PocketServiceImpl(
 
     override suspend fun unarchive(id: String): Pocket {
         val existing = existingPocket(id)
-        val updated = pocketRepository.update(existing.unarchive())
+        val updated = pocketRepository.update(existing.unarchive().toModel())
         archiveCascade.unarchiveFor(updated)
         applicationEventBus.publish(PocketUpdated(existing, updated))
         return updated

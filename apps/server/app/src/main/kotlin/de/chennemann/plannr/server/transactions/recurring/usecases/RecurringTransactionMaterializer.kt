@@ -9,7 +9,8 @@ import de.chennemann.plannr.server.transactions.recurring.domain.RecurrencePatte
 import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
-import de.chennemann.plannr.server.transactions.support.TransactionIdGenerator
+import de.chennemann.plannr.server.transactions.persistence.TransactionModel
+import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import org.springframework.stereotype.Component
@@ -21,7 +22,6 @@ class RecurringTransactionMaterializer(
     private val recurringTransactionRepository: de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository,
     private val transactionRepository: TransactionRepository,
     private val accountService: AccountService,
-    private val transactionIdGenerator: TransactionIdGenerator,
     private val localDateProvider: LocalDateProvider,
     private val timeProvider: TimeProvider,
     private val dirtyScopeService: ProjectionDirtyScopeService,
@@ -51,9 +51,8 @@ class RecurringTransactionMaterializer(
             val materializedDate = applyWeekendHandling(occurrenceDate, account.weekendHandling)
             if (existingDates.add(materializedDate.toString())) {
                 transactionRepository.save(
-                    TransactionRecord(
-                        id = transactionIdGenerator(),
-                        accountId = recurring.accountId,
+                    TransactionModel(
+                        id = null,
                         type = recurring.transactionType,
                         status = "PENDING",
                         transactionDate = materializedDate.toString(),
@@ -82,7 +81,7 @@ class RecurringTransactionMaterializer(
             recurringTransactionRepository.update(
                 recurring.withLastMaterializedDate(
                     maxOf(recurring.lastMaterializedDate ?: latestCreatedDate, latestCreatedDate),
-                ),
+                ).toModel(),
             )
             dirtyScopeService.markAccountDirty(recurring.accountId)
             setOfNotNull(recurring.sourcePocketId, recurring.destinationPocketId).forEach { dirtyScopeService.markPocketDirty(it) }

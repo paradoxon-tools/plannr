@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
 import de.chennemann.plannr.server.currencies.domain.CurrencyTemplateCatalog
+import de.chennemann.plannr.server.currencies.persistence.toModel
 import org.springframework.stereotype.Component
 
 @Component
@@ -30,7 +31,7 @@ internal class CurrencyServiceImpl(
             )
         }
 
-        return currencyRepository.save(currency)
+        return currencyRepository.save(currency.toModel())
     }
 
     override suspend fun update(command: UpdateCurrencyCommand): Currency {
@@ -62,7 +63,7 @@ internal class CurrencyServiceImpl(
             )
         }
 
-        return currencyRepository.update(currency)
+        return currencyRepository.update(currency.toModel())
     }
 
     override suspend fun list(): List<Currency> =
@@ -80,6 +81,6 @@ internal class CurrencyServiceImpl(
                 details = mapOf("code" to normalizedCode),
             )
 
-        return currencyRepository.save(template)
+        return currencyRepository.save(template.toModel())
     }
 }

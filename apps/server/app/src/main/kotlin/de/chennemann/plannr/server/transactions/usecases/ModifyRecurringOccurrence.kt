@@ -9,7 +9,8 @@ import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
 import de.chennemann.plannr.server.transactions.events.TransactionUpdated
-import de.chennemann.plannr.server.transactions.support.TransactionIdGenerator
+import de.chennemann.plannr.server.transactions.persistence.TransactionModel
+import de.chennemann.plannr.server.transactions.persistence.toModel
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -38,7 +39,6 @@ internal class ModifyRecurringOccurrenceUseCase(
     private val transactionRepository: TransactionRepository,
     private val currencyService: CurrencyService,
     private val contextResolver: TransactionContextResolver,
-    private val transactionIdGenerator: TransactionIdGenerator,
     private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
 ) : ModifyRecurringOccurrence {
     override suspend fun invoke(command: ModifyRecurringOccurrence.Command): TransactionRecord {
@@ -58,27 +58,28 @@ internal class ModifyRecurringOccurrenceUseCase(
             throw ValidationException("validation_error", "Modified recurring occurrence must remain in the same account")
         }
 
-        val child = TransactionRecord(
-            id = transactionIdGenerator(),
-            accountId = context.accountId,
-            type = command.type,
-            status = command.status,
-            transactionDate = command.transactionDate,
-            amount = command.amount,
-            currencyCode = currency.code,
-            exchangeRate = command.exchangeRate,
-            destinationAmount = command.destinationAmount,
-            description = command.description,
-            partnerId = context.partnerId,
-            pocketId = context.pocketId,
-            sourcePocketId = context.sourcePocketId,
-            destinationPocketId = context.destinationPocketId,
-            parentTransactionId = existing.id,
-            recurringTransactionId = existing.recurringTransactionId,
-            modifiedById = null,
-            transactionOrigin = "RECURRING_MODIFICATION",
-            isArchived = false,
-            createdAt = existing.createdAt + 1,
+        val persistedChild = transactionRepository.save(
+            TransactionModel(
+                id = null,
+                type = command.type,
+                status = command.status,
+                transactionDate = command.transactionDate,
+                amount = command.amount,
+                currencyCode = currency.code,
+                exchangeRate = command.exchangeRate,
+                destinationAmount = command.destinationAmount,
+                description = command.description,
+                partnerId = context.partnerId,
+                pocketId = context.pocketId,
+                sourcePocketId = context.sourcePocketId,
+                destinationPocketId = context.destinationPocketId,
+                parentTransactionId = existing.id,
+                recurringTransactionId = existing.recurringTransactionId,
+                modifiedById = null,
+                transactionOrigin = "RECURRING_MODIFICATION",
+                isArchived = false,
+                createdAt = existing.createdAt + 1,
+            ),
         )
         val hiddenOriginal = TransactionRecord(
             id = existing.id,
@@ -97,14 +98,13 @@ internal class ModifyRecurringOccurrenceUseCase(
             destinationPocketId = existing.destinationPocketId,
             parentTransactionId = existing.parentTransactionId,
             recurringTransactionId = existing.recurringTransactionId,
-            modifiedById = child.id,
+            modifiedById = persistedChild.id,
             transactionOrigin = existing.transactionOrigin,
             isArchived = existing.isArchived,
             createdAt = existing.createdAt,
         )
 
-        transactionRepository.update(hiddenOriginal)
-        val persistedChild = transactionRepository.save(child)
+        transactionRepository.update(hiddenOriginal.toModel())
         applicationEventBus.publish(TransactionUpdated(existing, hiddenOriginal))
         applicationEventBus.publish(TransactionCreated(persistedChild))
         return persistedChild

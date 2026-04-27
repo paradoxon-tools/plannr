@@ -6,7 +6,8 @@ import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
-import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionIdGenerator
+import de.chennemann.plannr.server.transactions.recurring.persistence.RecurringTransactionModel
+import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 import org.springframework.stereotype.Component
 
 interface UpdateRecurringTransaction {
@@ -41,7 +42,6 @@ internal class UpdateRecurringTransactionUseCase(
     private val recurringTransactionRepository: RecurringTransactionRepository,
     private val currencyService: CurrencyService,
     private val contextResolver: RecurringTransactionContextResolver,
-    private val recurringTransactionIdGenerator: RecurringTransactionIdGenerator,
     private val timeProvider: TimeProvider,
     private val normalization: RecurringTransactionNormalization,
     private val versioningService: RecurringVersioningService,
@@ -92,7 +92,7 @@ internal class UpdateRecurringTransactionUseCase(
                     previousVersionId = existing.previousVersionId,
                     isArchived = existing.isArchived,
                     createdAt = existing.createdAt,
-                ),
+                ).toModel(),
             )
             "new_version" -> createNewVersion(existing, context, command, currency.code, normalizedRecurrence)
             else -> throw ValidationException("validation_error", "Recurring transaction update mode is invalid")
@@ -110,12 +110,10 @@ internal class UpdateRecurringTransactionUseCase(
             throw ValidationException("validation_error", "Recurring transaction version chain already has a successor version")
         }
         val predecessorOccurrence = versioningService.predecessorOccurrence(existing, normalizedRecurrence.firstOccurrenceDate)
-        recurringTransactionRepository.update(existing.withFinalOccurrenceDate(predecessorOccurrence))
+        recurringTransactionRepository.update(existing.withFinalOccurrenceDate(predecessorOccurrence).toModel())
         return recurringTransactionRepository.save(
-            RecurringTransaction(
-                id = recurringTransactionIdGenerator(),
-                contractId = context.contractId,
-                accountId = context.accountId,
+            RecurringTransactionModel(
+                id = null,
                 sourcePocketId = context.sourcePocketId,
                 destinationPocketId = context.destinationPocketId,
                 partnerId = context.partnerId,

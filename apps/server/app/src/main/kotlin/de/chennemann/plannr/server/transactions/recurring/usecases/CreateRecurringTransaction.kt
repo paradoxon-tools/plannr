@@ -4,7 +4,7 @@ import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
-import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionIdGenerator
+import de.chennemann.plannr.server.transactions.recurring.persistence.RecurringTransactionModel
 import org.springframework.stereotype.Component
 
 interface CreateRecurringTransaction {
@@ -37,7 +37,6 @@ internal class CreateRecurringTransactionUseCase(
     private val recurringTransactionRepository: RecurringTransactionRepository,
     private val currencyService: CurrencyService,
     private val contextResolver: RecurringTransactionContextResolver,
-    private val recurringTransactionIdGenerator: RecurringTransactionIdGenerator,
     private val timeProvider: TimeProvider,
     private val normalization: RecurringTransactionNormalization,
 ) : CreateRecurringTransaction {
@@ -57,31 +56,30 @@ internal class CreateRecurringTransactionUseCase(
                 maxRecurrenceCount = command.maxRecurrenceCount,
             ),
         )
-        val recurringTransaction = RecurringTransaction(
-            id = recurringTransactionIdGenerator(),
-            contractId = context.contractId,
-            accountId = context.accountId,
-            sourcePocketId = context.sourcePocketId,
-            destinationPocketId = context.destinationPocketId,
-            partnerId = context.partnerId,
-            title = command.title,
-            description = command.description,
-            amount = command.amount,
-            currencyCode = currency.code,
-            transactionType = command.transactionType,
-            firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
-            finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
-            recurrenceType = command.recurrenceType,
-            skipCount = command.skipCount,
-            daysOfWeek = command.daysOfWeek,
-            weeksOfMonth = command.weeksOfMonth,
-            daysOfMonth = command.daysOfMonth,
-            monthsOfYear = command.monthsOfYear,
-            lastMaterializedDate = null,
-            previousVersionId = null,
-            isArchived = false,
-            createdAt = timeProvider(),
+        return recurringTransactionRepository.save(
+            RecurringTransactionModel(
+                id = null,
+                sourcePocketId = context.sourcePocketId,
+                destinationPocketId = context.destinationPocketId,
+                partnerId = context.partnerId,
+                title = command.title,
+                description = command.description,
+                amount = command.amount,
+                currencyCode = currency.code,
+                transactionType = command.transactionType,
+                firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
+                finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
+                recurrenceType = command.recurrenceType,
+                skipCount = command.skipCount,
+                daysOfWeek = command.daysOfWeek,
+                weeksOfMonth = command.weeksOfMonth,
+                daysOfMonth = command.daysOfMonth,
+                monthsOfYear = command.monthsOfYear,
+                lastMaterializedDate = null,
+                previousVersionId = null,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         )
-        return recurringTransactionRepository.save(recurringTransaction)
     }
 }

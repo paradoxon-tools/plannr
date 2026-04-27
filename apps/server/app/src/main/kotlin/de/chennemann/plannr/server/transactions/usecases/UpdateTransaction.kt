@@ -7,6 +7,7 @@ import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionUpdated
+import de.chennemann.plannr.server.transactions.persistence.toModel
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -70,7 +71,7 @@ internal class UpdateTransactionUseCase(
             isArchived = existing.isArchived,
             createdAt = existing.createdAt,
         )
-        val persisted = transactionRepository.update(updated)
+        val persisted = transactionRepository.update(updated.toModel())
         applicationEventBus.publish(TransactionUpdated(existing, persisted))
         return persisted
     }
