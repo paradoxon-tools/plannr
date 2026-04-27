@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
 
-internal fun CreatePocketRequest.toCommand(): CreatePocketCommand =
+fun CreatePocketRequest.toCommand(): CreatePocketCommand =
     CreatePocketCommand(
         accountId = accountId,
         name = name,
@@ -16,7 +16,7 @@ internal fun CreatePocketRequest.toCommand(): CreatePocketCommand =
         isDefault = isDefault,
     )
 
-internal fun UpdatePocketRequest.toCommand(id: String): UpdatePocketCommand =
+fun UpdatePocketRequest.toCommand(id: String): UpdatePocketCommand =
     UpdatePocketCommand(
         id = id,
         accountId = accountId,
@@ -26,7 +26,7 @@ internal fun UpdatePocketRequest.toCommand(id: String): UpdatePocketCommand =
         isDefault = isDefault,
     )
 
-internal fun Pocket.toResponse(): PocketResponse =
+fun Pocket.toResponse(): PocketResponse =
     PocketResponse(
         id = id,
         accountId = accountId,

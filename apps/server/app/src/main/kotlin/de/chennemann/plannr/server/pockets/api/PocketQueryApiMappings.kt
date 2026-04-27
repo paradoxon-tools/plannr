@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.pockets.api
 
-import de.chennemann.plannr.server.query.pockets.api.dto.PocketQueryResponse
+import de.chennemann.plannr.server.pockets.api.dto.PocketQueryResponse
 import de.chennemann.plannr.server.pockets.domain.PocketQuery
 
 internal fun PocketQuery.toResponse(): PocketQueryResponse =

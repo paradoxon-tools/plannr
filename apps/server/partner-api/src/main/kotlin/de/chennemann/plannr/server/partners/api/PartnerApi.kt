@@ -1,0 +1,36 @@
+package de.chennemann.plannr.server.partners.api
+
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerRequest
+import de.chennemann.plannr.server.partners.api.dto.PartnerResponse
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerRequest
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.service.annotation.GetExchange
+import org.springframework.web.service.annotation.HttpExchange
+import org.springframework.web.service.annotation.PostExchange
+import org.springframework.web.service.annotation.PutExchange
+
+@HttpExchange("/partners")
+interface PartnerApi {
+    @PostExchange
+    @ResponseStatus(HttpStatus.CREATED)
+    suspend fun create(@RequestBody request: CreatePartnerRequest): PartnerResponse
+
+    @PutExchange("/{id}")
+    suspend fun update(@PathVariable id: String, @RequestBody request: UpdatePartnerRequest): PartnerResponse
+
+    @PostExchange("/{id}/archive")
+    suspend fun archive(@PathVariable id: String): PartnerResponse
+
+    @PostExchange("/{id}/unarchive")
+    suspend fun unarchive(@PathVariable id: String): PartnerResponse
+
+    @GetExchange
+    suspend fun list(
+        @RequestParam(required = false) query: String?,
+        @RequestParam(defaultValue = "false") archived: Boolean,
+    ): List<PartnerResponse>
+}

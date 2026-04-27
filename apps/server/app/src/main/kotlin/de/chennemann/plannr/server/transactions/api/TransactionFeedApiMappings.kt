@@ -1,13 +1,13 @@
 package de.chennemann.plannr.server.transactions.api
 
-import de.chennemann.plannr.server.query.transactions.api.dto.AccountFutureTransactionFeedItemResponse
-import de.chennemann.plannr.server.query.transactions.api.dto.AccountFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.api.dto.AccountTransactionFeedItemResponse
-import de.chennemann.plannr.server.query.transactions.api.dto.AccountTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.api.dto.PocketFutureTransactionFeedItemResponse
-import de.chennemann.plannr.server.query.transactions.api.dto.PocketFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.query.transactions.api.dto.PocketTransactionFeedItemResponse
-import de.chennemann.plannr.server.query.transactions.api.dto.PocketTransactionFeedPageResponse
+import de.chennemann.plannr.server.transactions.api.dto.AccountFutureTransactionFeedItemResponse
+import de.chennemann.plannr.server.transactions.api.dto.AccountFutureTransactionFeedPageResponse
+import de.chennemann.plannr.server.transactions.api.dto.AccountTransactionFeedItemResponse
+import de.chennemann.plannr.server.transactions.api.dto.AccountTransactionFeedPageResponse
+import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedItemResponse
+import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedPageResponse
+import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedItemResponse
+import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.domain.AccountFutureTransactionFeedItem
 import de.chennemann.plannr.server.transactions.domain.AccountTransactionFeedItem
 import de.chennemann.plannr.server.transactions.domain.PocketFutureTransactionFeedItem
