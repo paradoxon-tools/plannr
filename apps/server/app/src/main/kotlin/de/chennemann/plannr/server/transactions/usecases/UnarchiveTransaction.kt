@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionUnarchived
@@ -18,7 +17,7 @@ interface UnarchiveTransaction {
 @Transactional
 internal class UnarchiveTransactionUseCase(
     private val transactionRepository: TransactionRepository,
-    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
+    private val applicationEventBus: ApplicationEventBus,
 ) : UnarchiveTransaction {
     override suspend fun invoke(id: String): TransactionRecord {
         val existing = transactionRepository.findById(id.trim())

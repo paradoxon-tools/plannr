@@ -10,7 +10,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "plannr-server"
+rootProject.name = "server"
 include(
     ":app",
     ":account",

@@ -3,29 +3,33 @@ package de.chennemann.plannr.server.transactions.support
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.domain.TransactionVisibility
+import de.chennemann.plannr.server.transactions.persistence.TransactionModel
+import de.chennemann.plannr.server.transactions.persistence.toModel
 
 class InMemoryTransactionRepository : TransactionRepository {
     private val values = linkedMapOf<String, TransactionRecord>()
 
-    override suspend fun save(transaction: TransactionRecord): TransactionRecord {
+    override suspend fun save(transaction: TransactionModel): TransactionRecord {
+        val persisted = transaction.toDomain("txn_${values.size + 1}")
         if (
             values.values.any {
-                it.recurringTransactionId == transaction.recurringTransactionId &&
-                    it.transactionDate == transaction.transactionDate &&
+                it.recurringTransactionId == persisted.recurringTransactionId &&
+                    it.transactionDate == persisted.transactionDate &&
                     it.parentTransactionId == null &&
-                    transaction.parentTransactionId == null &&
-                    transaction.recurringTransactionId != null
+                    persisted.parentTransactionId == null &&
+                    persisted.recurringTransactionId != null
             }
         ) {
             throw IllegalStateException("duplicate recurring root occurrence")
         }
-        values[transaction.id] = transaction
-        return transaction
+        values[persisted.id] = persisted
+        return persisted
     }
 
-    override suspend fun update(transaction: TransactionRecord): TransactionRecord {
-        values[transaction.id] = transaction
-        return transaction
+    override suspend fun update(transaction: TransactionModel): TransactionRecord {
+        val persisted = transaction.toDomain("txn_${values.size + 1}")
+        values[persisted.id] = persisted
+        return persisted
     }
 
     override suspend fun findById(id: String): TransactionRecord? = values[id]
@@ -67,4 +71,50 @@ class InMemoryTransactionRepository : TransactionRepository {
             .sortedWith(compareBy<TransactionRecord> { it.transactionDate }.thenBy { it.createdAt }.thenBy { it.id })
 
     fun all(): List<TransactionRecord> = values.values.toList()
+
+    suspend fun save(transaction: TransactionRecord): TransactionRecord {
+        if (
+            values.values.any {
+                it.recurringTransactionId == transaction.recurringTransactionId &&
+                    it.transactionDate == transaction.transactionDate &&
+                    it.parentTransactionId == null &&
+                    transaction.parentTransactionId == null &&
+                    transaction.recurringTransactionId != null
+            }
+        ) {
+            throw IllegalStateException("duplicate recurring root occurrence")
+        }
+        values[transaction.id] = transaction
+        return transaction
+    }
+
+    suspend fun update(transaction: TransactionRecord): TransactionRecord {
+        values[transaction.id] = transaction
+        return transaction
+    }
+
+    private fun TransactionModel.toDomain(fallbackId: String): TransactionRecord {
+        return TransactionRecord(
+            id = id ?: fallbackId,
+            accountId = accountId,
+            type = type,
+            status = status,
+            transactionDate = transactionDate,
+            amount = amount,
+            currencyCode = currencyCode,
+            exchangeRate = exchangeRate,
+            destinationAmount = destinationAmount,
+            description = description,
+            partnerId = partnerId,
+            pocketId = pocketId,
+            sourcePocketId = sourcePocketId,
+            destinationPocketId = destinationPocketId,
+            parentTransactionId = parentTransactionId,
+            recurringTransactionId = recurringTransactionId,
+            modifiedById = modifiedById,
+            transactionOrigin = transactionOrigin,
+            isArchived = isArchived,
+            createdAt = createdAt,
+        )
+    }
 }

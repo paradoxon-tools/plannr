@@ -53,6 +53,7 @@ class RecurringTransactionMaterializer(
                 transactionRepository.save(
                     TransactionModel(
                         id = null,
+                        accountId = recurring.accountId,
                         type = recurring.transactionType,
                         status = "PENDING",
                         transactionDate = materializedDate.toString(),

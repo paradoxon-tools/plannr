@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.development
 
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.contracts.support.ContractIdGenerator
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.contracts.usecases.CreateContractUseCase
 import de.chennemann.plannr.server.support.FakeCurrencyService
@@ -11,7 +10,6 @@ import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.support.TestCurrencies
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
-import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionIdGenerator
 import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransactionUseCase
 import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionContextResolver
 import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionNormalization
@@ -47,8 +45,6 @@ class DevelopmentDataSeederTest {
         accounts + pockets + partners + contracts + recurringTransactions
 
     private fun seederFixture(): SeederFixture {
-        val contractRepository = InMemoryContractRepository()
-        val recurringTransactionRepository = InMemoryRecurringTransactionRepository()
         val currencyService = FakeCurrencyService(
             initialCurrencies = emptyList(),
             templates = mapOf("EUR" to TestCurrencies.eur()),
@@ -64,6 +60,16 @@ class DevelopmentDataSeederTest {
             idGenerator = idGenerator("poc"),
             timeProvider = { timeProvider() },
         )
+        val contractRepository = InMemoryContractRepository(
+            accountIdResolver = { pocketId -> pocketService.findByIdNow(pocketId)?.accountId ?: error("Pocket not found: $pocketId") },
+        )
+        val recurringTransactionRepository = InMemoryRecurringTransactionRepository(
+            contractIdResolver = { model -> contractRepository.peekByPocketId(model.sourcePocketId ?: model.destinationPocketId ?: "")?.id },
+            accountIdResolver = { model ->
+                val pocketId = model.sourcePocketId ?: model.destinationPocketId ?: error("Pocket id required")
+                pocketService.findByIdNow(pocketId)?.accountId ?: error("Pocket not found: $pocketId")
+            },
+        )
         val accountService = FakeAccountService(
             initialAccounts = emptyList(),
             idGenerator = idGenerator("acc"),
@@ -73,14 +79,12 @@ class DevelopmentDataSeederTest {
             contractRepository = contractRepository,
             pocketService = pocketService,
             partnerService = partnerService,
-            contractIdGenerator = contractIdGenerator("con"),
             timeProvider = timeProvider,
         )
         val createRecurringTransaction = CreateRecurringTransactionUseCase(
             recurringTransactionRepository = recurringTransactionRepository,
             currencyService = currencyService,
             contextResolver = RecurringTransactionContextResolver(contractRepository, pocketService, partnerService),
-            recurringTransactionIdGenerator = recurringTransactionIdGenerator("rtx"),
             timeProvider = timeProvider,
             normalization = RecurringTransactionNormalization(),
         )
@@ -106,16 +110,6 @@ class DevelopmentDataSeederTest {
     private fun idGenerator(prefix: String): () -> String {
         var counter = 0
         return { "${prefix}_${++counter}" }
-    }
-
-    private fun contractIdGenerator(prefix: String): ContractIdGenerator {
-        var counter = 0
-        return ContractIdGenerator { "${prefix}_${++counter}" }
-    }
-
-    private fun recurringTransactionIdGenerator(prefix: String): RecurringTransactionIdGenerator {
-        var counter = 0
-        return RecurringTransactionIdGenerator { "${prefix}_${++counter}" }
     }
 
     private data class SeederFixture(

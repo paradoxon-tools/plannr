@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 
 data class TransactionModel(
     val id: String?,
+    val accountId: String,
     val type: String,
     val status: String,
     val transactionDate: String,
@@ -33,6 +34,7 @@ internal fun TransactionModel.persistedDestinationPocketId(): String? = if (type
 internal fun TransactionRecord.toModel(): TransactionModel =
     TransactionModel(
         id = id,
+        accountId = accountId,
         type = type,
         status = status,
         transactionDate = transactionDate,

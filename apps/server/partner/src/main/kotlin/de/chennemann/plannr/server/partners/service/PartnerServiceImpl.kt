@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.partners.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
@@ -18,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 internal class PartnerServiceImpl(
     private val partnerRepository: PartnerRepository,
     private val timeProvider: TimeProvider,
-    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
+    private val applicationEventBus: ApplicationEventBus,
 ) : PartnerService {
     override suspend fun create(command: CreatePartnerCommand): Partner {
         val created = partnerRepository.save(

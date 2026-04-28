@@ -1,6 +1,8 @@
 package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
+import de.chennemann.plannr.server.pockets.persistence.toModel
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import kotlinx.coroutines.test.runTest
@@ -12,14 +14,14 @@ class UpdatePocketTest {
     @Test
     fun `updates existing pocket`() = runTest {
         val pocketRepository = InMemoryPocketRepository()
-        pocketRepository.save(PocketFixtures.pocket())
+        pocketRepository.save(PocketFixtures.pocket().toModel())
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, "acc_456") },
             archiveCascade = NoOpPocketArchiveCascade,
             balanceProvider = PocketBalanceProvider { 0 },
-            pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
+            applicationEventBus = NoOpApplicationEventBus,
         )
 
         val updated = pocketService.update(
@@ -47,8 +49,8 @@ class UpdatePocketTest {
             accountLookup = PocketAccountLookup { true },
             archiveCascade = NoOpPocketArchiveCascade,
             balanceProvider = PocketBalanceProvider { 0 },
-            pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
+            applicationEventBus = NoOpApplicationEventBus,
         )
 
         assertFailsWith<NotFoundException> {
@@ -59,14 +61,14 @@ class UpdatePocketTest {
     @Test
     fun `fails when target account does not exist`() = runTest {
         val pocketRepository = InMemoryPocketRepository()
-        pocketRepository.save(PocketFixtures.pocket())
+        pocketRepository.save(PocketFixtures.pocket().toModel())
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { false },
             archiveCascade = NoOpPocketArchiveCascade,
             balanceProvider = PocketBalanceProvider { 0 },
-            pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
+            applicationEventBus = NoOpApplicationEventBus,
         )
 
         assertFailsWith<NotFoundException> {

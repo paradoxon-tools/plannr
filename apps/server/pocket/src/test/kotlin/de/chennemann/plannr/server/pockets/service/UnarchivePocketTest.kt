@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.pockets.persistence.toModel
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import kotlinx.coroutines.test.runTest
@@ -13,7 +14,7 @@ class UnarchivePocketTest {
     fun `unarchives pocket and its contract`() = runTest {
         val repository = InMemoryPocketRepository()
         val archiveCascade = RecordingPocketArchiveCascade()
-        repository.save(PocketFixtures.pocket(isArchived = true))
+        repository.save(PocketFixtures.pocket(isArchived = true).toModel())
         val pocketService = pocketService(repository, archiveCascade)
 
         val result = pocketService.unarchive(PocketFixtures.DEFAULT_ID)

@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.currencies.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
+import de.chennemann.plannr.server.currencies.persistence.toModel
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
 import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
 import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyRepository
@@ -14,7 +15,7 @@ class UpdateCurrencyTest {
     @Test
     fun `updates an existing currency`() = runTest {
         val repository = InMemoryCurrencyRepository()
-        repository.save(CurrencyFixtures.currency())
+        repository.save(CurrencyFixtures.currency().toModel())
         val currencyService = CurrencyServiceImpl(repository, InMemoryCurrencyTemplateCatalog())
 
         val updated = currencyService.update(
@@ -38,7 +39,7 @@ class UpdateCurrencyTest {
     @Test
     fun `normalizes updated currency code to uppercase`() = runTest {
         val repository = InMemoryCurrencyRepository()
-        repository.save(CurrencyFixtures.currency())
+        repository.save(CurrencyFixtures.currency().toModel())
         val currencyService = CurrencyServiceImpl(repository, InMemoryCurrencyTemplateCatalog())
 
         val updated = currencyService.update(
@@ -56,7 +57,7 @@ class UpdateCurrencyTest {
     @Test
     fun `rejects code mismatch between path and body`() = runTest {
         val repository = InMemoryCurrencyRepository()
-        repository.save(CurrencyFixtures.currency())
+        repository.save(CurrencyFixtures.currency().toModel())
         val currencyService = CurrencyServiceImpl(repository, InMemoryCurrencyTemplateCatalog())
 
         assertFailsWith<ValidationException> {

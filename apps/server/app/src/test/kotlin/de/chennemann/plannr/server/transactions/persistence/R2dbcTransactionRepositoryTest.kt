@@ -1,11 +1,14 @@
 package de.chennemann.plannr.server.transactions.persistence
 
+import de.chennemann.plannr.server.accounts.domain.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.currencies.service.CurrencyService
+import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
+import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
@@ -29,9 +32,9 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         runBlocking {
             cleanDatabase("transactions", "recurring_transactions", "pocket_transaction_feed", "account_transaction_feed", "pocket_query", "account_query", "pockets", "accounts", "currencies")
             currencyService.ensureExists("EUR")
-            accountRepository.save(AccountFixtures.account())
-            pocketRepository.save(PocketFixtures.pocket())
-            pocketRepository.save(PocketFixtures.pocket(id = "poc_456", name = "Savings"))
+            accountRepository.save(AccountFixtures.account().toPersistenceModel())
+            pocketRepository.save(PocketFixtures.pocket().toPersistenceModel())
+            pocketRepository.save(PocketFixtures.pocket(id = "poc_456", name = "Savings").toPersistenceModel())
             recurringTransactionRepository.save(
                 RecurringTransactionFixtures.recurringTransaction(
                     id = "rtx_123",
@@ -48,14 +51,14 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
                     weeksOfMonth = null,
                     daysOfMonth = null,
                     monthsOfYear = null,
-                ),
+                ).toModel(),
             )
         }
     }
 
     @Test
     fun `round trips canonical enums through persistence`() = runBlocking {
-        val saved = transactionRepository.save(transaction())
+        val saved = transactionRepository.save(transaction().toModel())
 
         val found = transactionRepository.findById(saved.id)
 
@@ -69,7 +72,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `visible queries exclude archived and hidden originals but include modifications`() = runBlocking {
-        val original = transactionRepository.save(transaction(id = "txn_original", transactionDate = "2026-04-10"))
+        val original = transactionRepository.save(transaction(id = "txn_original", transactionDate = "2026-04-10").toModel())
         val modification = transactionRepository.save(
             transaction(
                 id = "txn_modification",
@@ -77,7 +80,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
                 amount = 120,
                 parentTransactionId = original.id,
                 recurringTransactionId = "rtx_123",
-            ),
+            ).toModel(),
         )
         transactionRepository.update(
             transaction(
@@ -87,9 +90,9 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
                 parentTransactionId = original.parentTransactionId,
                 recurringTransactionId = original.recurringTransactionId,
                 modifiedById = modification.id,
-            ),
+            ).toModel(),
         )
-        transactionRepository.save(transaction(id = "txn_archived", transactionDate = "2026-04-11", isArchived = true))
+        transactionRepository.save(transaction(id = "txn_archived", transactionDate = "2026-04-11", isArchived = true).toModel())
 
         assertEquals(listOf(modification.id), transactionRepository.findVisibleByAccountId("acc_123").map { it.id })
         assertEquals(listOf(modification.id), transactionRepository.findVisibleByPocketId("poc_123").map { it.id })
@@ -98,10 +101,10 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `duplicate root recurring occurrences are rejected by the database`() = runBlocking {
-        transactionRepository.save(transaction(id = "txn_first", transactionDate = "2026-04-12", recurringTransactionId = "rtx_123"))
+        transactionRepository.save(transaction(id = "txn_first", transactionDate = "2026-04-12", recurringTransactionId = "rtx_123").toModel())
 
         assertFailsWith<Exception> {
-            transactionRepository.save(transaction(id = "txn_duplicate", transactionDate = "2026-04-12", recurringTransactionId = "rtx_123"))
+            transactionRepository.save(transaction(id = "txn_duplicate", transactionDate = "2026-04-12", recurringTransactionId = "rtx_123").toModel())
         }
 
         transactionRepository.save(
@@ -110,24 +113,24 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
                 transactionDate = "2026-04-12",
                 parentTransactionId = "txn_first",
                 recurringTransactionId = "rtx_123",
-            ),
+            ).toModel(),
         )
     }
 
     @Test
     fun `visible unmodified recurring roots remain queryable`() = runBlocking {
-        transactionRepository.save(transaction(id = "txn_root", transactionDate = "2026-04-12", status = "PENDING", recurringTransactionId = "rtx_123", transactionOrigin = "RECURRING_MATERIALIZED"))
+        transactionRepository.save(transaction(id = "txn_root", transactionDate = "2026-04-12", status = "PENDING", recurringTransactionId = "rtx_123", transactionOrigin = "RECURRING_MATERIALIZED").toModel())
 
         assertEquals(listOf("txn_root"), transactionRepository.findVisibleByRecurringTransactionId("rtx_123").map { it.id })
     }
 
     @Test
     fun `visible pending and future queries use visibility aware filtering`() = runBlocking {
-        transactionRepository.save(transaction(id = "txn_pending_future", status = "PENDING", transactionDate = "2026-04-12"))
-        transactionRepository.save(transaction(id = "txn_cleared_future", status = "CLEARED", transactionDate = "2026-04-13"))
-        transactionRepository.save(transaction(id = "txn_mod", status = "CLEARED", transactionDate = "2026-05-01", isArchived = true))
-        transactionRepository.save(transaction(id = "txn_hidden_future", status = "PENDING", transactionDate = "2026-04-14", modifiedById = "txn_mod"))
-        transactionRepository.save(transaction(id = "txn_archived_future", status = "PENDING", transactionDate = "2026-04-15", isArchived = true))
+        transactionRepository.save(transaction(id = "txn_pending_future", status = "PENDING", transactionDate = "2026-04-12").toModel())
+        transactionRepository.save(transaction(id = "txn_cleared_future", status = "CLEARED", transactionDate = "2026-04-13").toModel())
+        transactionRepository.save(transaction(id = "txn_mod", status = "CLEARED", transactionDate = "2026-05-01", isArchived = true).toModel())
+        transactionRepository.save(transaction(id = "txn_hidden_future", status = "PENDING", transactionDate = "2026-04-14", modifiedById = "txn_mod").toModel())
+        transactionRepository.save(transaction(id = "txn_archived_future", status = "PENDING", transactionDate = "2026-04-15", isArchived = true).toModel())
 
         assertEquals(listOf("txn_pending_future"), transactionRepository.findVisiblePending().map { it.id })
         assertEquals(
@@ -173,3 +176,26 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         createdAt = 1L,
     )
 }
+
+private fun Account.toPersistenceModel(): de.chennemann.plannr.server.accounts.persistence.AccountModel =
+    de.chennemann.plannr.server.accounts.persistence.AccountModel(
+        id = id,
+        name = name,
+        institution = institution,
+        currencyCode = currencyCode,
+        weekendHandling = weekendHandling,
+        isArchived = isArchived,
+        createdAt = createdAt,
+    )
+
+private fun Pocket.toPersistenceModel(): de.chennemann.plannr.server.pockets.persistence.PocketModel =
+    de.chennemann.plannr.server.pockets.persistence.PocketModel(
+        id = id,
+        accountId = accountId,
+        name = name,
+        description = description,
+        color = color,
+        isDefault = isDefault,
+        isArchived = isArchived,
+        createdAt = createdAt,
+    )

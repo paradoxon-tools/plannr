@@ -1,6 +1,8 @@
 package de.chennemann.plannr.server.partners.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
+import de.chennemann.plannr.server.partners.persistence.toModel
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.partners.support.PartnerFixtures
 import kotlinx.coroutines.test.runTest
@@ -12,11 +14,11 @@ class UnarchivePartnerTest {
     @Test
     fun `unarchives partner`() = runTest {
         val repository = InMemoryPartnerRepository()
-        repository.save(PartnerFixtures.partner(isArchived = true))
+        repository.save(PartnerFixtures.partner(isArchived = true).toModel())
         val partnerService = PartnerServiceImpl(
             partnerRepository = repository,
-            partnerIdGenerator = { PartnerFixtures.DEFAULT_ID },
             timeProvider = { PartnerFixtures.DEFAULT_CREATED_AT },
+            applicationEventBus = NoOpApplicationEventBus,
         )
 
         val result = partnerService.unarchive(PartnerFixtures.DEFAULT_ID)
@@ -29,8 +31,8 @@ class UnarchivePartnerTest {
     fun `fails for unknown partner`() = runTest {
         val partnerService = PartnerServiceImpl(
             partnerRepository = InMemoryPartnerRepository(),
-            partnerIdGenerator = { PartnerFixtures.DEFAULT_ID },
             timeProvider = { PartnerFixtures.DEFAULT_CREATED_AT },
+            applicationEventBus = NoOpApplicationEventBus,
         )
 
         assertFailsWith<NotFoundException> {

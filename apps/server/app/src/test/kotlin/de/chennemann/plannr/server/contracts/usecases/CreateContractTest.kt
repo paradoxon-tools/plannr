@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.contracts.usecases
 
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.contracts.persistence.toModel
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -20,14 +21,13 @@ class CreateContractTest {
             contractRepository = contractRepository,
             pocketService = FakePocketService(listOf(PocketFixtures.pocket())),
             partnerService = FakePartnerService(),
-            contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         val created = createContract(ContractFixtures.createContractCommand())
 
         assertEquals(ContractFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
-        assertEquals(created, contractRepository.findById(ContractFixtures.DEFAULT_ID))
+        assertEquals(created, contractRepository.findById(created.id))
     }
 
     @Test
@@ -37,7 +37,6 @@ class CreateContractTest {
             contractRepository = contractRepository,
             pocketService = FakePocketService(listOf(PocketFixtures.pocket())),
             partnerService = FakePartnerService(emptyList()),
-            contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
@@ -49,12 +48,11 @@ class CreateContractTest {
     @Test
     fun `fails when pocket already has a contract`() = runTest {
         val contractRepository = InMemoryContractRepository()
-        contractRepository.save(ContractFixtures.contract())
+        contractRepository.save(ContractFixtures.contract().toModel())
         val createContract = CreateContractUseCase(
             contractRepository = contractRepository,
             pocketService = FakePocketService(listOf(PocketFixtures.pocket())),
             partnerService = FakePartnerService(),
-            contractIdGenerator = { "con_other" },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
@@ -69,7 +67,6 @@ class CreateContractTest {
             contractRepository = InMemoryContractRepository(),
             pocketService = FakePocketService(emptyList()),
             partnerService = FakePartnerService(emptyList()),
-            contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
@@ -84,7 +81,6 @@ class CreateContractTest {
             contractRepository = InMemoryContractRepository(),
             pocketService = FakePocketService(listOf(PocketFixtures.pocket())),
             partnerService = FakePartnerService(emptyList()),
-            contractIdGenerator = { ContractFixtures.DEFAULT_ID },
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 

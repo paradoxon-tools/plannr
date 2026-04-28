@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.pockets.service
 
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -34,6 +35,6 @@ internal fun pocketService(
         accountLookup = accountLookup,
         archiveCascade = archiveCascade,
         balanceProvider = balanceProvider,
-        pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
         timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
+        applicationEventBus = NoOpApplicationEventBus,
     )

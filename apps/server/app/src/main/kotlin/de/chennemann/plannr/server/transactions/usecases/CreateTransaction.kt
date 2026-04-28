@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
@@ -36,7 +35,7 @@ internal class CreateTransactionUseCase(
     private val currencyService: CurrencyService,
     private val contextResolver: TransactionContextResolver,
     private val timeProvider: TimeProvider,
-    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
+    private val applicationEventBus: ApplicationEventBus,
 ) : CreateTransaction {
     override suspend fun invoke(command: CreateTransaction.Command): TransactionRecord {
         val currency = currencyService.ensureExists(command.currencyCode)
@@ -50,6 +49,7 @@ internal class CreateTransactionUseCase(
         val created = transactionRepository.save(
             TransactionModel(
                 id = null,
+                accountId = context.accountId,
                 type = command.type,
                 status = command.status,
                 transactionDate = command.transactionDate,

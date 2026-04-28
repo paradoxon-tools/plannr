@@ -298,7 +298,6 @@ class RecurringTransactionMaterializerTest {
             recurringTransactionRepository = recurringRepository,
             transactionRepository = transactionRepository,
             accountService = accountService,
-            transactionIdGenerator = { "txn_${transactionRepository.all().size + 1}" },
             localDateProvider = { today },
             timeProvider = { 1L },
             dirtyScopeService = ProjectionDirtyScopeService(InMemoryProjectionDirtyScopeRepository(), timeProvider = { 1L }),

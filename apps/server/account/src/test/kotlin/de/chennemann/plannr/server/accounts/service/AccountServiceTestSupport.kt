@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.accounts.domain.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.service.CreateCurrencyCommand
@@ -21,8 +22,8 @@ internal fun accountService(
         currencyService = currencyService,
         archiveCascade = archiveCascade,
         balanceProvider = balanceProvider,
-        accountIdGenerator = { AccountFixtures.DEFAULT_ID },
         timeProvider = { AccountFixtures.DEFAULT_CREATED_AT },
+        applicationEventBus = NoOpApplicationEventBus,
     )
 
 private object NoOpAccountArchiveCascade : AccountArchiveCascade {

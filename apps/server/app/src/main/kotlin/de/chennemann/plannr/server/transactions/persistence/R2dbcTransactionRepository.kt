@@ -99,7 +99,7 @@ class R2dbcTransactionRepository(
     override suspend fun findVisibleByAccountId(accountId: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAll(
             """
-            WHERE (p.account_id = :scopeId OR sp.account_id = :scopeId OR dp.account_id = :scopeId)
+            WHERE $accountIdExpression = :scopeId
               AND ${TransactionVisibility.SQL_PREDICATE.replace("modified_by_id", "t.modified_by_id").replace("is_archived", "t.is_archived")}
             ORDER BY t.transaction_date ASC, t.created_at ASC, t.id ASC
             """.trimIndent(),
@@ -150,7 +150,7 @@ class R2dbcTransactionRepository(
 
     override suspend fun findVisibleFutureByAccountId(accountId: String, startDateInclusive: String, endDateInclusive: String): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> =
         findAllByScopeAndDateRange(
-            scopePredicate = "(p.account_id = :scopeId OR sp.account_id = :scopeId OR dp.account_id = :scopeId)",
+            scopePredicate = "$accountIdExpression = :scopeId",
             scopeId = accountId,
             startDateInclusive = startDateInclusive,
             endDateInclusive = endDateInclusive,
@@ -167,7 +167,7 @@ class R2dbcTransactionRepository(
     override suspend fun findAll(accountId: String?, pocketId: String?, archived: Boolean): List<de.chennemann.plannr.server.transactions.domain.TransactionRecord> {
         val conditions = mutableListOf<String>()
         if (accountId != null) {
-            conditions += "(p.account_id = :accountId OR sp.account_id = :accountId OR dp.account_id = :accountId)"
+            conditions += "$accountIdExpression = :accountId"
         }
         if (pocketId != null) {
             conditions += "(t.pocket_id = :pocketId OR t.source_pocket_id = :pocketId OR t.destination_pocket_id = :pocketId)"
@@ -298,7 +298,7 @@ class R2dbcTransactionRepository(
         private val baseSelect =
             """
             SELECT t.id,
-                   COALESCE(p.account_id, sp.account_id, dp.account_id) AS account_id,
+                   $accountIdExpression AS account_id,
                    t.type,
                    t.status,
                    t.transaction_date,
@@ -322,5 +322,7 @@ class R2dbcTransactionRepository(
             LEFT JOIN pockets sp ON sp.id = t.source_pocket_id
             LEFT JOIN pockets dp ON dp.id = t.destination_pocket_id
             """.trimIndent()
+
+        private const val accountIdExpression = "COALESCE(p.account_id, sp.account_id, dp.account_id)"
     }
 }

@@ -2,6 +2,8 @@ package de.chennemann.plannr.server.transactions.recurring.usecases
 
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.transactions.recurring.api.toCommand
+import de.chennemann.plannr.server.contracts.persistence.toModel
+import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -18,7 +20,7 @@ import kotlin.test.assertFailsWith
 class UpdateRecurringTransactionTest {
     @Test
     fun `overwrites existing recurring transaction`() = runTest {
-        val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction()) }
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction().toModel()) }
         val useCase = useCase(recurringRepository)
 
         val updated = useCase(RecurringTransactionFixtures.updateRequest(title = "Updated").toCommand(RecurringTransactionFixtures.DEFAULT_ID))
@@ -39,7 +41,7 @@ class UpdateRecurringTransactionTest {
                     weeksOfMonth = null,
                     daysOfWeek = null,
                     monthsOfYear = null,
-                ),
+                ).toModel(),
             )
         }
         val useCase = useCase(recurringRepository)
@@ -57,7 +59,6 @@ class UpdateRecurringTransactionTest {
             ).toCommand(RecurringTransactionFixtures.DEFAULT_ID),
         )
 
-        assertEquals("rtx_new", created.id)
         assertEquals(RecurringTransactionFixtures.DEFAULT_ID, created.previousVersionId)
         assertEquals("2024-05-15", recurringRepository.findById(RecurringTransactionFixtures.DEFAULT_ID)?.finalOccurrenceDate)
     }
@@ -74,7 +75,7 @@ class UpdateRecurringTransactionTest {
                     weeksOfMonth = null,
                     daysOfMonth = null,
                     monthsOfYear = null,
-                ),
+                ).toModel(),
             )
         }
         val useCase = useCase(recurringRepository)
@@ -107,7 +108,7 @@ class UpdateRecurringTransactionTest {
                     weeksOfMonth = null,
                     daysOfWeek = null,
                     monthsOfYear = listOf(2),
-                ),
+                ).toModel(),
             )
         }
         val useCase = useCase(recurringRepository)
@@ -131,8 +132,8 @@ class UpdateRecurringTransactionTest {
     @Test
     fun `rejects overlapping or branching versions`() = runTest {
         val recurringRepository = InMemoryRecurringTransactionRepository().apply {
-            save(RecurringTransactionFixtures.recurringTransaction(firstOccurrenceDate = "2024-01-15", finalOccurrenceDate = null, daysOfMonth = listOf(15), weeksOfMonth = null, daysOfWeek = null, monthsOfYear = null))
-            save(RecurringTransactionFixtures.recurringTransaction(id = "rtx_child", previousVersionId = RecurringTransactionFixtures.DEFAULT_ID, firstOccurrenceDate = "2024-06-15"))
+            save(RecurringTransactionFixtures.recurringTransaction(firstOccurrenceDate = "2024-01-15", finalOccurrenceDate = null, daysOfMonth = listOf(15), weeksOfMonth = null, daysOfWeek = null, monthsOfYear = null).toModel())
+            save(RecurringTransactionFixtures.recurringTransaction(id = "rtx_child", previousVersionId = RecurringTransactionFixtures.DEFAULT_ID, firstOccurrenceDate = "2024-06-15").toModel())
         }
         val useCase = useCase(recurringRepository)
 
@@ -162,7 +163,7 @@ class UpdateRecurringTransactionTest {
                     weeksOfMonth = null,
                     daysOfWeek = null,
                     monthsOfYear = null,
-                ),
+                ).toModel(),
             )
         }
         val useCase = useCase(recurringRepository)
@@ -198,7 +199,7 @@ class UpdateRecurringTransactionTest {
 
     @Test
     fun `rejects unsupported update mode`() = runTest {
-        val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction()) }
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction().toModel()) }
         val useCase = useCase(recurringRepository)
 
         assertFailsWith<ValidationException> {
@@ -208,7 +209,7 @@ class UpdateRecurringTransactionTest {
 
     @Test
     fun `normalizes final occurrence date from max recurrence count during update`() = runTest {
-        val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction()) }
+        val recurringRepository = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction().toModel()) }
         val useCase = useCase(recurringRepository)
 
         val updated = useCase(
@@ -230,19 +231,14 @@ class UpdateRecurringTransactionTest {
     private suspend fun useCase(recurringRepository: InMemoryRecurringTransactionRepository): UpdateRecurringTransactionUseCase {
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
-        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract()) }
-        var versionCount = 0
+        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         return UpdateRecurringTransactionUseCase(
-            recurringRepository,
-            FakeCurrencyService(),
-            contextResolver(pocketService, partnerService, contractRepository),
-            {
-                versionCount += 1
-                if (versionCount == 1) "rtx_new" else "rtx_new_$versionCount"
-            },
-            { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
-            RecurringTransactionNormalization(),
-            RecurringVersioningService(),
+            recurringTransactionRepository = recurringRepository,
+            currencyService = FakeCurrencyService(),
+            contextResolver = contextResolver(pocketService, partnerService, contractRepository),
+            timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
+            normalization = RecurringTransactionNormalization(),
+            versioningService = RecurringVersioningService(),
         )
     }
 }

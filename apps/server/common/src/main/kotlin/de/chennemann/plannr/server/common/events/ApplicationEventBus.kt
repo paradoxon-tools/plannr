@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.common.events
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
+import org.springframework.beans.factory.ListableBeanFactory
 import org.springframework.stereotype.Component
 
 interface ApplicationEvent
@@ -28,9 +29,14 @@ object NoOpApplicationEventBus : ApplicationEventBus {
 
 @Component
 class InProcessSynchronousApplicationEventBus(
-    private val handlers: List<ApplicationEventHandler<out ApplicationEvent>> = emptyList(),
+    private val beanFactory: ListableBeanFactory,
 ) : ApplicationEventBus {
+    @Suppress("UNCHECKED_CAST")
     override suspend fun publish(event: ApplicationEvent) {
-        handlers.forEach { it.handleUntyped(event) }
+        beanFactory.getBeansOfType(ApplicationEventHandler::class.java).values.forEach { handler ->
+            if (handler.eventType.isInstance(event)) {
+                (handler as ApplicationEventHandler<ApplicationEvent>).handle(event)
+            }
+        }
     }
 }

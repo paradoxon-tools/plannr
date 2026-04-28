@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
@@ -36,7 +35,7 @@ internal class UpdateTransactionUseCase(
     private val transactionRepository: TransactionRepository,
     private val currencyService: CurrencyService,
     private val contextResolver: TransactionContextResolver,
-    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
+    private val applicationEventBus: ApplicationEventBus,
 ) : UpdateTransaction {
     override suspend fun invoke(command: UpdateTransaction.Command): TransactionRecord {
         val existing = transactionRepository.findById(command.id.trim())

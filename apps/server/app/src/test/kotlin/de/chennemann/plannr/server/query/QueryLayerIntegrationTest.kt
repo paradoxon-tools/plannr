@@ -62,7 +62,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
 
         webTestClient.get()
-            .uri("/query/accounts/${created.id}")
+            .uri("/accounts/${created.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -85,7 +85,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
 
         webTestClient.get()
-            .uri("/query/accounts/${created.id}")
+            .uri("/accounts/${created.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -116,7 +116,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
 
         webTestClient.get()
-            .uri("/query/pockets/${pocket.id}")
+            .uri("/pockets/${pocket.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -140,14 +140,14 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
 
         webTestClient.get()
-            .uri("/query/pockets/${pocket.id}/transactions?limit=10")
+            .uri("/pockets/${pocket.id}/transactions?limit=10")
             .exchange()
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$.items.length()").isEqualTo(0)
 
         webTestClient.get()
-            .uri("/query/pockets/${pocket.id}")
+            .uri("/pockets/${pocket.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -211,7 +211,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
 
         webTestClient.get()
-            .uri("/query/accounts/${account.id}/transactions?limit=2")
+            .uri("/accounts/${account.id}/transactions?limit=2")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -223,7 +223,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.nextBefore").isEqualTo(2)
 
         webTestClient.get()
-            .uri("/query/accounts/${account.id}/transactions?limit=2&before=2")
+            .uri("/accounts/${account.id}/transactions?limit=2&before=2")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -276,7 +276,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
 
         webTestClient.get()
-            .uri("/query/pockets/${pocket.id}/transactions?limit=1")
+            .uri("/pockets/${pocket.id}/transactions?limit=1")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -286,7 +286,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.nextBefore").isEqualTo(2)
 
         webTestClient.get()
-            .uri("/query/pockets/${pocket.id}/transactions?limit=1&before=2")
+            .uri("/pockets/${pocket.id}/transactions?limit=1&before=2")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -439,14 +439,14 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         pocketService.archive(pocket.id)
 
         webTestClient.get()
-            .uri("/query/accounts/${account.id}")
+            .uri("/accounts/${account.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$.isArchived").isEqualTo(true)
 
         webTestClient.get()
-            .uri("/query/pockets/${pocket.id}")
+            .uri("/pockets/${pocket.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -456,14 +456,14 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         pocketService.unarchive(pocket.id)
 
         webTestClient.get()
-            .uri("/query/accounts/${account.id}")
+            .uri("/accounts/${account.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$.isArchived").isEqualTo(false)
 
         webTestClient.get()
-            .uri("/query/pockets/${pocket.id}")
+            .uri("/pockets/${pocket.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -473,14 +473,14 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
     @Test
     fun `query endpoints return not found for unknown ids`() {
         webTestClient.get()
-            .uri("/query/accounts/acc_missing")
+            .uri("/accounts/acc_missing")
             .exchange()
             .expectStatus().isNotFound
             .expectBody()
             .expectApiError(code = "not_found", details = mapOf("id" to "acc_missing"))
 
         webTestClient.get()
-            .uri("/query/pockets/poc_missing")
+            .uri("/pockets/poc_missing")
             .exchange()
             .expectStatus().isNotFound
             .expectBody()
@@ -510,7 +510,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
         )
 
         webTestClient.get()
-            .uri("/query/accounts")
+            .uri("/accounts")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -518,7 +518,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$[0].currentBalance").isEqualTo(-100)
 
         webTestClient.get()
-            .uri("/query/pockets?accountId=${account.id}")
+            .uri("/pockets?accountId=${account.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -526,7 +526,7 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$[0].currentBalance").isEqualTo(-100)
 
         webTestClient.get()
-            .uri("/query/contracts?accountId=${account.id}")
+            .uri("/contracts?accountId=${account.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -534,21 +534,21 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$[0].pocketId").isEqualTo(pocket.id)
 
         webTestClient.get()
-            .uri("/query/currencies")
+            .uri("/currencies")
             .exchange()
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$[0].code").isEqualTo("EUR")
 
         webTestClient.get()
-            .uri("/query/partners?query=Acme")
+            .uri("/partners?query=Acme")
             .exchange()
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$[0].id").isEqualTo(partner.id)
 
         webTestClient.get()
-            .uri("/query/transactions?accountId=${account.id}")
+            .uri("/transactions?accountId=${account.id}")
             .exchange()
             .expectStatus().isOk
             .expectBody()

@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.pockets.persistence
 
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.persistence.toModel
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.reactor.awaitSingle
@@ -29,7 +30,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
     fun `saves and finds pocket by id`() = runBlocking {
         val pocket = PocketFixtures.pocket()
 
-        pocketRepository.save(pocket)
+        pocketRepository.save(pocket.toModel())
 
         assertEquals(pocket, pocketRepository.findById(PocketFixtures.DEFAULT_ID))
         assertNull(pocketRepository.findById("poc_missing"))
@@ -37,7 +38,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `updates and finds pocket by id`() = runBlocking {
-        pocketRepository.save(PocketFixtures.pocket())
+        pocketRepository.save(PocketFixtures.pocket().toModel())
         val updated = PocketFixtures.pocket(
             accountId = "acc_456",
             name = "Updated",
@@ -47,16 +48,16 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             isArchived = true,
         )
 
-        pocketRepository.update(updated)
+        pocketRepository.update(updated.toModel())
 
         assertEquals(updated, pocketRepository.findById(PocketFixtures.DEFAULT_ID))
     }
 
     @Test
     fun `finds all pockets ordered by created at and id and supports filters`() = runBlocking {
-        pocketRepository.save(PocketFixtures.pocket(id = "poc_2", accountId = "acc_123", createdAt = 2, name = "Second"))
-        pocketRepository.save(PocketFixtures.pocket(id = "poc_1", accountId = "acc_123", createdAt = 1, name = "First", isArchived = true))
-        pocketRepository.save(PocketFixtures.pocket(id = "poc_3", accountId = "acc_456", createdAt = 3, name = "Third"))
+        pocketRepository.save(PocketFixtures.pocket(id = "poc_2", accountId = "acc_123", createdAt = 2, name = "Second").toModel())
+        pocketRepository.save(PocketFixtures.pocket(id = "poc_1", accountId = "acc_123", createdAt = 1, name = "First", isArchived = true).toModel())
+        pocketRepository.save(PocketFixtures.pocket(id = "poc_3", accountId = "acc_456", createdAt = 3, name = "Third").toModel())
 
         val all = pocketRepository.findAll()
         val filtered = pocketRepository.findAll(accountId = "acc_123", archived = true)

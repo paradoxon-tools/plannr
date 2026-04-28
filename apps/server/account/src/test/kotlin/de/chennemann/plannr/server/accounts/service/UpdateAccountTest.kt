@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.accounts.service
 
+import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.common.error.NotFoundException
@@ -12,7 +13,7 @@ class UpdateAccountTest {
     @Test
     fun `updates existing account when currency already exists`() = runTest {
         val accountRepository = InMemoryAccountRepository()
-        accountRepository.save(AccountFixtures.account())
+        accountRepository.save(AccountFixtures.account().toModel())
         val accountService = accountService(
             accountRepository = accountRepository,
             currencyService = FakeCurrencyService(),
@@ -44,7 +45,7 @@ class UpdateAccountTest {
             initialCurrencies = emptyList(),
             templates = mapOf("USD" to TestCurrencies.usd()),
         )
-        accountRepository.save(AccountFixtures.account())
+        accountRepository.save(AccountFixtures.account().toModel())
         val accountService = accountService(
             accountRepository = accountRepository,
             currencyService = currencyService,
@@ -73,7 +74,7 @@ class UpdateAccountTest {
     @Test
     fun `returns not found when updated currency is unknown everywhere`() = runTest {
         val accountRepository = InMemoryAccountRepository()
-        accountRepository.save(AccountFixtures.account())
+        accountRepository.save(AccountFixtures.account().toModel())
         val accountService = accountService(
             accountRepository = accountRepository,
             currencyService = FakeCurrencyService(initialCurrencies = emptyList()),

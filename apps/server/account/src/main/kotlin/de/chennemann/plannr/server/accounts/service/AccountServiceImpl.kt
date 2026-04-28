@@ -9,7 +9,6 @@ import de.chennemann.plannr.server.accounts.persistence.AccountModel
 import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.currencies.service.CurrencyService
 import org.springframework.stereotype.Component
@@ -23,7 +22,7 @@ internal class AccountServiceImpl(
     private val archiveCascade: AccountArchiveCascade,
     private val balanceProvider: AccountBalanceProvider,
     private val timeProvider: TimeProvider,
-    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
+    private val applicationEventBus: ApplicationEventBus,
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
         val currency = currencyService.ensureExists(command.currencyCode)

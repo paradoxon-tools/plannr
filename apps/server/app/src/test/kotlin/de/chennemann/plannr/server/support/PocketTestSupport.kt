@@ -109,6 +109,8 @@ class FakePocketService(
     override suspend fun getQuery(id: String): PocketQuery =
         existingPocket(id).toQuery()
 
+    fun findByIdNow(id: String): Pocket? = pockets[id.trim()]
+
     private fun existingPocket(id: String): Pocket =
         pockets[id.trim()]
             ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to id.trim()))

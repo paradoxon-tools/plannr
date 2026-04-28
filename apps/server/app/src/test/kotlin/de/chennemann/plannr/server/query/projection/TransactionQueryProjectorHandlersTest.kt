@@ -11,6 +11,7 @@ import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
+import de.chennemann.plannr.server.transactions.persistence.TransactionModel
 import de.chennemann.plannr.server.transactions.events.TransactionArchived
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
 import de.chennemann.plannr.server.transactions.events.TransactionUnarchived
@@ -95,9 +96,31 @@ class TransactionQueryProjectorHandlersTest {
     }
 
     private class InMemoryTransactionRepository : TransactionRepository {
-        override suspend fun save(transaction: TransactionRecord): TransactionRecord = transaction
+        override suspend fun save(transaction: TransactionModel): TransactionRecord =
+            TransactionRecord(
+                id = transaction.id ?: "txn_1",
+                accountId = transaction.accountId,
+                type = transaction.type,
+                status = transaction.status,
+                transactionDate = transaction.transactionDate,
+                amount = transaction.amount,
+                currencyCode = transaction.currencyCode,
+                exchangeRate = transaction.exchangeRate,
+                destinationAmount = transaction.destinationAmount,
+                description = transaction.description,
+                partnerId = transaction.partnerId,
+                pocketId = transaction.pocketId,
+                sourcePocketId = transaction.sourcePocketId,
+                destinationPocketId = transaction.destinationPocketId,
+                parentTransactionId = transaction.parentTransactionId,
+                recurringTransactionId = transaction.recurringTransactionId,
+                modifiedById = transaction.modifiedById,
+                transactionOrigin = transaction.transactionOrigin,
+                isArchived = transaction.isArchived,
+                createdAt = transaction.createdAt,
+            )
 
-        override suspend fun update(transaction: TransactionRecord): TransactionRecord = transaction
+        override suspend fun update(transaction: TransactionModel): TransactionRecord = save(transaction)
 
         override suspend fun findById(id: String): TransactionRecord? = null
 

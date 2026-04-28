@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import kotlinx.coroutines.test.runTest
@@ -17,15 +18,14 @@ class CreatePocketTest {
             accountLookup = PocketAccountLookup { true },
             archiveCascade = NoOpPocketArchiveCascade,
             balanceProvider = PocketBalanceProvider { 0 },
-            pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
+            applicationEventBus = NoOpApplicationEventBus,
         )
 
         val created = pocketService.create(PocketFixtures.createPocketCommand())
 
-        assertEquals(PocketFixtures.DEFAULT_ID, created.id)
         assertEquals(PocketFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
-        assertEquals(created, pocketRepository.findById(PocketFixtures.DEFAULT_ID))
+        assertEquals(created, pocketRepository.findById(created.id))
     }
 
     @Test
@@ -35,8 +35,8 @@ class CreatePocketTest {
             accountLookup = PocketAccountLookup { false },
             archiveCascade = NoOpPocketArchiveCascade,
             balanceProvider = PocketBalanceProvider { 0 },
-            pocketIdGenerator = { PocketFixtures.DEFAULT_ID },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
+            applicationEventBus = NoOpApplicationEventBus,
         )
 
         assertFailsWith<NotFoundException> {

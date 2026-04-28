@@ -16,9 +16,8 @@ class CreateAccountTest {
 
         val created = accountService.create(AccountFixtures.createAccountCommand())
 
-        assertEquals(AccountFixtures.DEFAULT_ID, created.id)
         assertEquals(AccountFixtures.DEFAULT_CURRENCY_CODE, created.currencyCode)
-        assertEquals(created, accountRepository.findById(AccountFixtures.DEFAULT_ID))
+        assertEquals(created, accountRepository.findById(created.id))
     }
 
     @Test

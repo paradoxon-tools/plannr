@@ -3,7 +3,6 @@ package de.chennemann.plannr.server.transactions.usecases
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
@@ -39,7 +38,7 @@ internal class ModifyRecurringOccurrenceUseCase(
     private val transactionRepository: TransactionRepository,
     private val currencyService: CurrencyService,
     private val contextResolver: TransactionContextResolver,
-    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
+    private val applicationEventBus: ApplicationEventBus,
 ) : ModifyRecurringOccurrence {
     override suspend fun invoke(command: ModifyRecurringOccurrence.Command): TransactionRecord {
         val existing = transactionRepository.findById(command.transactionId.trim())
@@ -61,6 +60,7 @@ internal class ModifyRecurringOccurrenceUseCase(
         val persistedChild = transactionRepository.save(
             TransactionModel(
                 id = null,
+                accountId = existing.accountId,
                 type = command.type,
                 status = command.status,
                 transactionDate = command.transactionDate,

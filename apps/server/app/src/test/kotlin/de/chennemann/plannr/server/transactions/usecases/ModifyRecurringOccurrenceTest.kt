@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.transactions.usecases
 
 import de.chennemann.plannr.server.common.error.ValidationException
+import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.FakeCurrencyService
@@ -39,12 +40,11 @@ class ModifyRecurringOccurrenceTest {
             ),
         )
 
-        assertEquals("txn_mod", modified.id)
         assertEquals("txn_root", modified.parentTransactionId)
         assertEquals("rtx_123", modified.recurringTransactionId)
         assertEquals("RECURRING_MODIFICATION", modified.transactionOrigin)
-        assertEquals(listOf("txn_mod"), transactionRepository.findVisibleByAccountId("acc_123").map { it.id })
-        assertEquals("txn_mod", transactionRepository.findById("txn_root")?.modifiedById)
+        assertEquals(listOf(modified.id), transactionRepository.findVisibleByAccountId("acc_123").map { it.id })
+        assertEquals(modified.id, transactionRepository.findById("txn_root")?.modifiedById)
     }
 
     @Test
@@ -70,7 +70,7 @@ class ModifyRecurringOccurrenceTest {
             transactionRepository = transactionRepository,
             currencyService = FakeCurrencyService(),
             contextResolver = TransactionContextResolver(accountService, pocketService, FakePartnerService(emptyList())),
-            transactionIdGenerator = { "txn_mod" },
+            applicationEventBus = NoOpApplicationEventBus,
         )
     }
 

@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketQuery
@@ -22,7 +21,7 @@ internal class PocketServiceImpl(
     private val archiveCascade: PocketArchiveCascade,
     private val balanceProvider: PocketBalanceProvider,
     private val timeProvider: TimeProvider,
-    private val applicationEventBus: ApplicationEventBus = NoOpApplicationEventBus,
+    private val applicationEventBus: ApplicationEventBus,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)

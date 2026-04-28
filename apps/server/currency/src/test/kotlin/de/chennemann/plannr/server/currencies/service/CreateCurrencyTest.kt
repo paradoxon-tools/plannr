@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.currencies.service
 
 import de.chennemann.plannr.server.common.error.ConflictException
+import de.chennemann.plannr.server.currencies.persistence.toModel
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
 import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
 import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyRepository
@@ -25,7 +26,7 @@ class CreateCurrencyTest {
     fun `rejects duplicate currency code`() = runTest {
         val repository = InMemoryCurrencyRepository()
         val currencyService = CurrencyServiceImpl(repository, InMemoryCurrencyTemplateCatalog())
-        repository.save(CurrencyFixtures.currency())
+        repository.save(CurrencyFixtures.currency().toModel())
 
         assertFailsWith<ConflictException> {
             currencyService.create(CurrencyFixtures.createCurrencyCommand())

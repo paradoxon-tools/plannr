@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.accounts.service
 
+import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.common.error.NotFoundException
@@ -12,8 +13,8 @@ class UnarchiveAccountTest {
     @Test
     fun `unarchives account and all pockets and contracts in that account`() = runTest {
         val accountRepository = InMemoryAccountRepository()
-        accountRepository.save(AccountFixtures.account(isArchived = true))
-        accountRepository.save(AccountFixtures.account(id = "acc_456", name = "Savings", isArchived = true))
+        accountRepository.save(AccountFixtures.account(isArchived = true).toModel())
+        accountRepository.save(AccountFixtures.account(id = "acc_456", name = "Savings", isArchived = true).toModel())
         val archiveCascade = RecordingAccountArchiveCascade()
         val accountService = accountService(accountRepository = accountRepository, archiveCascade = archiveCascade)
 
