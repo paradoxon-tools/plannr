@@ -1,11 +1,13 @@
 import java.util.concurrent.TimeUnit
 
 plugins {
-    id("artifact")
+    id("test-artifact")
 }
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":contract-api"))
+    implementation(project(":partner-api"))
     implementation(project(":pocket-api"))
     implementation(project(":transaction-api"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -13,6 +15,14 @@ dependencies {
 
     runtimeOnly("org.postgresql:r2dbc-postgresql")
 
+    testImplementation(project(":account"))
+    testImplementation(project(":account-api"))
+    testImplementation(project(":currency"))
+    testImplementation(project(":currency-api"))
+    testImplementation(project(":partner"))
+    testImplementation(project(":partner-api"))
+    testImplementation(project(":pocket"))
+    testImplementation(project(":pocket-api"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testImplementation("org.flywaydb:flyway-core")

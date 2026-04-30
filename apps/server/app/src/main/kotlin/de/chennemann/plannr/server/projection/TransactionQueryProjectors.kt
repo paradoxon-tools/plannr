@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.events.ApplicationEventHandler
 import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
+import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
@@ -176,7 +177,7 @@ class TransactionQueryProjectionService(
         val visible = transactionRepository.findVisibleByPocketId(pocketId)
         val historical = visible.filter { it.transactionDate <= today }
         val future = visible.filter { it.transactionDate > today }
-        val contractId = contractRepository.findByPocketId(pocketId)?.id
+        val contractId = contractRepository.findByPocketId(pocketId)?.toDomain()?.id
 
         databaseClient.sql("DELETE FROM pocket_transaction_feed WHERE pocket_id = :pocketId").bind("pocketId", pocketId).fetch().rowsUpdated().awaitSingle()
         databaseClient.sql("DELETE FROM pocket_future_transaction_feed WHERE pocket_id = :pocketId").bind("pocketId", pocketId).fetch().rowsUpdated().awaitSingle()

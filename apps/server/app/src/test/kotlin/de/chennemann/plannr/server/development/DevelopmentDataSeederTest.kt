@@ -13,6 +13,7 @@ import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurr
 import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransactionUseCase
 import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionContextResolver
 import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionNormalization
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -37,7 +38,7 @@ class DevelopmentDataSeederTest {
         assertEquals(1, fixture.accountService.list().size)
         assertEquals(4, fixture.pocketService.list().size)
         assertEquals(3, fixture.partnerService.list().size)
-        assertEquals(3, fixture.contractRepository.findAll().size)
+        assertEquals(3, fixture.contractRepository.findAll().toList().size)
         assertEquals(3, fixture.recurringTransactionRepository.findAll().size)
     }
 
@@ -60,9 +61,7 @@ class DevelopmentDataSeederTest {
             idGenerator = idGenerator("poc"),
             timeProvider = { timeProvider() },
         )
-        val contractRepository = InMemoryContractRepository(
-            accountIdResolver = { pocketId -> pocketService.findByIdNow(pocketId)?.accountId ?: error("Pocket not found: $pocketId") },
-        )
+        val contractRepository = InMemoryContractRepository()
         val recurringTransactionRepository = InMemoryRecurringTransactionRepository(
             contractIdResolver = { model -> contractRepository.peekByPocketId(model.sourcePocketId ?: model.destinationPocketId ?: "")?.id },
             accountIdResolver = { model ->

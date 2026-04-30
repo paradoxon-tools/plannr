@@ -16,6 +16,7 @@ include(
     ":account",
     ":account-api",
     ":common",
+    ":contract",
     ":contract-api",
     ":currency",
     ":currency-api",

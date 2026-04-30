@@ -8,7 +8,7 @@ import de.chennemann.plannr.server.common.domain.TransactionType
 import de.chennemann.plannr.server.common.domain.WeekendHandling
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.contracts.persistence.toModel
+import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.contracts.usecases.CreateContract
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
@@ -269,7 +269,7 @@ class DevelopmentDataSeeder(
         notes: String,
         collector: DevelopmentSeedCollector,
     ): Contract {
-        val existing = contractRepository.findByPocketId(pocketId)
+        val existing = contractRepository.findByPocketId(pocketId)?.toDomain()
         if (existing == null) {
             return createContract(
                 CreateContract.Command(
@@ -283,7 +283,18 @@ class DevelopmentDataSeeder(
             ).also { collector.contract(it, SeededResourceStatus.CREATED) }
         }
         if (existing.isArchived) {
-            return contractRepository.update(existing.unarchive().toModel())
+            val updated = existing.unarchive()
+            return contractRepository.update(
+                id = updated.id,
+                accountId = updated.accountId,
+                pocketId = updated.pocketId,
+                partnerId = updated.partnerId,
+                name = updated.name,
+                startDate = updated.startDate,
+                endDate = updated.endDate,
+                notes = updated.notes,
+                isArchived = false,
+            ).toDomain()
                 .also { collector.contract(it, SeededResourceStatus.UPDATED) }
         }
         collector.contract(existing, SeededResourceStatus.EXISTING)

@@ -3,8 +3,6 @@ package de.chennemann.plannr.server.contracts.api
 import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
 import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
 import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
-import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedPageResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -35,20 +33,4 @@ interface ContractApi {
         @RequestParam(required = false) accountId: String?,
         @RequestParam(defaultValue = "false") archived: Boolean,
     ): List<ContractResponse>
-
-    @GetExchange("/{id}/transactions")
-    suspend fun listTransactions(
-        @PathVariable id: String,
-        @RequestParam(defaultValue = "50") limit: Int,
-        @RequestParam(required = false) before: Long?,
-    ): PocketTransactionFeedPageResponse
-
-    @GetExchange("/{id}/future-transactions")
-    suspend fun listFutureTransactions(
-        @PathVariable id: String,
-        @RequestParam(required = false) fromDate: String?,
-        @RequestParam(required = false) toDate: String?,
-        @RequestParam(required = false) after: Long?,
-        @RequestParam(defaultValue = "50") limit: Int,
-    ): PocketFutureTransactionFeedPageResponse
 }

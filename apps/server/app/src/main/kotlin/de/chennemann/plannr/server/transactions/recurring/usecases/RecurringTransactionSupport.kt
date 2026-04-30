@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
+import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.stereotype.Component
@@ -23,7 +24,7 @@ internal class RecurringTransactionContextResolver(
     ): ResolvedContext {
         val normalizedTransactionType = normalizeTransactionType(transactionType)
         val contract = contractId?.trim()?.takeIf { it.isNotBlank() }?.let {
-            contractRepository.findById(it)
+            contractRepository.findById(it)?.toDomain()
                 ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to it))
         }
         val sourcePocket = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }?.let {

@@ -4,8 +4,6 @@ import de.chennemann.plannr.server.accounts.api.dto.AccountQueryResponse
 import de.chennemann.plannr.server.accounts.api.dto.AccountResponse
 import de.chennemann.plannr.server.accounts.api.dto.CreateAccountRequest
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountRequest
-import de.chennemann.plannr.server.transactions.api.dto.AccountFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.transactions.api.dto.AccountTransactionFeedPageResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -38,20 +36,4 @@ interface AccountApi {
 
     @GetExchange("/{id}")
     suspend fun getById(@PathVariable id: String): AccountQueryResponse
-
-    @GetExchange("/{id}/transactions")
-    suspend fun listTransactions(
-        @PathVariable id: String,
-        @RequestParam(defaultValue = "50") limit: Int,
-        @RequestParam(required = false) before: Long?,
-    ): AccountTransactionFeedPageResponse
-
-    @GetExchange("/{id}/future-transactions")
-    suspend fun listFutureTransactions(
-        @PathVariable id: String,
-        @RequestParam(required = false) fromDate: String?,
-        @RequestParam(required = false) toDate: String?,
-        @RequestParam(required = false) after: Long?,
-        @RequestParam(defaultValue = "50") limit: Int,
-    ): AccountFutureTransactionFeedPageResponse
 }
