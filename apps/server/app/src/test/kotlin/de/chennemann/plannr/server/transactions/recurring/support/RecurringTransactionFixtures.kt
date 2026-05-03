@@ -3,8 +3,7 @@ package de.chennemann.plannr.server.transactions.recurring.support
 import de.chennemann.plannr.server.transactions.recurring.api.dto.CreateRecurringTransactionRequest
 import de.chennemann.plannr.server.transactions.recurring.api.dto.UpdateRecurringTransactionRequest
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
-import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransaction
-import de.chennemann.plannr.server.transactions.recurring.usecases.UpdateRecurringTransaction
+import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 
 object RecurringTransactionFixtures {
     const val DEFAULT_ID = "rtx_123"
@@ -78,7 +77,7 @@ object RecurringTransactionFixtures {
         daysOfMonth: List<Int>? = DEFAULT_DAYS_OF_MONTH,
         monthsOfYear: List<Int>? = DEFAULT_MONTHS_OF_YEAR,
         maxRecurrenceCount: Int? = null,
-    ) = CreateRecurringTransaction.Command(contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
+    ) = RecurringTransactionService.CreateCommand(contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
 
     fun updateRequest(
         updateMode: String = "overwrite",
@@ -123,3 +122,4 @@ object RecurringTransactionFixtures {
         maxRecurrenceCount: Int? = null,
     ) = CreateRecurringTransactionRequest(contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
 }
+

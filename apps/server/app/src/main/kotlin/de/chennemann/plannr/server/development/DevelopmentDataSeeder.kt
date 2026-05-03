@@ -9,7 +9,7 @@ import de.chennemann.plannr.server.common.domain.WeekendHandling
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.toDomain
-import de.chennemann.plannr.server.contracts.usecases.CreateContract
+import de.chennemann.plannr.server.contracts.service.ContractService
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
@@ -19,7 +19,7 @@ import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
-import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransaction
+import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -30,8 +30,8 @@ class DevelopmentDataSeeder(
     private val accountService: AccountService,
     private val pocketService: PocketService,
     private val partnerService: PartnerService,
-    private val createContract: CreateContract,
-    private val createRecurringTransaction: CreateRecurringTransaction,
+    private val contractService: ContractService,
+    private val recurringTransactionService: RecurringTransactionService,
 ) {
     @Transactional
     suspend fun seedDefaultScenario(): DevelopmentSeedResult {
@@ -271,8 +271,8 @@ class DevelopmentDataSeeder(
     ): Contract {
         val existing = contractRepository.findByPocketId(pocketId)?.toDomain()
         if (existing == null) {
-            return createContract(
-                CreateContract.Command(
+            return contractService.create(
+                ContractService.CreateCommand(
                     pocketId = pocketId,
                     partnerId = partnerId,
                     name = name,
@@ -316,8 +316,8 @@ class DevelopmentDataSeeder(
         val existing = recurringTransactionRepository.findByContractId(contractId)
             .firstOrNull { it.title == title }
         if (existing == null) {
-            return createRecurringTransaction(
-                CreateRecurringTransaction.Command(
+            return recurringTransactionService.create(
+                RecurringTransactionService.CreateCommand(
                     contractId = contractId,
                     sourcePocketId = sourcePocketId,
                     destinationPocketId = null,
@@ -395,3 +395,4 @@ private class DevelopmentSeedCollector {
             recurringTransactions = recurringTransactions.values.toList(),
         )
 }
+

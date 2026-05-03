@@ -3,8 +3,7 @@ package de.chennemann.plannr.server.contracts.support
 import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
 import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
 import de.chennemann.plannr.server.contracts.domain.Contract
-import de.chennemann.plannr.server.contracts.usecases.CreateContract
-import de.chennemann.plannr.server.contracts.usecases.UpdateContract
+import de.chennemann.plannr.server.contracts.service.ContractService
 
 object ContractFixtures {
     const val DEFAULT_ID = "con_123"
@@ -49,8 +48,8 @@ object ContractFixtures {
         startDate: String = DEFAULT_START_DATE,
         endDate: String? = DEFAULT_END_DATE,
         notes: String? = DEFAULT_NOTES,
-    ): CreateContract.Command =
-        CreateContract.Command(
+    ): ContractService.CreateCommand =
+        ContractService.CreateCommand(
             pocketId = pocketId,
             partnerId = partnerId,
             name = name,
@@ -67,8 +66,8 @@ object ContractFixtures {
         startDate: String = DEFAULT_START_DATE,
         endDate: String? = DEFAULT_END_DATE,
         notes: String? = DEFAULT_NOTES,
-    ): UpdateContract.Command =
-        UpdateContract.Command(
+    ): ContractService.UpdateCommand =
+        ContractService.UpdateCommand(
             id = id,
             pocketId = pocketId,
             partnerId = partnerId,
@@ -112,3 +111,4 @@ object ContractFixtures {
             notes = notes,
         )
 }
+

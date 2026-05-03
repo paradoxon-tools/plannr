@@ -3,33 +3,26 @@ package de.chennemann.plannr.server.contracts.api
 import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
 import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
 import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
-import de.chennemann.plannr.server.contracts.usecases.ArchiveContract
-import de.chennemann.plannr.server.contracts.usecases.CreateContract
-import de.chennemann.plannr.server.contracts.usecases.ListContractsQuery
-import de.chennemann.plannr.server.contracts.usecases.UnarchiveContract
-import de.chennemann.plannr.server.contracts.usecases.UpdateContract
+import de.chennemann.plannr.server.contracts.service.ContractService
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ContractController(
-    private val createContract: CreateContract,
-    private val updateContract: UpdateContract,
-    private val archiveContract: ArchiveContract,
-    private val unarchiveContract: UnarchiveContract,
-    private val listContractsQuery: ListContractsQuery,
+    private val contractService: ContractService,
 ) : ContractApi {
     override suspend fun create(request: CreateContractRequest): ContractResponse =
-        createContract(request.toCommand()).toResponse()
+        contractService.create(request.toCreateCommand()).toResponse()
 
     override suspend fun update(id: String, request: UpdateContractRequest): ContractResponse =
-        updateContract(request.toCommand(id)).toResponse()
+        contractService.update(request.toUpdateCommand(id)).toResponse()
 
     override suspend fun archive(id: String): ContractResponse =
-        archiveContract(id).toResponse()
+        contractService.archive(id).toResponse()
 
     override suspend fun unarchive(id: String): ContractResponse =
-        unarchiveContract(id).toResponse()
+        contractService.unarchive(id).toResponse()
 
     override suspend fun list(accountId: String?, archived: Boolean): List<ContractResponse> =
-        listContractsQuery(accountId, archived).map { it.toResponse() }
+        contractService.list(accountId, archived).map { it.toResponse() }
 }
+

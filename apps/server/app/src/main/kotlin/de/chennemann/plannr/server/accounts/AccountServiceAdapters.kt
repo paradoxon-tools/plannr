@@ -6,7 +6,7 @@ import de.chennemann.plannr.server.accounts.service.AccountBalanceProvider
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
-import de.chennemann.plannr.server.transactions.usecases.CurrentBalanceCalculator
+import de.chennemann.plannr.server.transactions.service.CurrentBalanceCalculator
 import org.springframework.stereotype.Component
 
 @Component
@@ -34,3 +34,4 @@ internal class CalculatorAccountBalanceProvider(
     override suspend fun currentBalance(accountId: String): Long =
         currentBalanceCalculator.accountBalance(accountId)
 }
+

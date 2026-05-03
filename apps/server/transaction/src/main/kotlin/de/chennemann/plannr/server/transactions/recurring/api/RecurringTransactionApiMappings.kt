@@ -4,16 +4,15 @@ import de.chennemann.plannr.server.transactions.recurring.api.dto.CreateRecurrin
 import de.chennemann.plannr.server.transactions.recurring.api.dto.RecurringTransactionResponse
 import de.chennemann.plannr.server.transactions.recurring.api.dto.UpdateRecurringTransactionRequest
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
-import de.chennemann.plannr.server.transactions.recurring.usecases.CreateRecurringTransaction
-import de.chennemann.plannr.server.transactions.recurring.usecases.UpdateRecurringTransaction
+import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 
-fun CreateRecurringTransactionRequest.toCommand() = CreateRecurringTransaction.Command(
+fun CreateRecurringTransactionRequest.toCreateCommand() = RecurringTransactionService.CreateCommand(
     contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode,
     transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek,
     weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
 )
 
-fun UpdateRecurringTransactionRequest.toCommand(id: String) = UpdateRecurringTransaction.Command(
+fun UpdateRecurringTransactionRequest.toUpdateCommand(id: String) = RecurringTransactionService.UpdateCommand(
     id, updateMode, contractId, sourcePocketId, destinationPocketId, partnerId, title,
     description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate,
     recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
@@ -44,3 +43,4 @@ fun RecurringTransaction.toResponse() = RecurringTransactionResponse(
     isArchived,
     createdAt,
 )
+

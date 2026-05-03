@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.transactions.events.TransactionCreated
-import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
+import de.chennemann.plannr.server.transactions.service.CreateTransaction
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
@@ -121,3 +121,4 @@ class TransactionProjectionRollbackIntegrationTest : ApiIntegrationTest() {
         }
     }
 }
+

@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.projection
 
-import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionProjectionPort
+import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionProjectionPort
 import org.springframework.stereotype.Component
 
 @Component
@@ -15,3 +15,4 @@ class RecurringTransactionProjectionAdapter(
         dirtyScopeService.markPocketDirty(pocketId)
     }
 }
+

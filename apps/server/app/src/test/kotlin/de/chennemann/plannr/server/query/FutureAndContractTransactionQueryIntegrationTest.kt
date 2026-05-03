@@ -2,11 +2,11 @@ package de.chennemann.plannr.server.query
 
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
-import de.chennemann.plannr.server.contracts.usecases.CreateContract
+import de.chennemann.plannr.server.contracts.service.CreateContract
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
-import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
+import de.chennemann.plannr.server.transactions.service.CreateTransaction
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -139,3 +139,4 @@ class FutureAndContractTransactionQueryIntegrationTest : ApiIntegrationTest() {
             .awaitSingle()
     }
 }
+

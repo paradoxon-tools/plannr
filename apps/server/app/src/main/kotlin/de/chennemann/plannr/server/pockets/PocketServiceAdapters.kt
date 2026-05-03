@@ -9,7 +9,7 @@ import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
 import de.chennemann.plannr.server.pockets.service.PocketBalanceProvider
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
-import de.chennemann.plannr.server.transactions.usecases.CurrentBalanceCalculator
+import de.chennemann.plannr.server.transactions.service.CurrentBalanceCalculator
 import org.springframework.stereotype.Component
 
 @Component
@@ -73,3 +73,4 @@ internal class CalculatorPocketBalanceProvider(
     override suspend fun currentBalance(pocketId: String): Long =
         currentBalanceCalculator.pocketBalance(pocketId)
 }
+

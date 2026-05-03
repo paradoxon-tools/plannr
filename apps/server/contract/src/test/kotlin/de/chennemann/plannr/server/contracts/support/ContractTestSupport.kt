@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.contracts.support
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.Contract
-import de.chennemann.plannr.server.contracts.usecases.ContractRecurringTransactionCascade
+import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
@@ -117,3 +117,4 @@ class RecordingContractRecurringTransactionCascade : ContractRecurringTransactio
         unarchivedContracts += contract.id
     }
 }
+

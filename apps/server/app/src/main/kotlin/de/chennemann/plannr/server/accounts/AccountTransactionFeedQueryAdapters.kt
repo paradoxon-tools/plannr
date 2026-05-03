@@ -5,25 +5,24 @@ import de.chennemann.plannr.server.accounts.api.AccountTransactionFeedQuery
 import de.chennemann.plannr.server.transactions.api.toResponse
 import de.chennemann.plannr.server.transactions.api.dto.AccountFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.api.dto.AccountTransactionFeedPageResponse
-import de.chennemann.plannr.server.transactions.usecases.ListAccountFutureTransactionFeed
-import de.chennemann.plannr.server.transactions.usecases.ListAccountTransactionFeed
+import de.chennemann.plannr.server.transactions.service.TransactionFeedService
 import org.springframework.stereotype.Component
 
 @Component
-internal class UseCaseAccountTransactionFeedQuery(
-    private val listAccountTransactionFeed: ListAccountTransactionFeed,
+internal class ServiceAccountTransactionFeedQuery(
+    private val transactionFeedService: TransactionFeedService,
 ) : AccountTransactionFeedQuery {
     override suspend fun list(
         accountId: String,
         limit: Int,
         before: Long?,
     ): AccountTransactionFeedPageResponse =
-        listAccountTransactionFeed(accountId, before, limit).toResponse()
+        transactionFeedService.listAccountTransactions(accountId, before, limit).toResponse()
 }
 
 @Component
-internal class UseCaseAccountFutureTransactionFeedQuery(
-    private val listAccountFutureTransactionFeed: ListAccountFutureTransactionFeed,
+internal class ServiceAccountFutureTransactionFeedQuery(
+    private val transactionFeedService: TransactionFeedService,
 ) : AccountFutureTransactionFeedQuery {
     override suspend fun list(
         accountId: String,
@@ -32,5 +31,6 @@ internal class UseCaseAccountFutureTransactionFeedQuery(
         after: Long?,
         limit: Int,
     ): AccountFutureTransactionFeedPageResponse =
-        listAccountFutureTransactionFeed(accountId, fromDate, toDate, after, limit).toResponse()
+        transactionFeedService.listAccountFutureTransactions(accountId, fromDate, toDate, after, limit).toResponse()
 }
+

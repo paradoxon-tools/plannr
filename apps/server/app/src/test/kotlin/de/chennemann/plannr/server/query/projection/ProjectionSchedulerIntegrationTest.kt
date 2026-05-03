@@ -12,9 +12,9 @@ import de.chennemann.plannr.server.projection.ProjectionDirtyScopeRepository
 import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
 import de.chennemann.plannr.server.projection.ProjectionScheduler
 import de.chennemann.plannr.server.support.ApiIntegrationTest
-import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
-import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
-import de.chennemann.plannr.server.transactions.usecases.UpdateTransaction
+import de.chennemann.plannr.server.transactions.service.ArchiveTransaction
+import de.chennemann.plannr.server.transactions.service.CreateTransaction
+import de.chennemann.plannr.server.transactions.service.UpdateTransaction
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -159,3 +159,4 @@ class ProjectionSchedulerIntegrationTest : ApiIntegrationTest() {
     private suspend fun rows(sql: String): List<Map<String, Any?>> =
         databaseClient.sql(sql).fetch().all().collectList().awaitSingle().map { row -> row.mapValues { it.value } }
 }
+

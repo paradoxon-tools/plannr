@@ -1,0 +1,97 @@
+package de.chennemann.plannr.server.contracts.service
+
+import de.chennemann.plannr.server.common.error.ConflictException
+import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.contracts.support.ContractTestPartners
+import de.chennemann.plannr.server.contracts.support.ContractTestPockets
+import de.chennemann.plannr.server.contracts.support.ContractFixtures
+import de.chennemann.plannr.server.contracts.support.FakePartnerService
+import de.chennemann.plannr.server.contracts.support.FakePocketService
+import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
+import de.chennemann.plannr.server.contracts.support.RecordingContractRecurringTransactionCascade
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+
+class UpdateContractTest {
+    @Test
+    fun `updates existing contract`() = runTest {
+        val contractRepository = InMemoryContractRepository()
+        contractRepository.save(ContractFixtures.contract())
+        val updateContract = ContractService(
+            contractRepository = contractRepository,
+            pocketService = FakePocketService(
+                listOf(
+                    ContractTestPockets.pocket(),
+                    ContractTestPockets.pocket(id = "poc_456", accountId = "acc_456", name = "Rent"),
+                ),
+            ),
+            partnerService = FakePartnerService(
+                listOf(
+                    ContractTestPartners.partner(),
+                    ContractTestPartners.partner(id = "par_456", name = "Telecom GmbH"),
+                ),
+            ),
+            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
+            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
+        )
+
+        val updated = updateContract.update(
+            ContractFixtures.updateContractCommand(
+                pocketId = "poc_456",
+                partnerId = "par_456",
+                name = "Updated Contract",
+                startDate = "2024-02-01",
+                endDate = null,
+                notes = null,
+            ),
+        )
+
+        assertEquals("acc_456", updated.accountId)
+        assertEquals("poc_456", updated.pocketId)
+        assertEquals("par_456", updated.partnerId)
+        assertEquals("Updated Contract", updated.name)
+        assertEquals(null, updated.endDate)
+        assertEquals(null, updated.notes)
+    }
+
+    @Test
+    fun `fails when contract does not exist`() = runTest {
+        val updateContract = ContractService(
+            contractRepository = InMemoryContractRepository(),
+            pocketService = FakePocketService(emptyList()),
+            partnerService = FakePartnerService(emptyList()),
+            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
+            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
+        )
+
+        assertFailsWith<NotFoundException> {
+            updateContract.update(ContractFixtures.updateContractCommand())
+        }
+    }
+
+    @Test
+    fun `fails when updated pocket already has another contract`() = runTest {
+        val contractRepository = InMemoryContractRepository()
+        contractRepository.save(ContractFixtures.contract())
+        contractRepository.save(ContractFixtures.contract(id = "con_456", accountId = "acc_456", pocketId = "poc_456"))
+        val updateContract = ContractService(
+            contractRepository = contractRepository,
+            pocketService = FakePocketService(
+                listOf(
+                    ContractTestPockets.pocket(),
+                    ContractTestPockets.pocket(id = "poc_456", accountId = "acc_456", name = "Rent"),
+                ),
+            ),
+            partnerService = FakePartnerService(emptyList()),
+            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
+            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
+        )
+
+        assertFailsWith<ConflictException> {
+            updateContract.update(ContractFixtures.updateContractCommand(pocketId = "poc_456", partnerId = null))
+        }
+    }
+}
+

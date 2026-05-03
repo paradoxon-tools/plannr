@@ -9,7 +9,7 @@ import de.chennemann.plannr.server.pockets.api.PocketFutureTransactionFeedQuery
 import de.chennemann.plannr.server.pockets.api.PocketTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.api.ContractFutureTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.api.ContractHistoricalTransactionFeedQuery
-import de.chennemann.plannr.server.contracts.usecases.ContractRecurringTransactionCascade
+import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
 import de.chennemann.plannr.server.transactions.api.dto.AccountFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.api.dto.AccountTransactionFeedPageResponse
 import de.chennemann.plannr.server.pockets.domain.Pocket
@@ -136,3 +136,4 @@ class ContractTestApplication {
                 )
         }
 }
+

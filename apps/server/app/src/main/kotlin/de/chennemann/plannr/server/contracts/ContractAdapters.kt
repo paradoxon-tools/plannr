@@ -3,14 +3,13 @@ package de.chennemann.plannr.server.contracts
 import de.chennemann.plannr.server.contracts.api.ContractFutureTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.api.ContractHistoricalTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.domain.Contract
-import de.chennemann.plannr.server.contracts.usecases.ContractRecurringTransactionCascade
+import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
 import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.api.toResponse
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
-import de.chennemann.plannr.server.transactions.usecases.ListContractFutureTransactionFeed
-import de.chennemann.plannr.server.transactions.usecases.ListContractHistoricalTransactionFeed
+import de.chennemann.plannr.server.transactions.service.TransactionFeedService
 import org.springframework.stereotype.Component
 
 @Component
@@ -29,20 +28,20 @@ internal class RepositoryContractRecurringTransactionCascade(
 }
 
 @Component
-internal class UseCaseContractHistoricalTransactionFeedQuery(
-    private val listContractHistoricalTransactionFeed: ListContractHistoricalTransactionFeed,
+internal class ServiceContractHistoricalTransactionFeedQuery(
+    private val transactionFeedService: TransactionFeedService,
 ) : ContractHistoricalTransactionFeedQuery {
     override suspend fun list(
         contractId: String,
         limit: Int,
         before: Long?,
     ): PocketTransactionFeedPageResponse =
-        listContractHistoricalTransactionFeed(contractId, before, limit).toResponse()
+        transactionFeedService.listContractHistoricalTransactions(contractId, before, limit).toResponse()
 }
 
 @Component
-internal class UseCaseContractFutureTransactionFeedQuery(
-    private val listContractFutureTransactionFeed: ListContractFutureTransactionFeed,
+internal class ServiceContractFutureTransactionFeedQuery(
+    private val transactionFeedService: TransactionFeedService,
 ) : ContractFutureTransactionFeedQuery {
     override suspend fun list(
         contractId: String,
@@ -51,5 +50,6 @@ internal class UseCaseContractFutureTransactionFeedQuery(
         after: Long?,
         limit: Int,
     ): PocketFutureTransactionFeedPageResponse =
-        listContractFutureTransactionFeed(contractId, fromDate, toDate, after, limit).toResponse()
+        transactionFeedService.listContractFutureTransactions(contractId, fromDate, toDate, after, limit).toResponse()
 }
+

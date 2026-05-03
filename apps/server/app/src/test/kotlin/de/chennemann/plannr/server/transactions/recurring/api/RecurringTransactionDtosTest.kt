@@ -27,7 +27,7 @@ class RecurringTransactionDtosTest {
             daysOfMonth = listOf(15),
             monthsOfYear = null,
             maxRecurrenceCount = 3,
-        ).toCommand()
+        ).toCreateCommand()
 
         assertEquals(3, command.maxRecurrenceCount)
     }
@@ -54,7 +54,7 @@ class RecurringTransactionDtosTest {
             daysOfMonth = listOf(15),
             monthsOfYear = null,
             maxRecurrenceCount = null,
-        ).toCommand("rtx_123")
+        ).toUpdateCommand("rtx_123")
 
         assertEquals("new_version", command.updateMode)
         assertEquals("2024-06-15", command.firstOccurrenceDate)

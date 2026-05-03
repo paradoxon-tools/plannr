@@ -5,13 +5,11 @@ import de.chennemann.plannr.server.transactions.api.dto.ModifyRecurringOccurrenc
 import de.chennemann.plannr.server.transactions.api.dto.TransactionResponse
 import de.chennemann.plannr.server.transactions.api.dto.UpdateTransactionRequest
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
-import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
-import de.chennemann.plannr.server.transactions.usecases.ModifyRecurringOccurrence
-import de.chennemann.plannr.server.transactions.usecases.UpdateTransaction
+import de.chennemann.plannr.server.transactions.service.TransactionService
 
-fun CreateTransactionRequest.toCommand(): CreateTransaction.Command {
+fun CreateTransactionRequest.toCreateCommand(): TransactionService.CreateCommand {
     val normalizedType = type.trim().uppercase()
-    return CreateTransaction.Command(
+    return TransactionService.CreateCommand(
         type = type,
         status = status,
         transactionDate = transactionDate,
@@ -32,9 +30,9 @@ fun CreateTransactionRequest.toCommand(): CreateTransaction.Command {
     )
 }
 
-fun UpdateTransactionRequest.toCommand(id: String): UpdateTransaction.Command {
+fun UpdateTransactionRequest.toUpdateCommand(id: String): TransactionService.UpdateCommand {
     val normalizedType = type.trim().uppercase()
-    return UpdateTransaction.Command(
+    return TransactionService.UpdateCommand(
         id = id,
         type = type,
         status = status,
@@ -56,9 +54,9 @@ fun UpdateTransactionRequest.toCommand(id: String): UpdateTransaction.Command {
     )
 }
 
-fun ModifyRecurringOccurrenceRequest.toCommand(transactionId: String): ModifyRecurringOccurrence.Command {
+fun ModifyRecurringOccurrenceRequest.toModifyRecurringOccurrenceCommand(transactionId: String): TransactionService.ModifyRecurringOccurrenceCommand {
     val normalizedType = type.trim().uppercase()
-    return ModifyRecurringOccurrence.Command(
+    return TransactionService.ModifyRecurringOccurrenceCommand(
         transactionId = transactionId,
         type = type,
         status = status,
@@ -103,3 +101,4 @@ fun TransactionRecord.toResponse(): TransactionResponse =
         isArchived = isArchived,
         createdAt = createdAt,
     )
+

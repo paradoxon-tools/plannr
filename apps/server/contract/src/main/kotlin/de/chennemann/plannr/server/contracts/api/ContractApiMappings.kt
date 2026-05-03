@@ -4,11 +4,10 @@ import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
 import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
 import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
 import de.chennemann.plannr.server.contracts.domain.Contract
-import de.chennemann.plannr.server.contracts.usecases.CreateContract
-import de.chennemann.plannr.server.contracts.usecases.UpdateContract
+import de.chennemann.plannr.server.contracts.service.ContractService
 
-internal fun CreateContractRequest.toCommand(): CreateContract.Command =
-    CreateContract.Command(
+internal fun CreateContractRequest.toCreateCommand(): ContractService.CreateCommand =
+    ContractService.CreateCommand(
         pocketId = pocketId,
         partnerId = partnerId,
         name = name,
@@ -17,8 +16,8 @@ internal fun CreateContractRequest.toCommand(): CreateContract.Command =
         notes = notes,
     )
 
-internal fun UpdateContractRequest.toCommand(id: String): UpdateContract.Command =
-    UpdateContract.Command(
+internal fun UpdateContractRequest.toUpdateCommand(id: String): ContractService.UpdateCommand =
+    ContractService.UpdateCommand(
         id = id,
         pocketId = pocketId,
         partnerId = partnerId,
@@ -41,3 +40,4 @@ internal fun Contract.toResponse(): ContractResponse =
         isArchived = isArchived,
         createdAt = createdAt,
     )
+

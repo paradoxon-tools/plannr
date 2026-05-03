@@ -7,10 +7,10 @@ import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.projection.TransactionQueryProjectionService
 import de.chennemann.plannr.server.support.ApiIntegrationTest
-import de.chennemann.plannr.server.transactions.usecases.ArchiveTransaction
-import de.chennemann.plannr.server.transactions.usecases.CreateTransaction
-import de.chennemann.plannr.server.transactions.usecases.UnarchiveTransaction
-import de.chennemann.plannr.server.transactions.usecases.UpdateTransaction
+import de.chennemann.plannr.server.transactions.service.ArchiveTransaction
+import de.chennemann.plannr.server.transactions.service.CreateTransaction
+import de.chennemann.plannr.server.transactions.service.UnarchiveTransaction
+import de.chennemann.plannr.server.transactions.service.UpdateTransaction
 import java.time.LocalDate
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -1059,3 +1059,4 @@ class TransactionProjectionIntegrationTest : ApiIntegrationTest() {
         }
     }
 }
+

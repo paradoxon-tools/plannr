@@ -12,12 +12,9 @@ import de.chennemann.plannr.server.transactions.domain.AccountFutureTransactionF
 import de.chennemann.plannr.server.transactions.domain.AccountTransactionFeedItem
 import de.chennemann.plannr.server.transactions.domain.PocketFutureTransactionFeedItem
 import de.chennemann.plannr.server.transactions.domain.PocketTransactionFeedItem
-import de.chennemann.plannr.server.transactions.usecases.ListAccountFutureTransactionFeed
-import de.chennemann.plannr.server.transactions.usecases.ListAccountTransactionFeed.Page
-import de.chennemann.plannr.server.transactions.usecases.ListPocketFutureTransactionFeed
-import de.chennemann.plannr.server.transactions.usecases.ListPocketTransactionFeed
+import de.chennemann.plannr.server.transactions.service.TransactionFeedService
 
-fun Page.toResponse(): AccountTransactionFeedPageResponse =
+fun TransactionFeedService.AccountTransactionFeedPage.toResponse(): AccountTransactionFeedPageResponse =
     AccountTransactionFeedPageResponse(
         items = items.map { it.toResponse() },
         nextBefore = nextBefore,
@@ -46,7 +43,7 @@ fun AccountTransactionFeedItem.toResponse(): AccountTransactionFeedItemResponse 
         isArchived = isArchived,
     )
 
-fun ListPocketTransactionFeed.Page.toResponse(): PocketTransactionFeedPageResponse =
+fun TransactionFeedService.PocketTransactionFeedPage.toResponse(): PocketTransactionFeedPageResponse =
     PocketTransactionFeedPageResponse(
         items = items.map { it.toResponse() },
         nextBefore = nextBefore,
@@ -74,7 +71,7 @@ fun PocketTransactionFeedItem.toResponse(): PocketTransactionFeedItemResponse =
         isArchived = isArchived,
     )
 
-fun ListAccountFutureTransactionFeed.Page.toResponse(): AccountFutureTransactionFeedPageResponse =
+fun TransactionFeedService.AccountFutureTransactionFeedPage.toResponse(): AccountFutureTransactionFeedPageResponse =
     AccountFutureTransactionFeedPageResponse(
         items = items.map { it.toResponse() },
         nextAfter = nextAfter,
@@ -94,7 +91,7 @@ fun AccountFutureTransactionFeedItem.toResponse(): AccountFutureTransactionFeedI
         projectedBalanceAfter = projectedBalanceAfter,
     )
 
-fun ListPocketFutureTransactionFeed.Page.toResponse(): PocketFutureTransactionFeedPageResponse =
+fun TransactionFeedService.PocketFutureTransactionFeedPage.toResponse(): PocketFutureTransactionFeedPageResponse =
     PocketFutureTransactionFeedPageResponse(
         items = items.map { it.toResponse() },
         nextAfter = nextAfter,
@@ -115,3 +112,4 @@ fun PocketFutureTransactionFeedItem.toResponse(): PocketFutureTransactionFeedIte
         signedAmount = signedAmount,
         projectedBalanceAfter = projectedBalanceAfter,
     )
+

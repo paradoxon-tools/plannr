@@ -4,7 +4,7 @@ import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
-import de.chennemann.plannr.server.transactions.recurring.usecases.RecurringTransactionMaterializer
+import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionMaterializer
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import de.chennemann.plannr.server.support.expectApiError
 import kotlinx.coroutines.reactor.awaitSingle
@@ -409,3 +409,4 @@ class ApiPhase9IntegrationTest : ApiIntegrationTest() {
     private suspend fun queryLong(sql: String): Long =
         (databaseClient.sql(sql).fetch().one().awaitSingle().getValue("value") as Number).toLong()
 }
+

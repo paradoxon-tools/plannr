@@ -5,25 +5,24 @@ import de.chennemann.plannr.server.pockets.api.PocketTransactionFeedQuery
 import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.api.toResponse
-import de.chennemann.plannr.server.transactions.usecases.ListPocketFutureTransactionFeed
-import de.chennemann.plannr.server.transactions.usecases.ListPocketTransactionFeed
+import de.chennemann.plannr.server.transactions.service.TransactionFeedService
 import org.springframework.stereotype.Component
 
 @Component
-internal class UseCasePocketTransactionFeedQuery(
-    private val listPocketTransactionFeed: ListPocketTransactionFeed,
+internal class ServicePocketTransactionFeedQuery(
+    private val transactionFeedService: TransactionFeedService,
 ) : PocketTransactionFeedQuery {
     override suspend fun list(
         pocketId: String,
         limit: Int,
         before: Long?,
     ): PocketTransactionFeedPageResponse =
-        listPocketTransactionFeed(pocketId, before, limit).toResponse()
+        transactionFeedService.listPocketTransactions(pocketId, before, limit).toResponse()
 }
 
 @Component
-internal class UseCasePocketFutureTransactionFeedQuery(
-    private val listPocketFutureTransactionFeed: ListPocketFutureTransactionFeed,
+internal class ServicePocketFutureTransactionFeedQuery(
+    private val transactionFeedService: TransactionFeedService,
 ) : PocketFutureTransactionFeedQuery {
     override suspend fun list(
         pocketId: String,
@@ -32,5 +31,6 @@ internal class UseCasePocketFutureTransactionFeedQuery(
         after: Long?,
         limit: Int,
     ): PocketFutureTransactionFeedPageResponse =
-        listPocketFutureTransactionFeed(pocketId, fromDate, toDate, after, limit).toResponse()
+        transactionFeedService.listPocketFutureTransactions(pocketId, fromDate, toDate, after, limit).toResponse()
 }
+
