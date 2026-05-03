@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.currencies.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
+import de.chennemann.plannr.server.currencies.persistence.toDomain
 import de.chennemann.plannr.server.currencies.persistence.toModel
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
 import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
@@ -51,7 +52,7 @@ class UpdateCurrencyTest {
         )
 
         assertEquals("EUR", updated.code)
-        assertEquals(updated, repository.findByCode("EUR"))
+        assertEquals(updated, repository.findByCode("EUR")?.toDomain())
     }
 
     @Test

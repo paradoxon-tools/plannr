@@ -32,9 +32,9 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
         runBlocking {
             cleanDatabase("transactions", "recurring_transactions", "pocket_transaction_feed", "account_transaction_feed", "pocket_query", "account_query", "pockets", "accounts", "currencies")
             currencyService.ensureExists("EUR")
-            accountRepository.save(AccountFixtures.account().toPersistenceModel())
-            pocketRepository.save(PocketFixtures.pocket().toPersistenceModel())
-            pocketRepository.save(PocketFixtures.pocket(id = "poc_456", name = "Savings").toPersistenceModel())
+            accountRepository.insert(AccountFixtures.account())
+            pocketRepository.insert(PocketFixtures.pocket())
+            pocketRepository.insert(PocketFixtures.pocket(id = "poc_456", name = "Savings"))
             recurringTransactionRepository.save(
                 RecurringTransactionFixtures.recurringTransaction(
                     id = "rtx_123",
@@ -177,25 +177,27 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
     )
 }
 
-private fun Account.toPersistenceModel(): de.chennemann.plannr.server.accounts.persistence.AccountModel =
-    de.chennemann.plannr.server.accounts.persistence.AccountModel(
-        id = id,
-        name = name,
-        institution = institution,
-        currencyCode = currencyCode,
-        weekendHandling = weekendHandling,
-        isArchived = isArchived,
-        createdAt = createdAt,
+private suspend fun AccountRepository.insert(account: Account) {
+    insert(
+        id = account.id,
+        name = account.name,
+        institution = account.institution,
+        currencyCode = account.currencyCode,
+        weekendHandling = account.weekendHandling,
+        isArchived = account.isArchived,
+        createdAt = account.createdAt,
     )
+}
 
-private fun Pocket.toPersistenceModel(): de.chennemann.plannr.server.pockets.persistence.PocketModel =
-    de.chennemann.plannr.server.pockets.persistence.PocketModel(
-        id = id,
-        accountId = accountId,
-        name = name,
-        description = description,
-        color = color,
-        isDefault = isDefault,
-        isArchived = isArchived,
-        createdAt = createdAt,
+private suspend fun PocketRepository.insert(pocket: Pocket) {
+    insert(
+        id = pocket.id,
+        accountId = pocket.accountId,
+        name = pocket.name,
+        description = pocket.description,
+        color = pocket.color,
+        isDefault = pocket.isDefault,
+        isArchived = pocket.isArchived,
+        createdAt = pocket.createdAt,
     )
+}

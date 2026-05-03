@@ -6,8 +6,10 @@ import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
 import de.chennemann.plannr.server.pockets.service.PocketBalanceProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
 
 @SpringBootApplication(scanBasePackages = ["de.chennemann.plannr.server"])
+@EnableR2dbcRepositories(basePackages = ["de.chennemann.plannr.server"])
 class PocketTestApplication {
     @Bean
     fun pocketAccountLookup(): PocketAccountLookup =

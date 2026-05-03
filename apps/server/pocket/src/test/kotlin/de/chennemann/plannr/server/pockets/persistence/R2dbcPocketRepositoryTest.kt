@@ -1,9 +1,10 @@
 package de.chennemann.plannr.server.pockets.persistence
 
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
-import de.chennemann.plannr.server.pockets.persistence.toModel
+import de.chennemann.plannr.server.pockets.persistence.toDomain
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -30,15 +31,34 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
     fun `saves and finds pocket by id`() = runBlocking {
         val pocket = PocketFixtures.pocket()
 
-        pocketRepository.save(pocket.toModel())
+        pocketRepository.insert(
+            id = pocket.id,
+            accountId = pocket.accountId,
+            name = pocket.name,
+            description = pocket.description,
+            color = pocket.color,
+            isDefault = pocket.isDefault,
+            isArchived = pocket.isArchived,
+            createdAt = pocket.createdAt,
+        )
 
-        assertEquals(pocket, pocketRepository.findById(PocketFixtures.DEFAULT_ID))
+        assertEquals(pocket, pocketRepository.findById(PocketFixtures.DEFAULT_ID)?.toDomain())
         assertNull(pocketRepository.findById("poc_missing"))
     }
 
     @Test
     fun `updates and finds pocket by id`() = runBlocking {
-        pocketRepository.save(PocketFixtures.pocket().toModel())
+        val original = PocketFixtures.pocket()
+        pocketRepository.insert(
+            id = original.id,
+            accountId = original.accountId,
+            name = original.name,
+            description = original.description,
+            color = original.color,
+            isDefault = original.isDefault,
+            isArchived = original.isArchived,
+            createdAt = original.createdAt,
+        )
         val updated = PocketFixtures.pocket(
             accountId = "acc_456",
             name = "Updated",
@@ -48,19 +68,27 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             isArchived = true,
         )
 
-        pocketRepository.update(updated.toModel())
+        pocketRepository.update(
+            id = updated.id,
+            accountId = updated.accountId,
+            name = updated.name,
+            description = updated.description,
+            color = updated.color,
+            isDefault = updated.isDefault,
+            isArchived = updated.isArchived,
+        )
 
-        assertEquals(updated, pocketRepository.findById(PocketFixtures.DEFAULT_ID))
+        assertEquals(updated, pocketRepository.findById(PocketFixtures.DEFAULT_ID)?.toDomain())
     }
 
     @Test
     fun `finds all pockets ordered by created at and id and supports filters`() = runBlocking {
-        pocketRepository.save(PocketFixtures.pocket(id = "poc_2", accountId = "acc_123", createdAt = 2, name = "Second").toModel())
-        pocketRepository.save(PocketFixtures.pocket(id = "poc_1", accountId = "acc_123", createdAt = 1, name = "First", isArchived = true).toModel())
-        pocketRepository.save(PocketFixtures.pocket(id = "poc_3", accountId = "acc_456", createdAt = 3, name = "Third").toModel())
+        pocketRepository.insert(id = "poc_2", accountId = "acc_123", name = "Second", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 2)
+        pocketRepository.insert(id = "poc_1", accountId = "acc_123", name = "First", description = null, color = 0, isDefault = false, isArchived = true, createdAt = 1)
+        pocketRepository.insert(id = "poc_3", accountId = "acc_456", name = "Third", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 3)
 
-        val all = pocketRepository.findAll()
-        val filtered = pocketRepository.findAll(accountId = "acc_123", archived = true)
+        val all = pocketRepository.findAllByAccountIdAndArchived(accountId = null, archived = null).toList()
+        val filtered = pocketRepository.findAllByAccountIdAndArchived(accountId = "acc_123", archived = true).toList()
 
         assertEquals(listOf("poc_1", "poc_2", "poc_3"), all.map { it.id })
         assertEquals(listOf("poc_1"), filtered.map { it.id })

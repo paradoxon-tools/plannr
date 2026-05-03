@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.currencies.service
 
 import de.chennemann.plannr.server.common.error.ConflictException
+import de.chennemann.plannr.server.currencies.persistence.toDomain
 import de.chennemann.plannr.server.currencies.persistence.toModel
 import de.chennemann.plannr.server.currencies.support.CurrencyFixtures
 import de.chennemann.plannr.server.currencies.support.InMemoryCurrencyTemplateCatalog
@@ -19,7 +20,7 @@ class CreateCurrencyTest {
         val created = currencyService.create(CurrencyFixtures.createCurrencyCommand())
 
         assertEquals(CurrencyFixtures.DEFAULT_CODE, created.code)
-        assertEquals(created, repository.findByCode(CurrencyFixtures.DEFAULT_CODE))
+        assertEquals(created, repository.findByCode(CurrencyFixtures.DEFAULT_CODE)?.toDomain())
     }
 
     @Test

@@ -8,8 +8,8 @@ import de.chennemann.plannr.server.pockets.domain.PocketQuery
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.events.PocketCreated
 import de.chennemann.plannr.server.pockets.events.PocketUpdated
-import de.chennemann.plannr.server.pockets.persistence.PocketModel
-import de.chennemann.plannr.server.pockets.persistence.toModel
+import de.chennemann.plannr.server.pockets.persistence.toDomain
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,18 +25,16 @@ internal class PocketServiceImpl(
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
-        val created = pocketRepository.save(
-            PocketModel(
-                id = null,
-                accountId = accountId,
-                name = command.name,
-                description = command.description,
-                color = command.color,
-                isDefault = command.isDefault,
-                isArchived = false,
-                createdAt = timeProvider(),
-            ),
-        )
+        val created = pocketRepository.insert(
+            id = null,
+            accountId = accountId,
+            name = command.name,
+            description = command.description,
+            color = command.color,
+            isDefault = command.isDefault,
+            isArchived = false,
+            createdAt = timeProvider(),
+        ).toDomain()
         applicationEventBus.publish(PocketCreated(created))
         return created
     }
@@ -45,24 +43,29 @@ internal class PocketServiceImpl(
         val existing = existingPocket(command.id)
         val accountId = existingAccountId(command.accountId)
         val persisted = pocketRepository.update(
-            Pocket(
-                id = existing.id,
-                accountId = accountId,
-                name = command.name,
-                description = command.description,
-                color = command.color,
-                isDefault = command.isDefault,
-                isArchived = existing.isArchived,
-                createdAt = existing.createdAt,
-            ).toModel(),
-        )
+            id = existing.id,
+            accountId = accountId,
+            name = command.name,
+            description = command.description,
+            color = command.color,
+            isDefault = command.isDefault,
+            isArchived = existing.isArchived,
+        ).toDomain()
         applicationEventBus.publish(PocketUpdated(existing, persisted))
         return persisted
     }
 
     override suspend fun archive(id: String): Pocket {
         val existing = existingPocket(id)
-        val updated = pocketRepository.update(existing.archive().toModel())
+        val updated = pocketRepository.update(
+            id = existing.id,
+            accountId = existing.accountId,
+            name = existing.name,
+            description = existing.description,
+            color = existing.color,
+            isDefault = existing.isDefault,
+            isArchived = true,
+        ).toDomain()
         archiveCascade.archiveFor(updated)
         applicationEventBus.publish(PocketUpdated(existing, updated))
         return updated
@@ -70,20 +73,30 @@ internal class PocketServiceImpl(
 
     override suspend fun unarchive(id: String): Pocket {
         val existing = existingPocket(id)
-        val updated = pocketRepository.update(existing.unarchive().toModel())
+        val updated = pocketRepository.update(
+            id = existing.id,
+            accountId = existing.accountId,
+            name = existing.name,
+            description = existing.description,
+            color = existing.color,
+            isDefault = existing.isDefault,
+            isArchived = false,
+        ).toDomain()
         archiveCascade.unarchiveFor(updated)
         applicationEventBus.publish(PocketUpdated(existing, updated))
         return updated
     }
 
     override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> =
-        pocketRepository.findAll(
+        pocketRepository.findAllByAccountIdAndArchived(
             accountId = accountId?.trim()?.takeIf { it.isNotBlank() },
             archived = archived,
         )
+            .toList()
+            .map { it.toDomain() }
 
     override suspend fun getById(id: String): Pocket? =
-        pocketRepository.findById(id.trim())
+        pocketRepository.findById(id.trim())?.toDomain()
 
     override suspend fun listQueries(accountId: String?, archived: Boolean): List<PocketQuery> =
         list(accountId = accountId, archived = archived)
@@ -105,7 +118,7 @@ internal class PocketServiceImpl(
     }
 
     private suspend fun existingPocket(id: String): Pocket =
-        pocketRepository.findById(id.trim())
+        pocketRepository.findById(id.trim())?.toDomain()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Pocket not found",

@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
+import de.chennemann.plannr.server.pockets.persistence.toDomain
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import kotlinx.coroutines.test.runTest
@@ -25,7 +26,7 @@ class CreatePocketTest {
         val created = pocketService.create(PocketFixtures.createPocketCommand())
 
         assertEquals(PocketFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
-        assertEquals(created, pocketRepository.findById(created.id))
+        assertEquals(created, pocketRepository.findById(created.id)?.toDomain())
     }
 
     @Test

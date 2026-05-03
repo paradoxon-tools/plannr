@@ -16,7 +16,7 @@ subprojects {
 buildProcess {
 
     features {
-        applicationType = ApplicationType.WEB
+        applicationType = ApplicationType.CUSTOM
         dbTechnology = DatabaseTechnology.POSTGRES
         springCloudEnabled = true
 

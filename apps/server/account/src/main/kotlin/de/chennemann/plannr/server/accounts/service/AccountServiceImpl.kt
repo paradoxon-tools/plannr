@@ -6,11 +6,12 @@ import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.events.AccountCreated
 import de.chennemann.plannr.server.accounts.events.AccountUpdated
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
-import de.chennemann.plannr.server.accounts.persistence.toModel
+import de.chennemann.plannr.server.accounts.persistence.toDomain
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.currencies.service.CurrencyService
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,17 +27,15 @@ internal class AccountServiceImpl(
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
         val currency = currencyService.ensureExists(command.currencyCode)
-        val created = accountRepository.save(
-            AccountModel(
-                id = null,
-                name = command.name,
-                institution = command.institution,
-                currencyCode = currency.code,
-                weekendHandling = command.weekendHandling,
-                isArchived = false,
-                createdAt = timeProvider(),
-            ),
-        )
+        val created = accountRepository.insert(
+            id = null,
+            name = command.name,
+            institution = command.institution,
+            currencyCode = currency.code,
+            weekendHandling = command.weekendHandling,
+            isArchived = false,
+            createdAt = timeProvider(),
+        ).toDomain()
         applicationEventBus.publish(AccountCreated(created))
         return created
     }
@@ -45,23 +44,27 @@ internal class AccountServiceImpl(
         val existing = existingAccount(command.id)
         val currency = currencyService.ensureExists(command.currencyCode)
         val persisted = accountRepository.update(
-            Account(
-                id = existing.id,
-                name = command.name,
-                institution = command.institution,
-                currencyCode = currency.code,
-                weekendHandling = command.weekendHandling,
-                isArchived = existing.isArchived,
-                createdAt = existing.createdAt,
-            ).toModel(),
-        )
+            id = existing.id,
+            name = command.name,
+            institution = command.institution,
+            currencyCode = currency.code,
+            weekendHandling = command.weekendHandling,
+            isArchived = existing.isArchived,
+        ).toDomain()
         applicationEventBus.publish(AccountUpdated(existing, persisted))
         return persisted
     }
 
     override suspend fun archive(id: String): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.update(existing.archive().toModel())
+        val updated = accountRepository.update(
+            id = existing.id,
+            name = existing.name,
+            institution = existing.institution,
+            currencyCode = existing.currencyCode,
+            weekendHandling = existing.weekendHandling,
+            isArchived = true,
+        ).toDomain()
         archiveCascade.archiveFor(updated)
         applicationEventBus.publish(AccountUpdated(existing, updated))
         return updated
@@ -69,18 +72,27 @@ internal class AccountServiceImpl(
 
     override suspend fun unarchive(id: String): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.update(existing.unarchive().toModel())
+        val updated = accountRepository.update(
+            id = existing.id,
+            name = existing.name,
+            institution = existing.institution,
+            currencyCode = existing.currencyCode,
+            weekendHandling = existing.weekendHandling,
+            isArchived = false,
+        ).toDomain()
         archiveCascade.unarchiveFor(updated)
         applicationEventBus.publish(AccountUpdated(existing, updated))
         return updated
     }
 
     override suspend fun list(archived: Boolean?): List<Account> =
-        accountRepository.findAll()
+        accountRepository.findAllByOrderByCreatedAtAscIdAsc()
+            .toList()
+            .map(AccountModel::toDomain)
             .filter { archived == null || it.isArchived == archived }
 
     override suspend fun getById(id: String): Account? =
-        accountRepository.findById(id.trim())
+        accountRepository.findById(id.trim())?.toDomain()
 
     override suspend fun listQueries(archived: Boolean): List<AccountQuery> =
         list(archived = archived).map { it.toQuery(balanceProvider.currentBalance(it.id)) }
@@ -89,7 +101,7 @@ internal class AccountServiceImpl(
         existingAccount(id).toQuery(balanceProvider.currentBalance(id.trim()))
 
     private suspend fun existingAccount(id: String): Account =
-        accountRepository.findById(id.trim())
+        accountRepository.findById(id.trim())?.toDomain()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Account not found",

@@ -6,7 +6,9 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.currencies.domain.Currency
 import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
 import de.chennemann.plannr.server.currencies.domain.CurrencyTemplateCatalog
-import de.chennemann.plannr.server.currencies.persistence.toModel
+import de.chennemann.plannr.server.currencies.persistence.CurrencyModel
+import de.chennemann.plannr.server.currencies.persistence.toDomain
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 
 @Component
@@ -31,7 +33,14 @@ internal class CurrencyServiceImpl(
             )
         }
 
-        return currencyRepository.save(currency.toModel())
+        currencyRepository.insert(
+            code = currency.code,
+            name = currency.name,
+            symbol = currency.symbol,
+            decimalPlaces = currency.decimalPlaces,
+            symbolPosition = currency.symbolPosition,
+        )
+        return currency
     }
 
     override suspend fun update(command: UpdateCurrencyCommand): Currency {
@@ -63,16 +72,25 @@ internal class CurrencyServiceImpl(
             )
         }
 
-        return currencyRepository.update(currency.toModel())
+        currencyRepository.updateByCode(
+            code = currency.code,
+            name = currency.name,
+            symbol = currency.symbol,
+            decimalPlaces = currency.decimalPlaces,
+            symbolPosition = currency.symbolPosition,
+        )
+        return currency
     }
 
     override suspend fun list(): List<Currency> =
-        currencyRepository.findAll()
+        currencyRepository.findAllByOrderByCodeAsc()
+            .toList()
+            .map(CurrencyModel::toDomain)
 
     override suspend fun ensureExists(currencyCode: String): Currency {
         val normalizedCode = currencyCode.trim().uppercase()
 
-        currencyRepository.findByCode(normalizedCode)?.let { return it }
+        currencyRepository.findByCode(normalizedCode)?.let { return it.toDomain() }
 
         val template = currencyTemplateCatalog.findByCode(normalizedCode)
             ?: throw NotFoundException(
@@ -81,6 +99,13 @@ internal class CurrencyServiceImpl(
                 details = mapOf("code" to normalizedCode),
             )
 
-        return currencyRepository.save(template.toModel())
+        currencyRepository.insert(
+            code = template.code,
+            name = template.name,
+            symbol = template.symbol,
+            decimalPlaces = template.decimalPlaces,
+            symbolPosition = template.symbolPosition,
+        )
+        return template
     }
 }

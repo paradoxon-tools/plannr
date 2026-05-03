@@ -3,8 +3,8 @@ package de.chennemann.plannr.server.transactions.recurring.persistence
 import de.chennemann.plannr.server.accounts.domain.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
+import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.contracts.persistence.toModel
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
@@ -35,11 +35,11 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
         runBlocking {
             cleanDatabase("recurring_transactions", "contracts", "partners", "pockets", "accounts", "currencies")
             currencyService.ensureExists("EUR")
-            accountRepository.save(AccountFixtures.account().toPersistenceModel())
-            pocketRepository.save(PocketFixtures.pocket().toPersistenceModel())
-            pocketRepository.save(PocketFixtures.pocket(id = "poc_456", accountId = "acc_123", name = "Income").toPersistenceModel())
+            accountRepository.insert(AccountFixtures.account())
+            pocketRepository.insert(PocketFixtures.pocket())
+            pocketRepository.insert(PocketFixtures.pocket(id = "poc_456", accountId = "acc_123", name = "Income"))
             defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", notes = "Preferred partner")).id
-            contractRepository.save(ContractFixtures.contract(partnerId = defaultPartnerId).toModel())
+            contractRepository.insert(ContractFixtures.contract(partnerId = defaultPartnerId))
         }
     }
 
@@ -68,25 +68,42 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
     }
 }
 
-private fun Account.toPersistenceModel(): de.chennemann.plannr.server.accounts.persistence.AccountModel =
-    de.chennemann.plannr.server.accounts.persistence.AccountModel(
-        id = id,
-        name = name,
-        institution = institution,
-        currencyCode = currencyCode,
-        weekendHandling = weekendHandling,
-        isArchived = isArchived,
-        createdAt = createdAt,
+private suspend fun AccountRepository.insert(account: Account) {
+    insert(
+        id = account.id,
+        name = account.name,
+        institution = account.institution,
+        currencyCode = account.currencyCode,
+        weekendHandling = account.weekendHandling,
+        isArchived = account.isArchived,
+        createdAt = account.createdAt,
     )
+}
 
-private fun Pocket.toPersistenceModel(): de.chennemann.plannr.server.pockets.persistence.PocketModel =
-    de.chennemann.plannr.server.pockets.persistence.PocketModel(
-        id = id,
-        accountId = accountId,
-        name = name,
-        description = description,
-        color = color,
-        isDefault = isDefault,
-        isArchived = isArchived,
-        createdAt = createdAt,
+private suspend fun PocketRepository.insert(pocket: Pocket) {
+    insert(
+        id = pocket.id,
+        accountId = pocket.accountId,
+        name = pocket.name,
+        description = pocket.description,
+        color = pocket.color,
+        isDefault = pocket.isDefault,
+        isArchived = pocket.isArchived,
+        createdAt = pocket.createdAt,
     )
+}
+
+private suspend fun ContractRepository.insert(contract: Contract) {
+    insert(
+        id = contract.id,
+        accountId = contract.accountId,
+        pocketId = contract.pocketId,
+        partnerId = contract.partnerId,
+        name = contract.name,
+        startDate = contract.startDate,
+        endDate = contract.endDate,
+        notes = contract.notes,
+        isArchived = contract.isArchived,
+        createdAt = contract.createdAt,
+    )
+}

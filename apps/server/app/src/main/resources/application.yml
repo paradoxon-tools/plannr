@@ -1,11 +1,10 @@
 spring:
   application:
     name: plannr-server
-  @springConfigImport@
   docker:
     compose:
       file: ${PLANNR_DOCKER_COMPOSE_FILE:apps/server/compose.yml}
-      lifecycle-management: start_and_stop
+      lifecycle-management: ${PLANNR_DOCKER_COMPOSE_LIFECYCLE_MANAGEMENT:${plannr.database.docker-compose.lifecycle-management:start_and_stop}}
   r2dbc:
     url: r2dbc:postgresql://${plannr.database.host}:${plannr.database.port}/${plannr.database.name}
     username: ${plannr.database.username}
@@ -14,6 +13,9 @@ spring:
     url: jdbc:postgresql://${plannr.database.host}:${plannr.database.port}/${plannr.database.name}
     user: ${plannr.database.username}
     password: ${plannr.database.password}
+  @springConfigImport@
+server:
+  port: 9000
 plannr:
   database:
     host: ${PLANNR_DB_HOST:localhost}
@@ -21,6 +23,8 @@ plannr:
     name: ${PLANNR_DB_NAME:plannr}
     username: ${PLANNR_DB_USERNAME:plannr}
     password: ${PLANNR_DB_PASSWORD:plannr}
+    docker-compose:
+      lifecycle-management: start_and_stop
   projections:
     dirty-scope-delay-ms: 30000
     full-rebuild-delay-ms: 3600000
