@@ -20,6 +20,7 @@ include(
     ":contract-api",
     ":currency",
     ":currency-api",
+    ":health",
     ":partner",
     ":partner-api",
     ":pocket",
