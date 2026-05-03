@@ -7,25 +7,25 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.r2dbc.core.DatabaseClient
 import kotlin.test.assertEquals
 
 class R2dbcPocketTransactionFeedRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var repository: PocketTransactionFeedRepository
-    @Autowired lateinit var databaseClient: DatabaseClient
 
     @BeforeEach
     fun setUp() {
-        cleanDatabase("pocket_transaction_feed", "partners", "pockets", "accounts", "currencies")
-        insertCurrency()
-        insertAccount("acc_123")
-        insertPocket("poc_123", "acc_123", "Wallet", 123)
-        insertPocket("poc_transfer", "acc_123", "Savings", 456)
-        insertPocket("poc_other", "acc_123", "Other", 789)
-        insertPartner()
-        insertFeedRow(pocketId = "poc_123", transactionId = "tx_1", historyPosition = 1, transferPocketId = "poc_transfer", transferPocketName = "Savings", transferPocketColor = 456)
-        insertFeedRow(pocketId = "poc_123", transactionId = "tx_2", historyPosition = 2, transferPocketId = "poc_transfer", transferPocketName = "Savings", transferPocketColor = 456)
-        insertFeedRow(pocketId = "poc_other", transactionId = "tx_other", historyPosition = 1, transferPocketId = "poc_123", transferPocketName = "Wallet", transferPocketColor = 123)
+        runBlocking {
+            cleanDatabase("pocket_transaction_feed", "partners", "pockets", "accounts", "currencies")
+            insertCurrency()
+            insertAccount("acc_123")
+            insertPocket("poc_123", "acc_123", "Wallet", 123)
+            insertPocket("poc_transfer", "acc_123", "Savings", 456)
+            insertPocket("poc_other", "acc_123", "Other", 789)
+            insertPartner()
+            insertFeedRow(pocketId = "poc_123", transactionId = "tx_1", historyPosition = 1, transferPocketId = "poc_transfer", transferPocketName = "Savings", transferPocketColor = 456)
+            insertFeedRow(pocketId = "poc_123", transactionId = "tx_2", historyPosition = 2, transferPocketId = "poc_transfer", transferPocketName = "Savings", transferPocketColor = 456)
+            insertFeedRow(pocketId = "poc_other", transactionId = "tx_other", historyPosition = 1, transferPocketId = "poc_123", transferPocketName = "Wallet", transferPocketColor = 123)
+        }
     }
 
     @Test

@@ -7,26 +7,26 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.r2dbc.core.DatabaseClient
 import kotlin.test.assertEquals
 
 class R2dbcAccountTransactionFeedRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var repository: AccountTransactionFeedRepository
-    @Autowired lateinit var databaseClient: DatabaseClient
 
     @BeforeEach
     fun setUp() {
-        cleanDatabase("account_transaction_feed", "partners", "pockets", "accounts", "currencies")
-        insertCurrency()
-        insertAccount("acc_123")
-        insertAccount("acc_999")
-        insertPocket("poc_src", "acc_123", "Source", 123)
-        insertPocket("poc_dst", "acc_123", "Destination", 456)
-        insertPartner()
-        insertFeedRow(accountId = "acc_123", transactionId = "tx_1", historyPosition = 1, description = "first")
-        insertFeedRow(accountId = "acc_123", transactionId = "tx_2", historyPosition = 2, description = "second")
-        insertFeedRow(accountId = "acc_123", transactionId = "tx_3", historyPosition = 3, description = "third")
-        insertFeedRow(accountId = "acc_999", transactionId = "tx_other", historyPosition = 1, description = "other")
+        runBlocking {
+            cleanDatabase("account_transaction_feed", "partners", "pockets", "accounts", "currencies")
+            insertCurrency()
+            insertAccount("acc_123")
+            insertAccount("acc_999")
+            insertPocket("poc_src", "acc_123", "Source", 123)
+            insertPocket("poc_dst", "acc_123", "Destination", 456)
+            insertPartner()
+            insertFeedRow(accountId = "acc_123", transactionId = "tx_1", historyPosition = 1, description = "first")
+            insertFeedRow(accountId = "acc_123", transactionId = "tx_2", historyPosition = 2, description = "second")
+            insertFeedRow(accountId = "acc_123", transactionId = "tx_3", historyPosition = 3, description = "third")
+            insertFeedRow(accountId = "acc_999", transactionId = "tx_other", historyPosition = 1, description = "other")
+        }
     }
 
     @Test

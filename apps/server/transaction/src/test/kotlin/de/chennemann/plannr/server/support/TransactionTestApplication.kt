@@ -1,0 +1,205 @@
+package de.chennemann.plannr.server.support
+
+import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.domain.AccountQuery
+import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
+import de.chennemann.plannr.server.currencies.domain.Currency
+import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
+import de.chennemann.plannr.server.currencies.service.CreateCurrencyCommand
+import de.chennemann.plannr.server.currencies.service.CurrencyService
+import de.chennemann.plannr.server.currencies.service.UpdateCurrencyCommand
+import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.partners.domain.Partner
+import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.service.PartnerService
+import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
+import de.chennemann.plannr.server.pockets.domain.Pocket
+import de.chennemann.plannr.server.pockets.domain.PocketQuery
+import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
+import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionProjectionPort
+import kotlinx.coroutines.flow.toList
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.Bean
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
+
+@SpringBootApplication(
+    scanBasePackages = [
+        "de.chennemann.plannr.server.common",
+        "de.chennemann.plannr.server.transactions",
+        "de.chennemann.plannr.server.accounts.persistence",
+        "de.chennemann.plannr.server.currencies.persistence",
+        "de.chennemann.plannr.server.partners.persistence",
+        "de.chennemann.plannr.server.pockets.persistence",
+        "de.chennemann.plannr.server.contracts.persistence",
+    ],
+)
+@EnableR2dbcRepositories(
+    basePackages = [
+        "de.chennemann.plannr.server.accounts.domain",
+        "de.chennemann.plannr.server.currencies.domain",
+        "de.chennemann.plannr.server.partners.domain",
+        "de.chennemann.plannr.server.pockets.domain",
+        "de.chennemann.plannr.server.contracts.domain",
+    ],
+)
+class TransactionTestApplication {
+    @Bean
+    fun accountService(accountRepository: AccountRepository): AccountService =
+        object : AccountService {
+            override suspend fun create(command: CreateAccountCommand): Account =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun update(command: UpdateAccountCommand): Account =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun archive(id: String): Account =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun unarchive(id: String): Account =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun list(archived: Boolean?): List<Account> =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun getById(id: String): Account? =
+                accountRepository.findById(id.trim())?.let { model ->
+                    Account(
+                        id = requireNotNull(model.id),
+                        name = model.name,
+                        institution = model.institution,
+                        currencyCode = model.currencyCode,
+                        weekendHandling = model.weekendHandling,
+                        isArchived = model.isArchived,
+                        createdAt = model.createdAt,
+                    )
+                }
+
+            override suspend fun listQueries(archived: Boolean): List<AccountQuery> =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun getQuery(id: String): AccountQuery =
+                throw UnsupportedOperationException("Not used in transaction tests")
+        }
+
+    @Bean
+    fun currencyService(currencyRepository: CurrencyRepository): CurrencyService =
+        object : CurrencyService {
+            override suspend fun create(command: CreateCurrencyCommand): Currency {
+                val currency = Currency(command.code, command.name, command.symbol, command.decimalPlaces, command.symbolPosition)
+                currencyRepository.insert(currency.code, currency.name, currency.symbol, currency.decimalPlaces, currency.symbolPosition)
+                return currency
+            }
+
+            override suspend fun update(command: UpdateCurrencyCommand): Currency {
+                val currency = Currency(command.code, command.name, command.symbol, command.decimalPlaces, command.symbolPosition)
+                currencyRepository.updateByCode(currency.code, currency.name, currency.symbol, currency.decimalPlaces, currency.symbolPosition)
+                return currency
+            }
+
+            override suspend fun list(): List<Currency> =
+                currencyRepository.findAllByOrderByCodeAsc()
+                    .toList()
+                    .map { Currency(it.code, it.name, it.symbol, it.decimalPlaces, it.symbolPosition) }
+
+            override suspend fun ensureExists(currencyCode: String): Currency {
+                val code = currencyCode.trim().uppercase()
+                currencyRepository.findByCode(code)?.let {
+                    return Currency(it.code, it.name, it.symbol, it.decimalPlaces, it.symbolPosition)
+                }
+                if (code == "EUR") {
+                    currencyRepository.insert("EUR", "Euro", "EUR", 2, "before")
+                    return Currency("EUR", "Euro", "EUR", 2, "before")
+                }
+                throw NotFoundException("not_found", "Currency not found", mapOf("code" to code))
+            }
+        }
+
+    @Bean
+    fun pocketService(pocketRepository: PocketRepository): PocketService =
+        object : PocketService {
+            override suspend fun create(command: CreatePocketCommand): Pocket =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun update(command: UpdatePocketCommand): Pocket =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun archive(id: String): Pocket =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun unarchive(id: String): Pocket =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun getById(id: String): Pocket? =
+                pocketRepository.findById(id.trim())?.let { model ->
+                    Pocket(
+                        id = requireNotNull(model.id),
+                        accountId = model.accountId,
+                        name = model.name,
+                        description = model.description,
+                        color = model.color,
+                        isDefault = model.isDefault,
+                        isArchived = model.isArchived,
+                        createdAt = model.createdAt,
+                    )
+                }
+
+            override suspend fun listQueries(accountId: String?, archived: Boolean): List<PocketQuery> =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun getQuery(id: String): PocketQuery =
+                throw UnsupportedOperationException("Not used in transaction tests")
+        }
+
+    @Bean
+    fun recurringTransactionProjectionPort(): RecurringTransactionProjectionPort =
+        object : RecurringTransactionProjectionPort {
+            override suspend fun markAccountDirty(accountId: String) = Unit
+
+            override suspend fun markPocketDirty(pocketId: String) = Unit
+        }
+
+    @Bean
+    fun partnerService(partnerRepository: PartnerRepository): PartnerService =
+        object : PartnerService {
+            override suspend fun create(command: CreatePartnerCommand): Partner =
+                partnerRepository.insert(
+                    id = null,
+                    name = command.name,
+                    notes = command.notes,
+                    isArchived = false,
+                    createdAt = 1L,
+                ).let { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
+
+            override suspend fun update(command: UpdatePartnerCommand): Partner {
+                val existing = partnerRepository.findById(command.id.trim())
+                    ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to command.id.trim()))
+                return partnerRepository.update(existing.id!!, command.name, command.notes, existing.isArchived)
+                    .let { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
+            }
+
+            override suspend fun archive(id: String): Partner =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun unarchive(id: String): Partner =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun list(query: String?, archived: Boolean): List<Partner> =
+                partnerRepository.findAllByQueryAndArchived(query?.trim()?.takeIf { it.isNotBlank() }, archived)
+                    .toList()
+                    .map { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
+
+            override suspend fun getById(id: String): Partner? =
+                partnerRepository.findById(id.trim())
+                    ?.let { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
+        }
+}
