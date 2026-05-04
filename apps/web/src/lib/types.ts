@@ -4,8 +4,7 @@ export type SectionId =
   | 'pockets'
   | 'contracts'
   | 'recurring'
-  | 'partners'
-  | 'currencies';
+  | 'partners';
 
 export type Account = {
   id: string;
@@ -168,8 +167,12 @@ export const sections: { id: SectionId; label: string }[] = [
   { id: 'pockets', label: 'Pockets' },
   { id: 'contracts', label: 'Contracts' },
   { id: 'recurring', label: 'Recurring' },
-  { id: 'partners', label: 'Partners' },
-  { id: 'currencies', label: 'Currencies' }
+  { id: 'partners', label: 'Partners' }
+];
+
+export const supportedCurrencies: Currency[] = [
+  { code: 'EUR', name: 'Euro', symbol: '€', decimalPlaces: 2, symbolPosition: 'before' },
+  { code: 'USD', name: 'US Dollar', symbol: '$', decimalPlaces: 2, symbolPosition: 'before' }
 ];
 
 export const weekendHandlingOptions = [

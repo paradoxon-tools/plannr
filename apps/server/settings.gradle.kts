@@ -18,8 +18,6 @@ include(
     ":common",
     ":contract",
     ":contract-api",
-    ":currency",
-    ":currency-api",
     ":health",
     ":partner",
     ":partner-api",

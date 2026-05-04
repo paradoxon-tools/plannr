@@ -53,7 +53,7 @@
   <div class="timeline panel inset">
     <p class="eyebrow">Suggested flow</p>
     <ol>
-      <li>Create or update currencies if needed.</li>
+      <li>Accounts and recurring entries are limited to EUR and USD for now.</li>
       <li>Create an account with institution and weekend handling.</li>
       <li>Add one or more pockets inside that account.</li>
       <li>Attach contracts, partners and recurring transactions.</li>

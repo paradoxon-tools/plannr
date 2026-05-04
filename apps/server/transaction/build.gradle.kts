@@ -6,7 +6,6 @@ dependencies {
     implementation(project(":account-api"))
     implementation(project(":common"))
     implementation(project(":contract"))
-    implementation(project(":currency-api"))
     implementation(project(":partner-api"))
     implementation(project(":pocket-api"))
     implementation(project(":transaction-api"))
@@ -16,7 +15,6 @@ dependencies {
 
     testImplementation(project(":account"))
     testImplementation(project(":contract-api"))
-    testImplementation(project(":currency"))
     testImplementation(project(":partner"))
     testImplementation(project(":pocket"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

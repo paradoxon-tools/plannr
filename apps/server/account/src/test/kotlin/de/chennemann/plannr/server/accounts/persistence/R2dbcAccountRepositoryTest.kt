@@ -1,9 +1,6 @@
 package de.chennemann.plannr.server.accounts.persistence
 
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
-import de.chennemann.plannr.server.accounts.persistence.toDomain
-import de.chennemann.plannr.server.accounts.persistence.toModel
-import de.chennemann.plannr.server.accounts.persistence.toPersistedModel
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.runBlocking
@@ -19,11 +16,7 @@ class R2dbcAccountRepositoryTest : ApiIntegrationTest() {
 
     @BeforeEach
     fun setUp() {
-        cleanDatabase("accounts", "currencies")
-        runBlocking {
-            databaseClient.sql("INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position) VALUES ('EUR', 'Euro', '€', 2, 'before')")
-                .fetch().rowsUpdated().block()
-        }
+        cleanDatabase("accounts")
     }
 
     @Test
@@ -69,5 +62,4 @@ class R2dbcAccountRepositoryTest : ApiIntegrationTest() {
 
         assertEquals(updated, accountRepository.findById(AccountFixtures.DEFAULT_ID)?.toDomain())
     }
-
 }

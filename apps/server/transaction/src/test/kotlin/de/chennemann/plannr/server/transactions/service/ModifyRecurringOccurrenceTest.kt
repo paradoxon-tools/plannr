@@ -4,7 +4,6 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
-import de.chennemann.plannr.server.support.FakeCurrencyService
 import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
@@ -68,7 +67,6 @@ class ModifyRecurringOccurrenceTest {
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         return TransactionService(
             transactionRepository = transactionRepository,
-            currencyService = FakeCurrencyService(),
             contextResolver = TransactionContextResolver(accountService, pocketService, FakePartnerService(emptyList())),
             timeProvider = { 1L },
             applicationEventBus = NoOpApplicationEventBus,

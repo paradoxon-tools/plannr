@@ -4,11 +4,9 @@ import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.contracts.service.ContractService
-import de.chennemann.plannr.server.support.FakeCurrencyService
 import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
-import de.chennemann.plannr.server.support.TestCurrencies
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionProjectionPort
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionContextResolver
@@ -49,10 +47,6 @@ class DevelopmentDataSeederTest {
         accounts + pockets + partners + contracts + recurringTransactions
 
     private fun seederFixture(): SeederFixture {
-        val currencyService = FakeCurrencyService(
-            initialCurrencies = emptyList(),
-            templates = mapOf("EUR" to TestCurrencies.eur()),
-        )
         val timeProvider = TimeProvider { 1L }
         val partnerService = FakePartnerService(
             initialPartners = emptyList(),
@@ -91,7 +85,6 @@ class DevelopmentDataSeederTest {
             recurringTransactionRepository = recurringTransactionRepository,
             transactionRepository = InMemoryTransactionRepository(),
             accountService = accountService,
-            currencyService = currencyService,
             contextResolver = RecurringTransactionContextResolver(contractRepository, pocketService, partnerService),
             timeProvider = timeProvider,
             localDateProvider = { java.time.LocalDate.parse("2026-01-01") },

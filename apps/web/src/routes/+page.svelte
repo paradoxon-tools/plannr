@@ -8,7 +8,6 @@
   import ContractsSection from '$lib/components/ContractsSection.svelte';
   import RecurringSection from '$lib/components/RecurringSection.svelte';
   import PartnersSection from '$lib/components/PartnersSection.svelte';
-  import CurrenciesSection from '$lib/components/CurrenciesSection.svelte';
   import type {
     Account,
     AccountForm,
@@ -16,7 +15,6 @@
     Contract,
     ContractForm,
     Currency,
-    CurrencyForm,
     Notice,
     Partner,
     PartnerForm,
@@ -29,7 +27,6 @@
   import {
     createEmptyAccountForm,
     createEmptyContractForm,
-    createEmptyCurrencyForm,
     createEmptyPartnerForm,
     createEmptyPocketForm,
     createEmptyRecurringForm,
@@ -39,7 +36,7 @@
     normalizedArray,
     sortByCreatedAt
   } from '$lib/utils';
-  import { colorPalette } from '$lib/types';
+  import { colorPalette, supportedCurrencies } from '$lib/types';
 
   export let data: { apiBaseUrl: string };
 
@@ -60,15 +57,13 @@
   let partners: Partner[] = [];
   let contracts: Contract[] = [];
   let recurringTransactions: RecurringTransaction[] = [];
-  let currencies: Currency[] = [];
+  let currencies: Currency[] = supportedCurrencies;
 
   let accountForm: AccountForm = createEmptyAccountForm();
   let pocketForm: PocketForm = createEmptyPocketForm();
   let partnerForm: PartnerForm = createEmptyPartnerForm();
   let contractForm: ContractForm = createEmptyContractForm();
   let recurringForm: RecurringForm = createEmptyRecurringForm();
-  let currencyForm: CurrencyForm = createEmptyCurrencyForm();
-
   async function api<T>(path: string, init?: RequestInit): Promise<T> {
     const response = await fetch(`${data.apiBaseUrl}${path}`, {
       headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
@@ -97,10 +92,9 @@
   async function loadAll() {
     isLoading = true;
     try {
-      const [loadedAccounts, loadedCurrencies, activePockets, archivedPockets, activePartners, archivedPartners, activeContracts, archivedContracts, activeRecurring, archivedRecurring] =
+      const [loadedAccounts, activePockets, archivedPockets, activePartners, archivedPartners, activeContracts, archivedContracts, activeRecurring, archivedRecurring] =
         await Promise.all([
           api<Account[]>('/accounts'),
-          api<Currency[]>('/currencies'),
           api<Pocket[]>('/pockets?archived=false'),
           api<Pocket[]>('/pockets?archived=true'),
           api<Partner[]>('/partners?archived=false'),
@@ -112,7 +106,6 @@
         ]);
 
       accounts = sortByCreatedAt(loadedAccounts);
-      currencies = [...loadedCurrencies].sort((a, b) => a.code.localeCompare(b.code));
       pockets = sortByCreatedAt(dedupeBy([...activePockets, ...archivedPockets], (item) => item.id));
       partners = sortByCreatedAt(dedupeBy([...activePartners, ...archivedPartners], (item) => item.id));
       contracts = sortByCreatedAt(dedupeBy([...activeContracts, ...archivedContracts], (item) => item.id));
@@ -135,7 +128,6 @@
     if (!pocketForm.accountId) pocketForm.accountId = selectedAccountId;
     if (!contractForm.accountId) contractForm.accountId = selectedAccountId;
     if (!recurringForm.currencyCode) recurringForm.currencyCode = defaultCurrency;
-    if (!currencyForm.code) currencyForm.code = currencies[0]?.code ?? 'EUR';
   }
 
   onMount(async () => {
@@ -158,7 +150,6 @@
   function resetPartnerForm() { partnerForm = createEmptyPartnerForm(); }
   function resetContractForm() { contractForm = createEmptyContractForm(selectedAccountId); }
   function resetRecurringForm() { recurringForm = createEmptyRecurringForm(selectedAccount?.currencyCode ?? currencies[0]?.code ?? 'EUR'); }
-  function resetCurrencyForm() { currencyForm = createEmptyCurrencyForm(currencies[0]?.code ?? 'EUR'); }
 
   function editAccount(account: Account) {
     activeSection = 'accounts';
@@ -208,11 +199,6 @@
       daysOfMonth: item.daysOfMonth ?? [],
       monthsOfYear: item.monthsOfYear ?? []
     };
-  }
-
-  function editCurrency(currency: Currency) {
-    activeSection = 'currencies';
-    currencyForm = { code: currency.code, originalCode: currency.code, name: currency.name, symbol: currency.symbol, decimalPlaces: currency.decimalPlaces, symbolPosition: currency.symbolPosition };
   }
 
   async function submitAccount() {
@@ -332,18 +318,6 @@
     } catch (error) { setNotice('error', getErrorMessage(error)); } finally { isSaving = false; }
   }
 
-  async function submitCurrency() {
-    isSaving = true;
-    try {
-      const payload = { code: currencyForm.code, name: currencyForm.name, symbol: currencyForm.symbol, decimalPlaces: Number(currencyForm.decimalPlaces), symbolPosition: currencyForm.symbolPosition };
-      if (currencyForm.originalCode) await api(`/currencies/${currencyForm.originalCode}`, { method: 'PUT', body: JSON.stringify(payload) });
-      else await api('/currencies', { method: 'POST', body: JSON.stringify(payload) });
-      await loadAll();
-      resetCurrencyForm();
-      setNotice('success', 'Currency saved.');
-    } catch (error) { setNotice('error', getErrorMessage(error)); } finally { isSaving = false; }
-  }
-
   async function toggleArchive(resource: 'accounts' | 'pockets' | 'partners' | 'contracts' | 'recurring-transactions', id: string, archived: boolean) {
     if (!window.confirm(`${archived ? 'Unarchive' : 'Archive'} this item?`)) return;
     isSaving = true;
@@ -357,7 +331,7 @@
 
 <svelte:head>
   <title>plannr studio</title>
-  <meta name="description" content="Beautiful plannr control center for accounts, pockets, contracts, recurring transactions, partners and currencies." />
+  <meta name="description" content="Beautiful plannr control center for accounts, pockets, contracts, recurring transactions and partners." />
 </svelte:head>
 
 <div class="page-shell">
@@ -427,13 +401,6 @@
           on:reset={resetPartnerForm}
           on:edit={(e) => editPartner(e.detail.partner)}
           on:archive={(e) => toggleArchive('partners', e.detail.partner.id, e.detail.partner.isArchived)} />
-      {/if}
-
-      {#if activeSection === 'currencies'}
-        <CurrenciesSection bind:form={currencyForm} {currencies} {isSaving}
-          on:submit={submitCurrency}
-          on:reset={resetCurrencyForm}
-          on:edit={(e) => editCurrency(e.detail.currency)} />
       {/if}
     </section>
   </main>

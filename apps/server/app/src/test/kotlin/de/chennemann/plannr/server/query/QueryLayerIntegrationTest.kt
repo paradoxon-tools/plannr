@@ -534,13 +534,6 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$[0].pocketId").isEqualTo(pocket.id)
 
         webTestClient.get()
-            .uri("/currencies")
-            .exchange()
-            .expectStatus().isOk
-            .expectBody()
-            .jsonPath("$[0].code").isEqualTo("EUR")
-
-        webTestClient.get()
             .uri("/partners?query=Acme")
             .exchange()
             .expectStatus().isOk

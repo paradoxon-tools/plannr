@@ -2,11 +2,11 @@ package de.chennemann.plannr.server.transactions.recurring.service
 
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.domain.RecurrenceType
+import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.persistence.TransactionModel
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurrenceCalculator
@@ -25,7 +25,6 @@ class RecurringTransactionService(
     private val recurringTransactionRepository: RecurringTransactionRepository,
     private val transactionRepository: TransactionRepository,
     private val accountService: AccountService,
-    private val currencyService: CurrencyService,
     private val contextResolver: RecurringTransactionContextResolver,
     private val timeProvider: TimeProvider,
     private val localDateProvider: LocalDateProvider,
@@ -36,7 +35,7 @@ class RecurringTransactionService(
 ) {
     @Transactional
     suspend fun create(command: CreateCommand): RecurringTransaction {
-        val currency = currencyService.ensureExists(command.currencyCode)
+        val currencyCode = normalizeCurrency(command.currencyCode)
         val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(
@@ -60,7 +59,7 @@ class RecurringTransactionService(
                 title = command.title,
                 description = command.description,
                 amount = command.amount,
-                currencyCode = currency.code,
+                currencyCode = currencyCode,
                 transactionType = command.transactionType,
                 firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
                 finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
@@ -82,7 +81,7 @@ class RecurringTransactionService(
     suspend fun update(command: UpdateCommand): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(command.id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to command.id.trim()))
-        val currency = currencyService.ensureExists(command.currencyCode)
+        val currencyCode = normalizeCurrency(command.currencyCode)
         val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(
@@ -111,7 +110,7 @@ class RecurringTransactionService(
                     title = command.title,
                     description = command.description,
                     amount = command.amount,
-                    currencyCode = currency.code,
+                    currencyCode = currencyCode,
                     transactionType = command.transactionType,
                     firstOccurrenceDate = normalizedRecurrence.firstOccurrenceDate,
                     finalOccurrenceDate = normalizedRecurrence.finalOccurrenceDate,
@@ -127,7 +126,7 @@ class RecurringTransactionService(
                     createdAt = existing.createdAt,
                 ).toModel(),
             )
-            "new_version" -> createNewVersion(existing, context, command, currency.code, normalizedRecurrence)
+            "new_version" -> createNewVersion(existing, context, command, currencyCode, normalizedRecurrence)
             else -> throw ValidationException("validation_error", "Recurring transaction update mode is invalid")
         }
     }

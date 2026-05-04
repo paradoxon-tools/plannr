@@ -20,8 +20,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
     @BeforeEach
     fun setUp() {
         runBlocking {
-            cleanDatabase("pockets", "accounts", "currencies")
-            insertCurrency()
+            cleanDatabase("pockets", "accounts")
             insertAccount("acc_123", "Main")
             insertAccount("acc_456", "Savings")
         }
@@ -92,15 +91,6 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
 
         assertEquals(listOf("poc_1", "poc_2", "poc_3"), all.map { it.id })
         assertEquals(listOf("poc_1"), filtered.map { it.id })
-    }
-
-    private suspend fun insertCurrency() {
-        databaseClient.sql(
-            """
-            INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position)
-            VALUES ('EUR', 'Euro', 'EUR', 2, 'before')
-            """.trimIndent(),
-        ).fetch().rowsUpdated().awaitSingle()
     }
 
     private suspend fun insertAccount(id: String, name: String) {

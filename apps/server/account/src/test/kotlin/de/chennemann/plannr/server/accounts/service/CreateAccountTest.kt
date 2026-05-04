@@ -3,7 +3,7 @@ package de.chennemann.plannr.server.accounts.service
 import de.chennemann.plannr.server.accounts.persistence.toDomain
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.error.ValidationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,32 +22,20 @@ class CreateAccountTest {
     }
 
     @Test
-    fun `creates account and persists built in currency when missing`() = runTest {
+    fun `creates account with normalized supported currency`() = runTest {
         val accountRepository = InMemoryAccountRepository()
-        val currencyService = FakeCurrencyService(
-            initialCurrencies = emptyList(),
-            templates = mapOf("EUR" to TestCurrencies.eur()),
-        )
-        val accountService = accountService(
-            accountRepository = accountRepository,
-            currencyService = currencyService,
-        )
+        val accountService = accountService(accountRepository = accountRepository)
 
         val created = accountService.create(AccountFixtures.createAccountCommand(currencyCode = "eur"))
 
         assertEquals(AccountFixtures.DEFAULT_CURRENCY_CODE, created.currencyCode)
-        assertEquals(TestCurrencies.eur(), currencyService.findByCode("EUR"))
     }
 
     @Test
-    fun `fails when currency exists in neither database nor templates`() = runTest {
-        val accountRepository = InMemoryAccountRepository()
-        val accountService = accountService(
-            accountRepository = accountRepository,
-            currencyService = FakeCurrencyService(initialCurrencies = emptyList()),
-        )
+    fun `fails when currency is unsupported`() = runTest {
+        val accountService = accountService(accountRepository = InMemoryAccountRepository())
 
-        assertFailsWith<NotFoundException> {
+        assertFailsWith<ValidationException> {
             accountService.create(AccountFixtures.createAccountCommand(currencyCode = "xyz"))
         }
     }

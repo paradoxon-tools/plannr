@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.transactions.domain
 
+import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.domain.normalizeTransactionOrigin
 import de.chennemann.plannr.server.common.domain.normalizeTransactionStatus
 import de.chennemann.plannr.server.common.domain.normalizeTransactionType
@@ -67,7 +68,7 @@ data class TransactionRecord private constructor(
             val normalizedType = normalizeTransactionType(type)
             val normalizedStatus = normalizeTransactionStatus(status)
             val normalizedTransactionDate = transactionDate.trim()
-            val normalizedCurrencyCode = currencyCode.trim().uppercase()
+            val normalizedCurrencyCode = normalizeCurrency(currencyCode)
             val normalizedExchangeRate = exchangeRate?.trim()?.takeIf { it.isNotBlank() }
             val normalizedDescription = description.trim()
             val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
@@ -82,7 +83,6 @@ data class TransactionRecord private constructor(
             if (normalizedId.isBlank()) throw ValidationException("validation_error", "Transaction id must not be blank")
             if (normalizedAccountId.isBlank()) throw ValidationException("validation_error", "Transaction account id must not be blank")
             if (normalizedTransactionDate.isBlank()) throw ValidationException("validation_error", "Transaction date must not be blank")
-            if (normalizedCurrencyCode.isBlank()) throw ValidationException("validation_error", "Transaction currency code must not be blank")
             if (normalizedDescription.isBlank()) throw ValidationException("validation_error", "Transaction description must not be blank")
             if (amount < 0) throw ValidationException("validation_error", "Transaction amount must not be negative")
             if (destinationAmount != null && destinationAmount < 0) throw ValidationException("validation_error", "Transaction destination amount must not be negative")

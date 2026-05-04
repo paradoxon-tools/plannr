@@ -5,7 +5,6 @@ import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
-import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.domain.Pocket
@@ -24,14 +23,12 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var pocketRepository: PocketRepository
     @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var accountRepository: AccountRepository
-    @Autowired lateinit var currencyService: CurrencyService
     private lateinit var defaultPartnerId: String
 
     @BeforeEach
     fun setUp() {
         runBlocking {
-            cleanDatabase("contracts", "partners", "pockets", "accounts", "currencies")
-            currencyService.ensureExists("EUR")
+            cleanDatabase("contracts", "partners", "pockets", "accounts")
             accountRepository.insert(Account("acc_123", "Main Account", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_000L))
             accountRepository.insert(Account("acc_456", "Savings", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_001L))
             pocketRepository.insert(Pocket("poc_123", "acc_123", "Bills", "Monthly fixed costs", 123456, false, false, 1_710_000_100L))

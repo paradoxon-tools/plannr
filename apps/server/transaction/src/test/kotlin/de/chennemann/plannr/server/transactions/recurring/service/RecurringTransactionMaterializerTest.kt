@@ -309,7 +309,6 @@ class RecurringTransactionMaterializerTest {
             recurringTransactionRepository = recurringRepository,
             transactionRepository = transactionRepository,
             accountService = accountService,
-            currencyService = de.chennemann.plannr.server.support.FakeCurrencyService(),
             contextResolver = contextResolver(
                 de.chennemann.plannr.server.support.FakePocketService(),
                 de.chennemann.plannr.server.support.FakePartnerService(),

@@ -7,10 +7,10 @@ import de.chennemann.plannr.server.accounts.events.AccountCreated
 import de.chennemann.plannr.server.accounts.events.AccountUpdated
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
 import de.chennemann.plannr.server.accounts.persistence.toDomain
+import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.currencies.service.CurrencyService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -19,19 +19,18 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 internal class AccountServiceImpl(
     private val accountRepository: AccountRepository,
-    private val currencyService: CurrencyService,
     private val archiveCascade: AccountArchiveCascade,
     private val balanceProvider: AccountBalanceProvider,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus,
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
-        val currency = currencyService.ensureExists(command.currencyCode)
+        val currencyCode = normalizeCurrency(command.currencyCode)
         val created = accountRepository.insert(
             id = null,
             name = command.name,
             institution = command.institution,
-            currencyCode = currency.code,
+            currencyCode = currencyCode,
             weekendHandling = command.weekendHandling,
             isArchived = false,
             createdAt = timeProvider(),
@@ -42,12 +41,12 @@ internal class AccountServiceImpl(
 
     override suspend fun update(command: UpdateAccountCommand): Account {
         val existing = existingAccount(command.id)
-        val currency = currencyService.ensureExists(command.currencyCode)
+        val currencyCode = normalizeCurrency(command.currencyCode)
         val persisted = accountRepository.update(
             id = existing.id,
             name = command.name,
             institution = command.institution,
-            currencyCode = currency.code,
+            currencyCode = currencyCode,
             weekendHandling = command.weekendHandling,
             isArchived = existing.isArchived,
         ).toDomain()

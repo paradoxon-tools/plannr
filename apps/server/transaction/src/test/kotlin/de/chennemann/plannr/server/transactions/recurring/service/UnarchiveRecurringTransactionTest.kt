@@ -13,7 +13,6 @@ class UnarchiveRecurringTransactionTest {
             recurringTransactionRepository = repo,
             transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
             accountService = de.chennemann.plannr.server.support.FakeAccountService(),
-            currencyService = de.chennemann.plannr.server.support.FakeCurrencyService(),
             contextResolver = contextResolver(
                 de.chennemann.plannr.server.support.FakePocketService(),
                 de.chennemann.plannr.server.support.FakePartnerService(),

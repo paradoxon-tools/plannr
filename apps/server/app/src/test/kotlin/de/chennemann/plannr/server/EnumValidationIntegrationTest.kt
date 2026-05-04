@@ -6,22 +6,16 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.r2dbc.core.DatabaseClient
 
 class EnumValidationIntegrationTest : ApiIntegrationTest() {
     @Autowired lateinit var databaseClient: DatabaseClient
 
     @BeforeEach
     fun setUp() {
-        cleanDatabase("transactions", "recurring_transactions", "contracts", "partners", "pockets", "accounts", "currencies")
+        cleanDatabase("transactions", "recurring_transactions", "contracts", "partners", "pockets", "accounts")
         runBlocking {
-            databaseClient.sql(
-                """
-                INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position)
-                VALUES ('EUR', 'Euro', '€', 2, 'before')
-                """.trimIndent(),
-            ).fetch().rowsUpdated().awaitSingle()
             databaseClient.sql(
                 """
                 INSERT INTO accounts (id, name, institution, currency_code, weekend_handling, is_archived, created_at)

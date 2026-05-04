@@ -3,7 +3,6 @@ package de.chennemann.plannr.server.transactions.persistence
 import de.chennemann.plannr.server.accounts.domain.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
-import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -22,7 +21,6 @@ import kotlin.test.assertFailsWith
 
 class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var transactionRepository: TransactionRepository
-    @Autowired lateinit var currencyService: CurrencyService
     @Autowired lateinit var accountRepository: AccountRepository
     @Autowired lateinit var pocketRepository: PocketRepository
     @Autowired lateinit var recurringTransactionRepository: RecurringTransactionRepository
@@ -30,8 +28,7 @@ class R2dbcTransactionRepositoryTest : ApiIntegrationTest() {
     @BeforeEach
     fun setUp() {
         runBlocking {
-            cleanDatabase("transactions", "recurring_transactions", "pocket_transaction_feed", "account_transaction_feed", "pocket_query", "account_query", "pockets", "accounts", "currencies")
-            currencyService.ensureExists("EUR")
+            cleanDatabase("transactions", "recurring_transactions", "pocket_transaction_feed", "account_transaction_feed", "pocket_query", "account_query", "pockets", "accounts")
             accountRepository.insert(AccountFixtures.account())
             pocketRepository.insert(PocketFixtures.pocket())
             pocketRepository.insert(PocketFixtures.pocket(id = "poc_456", name = "Savings"))

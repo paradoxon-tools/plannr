@@ -23,7 +23,6 @@ class DevelopmentSeedApiIntegrationTest : ApiIntegrationTest() {
             "partners",
             "pockets",
             "accounts",
-            "currencies",
         )
     }
 

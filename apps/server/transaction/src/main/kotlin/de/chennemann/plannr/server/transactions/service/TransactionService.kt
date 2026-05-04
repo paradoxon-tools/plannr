@@ -1,10 +1,10 @@
 package de.chennemann.plannr.server.transactions.service
 
+import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.transactions.domain.TransactionRecord
 import de.chennemann.plannr.server.transactions.domain.TransactionRepository
 import de.chennemann.plannr.server.transactions.events.TransactionArchived
@@ -19,20 +19,19 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class TransactionService(
     private val transactionRepository: TransactionRepository,
-    private val currencyService: CurrencyService,
     private val contextResolver: TransactionContextResolver,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus,
 ) {
     @Transactional
     suspend fun create(command: CreateCommand): TransactionRecord {
-        val currency = currencyService.ensureExists(command.currencyCode)
+        val currencyCode = normalizeCurrency(command.currencyCode)
         val context = contextResolver.resolve(
             sourcePocketId = command.sourcePocketId,
             destinationPocketId = command.destinationPocketId,
             partnerId = command.partnerId,
             transactionType = command.type,
-            currencyCode = currency.code,
+            currencyCode = currencyCode,
         )
         val created = transactionRepository.save(
             TransactionModel(
@@ -42,7 +41,7 @@ class TransactionService(
                 status = command.status,
                 transactionDate = command.transactionDate,
                 amount = command.amount,
-                currencyCode = currency.code,
+                currencyCode = currencyCode,
                 exchangeRate = command.exchangeRate,
                 destinationAmount = command.destinationAmount,
                 description = command.description,
@@ -66,13 +65,13 @@ class TransactionService(
     suspend fun update(command: UpdateCommand): TransactionRecord {
         val existing = transactionRepository.findById(command.id.trim())
             ?: throw NotFoundException("not_found", "Transaction not found", mapOf("id" to command.id.trim()))
-        val currency = currencyService.ensureExists(command.currencyCode)
+        val currencyCode = normalizeCurrency(command.currencyCode)
         val context = contextResolver.resolve(
             sourcePocketId = command.sourcePocketId,
             destinationPocketId = command.destinationPocketId,
             partnerId = command.partnerId,
             transactionType = command.type,
-            currencyCode = currency.code,
+            currencyCode = currencyCode,
         )
         val updated = TransactionRecord(
             id = existing.id,
@@ -81,7 +80,7 @@ class TransactionService(
             status = command.status,
             transactionDate = command.transactionDate,
             amount = command.amount,
-            currencyCode = currency.code,
+            currencyCode = currencyCode,
             exchangeRate = command.exchangeRate,
             destinationAmount = command.destinationAmount,
             description = command.description,
@@ -107,13 +106,13 @@ class TransactionService(
             ?: throw NotFoundException("not_found", "Transaction not found", mapOf("id" to command.transactionId.trim()))
         validateModifiableOccurrence(existing)
 
-        val currency = currencyService.ensureExists(command.currencyCode)
+        val currencyCode = normalizeCurrency(command.currencyCode)
         val context = contextResolver.resolve(
             sourcePocketId = command.sourcePocketId,
             destinationPocketId = command.destinationPocketId,
             partnerId = command.partnerId,
             transactionType = command.type,
-            currencyCode = currency.code,
+            currencyCode = currencyCode,
         )
         if (context.accountId != existing.accountId) {
             throw ValidationException("validation_error", "Modified recurring occurrence must remain in the same account")
@@ -127,7 +126,7 @@ class TransactionService(
                 status = command.status,
                 transactionDate = command.transactionDate,
                 amount = command.amount,
-                currencyCode = currency.code,
+                currencyCode = currencyCode,
                 exchangeRate = command.exchangeRate,
                 destinationAmount = command.destinationAmount,
                 description = command.description,

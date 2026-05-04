@@ -7,7 +7,6 @@ import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
-import de.chennemann.plannr.server.support.FakeCurrencyService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
@@ -236,7 +235,6 @@ class UpdateRecurringTransactionTest {
             recurringTransactionRepository = recurringRepository,
             transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
             accountService = de.chennemann.plannr.server.support.FakeAccountService(),
-            currencyService = FakeCurrencyService(),
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
             localDateProvider = { java.time.LocalDate.parse("2024-04-10") },

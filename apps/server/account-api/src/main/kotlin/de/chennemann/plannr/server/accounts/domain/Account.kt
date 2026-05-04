@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.accounts.domain
 
+import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.ValidationException
 
 data class Account private constructor(
@@ -28,7 +29,7 @@ data class Account private constructor(
             val normalizedId = id.trim()
             val normalizedName = name.trim()
             val normalizedInstitution = institution.trim()
-            val normalizedCurrencyCode = currencyCode.trim().uppercase()
+            val normalizedCurrencyCode = normalizeCurrency(currencyCode)
             val normalizedWeekendHandling = normalizeWeekendHandling(weekendHandling)
 
             if (normalizedId.isBlank()) {
@@ -39,9 +40,6 @@ data class Account private constructor(
             }
             if (normalizedInstitution.isBlank()) {
                 throw ValidationException("validation_error", "Account institution must not be blank")
-            }
-            if (normalizedCurrencyCode.isBlank()) {
-                throw ValidationException("validation_error", "Account currency code must not be blank")
             }
             return Account(
                 id = normalizedId,

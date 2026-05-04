@@ -6,7 +6,6 @@ import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
-import de.chennemann.plannr.server.currencies.service.CurrencyService
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.domain.Pocket
@@ -23,7 +22,6 @@ import kotlin.test.assertEquals
 
 class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var recurringTransactionRepository: RecurringTransactionRepository
-    @Autowired lateinit var currencyService: CurrencyService
     @Autowired lateinit var accountRepository: AccountRepository
     @Autowired lateinit var pocketRepository: PocketRepository
     @Autowired lateinit var partnerService: PartnerService
@@ -33,8 +31,7 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
     @BeforeEach
     fun setUp() {
         runBlocking {
-            cleanDatabase("recurring_transactions", "contracts", "partners", "pockets", "accounts", "currencies")
-            currencyService.ensureExists("EUR")
+            cleanDatabase("recurring_transactions", "contracts", "partners", "pockets", "accounts")
             accountRepository.insert(AccountFixtures.account())
             pocketRepository.insert(PocketFixtures.pocket())
             pocketRepository.insert(PocketFixtures.pocket(id = "poc_456", accountId = "acc_123", name = "Income"))

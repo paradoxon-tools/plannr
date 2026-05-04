@@ -48,7 +48,7 @@ class MigrationBackfillIntegrationTest : ApiIntegrationTest() {
     }
 
     private fun seedLegacyData() = runBlocking {
-        databaseClient.sql("INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position) VALUES ('EUR', 'Euro', '€', 2, 'before')").fetch().rowsUpdated().awaitSingle()
+        databaseClient.sql("INSERT INTO currencies (code, name, symbol, decimal_places, symbol_position) VALUES ('EUR', 'Euro', '€', 2, 'before') ON CONFLICT (code) DO NOTHING").fetch().rowsUpdated().awaitSingle()
         databaseClient.sql("INSERT INTO accounts (id, name, institution, currency_code, weekend_handling, is_archived, created_at) VALUES ('acc_123', 'Main', 'Bank', 'EUR', 'next_business_day', FALSE, 1)").fetch().rowsUpdated().awaitSingle()
         databaseClient.sql("INSERT INTO pockets (id, account_id, name, description, color, is_default, is_archived, created_at) VALUES ('poc_123', 'acc_123', 'Bills', NULL, 123, TRUE, FALSE, 1)").fetch().rowsUpdated().awaitSingle()
         databaseClient.sql("INSERT INTO transactions (id, account_id, type, status, transaction_date, amount, currency_code, exchange_rate, destination_amount, description, partner_id, source_pocket_id, destination_pocket_id, parent_transaction_id, recurring_transaction_id, modified_by_id, is_archived, created_at) VALUES ('txn_past', 'acc_123', 'expense', 'booked', '2020-04-10', 100, 'EUR', NULL, NULL, 'Past', NULL, 'poc_123', NULL, NULL, NULL, NULL, FALSE, 1)").fetch().rowsUpdated().awaitSingle()

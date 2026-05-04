@@ -5,6 +5,7 @@ import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.error.ValidationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,10 +16,7 @@ class UpdateAccountTest {
     fun `updates existing account when currency already exists`() = runTest {
         val accountRepository = InMemoryAccountRepository()
         accountRepository.save(AccountFixtures.account().toModel())
-        val accountService = accountService(
-            accountRepository = accountRepository,
-            currencyService = FakeCurrencyService(),
-        )
+        val accountService = accountService(accountRepository = accountRepository)
 
         val updated = accountService.update(
             AccountFixtures.updateAccountCommand(
@@ -40,32 +38,21 @@ class UpdateAccountTest {
     }
 
     @Test
-    fun `updates account and persists built in currency when missing`() = runTest {
+    fun `updates account with normalized supported currency`() = runTest {
         val accountRepository = InMemoryAccountRepository()
-        val currencyService = FakeCurrencyService(
-            initialCurrencies = emptyList(),
-            templates = mapOf("USD" to TestCurrencies.usd()),
-        )
         accountRepository.save(AccountFixtures.account().toModel())
-        val accountService = accountService(
-            accountRepository = accountRepository,
-            currencyService = currencyService,
-        )
+        val accountService = accountService(accountRepository = accountRepository)
 
         val updated = accountService.update(
             AccountFixtures.updateAccountCommand(currencyCode = "usd"),
         )
 
         assertEquals("USD", updated.currencyCode)
-        assertEquals("USD", currencyService.findByCode("USD")?.code)
     }
 
     @Test
     fun `returns not found when account does not exist`() = runTest {
-        val accountService = accountService(
-            accountRepository = InMemoryAccountRepository(),
-            currencyService = FakeCurrencyService(),
-        )
+        val accountService = accountService(accountRepository = InMemoryAccountRepository())
 
         assertFailsWith<NotFoundException> {
             accountService.update(AccountFixtures.updateAccountCommand(id = "acc_missing"))
@@ -73,15 +60,12 @@ class UpdateAccountTest {
     }
 
     @Test
-    fun `returns not found when updated currency is unknown everywhere`() = runTest {
+    fun `returns validation error when updated currency is unsupported`() = runTest {
         val accountRepository = InMemoryAccountRepository()
         accountRepository.save(AccountFixtures.account().toModel())
-        val accountService = accountService(
-            accountRepository = accountRepository,
-            currencyService = FakeCurrencyService(initialCurrencies = emptyList()),
-        )
+        val accountService = accountService(accountRepository = accountRepository)
 
-        assertFailsWith<NotFoundException> {
+        assertFailsWith<ValidationException> {
             accountService.update(AccountFixtures.updateAccountCommand(currencyCode = "xyz"))
         }
     }

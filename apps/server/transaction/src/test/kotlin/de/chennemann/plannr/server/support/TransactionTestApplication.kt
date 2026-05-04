@@ -6,11 +6,6 @@ import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
-import de.chennemann.plannr.server.currencies.domain.Currency
-import de.chennemann.plannr.server.currencies.domain.CurrencyRepository
-import de.chennemann.plannr.server.currencies.service.CreateCurrencyCommand
-import de.chennemann.plannr.server.currencies.service.CurrencyService
-import de.chennemann.plannr.server.currencies.service.UpdateCurrencyCommand
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.partners.domain.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
@@ -34,7 +29,6 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
         "de.chennemann.plannr.server.common",
         "de.chennemann.plannr.server.transactions",
         "de.chennemann.plannr.server.accounts.persistence",
-        "de.chennemann.plannr.server.currencies.persistence",
         "de.chennemann.plannr.server.partners.persistence",
         "de.chennemann.plannr.server.pockets.persistence",
         "de.chennemann.plannr.server.contracts.persistence",
@@ -43,7 +37,6 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
 @EnableR2dbcRepositories(
     basePackages = [
         "de.chennemann.plannr.server.accounts.domain",
-        "de.chennemann.plannr.server.currencies.domain",
         "de.chennemann.plannr.server.partners.domain",
         "de.chennemann.plannr.server.pockets.domain",
         "de.chennemann.plannr.server.contracts.domain",
@@ -86,39 +79,6 @@ class TransactionTestApplication {
 
             override suspend fun getQuery(id: String): AccountQuery =
                 throw UnsupportedOperationException("Not used in transaction tests")
-        }
-
-    @Bean
-    fun currencyService(currencyRepository: CurrencyRepository): CurrencyService =
-        object : CurrencyService {
-            override suspend fun create(command: CreateCurrencyCommand): Currency {
-                val currency = Currency(command.code, command.name, command.symbol, command.decimalPlaces, command.symbolPosition)
-                currencyRepository.insert(currency.code, currency.name, currency.symbol, currency.decimalPlaces, currency.symbolPosition)
-                return currency
-            }
-
-            override suspend fun update(command: UpdateCurrencyCommand): Currency {
-                val currency = Currency(command.code, command.name, command.symbol, command.decimalPlaces, command.symbolPosition)
-                currencyRepository.updateByCode(currency.code, currency.name, currency.symbol, currency.decimalPlaces, currency.symbolPosition)
-                return currency
-            }
-
-            override suspend fun list(): List<Currency> =
-                currencyRepository.findAllByOrderByCodeAsc()
-                    .toList()
-                    .map { Currency(it.code, it.name, it.symbol, it.decimalPlaces, it.symbolPosition) }
-
-            override suspend fun ensureExists(currencyCode: String): Currency {
-                val code = currencyCode.trim().uppercase()
-                currencyRepository.findByCode(code)?.let {
-                    return Currency(it.code, it.name, it.symbol, it.decimalPlaces, it.symbolPosition)
-                }
-                if (code == "EUR") {
-                    currencyRepository.insert("EUR", "Euro", "EUR", 2, "before")
-                    return Currency("EUR", "Euro", "EUR", 2, "before")
-                }
-                throw NotFoundException("not_found", "Currency not found", mapOf("code" to code))
-            }
         }
 
     @Bean

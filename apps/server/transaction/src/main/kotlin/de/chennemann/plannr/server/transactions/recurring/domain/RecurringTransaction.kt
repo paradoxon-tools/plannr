@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.transactions.recurring.domain
 
+import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.domain.normalizeRecurrenceType
 import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.ValidationException
@@ -129,7 +130,7 @@ data class RecurringTransaction private constructor(
             val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedTitle = title.trim()
             val normalizedDescription = description?.trim()?.takeIf { it.isNotBlank() }
-            val normalizedCurrencyCode = currencyCode.trim().uppercase()
+            val normalizedCurrencyCode = normalizeCurrency(currencyCode)
             val normalizedTransactionType = normalizeTransactionType(transactionType)
             val normalizedFirstOccurrenceDate = firstOccurrenceDate.trim()
             val normalizedFinalOccurrenceDate = finalOccurrenceDate?.trim()?.takeIf { it.isNotBlank() }
@@ -158,7 +159,6 @@ data class RecurringTransaction private constructor(
             if (normalizedId.isBlank()) throw ValidationException("validation_error", "Recurring transaction id must not be blank")
             if (normalizedAccountId.isBlank()) throw ValidationException("validation_error", "Recurring transaction account id must not be blank")
             if (normalizedTitle.isBlank()) throw ValidationException("validation_error", "Recurring transaction title must not be blank")
-            if (normalizedCurrencyCode.isBlank()) throw ValidationException("validation_error", "Recurring transaction currency code must not be blank")
             if (normalizedTransactionType.isBlank()) throw ValidationException("validation_error", "Recurring transaction type must not be blank")
             if (normalizedFirstOccurrenceDate.isBlank()) throw ValidationException("validation_error", "Recurring transaction first occurrence date must not be blank")
             if (normalizedRecurrenceType.isBlank()) throw ValidationException("validation_error", "Recurring transaction recurrence type must not be blank")

@@ -17,8 +17,6 @@ dependencies {
 
     testImplementation(project(":account"))
     testImplementation(project(":account-api"))
-    testImplementation(project(":currency"))
-    testImplementation(project(":currency-api"))
     testImplementation(project(":partner"))
     testImplementation(project(":partner-api"))
     testImplementation(project(":pocket"))
