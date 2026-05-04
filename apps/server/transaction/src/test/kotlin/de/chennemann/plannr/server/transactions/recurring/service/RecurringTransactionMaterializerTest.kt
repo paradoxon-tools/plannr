@@ -294,7 +294,7 @@ class RecurringTransactionMaterializerTest {
         }
         val accountService = FakeAccountService(
             resolvedAccountRepository.findAll().toList().map { model ->
-                de.chennemann.plannr.server.accounts.domain.Account(
+                de.chennemann.plannr.server.accounts.api.dto.Account(
                     id = requireNotNull(model.id),
                     name = model.name,
                     institution = model.institution,

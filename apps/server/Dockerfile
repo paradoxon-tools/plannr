@@ -1,28 +1,28 @@
-FROM eclipse-temurin:25-jdk AS build
+ARG GRADLE_VERSION=9.4.1
+
+FROM gradle:${GRADLE_VERSION}-jdk25 AS build
 WORKDIR /workspace
-COPY .build-configuration .build-configuration
-COPY gradle gradle
-COPY gradlew gradlew
-COPY build.gradle.kts settings.gradle.kts gradle.properties versions.toml ./
-COPY common common
-COPY app app
-COPY account account
-COPY account-api account-api
-COPY contract contract
-COPY contract-api contract-api
-COPY currency currency
-COPY currency-api currency-api
-COPY health health
-COPY partner partner
-COPY partner-api partner-api
-COPY pocket pocket
-COPY pocket-api pocket-api
-COPY transaction transaction
-COPY transaction-api transaction-api
-RUN sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew :app:bootJar --no-daemon
+
+COPY --chown=gradle:gradle settings.gradle.kts build.gradle.kts ./
+COPY --chown=gradle:gradle gradle.properties ./
+COPY --chown=gradle:gradle gradle gradle
+COPY --chown=gradle:gradle app/build.gradle.kts app/build.gradle.kts
+
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle :app:dependencies --no-daemon
+
+COPY --chown=gradle:gradle . .
+
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle :app:bootJar --no-daemon
 
 FROM eclipse-temurin:25-jre
 WORKDIR /app
-COPY --from=build /workspace/app/build/libs/*.jar app.jar
+
+RUN useradd --system --create-home --uid 1001 appuser
+
+COPY --from=build /workspace/app/build/libs/app.jar /app/app.jar
+
+USER appuser
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

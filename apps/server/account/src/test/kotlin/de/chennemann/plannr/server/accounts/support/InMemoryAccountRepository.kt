@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.accounts.support
 
-import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
 import de.chennemann.plannr.server.accounts.persistence.toModel

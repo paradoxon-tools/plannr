@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.development
 
-import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.common.domain.RecurrenceType

@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.accounts.support
 
 import de.chennemann.plannr.server.accounts.api.dto.CreateAccountRequest
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountRequest
-import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
 

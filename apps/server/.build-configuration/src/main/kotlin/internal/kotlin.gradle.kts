@@ -1,7 +1,7 @@
 package internal
 
 import extensions.config
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -14,7 +14,8 @@ kotlin {
         languageVersion.set(config.versions.javaLanguage.map { JavaLanguageVersion.of(it) })
     }
     compilerOptions {
-        apiVersion.set(KOTLIN_1_9)
+        apiVersion.set(KOTLIN_2_1)
+        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
     }
 }
 

@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.accounts.service
 
-import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
@@ -9,12 +9,10 @@ import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 internal fun accountService(
     accountRepository: AccountRepository = InMemoryAccountRepository(),
     archiveCascade: AccountArchiveCascade = NoOpAccountArchiveCascade,
-    balanceProvider: AccountBalanceProvider = AccountBalanceProvider { 0 },
 ): AccountService =
     AccountServiceImpl(
         accountRepository = accountRepository,
         archiveCascade = archiveCascade,
-        balanceProvider = balanceProvider,
         timeProvider = { AccountFixtures.DEFAULT_CREATED_AT },
         applicationEventBus = NoOpApplicationEventBus,
     )

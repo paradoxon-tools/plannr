@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.accounts.domain.Account
-import de.chennemann.plannr.server.accounts.domain.AccountQuery
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
@@ -18,7 +17,4 @@ class FakeAccountService(
     override suspend fun unarchive(id: String): Account = throw UnsupportedOperationException("Not used")
     override suspend fun list(archived: Boolean?): List<Account> = accounts.values.toList()
     override suspend fun getById(id: String): Account? = accounts[id.trim()]
-    override suspend fun listQueries(archived: Boolean): List<AccountQuery> = emptyList()
-    override suspend fun getQuery(id: String): AccountQuery =
-        throw NotFoundException("not_found", "Account not found", mapOf("id" to id.trim()))
 }

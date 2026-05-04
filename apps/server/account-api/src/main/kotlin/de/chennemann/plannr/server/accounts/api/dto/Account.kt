@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.accounts.domain
+package de.chennemann.plannr.server.accounts.api.dto
 
 import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.ValidationException

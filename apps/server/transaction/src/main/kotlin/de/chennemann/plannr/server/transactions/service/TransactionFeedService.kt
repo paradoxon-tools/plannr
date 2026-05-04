@@ -30,7 +30,8 @@ class TransactionFeedService(
     suspend fun listAccountTransactions(accountId: String, before: Long? = null, limit: Int = DEFAULT_LIMIT): AccountTransactionFeedPage {
         val normalizedLimit = normalizeLimit(limit, MAX_LIMIT)
         val normalizedAccountId = accountId.trim()
-        accountService.getQuery(normalizedAccountId)
+        accountService.getById(normalizedAccountId)
+            ?: throw NotFoundException("not_found", "Account not found", mapOf("id" to normalizedAccountId))
         val items = accountTransactionFeedRepository.findPage(normalizedAccountId, before, normalizedLimit)
         return AccountTransactionFeedPage(items, items.lastOrNull()?.historyPosition)
     }
@@ -50,9 +51,11 @@ class TransactionFeedService(
         after: Long? = null,
         limit: Int = DEFAULT_LIMIT,
     ): AccountFutureTransactionFeedPage {
-        accountService.getQuery(accountId.trim())
+        val normalizedAccountId = accountId.trim()
+        accountService.getById(normalizedAccountId)
+            ?: throw NotFoundException("not_found", "Account not found", mapOf("id" to normalizedAccountId))
         val normalizedLimit = normalizeLimit(limit, MAX_LIMIT)
-        val items = accountFutureTransactionFeedRepository.findPage(accountId.trim(), fromDate, toDate, after, normalizedLimit)
+        val items = accountFutureTransactionFeedRepository.findPage(normalizedAccountId, fromDate, toDate, after, normalizedLimit)
         return AccountFutureTransactionFeedPage(items, items.lastOrNull()?.futurePosition)
     }
 

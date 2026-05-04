@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.accounts.domain.Account
-import de.chennemann.plannr.server.accounts.domain.AccountQuery
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
@@ -73,12 +72,6 @@ class TransactionTestApplication {
                         createdAt = model.createdAt,
                     )
                 }
-
-            override suspend fun listQueries(archived: Boolean): List<AccountQuery> =
-                throw UnsupportedOperationException("Not used in transaction tests")
-
-            override suspend fun getQuery(id: String): AccountQuery =
-                throw UnsupportedOperationException("Not used in transaction tests")
         }
 
     @Bean

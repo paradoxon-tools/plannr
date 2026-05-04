@@ -1,17 +1,12 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.accounts.api.AccountFutureTransactionFeedQuery
-import de.chennemann.plannr.server.accounts.api.AccountTransactionFeedQuery
-import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountArchiveCascade
-import de.chennemann.plannr.server.accounts.service.AccountBalanceProvider
 import de.chennemann.plannr.server.pockets.api.PocketFutureTransactionFeedQuery
 import de.chennemann.plannr.server.pockets.api.PocketTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.api.ContractFutureTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.api.ContractHistoricalTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
-import de.chennemann.plannr.server.transactions.api.dto.AccountFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.transactions.api.dto.AccountTransactionFeedPageResponse
 import de.chennemann.plannr.server.pockets.domain.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
@@ -30,36 +25,6 @@ class ContractTestApplication {
         object : AccountArchiveCascade {
             override suspend fun archiveFor(account: Account) = Unit
             override suspend fun unarchiveFor(account: Account) = Unit
-        }
-
-    @Bean
-    fun accountBalanceProvider(): AccountBalanceProvider =
-        AccountBalanceProvider { 0L }
-
-    @Bean
-    fun accountTransactionFeedQuery(): AccountTransactionFeedQuery =
-        object : AccountTransactionFeedQuery {
-            override suspend fun list(accountId: String, limit: Int, before: Long?): AccountTransactionFeedPageResponse =
-                AccountTransactionFeedPageResponse(
-                    items = emptyList(),
-                    nextBefore = null,
-                )
-        }
-
-    @Bean
-    fun accountFutureTransactionFeedQuery(): AccountFutureTransactionFeedQuery =
-        object : AccountFutureTransactionFeedQuery {
-            override suspend fun list(
-                accountId: String,
-                fromDate: String?,
-                toDate: String?,
-                after: Long?,
-                limit: Int,
-            ): AccountFutureTransactionFeedPageResponse =
-                AccountFutureTransactionFeedPageResponse(
-                    items = emptyList(),
-                    nextAfter = null,
-                )
         }
 
     @Bean

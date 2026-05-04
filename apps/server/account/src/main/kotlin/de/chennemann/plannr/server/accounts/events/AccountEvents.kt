@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.accounts.events
 
-import de.chennemann.plannr.server.accounts.domain.Account
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.common.events.ApplicationEvent
 
 data class AccountCreated(

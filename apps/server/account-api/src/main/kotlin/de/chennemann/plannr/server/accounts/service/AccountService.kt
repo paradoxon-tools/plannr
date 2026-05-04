@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.accounts.service
 
-import de.chennemann.plannr.server.accounts.domain.Account
-import de.chennemann.plannr.server.accounts.domain.AccountQuery
+import de.chennemann.plannr.server.accounts.api.dto.Account
 
 interface AccountService {
     suspend fun create(command: CreateAccountCommand): Account
@@ -10,8 +9,6 @@ interface AccountService {
     suspend fun unarchive(id: String): Account
     suspend fun list(archived: Boolean? = null): List<Account>
     suspend fun getById(id: String): Account?
-    suspend fun listQueries(archived: Boolean = false): List<AccountQuery>
-    suspend fun getQuery(id: String): AccountQuery
 }
 
 data class CreateAccountCommand(

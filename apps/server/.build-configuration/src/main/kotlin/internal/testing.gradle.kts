@@ -37,6 +37,7 @@ tasks.withType<Test> {
     }
 
     jvmArgs = listOf("-Duser.timezone=Europe/Berlin")
+    val moduleName = project.name
     val profile = providers.systemProperty("test.profile").orElse("unit").get()
 
     if (profile != "integration") {
@@ -61,7 +62,7 @@ tasks.withType<Test> {
                     return
                 }
 
-                val resultsTitle = "Module ${project.name} (profile = ${profile}) test results:"
+                val resultsTitle = "Module ${moduleName} (profile = ${profile}) test results:"
                 val resultsContent =
                     "${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
 

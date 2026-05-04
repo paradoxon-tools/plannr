@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.accounts.domain.Account
-import de.chennemann.plannr.server.accounts.domain.AccountQuery
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
@@ -31,7 +30,6 @@ class FakeAccountService(
     initialAccounts: Iterable<Account> = listOf(TestAccounts.account()),
     private val idGenerator: () -> String = { "acc_new" },
     private val timeProvider: () -> Long = { TestAccounts.DEFAULT_CREATED_AT },
-    private val balanceProvider: (String) -> Long = { 0 },
 ) : AccountService {
     private val accounts = initialAccounts.associateByTo(linkedMapOf()) { it.id }
 
@@ -84,25 +82,7 @@ class FakeAccountService(
     override suspend fun getById(id: String): Account? =
         accounts[id.trim()]
 
-    override suspend fun listQueries(archived: Boolean): List<AccountQuery> =
-        list(archived).map { it.toQuery() }
-
-    override suspend fun getQuery(id: String): AccountQuery =
-        existingAccount(id).toQuery()
-
     private fun existingAccount(id: String): Account =
         accounts[id.trim()]
             ?: throw NotFoundException("not_found", "Account not found", mapOf("id" to id.trim()))
-
-    private fun Account.toQuery(): AccountQuery =
-        AccountQuery(
-            accountId = id,
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-            isArchived = isArchived,
-            createdAt = createdAt,
-            currentBalance = balanceProvider(id),
-        )
 }

@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.accounts.service
 
-import de.chennemann.plannr.server.accounts.domain.Account
-import de.chennemann.plannr.server.accounts.domain.AccountQuery
+import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.events.AccountCreated
 import de.chennemann.plannr.server.accounts.events.AccountUpdated
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional
 internal class AccountServiceImpl(
     private val accountRepository: AccountRepository,
     private val archiveCascade: AccountArchiveCascade,
-    private val balanceProvider: AccountBalanceProvider,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus,
 ) : AccountService {
@@ -93,12 +91,6 @@ internal class AccountServiceImpl(
     override suspend fun getById(id: String): Account? =
         accountRepository.findById(id.trim())?.toDomain()
 
-    override suspend fun listQueries(archived: Boolean): List<AccountQuery> =
-        list(archived = archived).map { it.toQuery(balanceProvider.currentBalance(it.id)) }
-
-    override suspend fun getQuery(id: String): AccountQuery =
-        existingAccount(id).toQuery(balanceProvider.currentBalance(id.trim()))
-
     private suspend fun existingAccount(id: String): Account =
         accountRepository.findById(id.trim())?.toDomain()
             ?: throw NotFoundException(
@@ -106,16 +98,4 @@ internal class AccountServiceImpl(
                 message = "Account not found",
                 details = mapOf("id" to id.trim()),
             )
-
-    private fun Account.toQuery(currentBalance: Long): AccountQuery =
-        AccountQuery(
-            accountId = id,
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-            isArchived = isArchived,
-            createdAt = createdAt,
-            currentBalance = currentBalance,
-        )
 }
