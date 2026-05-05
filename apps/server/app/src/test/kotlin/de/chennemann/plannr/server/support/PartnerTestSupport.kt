@@ -72,6 +72,10 @@ class FakePartnerService(
         return partner
     }
 
+    override suspend fun delete(id: String) {
+        partners.remove(existingPartner(id).id)
+    }
+
     override suspend fun list(query: String?, archived: Boolean): List<Partner> {
         val normalizedQuery = query?.trim()?.takeIf { it.isNotBlank() }
         return partners.values

@@ -74,6 +74,10 @@ class FakeAccountService(
         return account
     }
 
+    override suspend fun delete(id: String) {
+        accounts.remove(existingAccount(id).id)
+    }
+
     override suspend fun list(archived: Boolean?): List<Account> =
         accounts.values
             .filter { archived == null || it.isArchived == archived }

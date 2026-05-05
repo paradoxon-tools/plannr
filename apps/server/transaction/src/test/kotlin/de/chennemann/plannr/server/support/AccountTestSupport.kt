@@ -15,6 +15,7 @@ class FakeAccountService(
     override suspend fun update(command: UpdateAccountCommand): Account = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: String): Account = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: String): Account = throw UnsupportedOperationException("Not used")
+    override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used")
     override suspend fun list(archived: Boolean?): List<Account> = accounts.values.toList()
     override suspend fun getById(id: String): Account? = accounts[id.trim()]
 }

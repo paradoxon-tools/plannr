@@ -1,0 +1,25 @@
+meta {
+  name: Trade Republic
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/accounts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Trade Republic",
+    "institution": "Trade Republic",
+    "currencyCode": "EUR",
+    "weekendHandling": "NO_SHIFT"
+  }
+}

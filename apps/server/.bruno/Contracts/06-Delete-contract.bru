@@ -1,0 +1,19 @@
+meta {
+  name: Delete contract
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/contracts/:contractId
+  body: none
+  auth: none
+}
+
+params:path {
+  contractId: contract-id
+}
+
+headers {
+  Accept: application/json
+}

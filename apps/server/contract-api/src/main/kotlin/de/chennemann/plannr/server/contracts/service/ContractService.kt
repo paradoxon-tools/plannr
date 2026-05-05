@@ -9,5 +9,6 @@ interface ContractService {
     suspend fun update(command: UpdateContractCommand): Contract
     suspend fun archive(id: String): Contract
     suspend fun unarchive(id: String): Contract
+    suspend fun delete(id: String)
     suspend fun list(accountId: String? = null, archived: Boolean = false): List<Contract>
 }

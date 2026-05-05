@@ -50,6 +50,8 @@ class FakePocketService(
 
     override suspend fun unarchive(id: String): Pocket = throw UnsupportedOperationException("Not used in contract tests")
 
+    override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used in contract tests")
+
     override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> = pockets.values.toList()
 
     override suspend fun getById(id: String): Pocket? = pockets[id.trim()]
@@ -67,6 +69,8 @@ class FakePartnerService(
     override suspend fun archive(id: String): Partner = throw UnsupportedOperationException("Not used in contract tests")
 
     override suspend fun unarchive(id: String): Partner = throw UnsupportedOperationException("Not used in contract tests")
+
+    override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used in contract tests")
 
     override suspend fun list(query: String?, archived: Boolean): List<Partner> = partners.values.toList()
 

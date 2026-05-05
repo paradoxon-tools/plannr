@@ -131,6 +131,15 @@ class RecurringTransactionService(
         return recurringTransactionRepository.update(updated.toModel())
     }
 
+    @Transactional
+    suspend fun delete(id: String) {
+        val normalizedId = id.trim()
+        if (recurringTransactionRepository.findById(normalizedId) == null) {
+            throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to normalizedId))
+        }
+        recurringTransactionRepository.deleteById(normalizedId)
+    }
+
     private suspend fun createNewVersion(
         existing: RecurringTransaction,
         context: RecurringTransactionContextResolver.ResolvedContext,

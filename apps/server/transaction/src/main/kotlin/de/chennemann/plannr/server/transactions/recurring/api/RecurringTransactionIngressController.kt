@@ -21,5 +21,8 @@ class RecurringTransactionIngressController(
 
     override suspend fun unarchive(id: String): RecurringTransactionResponse =
         recurringTransactionService.unarchive(id).toResponse()
+
+    override suspend fun delete(id: String) =
+        recurringTransactionService.delete(id)
 }
 

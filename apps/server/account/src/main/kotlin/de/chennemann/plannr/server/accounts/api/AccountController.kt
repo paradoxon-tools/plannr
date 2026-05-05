@@ -23,6 +23,9 @@ class AccountController(
     override suspend fun unarchive(id: String): Account =
         accountService.unarchive(id)
 
+    override suspend fun delete(id: String) =
+        accountService.delete(id)
+
     override suspend fun list(archived: Boolean): List<Account> =
         accountService.list(archived)
 

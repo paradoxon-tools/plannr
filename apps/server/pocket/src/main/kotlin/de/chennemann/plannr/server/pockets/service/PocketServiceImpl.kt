@@ -79,6 +79,11 @@ internal class PocketServiceImpl(
         return updated
     }
 
+    override suspend fun delete(id: String) {
+        val normalizedId = existingPocket(id).id
+        pocketRepository.deleteById(normalizedId)
+    }
+
     override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> =
         pocketRepository.findAllByAccountIdAndArchived(
             accountId = accountId?.trim()?.takeIf { it.isNotBlank() },

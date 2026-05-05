@@ -15,6 +15,7 @@ class FakePartnerService(
     override suspend fun update(command: UpdatePartnerCommand): Partner = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: String): Partner = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: String): Partner = throw UnsupportedOperationException("Not used")
+    override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used")
     override suspend fun list(query: String?, archived: Boolean): List<Partner> = partners.values.toList()
     override suspend fun getById(id: String): Partner? = partners[id.trim()]
 }

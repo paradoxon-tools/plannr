@@ -60,6 +60,7 @@ class ArchiveContractServiceImpl(
             override suspend fun update(command: de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand) = throw UnsupportedOperationException()
             override suspend fun archive(id: String) = throw UnsupportedOperationException()
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
+            override suspend fun delete(id: String) = throw UnsupportedOperationException()
             override suspend fun list(accountId: String?, archived: Boolean?) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
         },
@@ -68,6 +69,7 @@ class ArchiveContractServiceImpl(
             override suspend fun update(command: de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand) = throw UnsupportedOperationException()
             override suspend fun archive(id: String) = throw UnsupportedOperationException()
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
+            override suspend fun delete(id: String) = throw UnsupportedOperationException()
             override suspend fun list(query: String?, archived: Boolean) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
         },
@@ -90,6 +92,7 @@ class UnarchiveContractServiceImpl(
             override suspend fun update(command: de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand) = throw UnsupportedOperationException()
             override suspend fun archive(id: String) = throw UnsupportedOperationException()
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
+            override suspend fun delete(id: String) = throw UnsupportedOperationException()
             override suspend fun list(accountId: String?, archived: Boolean?) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
         },
@@ -98,6 +101,7 @@ class UnarchiveContractServiceImpl(
             override suspend fun update(command: de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand) = throw UnsupportedOperationException()
             override suspend fun archive(id: String) = throw UnsupportedOperationException()
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
+            override suspend fun delete(id: String) = throw UnsupportedOperationException()
             override suspend fun list(query: String?, archived: Boolean) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
         },

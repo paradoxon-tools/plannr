@@ -13,6 +13,8 @@ interface PartnerService {
 
     suspend fun unarchive(id: String): Partner
 
+    suspend fun delete(id: String)
+
     suspend fun list(query: String? = null, archived: Boolean = false): List<Partner>
 
     suspend fun getById(id: String): Partner?

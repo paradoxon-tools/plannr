@@ -1,0 +1,25 @@
+meta {
+  name: Savings
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/accounts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Savings",
+    "institution": "C24",
+    "currencyCode": "EUR",
+    "weekendHandling": "NO_SHIFT"
+  }
+}

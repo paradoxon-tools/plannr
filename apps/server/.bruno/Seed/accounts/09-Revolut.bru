@@ -1,0 +1,25 @@
+meta {
+  name: Revolut
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/accounts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Revolut",
+    "institution": "Revolut",
+    "currencyCode": "EUR",
+    "weekendHandling": "NO_SHIFT"
+  }
+}

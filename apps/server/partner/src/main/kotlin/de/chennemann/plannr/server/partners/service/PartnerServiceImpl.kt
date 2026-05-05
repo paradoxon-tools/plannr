@@ -61,6 +61,11 @@ internal class PartnerServiceImpl(
         return updated
     }
 
+    override suspend fun delete(id: String) {
+        val normalizedId = existingPartner(id).id
+        partnerRepository.deleteById(normalizedId)
+    }
+
     override suspend fun list(query: String?, archived: Boolean): List<Partner> =
         partnerRepository.findAllByQueryAndArchived(query?.trim()?.takeIf { it.isNotBlank() }, archived)
             .toList()

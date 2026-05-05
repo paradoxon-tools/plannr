@@ -90,6 +90,10 @@ class FakePocketService(
         return pocket
     }
 
+    override suspend fun delete(id: String) {
+        pockets.remove(existingPocket(id).id)
+    }
+
     override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> {
         val normalizedAccountId = accountId?.trim()?.takeIf { it.isNotBlank() }
         return pockets.values

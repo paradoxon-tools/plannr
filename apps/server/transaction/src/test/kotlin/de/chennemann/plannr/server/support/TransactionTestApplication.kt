@@ -56,6 +56,9 @@ class TransactionTestApplication {
             override suspend fun unarchive(id: String): Account =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
+            override suspend fun delete(id: String) =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
             override suspend fun list(archived: Boolean?): List<Account> =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
@@ -76,6 +79,9 @@ class TransactionTestApplication {
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun unarchive(id: String): Pocket =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun delete(id: String) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> =
@@ -119,6 +125,9 @@ class TransactionTestApplication {
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun unarchive(id: String): Partner =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun delete(id: String) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun list(query: String?, archived: Boolean): List<Partner> =

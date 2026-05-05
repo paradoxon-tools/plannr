@@ -113,6 +113,14 @@ class ContractServiceImpl(
         return updated.toContractDto()
     }
 
+    override suspend fun delete(id: String) {
+        val normalizedId = id.trim()
+        if (contractRepository.findById(normalizedId) == null) {
+            throw NotFoundException("not_found", "Contract not found", mapOf("id" to normalizedId))
+        }
+        contractRepository.deleteById(normalizedId)
+    }
+
     override suspend fun list(accountId: String?, archived: Boolean): List<ContractDto> =
         contractRepository.findAllByAccountIdAndArchived(accountId?.trim()?.takeIf { it.isNotBlank() }, archived)
             .toList()

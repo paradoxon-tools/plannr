@@ -87,6 +87,11 @@ internal class AccountServiceImpl(
         return updated
     }
 
+    override suspend fun delete(id: String) {
+        val normalizedId = existingAccount(id).id
+        accountRepository.deleteById(normalizedId)
+    }
+
     override suspend fun list(archived: Boolean?): List<Account> =
         accountRepository.findAllByOrderByCreatedAtAscIdAsc()
             .toList()

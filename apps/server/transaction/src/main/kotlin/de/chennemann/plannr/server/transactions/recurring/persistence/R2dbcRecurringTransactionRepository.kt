@@ -104,6 +104,14 @@ class R2dbcRecurringTransactionRepository(
             .bind("previousVersionId", previousVersionId)
             .fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
 
+    override suspend fun deleteById(id: String) {
+        databaseClient.sql("DELETE FROM recurring_transactions WHERE id = :id")
+            .bind("id", id)
+            .fetch()
+            .rowsUpdated()
+            .awaitSingle()
+    }
+
     private fun selectSql(whereClause: String) =
         """
         SELECT rt.id,
