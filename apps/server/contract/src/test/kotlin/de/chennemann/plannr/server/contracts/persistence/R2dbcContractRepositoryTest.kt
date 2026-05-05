@@ -2,6 +2,8 @@ package de.chennemann.plannr.server.contracts.persistence
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.persistence.toDomain
+import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
@@ -24,15 +26,17 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var accountRepository: AccountRepository
     private lateinit var defaultPartnerId: String
+    private lateinit var mainAccountId: String
+    private lateinit var savingsAccountId: String
 
     @BeforeEach
     fun setUp() {
         runBlocking {
             cleanDatabase("contracts", "partners", "pockets", "accounts")
-            accountRepository.insert(Account("acc_123", "Main Account", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_000L))
-            accountRepository.insert(Account("acc_456", "Savings", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_001L))
-            pocketRepository.insert(Pocket("poc_123", "acc_123", "Bills", "Monthly fixed costs", 123456, false, false, 1_710_000_100L))
-            pocketRepository.insert(Pocket("poc_456", "acc_456", "Rent", "Monthly fixed costs", 123456, false, false, 1_710_000_101L))
+            mainAccountId = accountRepository.insert(Account("acc_123", "Main Account", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_000L)).id
+            savingsAccountId = accountRepository.insert(Account("acc_456", "Savings", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_001L)).id
+            pocketRepository.insert(Pocket("poc_123", mainAccountId, "Bills", "Monthly fixed costs", 123456, false, false, 1_710_000_100L))
+            pocketRepository.insert(Pocket("poc_456", savingsAccountId, "Rent", "Monthly fixed costs", 123456, false, false, 1_710_000_101L))
             defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", notes = "Preferred partner")).id
             partnerService.create(CreatePartnerCommand(name = "Telecom GmbH", notes = null))
         }
@@ -40,7 +44,7 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `saves and finds contract by id and pocket id`() = runBlocking {
-        val contract = ContractFixtures.contract(partnerId = defaultPartnerId)
+        val contract = ContractFixtures.contract(accountId = mainAccountId, partnerId = defaultPartnerId)
 
         contractRepository.insert(
             id = contract.id,
@@ -62,7 +66,7 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `updates and finds contract by id`() = runBlocking {
-        val original = ContractFixtures.contract(partnerId = defaultPartnerId)
+        val original = ContractFixtures.contract(accountId = mainAccountId, partnerId = defaultPartnerId)
         contractRepository.insert(
             id = original.id,
             accountId = original.accountId,
@@ -76,7 +80,7 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
             createdAt = original.createdAt,
         )
         val updated = ContractFixtures.contract(
-            accountId = "acc_456",
+            accountId = savingsAccountId,
             pocketId = "poc_456",
             partnerId = null,
             name = "Updated",
@@ -102,12 +106,12 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `finds all contracts ordered by created at and id and supports filters`() = runBlocking {
-        contractRepository.insert(ContractFixtures.contract(id = "con_2", accountId = "acc_456", pocketId = "poc_456", partnerId = null, createdAt = 2, name = "Second"))
-        contractRepository.insert(ContractFixtures.contract(id = "con_1", partnerId = defaultPartnerId, createdAt = 1, name = "First", isArchived = true))
+        contractRepository.insert(ContractFixtures.contract(id = "con_2", accountId = savingsAccountId, pocketId = "poc_456", partnerId = null, createdAt = 2, name = "Second"))
+        contractRepository.insert(ContractFixtures.contract(id = "con_1", accountId = mainAccountId, partnerId = defaultPartnerId, createdAt = 1, name = "First", isArchived = true))
 
         val defaultList = contractRepository.findAllByAccountIdAndArchived(accountId = null, archived = false).toList()
         val archivedList = contractRepository.findAllByAccountIdAndArchived(accountId = null, archived = true).toList()
-        val accountList = contractRepository.findAllByAccountIdAndArchived(accountId = "acc_456", archived = false).toList()
+        val accountList = contractRepository.findAllByAccountIdAndArchived(accountId = savingsAccountId, archived = false).toList()
 
         assertEquals(listOf("con_2"), defaultList.map { it.id })
         assertEquals(listOf("con_1"), archivedList.map { it.id })
@@ -130,17 +134,7 @@ private suspend fun ContractRepository.insert(contract: de.chennemann.plannr.ser
     )
 }
 
-private suspend fun AccountRepository.insert(account: Account) {
-    insert(
-        id = account.id,
-        name = account.name,
-        institution = account.institution,
-        currencyCode = account.currencyCode,
-        weekendHandling = account.weekendHandling,
-        isArchived = account.isArchived,
-        createdAt = account.createdAt,
-    )
-}
+private suspend fun AccountRepository.insert(account: Account): Account = save(account.toModel().copy(id = null)).toDomain()
 
 private suspend fun PocketRepository.insert(pocket: Pocket) {
     insert(

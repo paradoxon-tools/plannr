@@ -15,7 +15,7 @@ internal class RepositoryPocketAccountLookup(
     private val accountRepository: AccountRepository,
 ) : PocketAccountLookup {
     override suspend fun exists(accountId: String): Boolean =
-        accountRepository.existsById(accountId)
+        accountRepository.findById(accountId) != null
 }
 
 @Component

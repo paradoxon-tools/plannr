@@ -2,17 +2,12 @@ package de.chennemann.plannr.server.accounts.persistence
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.PersistenceCreator
-import org.springframework.data.annotation.Transient
-import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import kotlin.jvm.JvmName
 
 @Table("accounts")
 data class AccountModel(
-    @field:Id
-    @get:JvmName("getEntityId")
+    @Id
     val id: String?,
     val name: String,
     val institution: String,
@@ -24,28 +19,9 @@ data class AccountModel(
     val isArchived: Boolean,
     @Column("created_at")
     val createdAt: Long,
-    @Transient
-    val persisted: Boolean = false,
-) : Persistable<String> {
-    @PersistenceCreator
-    constructor(
-        id: String?,
-        name: String,
-        institution: String,
-        currencyCode: String,
-        weekendHandling: String,
-        isArchived: Boolean,
-        createdAt: Long,
-    ) : this(id, name, institution, currencyCode, weekendHandling, isArchived, createdAt, persisted = true)
+)
 
-    override fun getId(): String? = id
-
-    override fun isNew(): Boolean = !persisted
-
-    fun persisted(): AccountModel = copy(persisted = true)
-}
-
-internal fun AccountModel.toDomain(): Account =
+fun AccountModel.toDomain(): Account =
     Account(
         id = requireNotNull(id) { "AccountModel.id must not be null when mapping to domain" },
         name = name,
@@ -56,7 +32,7 @@ internal fun AccountModel.toDomain(): Account =
         createdAt = createdAt,
     )
 
-internal fun Account.toModel(): AccountModel =
+fun Account.toModel(): AccountModel =
     AccountModel(
         id = id,
         name = name,
@@ -66,5 +42,3 @@ internal fun Account.toModel(): AccountModel =
         isArchived = isArchived,
         createdAt = createdAt,
     )
-
-internal fun Account.toPersistedModel(): AccountModel = toModel().persisted()

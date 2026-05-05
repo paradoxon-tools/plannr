@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.persistence.toDomain
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
@@ -59,17 +60,7 @@ class TransactionTestApplication {
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun getById(id: String): Account? =
-                accountRepository.findById(id.trim())?.let { model ->
-                    Account(
-                        id = requireNotNull(model.id),
-                        name = model.name,
-                        institution = model.institution,
-                        currencyCode = model.currencyCode,
-                        weekendHandling = model.weekendHandling,
-                        isArchived = model.isArchived,
-                        createdAt = model.createdAt,
-                    )
-                }
+                accountRepository.findById(id.trim())?.toDomain()
         }
 
     @Bean

@@ -26,14 +26,16 @@ internal class AccountServiceImpl(
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val created = accountRepository.insert(
-            id = null,
-            name = command.name,
-            institution = command.institution,
-            currencyCode = currencyCode,
-            weekendHandling = command.weekendHandling,
-            isArchived = false,
-            createdAt = timeProvider(),
+        val created = accountRepository.save(
+            AccountModel(
+                id = null,
+                name = command.name,
+                institution = command.institution,
+                currencyCode = currencyCode,
+                weekendHandling = command.weekendHandling,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         ).toDomain()
         applicationEventBus.publish(AccountCreated(created))
         return created
@@ -42,13 +44,16 @@ internal class AccountServiceImpl(
     override suspend fun update(command: UpdateAccountCommand): Account {
         val existing = existingAccount(command.id)
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val persisted = accountRepository.update(
-            id = existing.id,
-            name = command.name,
-            institution = command.institution,
-            currencyCode = currencyCode,
-            weekendHandling = command.weekendHandling,
-            isArchived = existing.isArchived,
+        val persisted = accountRepository.save(
+            AccountModel(
+                id = existing.id,
+                name = command.name,
+                institution = command.institution,
+                currencyCode = currencyCode,
+                weekendHandling = command.weekendHandling,
+                isArchived = existing.isArchived,
+                createdAt = existing.createdAt,
+            ),
         ).toDomain()
         applicationEventBus.publish(AccountUpdated(existing, persisted))
         return persisted
@@ -56,13 +61,16 @@ internal class AccountServiceImpl(
 
     override suspend fun archive(id: String): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.update(
-            id = existing.id,
-            name = existing.name,
-            institution = existing.institution,
-            currencyCode = existing.currencyCode,
-            weekendHandling = existing.weekendHandling,
-            isArchived = true,
+        val updated = accountRepository.save(
+            AccountModel(
+                id = existing.id,
+                name = existing.name,
+                institution = existing.institution,
+                currencyCode = existing.currencyCode,
+                weekendHandling = existing.weekendHandling,
+                isArchived = true,
+                createdAt = existing.createdAt,
+            ),
         ).toDomain()
         archiveCascade.archiveFor(updated)
         applicationEventBus.publish(AccountUpdated(existing, updated))
@@ -71,13 +79,16 @@ internal class AccountServiceImpl(
 
     override suspend fun unarchive(id: String): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.update(
-            id = existing.id,
-            name = existing.name,
-            institution = existing.institution,
-            currencyCode = existing.currencyCode,
-            weekendHandling = existing.weekendHandling,
-            isArchived = false,
+        val updated = accountRepository.save(
+            AccountModel(
+                id = existing.id,
+                name = existing.name,
+                institution = existing.institution,
+                currencyCode = existing.currencyCode,
+                weekendHandling = existing.weekendHandling,
+                isArchived = false,
+                createdAt = existing.createdAt,
+            ),
         ).toDomain()
         archiveCascade.unarchiveFor(updated)
         applicationEventBus.publish(AccountUpdated(existing, updated))

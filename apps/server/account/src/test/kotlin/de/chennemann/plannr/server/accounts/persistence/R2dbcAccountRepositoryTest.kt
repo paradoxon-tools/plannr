@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class R2dbcAccountRepositoryTest : ApiIntegrationTest() {
+class CoroutineAccountRepositoryTest : ApiIntegrationTest() {
     @Autowired
     lateinit var accountRepository: AccountRepository
 
@@ -23,43 +23,25 @@ class R2dbcAccountRepositoryTest : ApiIntegrationTest() {
     fun `saves and finds account by id`() = runBlocking {
         val account = AccountFixtures.account()
 
-        accountRepository.insert(
-            id = account.id,
-            name = account.name,
-            institution = account.institution,
-            currencyCode = account.currencyCode,
-            weekendHandling = account.weekendHandling,
-            isArchived = account.isArchived,
-            createdAt = account.createdAt,
-        )
+        val saved = accountRepository.save(account.toModel().copy(id = null)).toDomain()
 
-        assertEquals(account, accountRepository.findById(AccountFixtures.DEFAULT_ID)?.toDomain())
+        assertEquals(account.copy(id = saved.id), accountRepository.findById(saved.id)?.toDomain())
         assertNull(accountRepository.findById("acc_missing"))
     }
 
     @Test
     fun `updates and finds account by id`() = runBlocking {
         val original = AccountFixtures.account()
-        accountRepository.insert(
-            id = original.id,
-            name = original.name,
-            institution = original.institution,
-            currencyCode = original.currencyCode,
-            weekendHandling = original.weekendHandling,
-            isArchived = original.isArchived,
-            createdAt = original.createdAt,
-        )
-        val updated = AccountFixtures.account(name = "Updated", institution = "Updated Bank", weekendHandling = "NO_SHIFT")
-
-        accountRepository.update(
-            id = updated.id,
-            name = updated.name,
-            institution = updated.institution,
-            currencyCode = updated.currencyCode,
-            weekendHandling = updated.weekendHandling,
-            isArchived = updated.isArchived,
+        val saved = accountRepository.save(original.toModel().copy(id = null)).toDomain()
+        val updated = AccountFixtures.account(
+            id = saved.id,
+            name = "Updated",
+            institution = "Updated Bank",
+            weekendHandling = "NO_SHIFT",
         )
 
-        assertEquals(updated, accountRepository.findById(AccountFixtures.DEFAULT_ID)?.toDomain())
+        accountRepository.save(updated.toModel())
+
+        assertEquals(updated, accountRepository.findById(saved.id)?.toDomain())
     }
 }
