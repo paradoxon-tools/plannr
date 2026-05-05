@@ -1,15 +1,9 @@
 package de.chennemann.plannr.server.contracts
 
-import de.chennemann.plannr.server.contracts.api.ContractFutureTransactionFeedQuery
-import de.chennemann.plannr.server.contracts.api.ContractHistoricalTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
-import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedPageResponse
-import de.chennemann.plannr.server.transactions.api.toResponse
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
-import de.chennemann.plannr.server.transactions.service.TransactionFeedService
 import org.springframework.stereotype.Component
 
 @Component
@@ -26,30 +20,3 @@ internal class RepositoryContractRecurringTransactionCascade(
             .forEach { recurringTransactionRepository.update(it.unarchive().toModel()) }
     }
 }
-
-@Component
-internal class ServiceContractHistoricalTransactionFeedQuery(
-    private val transactionFeedService: TransactionFeedService,
-) : ContractHistoricalTransactionFeedQuery {
-    override suspend fun list(
-        contractId: String,
-        limit: Int,
-        before: Long?,
-    ): PocketTransactionFeedPageResponse =
-        transactionFeedService.listContractHistoricalTransactions(contractId, before, limit).toResponse()
-}
-
-@Component
-internal class ServiceContractFutureTransactionFeedQuery(
-    private val transactionFeedService: TransactionFeedService,
-) : ContractFutureTransactionFeedQuery {
-    override suspend fun list(
-        contractId: String,
-        fromDate: String?,
-        toDate: String?,
-        after: Long?,
-        limit: Int,
-    ): PocketFutureTransactionFeedPageResponse =
-        transactionFeedService.listContractFutureTransactions(contractId, fromDate, toDate, after, limit).toResponse()
-}
-

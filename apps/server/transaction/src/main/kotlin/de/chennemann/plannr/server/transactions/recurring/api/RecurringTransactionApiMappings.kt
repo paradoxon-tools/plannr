@@ -38,7 +38,6 @@ fun RecurringTransaction.toResponse() = RecurringTransactionResponse(
     weeksOfMonth,
     daysOfMonth,
     monthsOfYear,
-    lastMaterializedDate,
     previousVersionId,
     isArchived,
     createdAt,

@@ -2,14 +2,10 @@ package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountArchiveCascade
-import de.chennemann.plannr.server.contracts.api.ContractFutureTransactionFeedQuery
-import de.chennemann.plannr.server.contracts.api.ContractHistoricalTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
-import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedPageResponse
-import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedPageResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
@@ -41,31 +37,4 @@ class ContractTestApplication {
             override suspend fun archiveFor(contract: de.chennemann.plannr.server.contracts.domain.Contract) = Unit
             override suspend fun unarchiveFor(contract: de.chennemann.plannr.server.contracts.domain.Contract) = Unit
         }
-
-    @Bean
-    fun contractHistoricalTransactionFeedQuery(): ContractHistoricalTransactionFeedQuery =
-        object : ContractHistoricalTransactionFeedQuery {
-            override suspend fun list(contractId: String, limit: Int, before: Long?): PocketTransactionFeedPageResponse =
-                PocketTransactionFeedPageResponse(
-                    items = emptyList(),
-                    nextBefore = null,
-                )
-        }
-
-    @Bean
-    fun contractFutureTransactionFeedQuery(): ContractFutureTransactionFeedQuery =
-        object : ContractFutureTransactionFeedQuery {
-            override suspend fun list(
-                contractId: String,
-                fromDate: String?,
-                toDate: String?,
-                after: Long?,
-                limit: Int,
-            ): PocketFutureTransactionFeedPageResponse =
-                PocketFutureTransactionFeedPageResponse(
-                    items = emptyList(),
-                    nextAfter = null,
-                )
-        }
 }
-

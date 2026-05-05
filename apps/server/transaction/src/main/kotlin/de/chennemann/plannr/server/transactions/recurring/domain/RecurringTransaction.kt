@@ -27,7 +27,6 @@ data class RecurringTransaction private constructor(
     val weeksOfMonth: List<Int>?,
     val daysOfMonth: List<Int>?,
     val monthsOfYear: List<Int>?,
-    val lastMaterializedDate: String?,
     val previousVersionId: String?,
     val isArchived: Boolean,
     val createdAt: Long,
@@ -39,9 +38,6 @@ data class RecurringTransaction private constructor(
         )
 
     fun unarchive(): RecurringTransaction = recreate(isArchived = false)
-
-    fun withLastMaterializedDate(lastMaterializedDate: String): RecurringTransaction =
-        recreate(lastMaterializedDate = lastMaterializedDate)
 
     fun withFinalOccurrenceDate(finalOccurrenceDate: String?): RecurringTransaction =
         recreate(finalOccurrenceDate = finalOccurrenceDate)
@@ -66,7 +62,6 @@ data class RecurringTransaction private constructor(
         weeksOfMonth: List<Int>? = this.weeksOfMonth,
         daysOfMonth: List<Int>? = this.daysOfMonth,
         monthsOfYear: List<Int>? = this.monthsOfYear,
-        lastMaterializedDate: String? = this.lastMaterializedDate,
         previousVersionId: String? = this.previousVersionId,
         isArchived: Boolean = this.isArchived,
         createdAt: Long = this.createdAt,
@@ -90,7 +85,6 @@ data class RecurringTransaction private constructor(
         weeksOfMonth = weeksOfMonth,
         daysOfMonth = daysOfMonth,
         monthsOfYear = monthsOfYear,
-        lastMaterializedDate = lastMaterializedDate,
         previousVersionId = previousVersionId,
         isArchived = isArchived,
         createdAt = createdAt,
@@ -117,7 +111,6 @@ data class RecurringTransaction private constructor(
             weeksOfMonth: List<Int>?,
             daysOfMonth: List<Int>?,
             monthsOfYear: List<Int>?,
-            lastMaterializedDate: String?,
             previousVersionId: String?,
             isArchived: Boolean,
             createdAt: Long,
@@ -153,7 +146,6 @@ data class RecurringTransaction private constructor(
                 ?.distinct()
                 ?.sorted()
                 ?.takeIf { it.isNotEmpty() }
-            val normalizedLastMaterializedDate = lastMaterializedDate?.trim()?.takeIf { it.isNotBlank() }
             val normalizedPreviousVersionId = previousVersionId?.trim()?.takeIf { it.isNotBlank() }
 
             if (normalizedId.isBlank()) throw ValidationException("validation_error", "Recurring transaction id must not be blank")
@@ -167,7 +159,6 @@ data class RecurringTransaction private constructor(
 
             val parsedFirstDate = parseDate(normalizedFirstOccurrenceDate, "Recurring transaction first occurrence date must be a plain date")
             val parsedFinalDate = normalizedFinalOccurrenceDate?.let { parseDate(it, "Recurring transaction final occurrence date must be a plain date") }
-            normalizedLastMaterializedDate?.let { parseDate(it, "Recurring transaction last materialized date must be a plain date") }
             if (parsedFinalDate != null && parsedFinalDate.isBefore(parsedFirstDate)) {
                 throw ValidationException("validation_error", "Recurring transaction final occurrence date must not be before first occurrence date")
             }
@@ -212,7 +203,6 @@ data class RecurringTransaction private constructor(
                 weeksOfMonth = normalizedWeeksOfMonth,
                 daysOfMonth = normalizedDaysOfMonth,
                 monthsOfYear = normalizedMonthsOfYear,
-                lastMaterializedDate = normalizedLastMaterializedDate,
                 previousVersionId = normalizedPreviousVersionId,
                 isArchived = isArchived,
                 createdAt = createdAt,

@@ -47,14 +47,13 @@ object RecurringTransactionFixtures {
         weeksOfMonth: List<Int>? = DEFAULT_WEEKS_OF_MONTH,
         daysOfMonth: List<Int>? = DEFAULT_DAYS_OF_MONTH,
         monthsOfYear: List<Int>? = DEFAULT_MONTHS_OF_YEAR,
-        lastMaterializedDate: String? = null,
         previousVersionId: String? = null,
         isArchived: Boolean = false,
         createdAt: Long = DEFAULT_CREATED_AT,
     ) = RecurringTransaction(
         id, contractId, accountId, sourcePocketId, destinationPocketId, partnerId, title, description, amount,
         currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount,
-        daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, lastMaterializedDate, previousVersionId,
+        daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, previousVersionId,
         isArchived, createdAt,
     )
 

@@ -16,7 +16,6 @@ import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
-import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionProjectionPort
 import kotlinx.coroutines.flow.toList
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
@@ -104,14 +103,6 @@ class TransactionTestApplication {
                         createdAt = model.createdAt,
                     )
                 }
-        }
-
-    @Bean
-    fun recurringTransactionProjectionPort(): RecurringTransactionProjectionPort =
-        object : RecurringTransactionProjectionPort {
-            override suspend fun markAccountDirty(accountId: String) = Unit
-
-            override suspend fun markPocketDirty(pocketId: String) = Unit
         }
 
     @Bean

@@ -23,17 +23,10 @@ class CreateRecurringTransactionTest {
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionService(
             recurringTransactionRepository = recurringRepository,
-            transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
-            accountService = de.chennemann.plannr.server.support.FakeAccountService(),
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
-            localDateProvider = { java.time.LocalDate.parse("2024-04-10") },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
-            projectionPort = object : RecurringTransactionProjectionPort {
-                override suspend fun markAccountDirty(accountId: String) = Unit
-                override suspend fun markPocketDirty(pocketId: String) = Unit
-            },
         )
 
         val created = useCase.create(RecurringTransactionFixtures.createCommand())
@@ -49,17 +42,10 @@ class CreateRecurringTransactionTest {
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionService(
             recurringTransactionRepository = recurringRepository,
-            transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
-            accountService = de.chennemann.plannr.server.support.FakeAccountService(),
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
-            localDateProvider = { java.time.LocalDate.parse("2024-04-10") },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
-            projectionPort = object : RecurringTransactionProjectionPort {
-                override suspend fun markAccountDirty(accountId: String) = Unit
-                override suspend fun markPocketDirty(pocketId: String) = Unit
-            },
         )
 
         val created = useCase.create(
@@ -86,17 +72,10 @@ class CreateRecurringTransactionTest {
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionService(
             recurringTransactionRepository = recurringRepository,
-            transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
-            accountService = de.chennemann.plannr.server.support.FakeAccountService(),
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
-            localDateProvider = { java.time.LocalDate.parse("2024-04-10") },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
-            projectionPort = object : RecurringTransactionProjectionPort {
-                override suspend fun markAccountDirty(accountId: String) = Unit
-                override suspend fun markPocketDirty(pocketId: String) = Unit
-            },
         )
 
         val created = useCase.create(
@@ -132,17 +111,10 @@ class CreateRecurringTransactionTest {
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionService(
             recurringTransactionRepository = InMemoryRecurringTransactionRepository(),
-            transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
-            accountService = de.chennemann.plannr.server.support.FakeAccountService(),
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
-            localDateProvider = { java.time.LocalDate.parse("2024-04-10") },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
-            projectionPort = object : RecurringTransactionProjectionPort {
-                override suspend fun markAccountDirty(accountId: String) = Unit
-                override suspend fun markPocketDirty(pocketId: String) = Unit
-            },
         )
 
         assertFailsWith<ValidationException> {

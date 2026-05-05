@@ -11,21 +11,14 @@ class UnarchiveRecurringTransactionTest {
         val repo = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction(isArchived = true)) }
         val result = RecurringTransactionService(
             recurringTransactionRepository = repo,
-            transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
-            accountService = de.chennemann.plannr.server.support.FakeAccountService(),
             contextResolver = contextResolver(
                 de.chennemann.plannr.server.support.FakePocketService(),
                 de.chennemann.plannr.server.support.FakePartnerService(),
                 de.chennemann.plannr.server.contracts.support.InMemoryContractRepository(),
             ),
             timeProvider = { 1L },
-            localDateProvider = { java.time.LocalDate.parse("2024-04-10") },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
-            projectionPort = object : RecurringTransactionProjectionPort {
-                override suspend fun markAccountDirty(accountId: String) = Unit
-                override suspend fun markPocketDirty(pocketId: String) = Unit
-            },
         ).unarchive(RecurringTransactionFixtures.DEFAULT_ID)
         assertEquals(false, result.isArchived)
     }

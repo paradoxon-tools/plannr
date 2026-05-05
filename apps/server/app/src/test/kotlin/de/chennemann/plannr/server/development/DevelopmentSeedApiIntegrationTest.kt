@@ -10,14 +10,6 @@ class DevelopmentSeedApiIntegrationTest : ApiIntegrationTest() {
     @BeforeEach
     fun setUp() {
         cleanDatabase(
-            "projection_dirty_scope",
-            "account_future_transaction_feed",
-            "pocket_future_transaction_feed",
-            "account_transaction_feed",
-            "pocket_transaction_feed",
-            "transactions",
-            "pocket_query",
-            "account_query",
             "recurring_transactions",
             "contracts",
             "partners",

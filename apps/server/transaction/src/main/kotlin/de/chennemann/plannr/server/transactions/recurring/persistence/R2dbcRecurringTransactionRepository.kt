@@ -17,12 +17,12 @@ class R2dbcRecurringTransactionRepository(
                 INSERT INTO recurring_transactions (
                     source_pocket_id, destination_pocket_id, partner_id, title, description,
                     amount, currency_code, transaction_type, first_occurrence_date, final_occurrence_date, recurrence_type,
-                    skip_count, days_of_week, weeks_of_month, days_of_month, months_of_year, last_materialized_date,
+                    skip_count, days_of_week, weeks_of_month, days_of_month, months_of_year,
                     previous_version_id, is_archived, created_at
                 ) VALUES (
                     :sourcePocketId, :destinationPocketId, :partnerId, :title, :description,
                     :amount, :currencyCode, :transactionType, :firstOccurrenceDate, :finalOccurrenceDate, :recurrenceType,
-                    :skipCount, :daysOfWeek, :weeksOfMonth, :daysOfMonth, :monthsOfYear, :lastMaterializedDate,
+                    :skipCount, :daysOfWeek, :weeksOfMonth, :daysOfMonth, :monthsOfYear,
                     :previousVersionId, :isArchived, :createdAt
                 )
                 RETURNING id
@@ -32,12 +32,12 @@ class R2dbcRecurringTransactionRepository(
                 INSERT INTO recurring_transactions (
                     id, source_pocket_id, destination_pocket_id, partner_id, title, description,
                     amount, currency_code, transaction_type, first_occurrence_date, final_occurrence_date, recurrence_type,
-                    skip_count, days_of_week, weeks_of_month, days_of_month, months_of_year, last_materialized_date,
+                    skip_count, days_of_week, weeks_of_month, days_of_month, months_of_year,
                     previous_version_id, is_archived, created_at
                 ) VALUES (
                     :id, :sourcePocketId, :destinationPocketId, :partnerId, :title, :description,
                     :amount, :currencyCode, :transactionType, :firstOccurrenceDate, :finalOccurrenceDate, :recurrenceType,
-                    :skipCount, :daysOfWeek, :weeksOfMonth, :daysOfMonth, :monthsOfYear, :lastMaterializedDate,
+                    :skipCount, :daysOfWeek, :weeksOfMonth, :daysOfMonth, :monthsOfYear,
                     :previousVersionId, :isArchived, :createdAt
                 )
                 RETURNING id
@@ -68,7 +68,6 @@ class R2dbcRecurringTransactionRepository(
                 weeks_of_month = :weeksOfMonth,
                 days_of_month = :daysOfMonth,
                 months_of_year = :monthsOfYear,
-                last_materialized_date = :lastMaterializedDate,
                 previous_version_id = :previousVersionId,
                 is_archived = :isArchived,
                 created_at = :createdAt
@@ -126,7 +125,6 @@ class R2dbcRecurringTransactionRepository(
                rt.weeks_of_month,
                rt.days_of_month,
                rt.months_of_year,
-               rt.last_materialized_date,
                rt.previous_version_id,
                rt.is_archived,
                rt.created_at
@@ -161,7 +159,6 @@ class R2dbcRecurringTransactionRepository(
         current = bindNullable(current, "weeksOfMonth", recurringTransaction.weeksOfMonth?.joinToString(","))
         current = bindNullable(current, "daysOfMonth", recurringTransaction.daysOfMonth?.joinToString(","))
         current = bindNullable(current, "monthsOfYear", recurringTransaction.monthsOfYear?.joinToString(","))
-        current = bindNullable(current, "lastMaterializedDate", recurringTransaction.lastMaterializedDate)
         current = bindNullable(current, "previousVersionId", recurringTransaction.previousVersionId)
         return current
     }
@@ -189,7 +186,6 @@ class R2dbcRecurringTransactionRepository(
         weeksOfMonth = (row["weeks_of_month"] as String?)?.split(',')?.filter { it.isNotBlank() }?.map(String::toInt),
         daysOfMonth = (row["days_of_month"] as String?)?.split(',')?.filter { it.isNotBlank() }?.map(String::toInt),
         monthsOfYear = (row["months_of_year"] as String?)?.split(',')?.filter { it.isNotBlank() }?.map(String::toInt),
-        lastMaterializedDate = row["last_materialized_date"] as String?,
         previousVersionId = row["previous_version_id"] as String?,
         isArchived = row.getValue("is_archived") as Boolean,
         createdAt = (row.getValue("created_at") as Number).toLong(),

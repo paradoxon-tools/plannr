@@ -8,12 +8,10 @@ import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
-import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionProjectionPort
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionContextResolver
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionNormalization
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringVersioningService
-import de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -83,17 +81,10 @@ class DevelopmentDataSeederTest {
         )
         val recurringTransactionService = RecurringTransactionService(
             recurringTransactionRepository = recurringTransactionRepository,
-            transactionRepository = InMemoryTransactionRepository(),
-            accountService = accountService,
             contextResolver = RecurringTransactionContextResolver(contractRepository, pocketService, partnerService),
             timeProvider = timeProvider,
-            localDateProvider = { java.time.LocalDate.parse("2026-01-01") },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
-            projectionPort = object : RecurringTransactionProjectionPort {
-                override suspend fun markAccountDirty(accountId: String) = Unit
-                override suspend fun markPocketDirty(pocketId: String) = Unit
-            },
         )
 
         return SeederFixture(

@@ -233,17 +233,10 @@ class UpdateRecurringTransactionTest {
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         return RecurringTransactionService(
             recurringTransactionRepository = recurringRepository,
-            transactionRepository = de.chennemann.plannr.server.transactions.support.InMemoryTransactionRepository(),
-            accountService = de.chennemann.plannr.server.support.FakeAccountService(),
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
-            localDateProvider = { java.time.LocalDate.parse("2024-04-10") },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
-            projectionPort = object : RecurringTransactionProjectionPort {
-                override suspend fun markAccountDirty(accountId: String) = Unit
-                override suspend fun markPocketDirty(pocketId: String) = Unit
-            },
         )
     }
 }

@@ -20,7 +20,6 @@ data class RecurringTransactionResponse(
     val weeksOfMonth: List<Int>?,
     val daysOfMonth: List<Int>?,
     val monthsOfYear: List<Int>?,
-    val lastMaterializedDate: String?,
     val previousVersionId: String?,
     val isArchived: Boolean,
     val createdAt: Long,

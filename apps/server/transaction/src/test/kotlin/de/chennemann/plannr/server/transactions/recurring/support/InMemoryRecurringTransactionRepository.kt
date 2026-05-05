@@ -59,7 +59,6 @@ class InMemoryRecurringTransactionRepository(
             weeksOfMonth = weeksOfMonth,
             daysOfMonth = daysOfMonth,
             monthsOfYear = monthsOfYear,
-            lastMaterializedDate = lastMaterializedDate,
             previousVersionId = previousVersionId,
             isArchived = isArchived,
             createdAt = createdAt,
