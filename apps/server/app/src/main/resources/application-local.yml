@@ -1,3 +1,0 @@
-plannr:
-  dev-seed:
-    enabled: ${PLANNR_DEV_SEED_ENABLED:true}
