@@ -3,14 +3,6 @@ ARG GRADLE_VERSION=9.4.1
 FROM gradle:${GRADLE_VERSION}-jdk25 AS build
 WORKDIR /workspace
 
-COPY --chown=gradle:gradle settings.gradle.kts build.gradle.kts ./
-COPY --chown=gradle:gradle gradle.properties ./
-COPY --chown=gradle:gradle gradle gradle
-COPY --chown=gradle:gradle app/build.gradle.kts app/build.gradle.kts
-
-RUN --mount=type=cache,target=/home/gradle/.gradle \
-    gradle :app:dependencies --no-daemon
-
 COPY --chown=gradle:gradle . .
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
