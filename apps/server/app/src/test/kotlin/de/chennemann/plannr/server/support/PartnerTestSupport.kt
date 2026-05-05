@@ -1,10 +1,10 @@
 package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.partners.domain.Partner
-import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 
 object TestPartners {
     const val DEFAULT_ID = "par_123"
@@ -61,13 +61,13 @@ class FakePartnerService(
     }
 
     override suspend fun archive(id: String): Partner {
-        val partner = existingPartner(id).archive()
+        val partner = existingPartner(id).copy(isArchived = true)
         partners[partner.id] = partner
         return partner
     }
 
     override suspend fun unarchive(id: String): Partner {
-        val partner = existingPartner(id).unarchive()
+        val partner = existingPartner(id).copy(isArchived = false)
         partners[partner.id] = partner
         return partner
     }

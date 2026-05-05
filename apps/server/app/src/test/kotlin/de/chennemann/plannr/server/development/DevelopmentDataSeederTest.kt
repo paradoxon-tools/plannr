@@ -2,8 +2,8 @@ package de.chennemann.plannr.server.development
 
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.contracts.service.ContractServiceImpl
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
-import de.chennemann.plannr.server.contracts.service.ContractService
 import de.chennemann.plannr.server.support.FakeAccountService
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
@@ -71,7 +71,7 @@ class DevelopmentDataSeederTest {
             idGenerator = idGenerator("acc"),
             timeProvider = { timeProvider() },
         )
-        val contractService = ContractService(
+        val contractService = ContractServiceImpl(
             contractRepository = contractRepository,
             pocketService = pocketService,
             partnerService = partnerService,

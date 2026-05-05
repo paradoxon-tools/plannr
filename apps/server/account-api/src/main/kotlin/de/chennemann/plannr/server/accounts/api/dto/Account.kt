@@ -1,9 +1,6 @@
 package de.chennemann.plannr.server.accounts.api.dto
 
-import de.chennemann.plannr.server.common.domain.normalizeCurrency
-import de.chennemann.plannr.server.common.error.ValidationException
-
-data class Account private constructor(
+data class Account(
     val id: String,
     val name: String,
     val institution: String,
@@ -11,56 +8,4 @@ data class Account private constructor(
     val weekendHandling: String,
     val isArchived: Boolean,
     val createdAt: Long,
-) {
-    fun archive(): Account = copy(isArchived = true)
-
-    fun unarchive(): Account = copy(isArchived = false)
-
-    companion object {
-        operator fun invoke(
-            id: String,
-            name: String,
-            institution: String,
-            currencyCode: String,
-            weekendHandling: String,
-            isArchived: Boolean,
-            createdAt: Long,
-        ): Account {
-            val normalizedId = id.trim()
-            val normalizedName = name.trim()
-            val normalizedInstitution = institution.trim()
-            val normalizedCurrencyCode = normalizeCurrency(currencyCode)
-            val normalizedWeekendHandling = normalizeWeekendHandling(weekendHandling)
-
-            if (normalizedId.isBlank()) {
-                throw ValidationException("validation_error", "Account id must not be blank")
-            }
-            if (normalizedName.isBlank()) {
-                throw ValidationException("validation_error", "Account name must not be blank")
-            }
-            if (normalizedInstitution.isBlank()) {
-                throw ValidationException("validation_error", "Account institution must not be blank")
-            }
-            return Account(
-                id = normalizedId,
-                name = normalizedName,
-                institution = normalizedInstitution,
-                currencyCode = normalizedCurrencyCode,
-                weekendHandling = normalizedWeekendHandling,
-                isArchived = isArchived,
-                createdAt = createdAt,
-            )
-        }
-    }
-}
-
-private fun normalizeWeekendHandling(value: String): String {
-    val normalized = value.trim().uppercase()
-    if (normalized.isBlank()) {
-        throw ValidationException("validation_error", "Account weekend handling is invalid")
-    }
-    return when (normalized) {
-        "NO_SHIFT", "MOVE_BEFORE", "MOVE_AFTER" -> normalized
-        else -> throw ValidationException("validation_error", "Account weekend handling is invalid")
-    }
-}
+)

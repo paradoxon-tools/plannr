@@ -1,9 +1,8 @@
 package de.chennemann.plannr.server.contracts.support
 
-import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
-import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
+import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.contracts.domain.Contract
-import de.chennemann.plannr.server.contracts.service.ContractService
 
 object ContractFixtures {
     const val DEFAULT_ID = "con_123"
@@ -48,8 +47,8 @@ object ContractFixtures {
         startDate: String = DEFAULT_START_DATE,
         endDate: String? = DEFAULT_END_DATE,
         notes: String? = DEFAULT_NOTES,
-    ): ContractService.CreateCommand =
-        ContractService.CreateCommand(
+    ): CreateContractCommand =
+        CreateContractCommand(
             pocketId = pocketId,
             partnerId = partnerId,
             name = name,
@@ -66,8 +65,8 @@ object ContractFixtures {
         startDate: String = DEFAULT_START_DATE,
         endDate: String? = DEFAULT_END_DATE,
         notes: String? = DEFAULT_NOTES,
-    ): ContractService.UpdateCommand =
-        ContractService.UpdateCommand(
+    ): UpdateContractCommand =
+        UpdateContractCommand(
             id = id,
             pocketId = pocketId,
             partnerId = partnerId,
@@ -77,38 +76,5 @@ object ContractFixtures {
             notes = notes,
         )
 
-    fun createContractRequest(
-        pocketId: String = DEFAULT_POCKET_ID,
-        partnerId: String? = DEFAULT_PARTNER_ID,
-        name: String = DEFAULT_NAME,
-        startDate: String = DEFAULT_START_DATE,
-        endDate: String? = DEFAULT_END_DATE,
-        notes: String? = DEFAULT_NOTES,
-    ): CreateContractRequest =
-        CreateContractRequest(
-            pocketId = pocketId,
-            partnerId = partnerId,
-            name = name,
-            startDate = startDate,
-            endDate = endDate,
-            notes = notes,
-        )
-
-    fun updateContractRequest(
-        pocketId: String = DEFAULT_POCKET_ID,
-        partnerId: String? = DEFAULT_PARTNER_ID,
-        name: String = DEFAULT_NAME,
-        startDate: String = DEFAULT_START_DATE,
-        endDate: String? = DEFAULT_END_DATE,
-        notes: String? = DEFAULT_NOTES,
-    ): UpdateContractRequest =
-        UpdateContractRequest(
-            pocketId = pocketId,
-            partnerId = partnerId,
-            name = name,
-            startDate = startDate,
-            endDate = endDate,
-            notes = notes,
-        )
 }
 

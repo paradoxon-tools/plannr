@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.contracts.api.dto
 
-data class CreateContractRequest(
+data class CreateContractCommand(
     val pocketId: String,
     val partnerId: String?,
     val name: String,

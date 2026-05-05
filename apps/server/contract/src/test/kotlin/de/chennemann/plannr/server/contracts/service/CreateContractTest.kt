@@ -20,7 +20,7 @@ class CreateContractTest {
     @Test
     fun `creates contract when pocket exists and optional partner is valid`() = runTest {
         val contractRepository = InMemoryContractRepository()
-        val createContract = ContractService(
+        val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
             pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(listOf(ContractTestPartners.partner())),
@@ -31,13 +31,13 @@ class CreateContractTest {
         val created = createContract.create(ContractFixtures.createContractCommand())
 
         assertEquals(ContractFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
-        assertEquals(created, contractRepository.findById(created.id)?.toDomain())
+        assertEquals(created.id, contractRepository.findById(created.id)?.toDomain()?.id)
     }
 
     @Test
     fun `creates contract without partner`() = runTest {
         val contractRepository = InMemoryContractRepository()
-        val createContract = ContractService(
+        val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
             pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(emptyList()),
@@ -54,7 +54,7 @@ class CreateContractTest {
     fun `fails when pocket already has a contract`() = runTest {
         val contractRepository = InMemoryContractRepository()
         contractRepository.save(ContractFixtures.contract().toModel())
-        val createContract = ContractService(
+        val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
             pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(listOf(ContractTestPartners.partner())),
@@ -69,7 +69,7 @@ class CreateContractTest {
 
     @Test
     fun `fails when pocket does not exist`() = runTest {
-        val createContract = ContractService(
+        val createContract = ContractServiceImpl(
             contractRepository = InMemoryContractRepository(),
             pocketService = FakePocketService(emptyList()),
             partnerService = FakePartnerService(emptyList()),
@@ -84,7 +84,7 @@ class CreateContractTest {
 
     @Test
     fun `fails when partner does not exist`() = runTest {
-        val createContract = ContractService(
+        val createContract = ContractServiceImpl(
             contractRepository = InMemoryContractRepository(),
             pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(emptyList()),

@@ -195,7 +195,7 @@ Baseline filtering:
 #### `GET /contracts/{contractId}`
 Get contract detail.
 
-#### `PUT /contracts/{contractId}`
+#### `PUT /contracts`
 Replace contract metadata.
 
 Notes:
@@ -332,7 +332,7 @@ List accounts.
 #### `GET /accounts/{accountId}`
 Get account detail.
 
-#### `PUT /accounts/{accountId}`
+#### `PUT /accounts`
 Update an account.
 
 #### `POST /accounts/{accountId}/archive`
@@ -374,7 +374,7 @@ Baseline filtering may include:
 #### `GET /pockets/{pocketId}`
 Get pocket detail.
 
-#### `PUT /pockets/{pocketId}`
+#### `PUT /pockets`
 Update a pocket.
 
 #### `POST /pockets/{pocketId}/archive`
@@ -411,7 +411,7 @@ List partners.
 #### `GET /partners/{partnerId}`
 Get partner detail.
 
-#### `PUT /partners/{partnerId}`
+#### `PUT /partners`
 Update a partner.
 
 #### `POST /partners/{partnerId}/archive`

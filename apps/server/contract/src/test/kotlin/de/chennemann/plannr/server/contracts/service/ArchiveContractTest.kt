@@ -15,7 +15,7 @@ class ArchiveContractTest {
         val repository = InMemoryContractRepository()
         repository.save(ContractFixtures.contract())
         val archiveCascade = RecordingContractRecurringTransactionCascade()
-        val archiveContract = ArchiveContractService(repository, archiveCascade)
+        val archiveContract = ArchiveContractServiceImpl(repository, archiveCascade)
 
         val result = archiveContract(ContractFixtures.DEFAULT_ID)
 
@@ -26,7 +26,7 @@ class ArchiveContractTest {
 
     @Test
     fun `fails for unknown contract`() = runTest {
-        val archiveContract = ArchiveContractService(InMemoryContractRepository(), RecordingContractRecurringTransactionCascade())
+        val archiveContract = ArchiveContractServiceImpl(InMemoryContractRepository(), RecordingContractRecurringTransactionCascade())
 
         assertFailsWith<NotFoundException> {
             archiveContract(ContractFixtures.DEFAULT_ID)

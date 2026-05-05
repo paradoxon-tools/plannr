@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.contracts.api
 
-import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
-import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
-import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
+import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.contracts.service.ContractService
 import org.springframework.web.bind.annotation.RestController
 
@@ -10,19 +10,18 @@ import org.springframework.web.bind.annotation.RestController
 class ContractController(
     private val contractService: ContractService,
 ) : ContractApi {
-    override suspend fun create(request: CreateContractRequest): ContractResponse =
-        contractService.create(request.toCreateCommand()).toResponse()
+    override suspend fun create(command: CreateContractCommand): Contract =
+        contractService.create(command)
 
-    override suspend fun update(id: String, request: UpdateContractRequest): ContractResponse =
-        contractService.update(request.toUpdateCommand(id)).toResponse()
+    override suspend fun update(command: UpdateContractCommand): Contract =
+        contractService.update(command)
 
-    override suspend fun archive(id: String): ContractResponse =
-        contractService.archive(id).toResponse()
+    override suspend fun archive(id: String): Contract =
+        contractService.archive(id)
 
-    override suspend fun unarchive(id: String): ContractResponse =
-        contractService.unarchive(id).toResponse()
+    override suspend fun unarchive(id: String): Contract =
+        contractService.unarchive(id)
 
-    override suspend fun list(accountId: String?, archived: Boolean): List<ContractResponse> =
-        contractService.list(accountId, archived).map { it.toResponse() }
+    override suspend fun list(accountId: String?, archived: Boolean): List<Contract> =
+        contractService.list(accountId, archived)
 }
-

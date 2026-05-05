@@ -1,13 +1,13 @@
 package de.chennemann.plannr.server.query.projection
 
 import de.chennemann.plannr.server.accounts.service.AccountService
-import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
-import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
-import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
-import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.projection.ProjectionDirtyScopeRepository
 import de.chennemann.plannr.server.projection.ProjectionDirtyScopeService
 import de.chennemann.plannr.server.projection.ProjectionScheduler

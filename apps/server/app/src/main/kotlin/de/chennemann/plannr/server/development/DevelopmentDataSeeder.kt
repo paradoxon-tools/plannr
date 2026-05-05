@@ -2,19 +2,20 @@ package de.chennemann.plannr.server.development
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountService
-import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
 import de.chennemann.plannr.server.common.domain.RecurrenceType
 import de.chennemann.plannr.server.common.domain.TransactionType
 import de.chennemann.plannr.server.common.domain.WeekendHandling
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.contracts.service.ContractService
-import de.chennemann.plannr.server.partners.domain.Partner
-import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
@@ -271,8 +272,8 @@ class DevelopmentDataSeeder(
     ): Contract {
         val existing = contractRepository.findByPocketId(pocketId)?.toDomain()
         if (existing == null) {
-            return contractService.create(
-                ContractService.CreateCommand(
+            val created = contractService.create(
+                CreateContractCommand(
                     pocketId = pocketId,
                     partnerId = partnerId,
                     name = name,
@@ -280,7 +281,10 @@ class DevelopmentDataSeeder(
                     endDate = null,
                     notes = notes,
                 ),
-            ).also { collector.contract(it, SeededResourceStatus.CREATED) }
+            )
+            return requireNotNull(contractRepository.findById(created.id)?.toDomain()) {
+                "Created contract not found: ${created.id}"
+            }.also { collector.contract(it, SeededResourceStatus.CREATED) }
         }
         if (existing.isArchived) {
             val updated = existing.unarchive()

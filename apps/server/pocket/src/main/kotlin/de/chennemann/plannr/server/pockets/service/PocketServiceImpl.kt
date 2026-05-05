@@ -3,7 +3,9 @@ package de.chennemann.plannr.server.pockets.service
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.events.PocketCreated
 import de.chennemann.plannr.server.pockets.events.PocketUpdated

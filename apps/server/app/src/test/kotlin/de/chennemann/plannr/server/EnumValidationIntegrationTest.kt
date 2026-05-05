@@ -32,7 +32,7 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
     }
 
     @Test
-    fun `account api rejects invalid weekend handling enum`() {
+    fun `account api accepts weekend handling as raw command data`() {
         webTestClient.post()
             .uri("/accounts")
             .bodyValue(
@@ -44,9 +44,9 @@ class EnumValidationIntegrationTest : ApiIntegrationTest() {
                 ),
             )
             .exchange()
-            .expectStatus().isEqualTo(422)
+            .expectStatus().isCreated
             .expectBody()
-            .expectApiError("validation_error", "Account weekend handling is invalid")
+            .jsonPath("$.weekendHandling").isEqualTo("not_a_weekend_mode")
     }
 
     @Test

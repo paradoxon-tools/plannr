@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.pockets.api.dto
 
-data class UpdatePocketRequest(
+data class CreatePocketCommand(
     val accountId: String,
     val name: String,
     val description: String?,

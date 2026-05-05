@@ -3,14 +3,14 @@ package de.chennemann.plannr.server.contracts.support
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
-import de.chennemann.plannr.server.partners.domain.Partner
-import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
-import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
 object ContractTestPockets {
     fun pocket(

@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server
 
 import de.chennemann.plannr.server.accounts.service.AccountService
-import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
-import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionMaterializer
 import de.chennemann.plannr.server.support.ApiIntegrationTest

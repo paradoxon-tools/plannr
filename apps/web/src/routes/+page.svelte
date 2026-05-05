@@ -205,7 +205,7 @@
     isSaving = true;
     try {
       const payload = { name: accountForm.name, institution: accountForm.institution, currencyCode: accountForm.currencyCode, weekendHandling: accountForm.weekendHandling };
-      if (accountForm.id) await api(`/accounts/${accountForm.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      if (accountForm.id) await api('/accounts', { method: 'PUT', body: JSON.stringify({ id: accountForm.id, ...payload }) });
       else await api('/accounts', { method: 'POST', body: JSON.stringify(payload) });
       await loadAll();
       resetAccountForm();
@@ -218,7 +218,7 @@
     isSaving = true;
     try {
       const payload = { accountId: pocketForm.accountId, name: pocketForm.name, description: normalizeOptionalString(pocketForm.description), color: pocketForm.color, isDefault: pocketForm.isDefault };
-      if (pocketForm.id) await api(`/pockets/${pocketForm.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      if (pocketForm.id) await api('/pockets', { method: 'PUT', body: JSON.stringify({ id: pocketForm.id, ...payload }) });
       else await api('/pockets', { method: 'POST', body: JSON.stringify(payload) });
       await loadAll();
       resetPocketForm();
@@ -230,7 +230,7 @@
     isSaving = true;
     try {
       const payload = { name: partnerForm.name, notes: normalizeOptionalString(partnerForm.notes) };
-      if (partnerForm.id) await api(`/partners/${partnerForm.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      if (partnerForm.id) await api('/partners', { method: 'PUT', body: JSON.stringify({ id: partnerForm.id, ...payload }) });
       else await api('/partners', { method: 'POST', body: JSON.stringify(payload) });
       await loadAll();
       resetPartnerForm();
@@ -279,7 +279,7 @@
         endDate: normalizeOptionalString(contractForm.endDate),
         notes: normalizeOptionalString(contractForm.notes)
       };
-      if (contractForm.id) await api(`/contracts/${contractForm.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      if (contractForm.id) await api('/contracts', { method: 'PUT', body: JSON.stringify({ id: contractForm.id, ...payload }) });
       else await api('/contracts', { method: 'POST', body: JSON.stringify(payload) });
       await loadAll();
       resetContractForm();

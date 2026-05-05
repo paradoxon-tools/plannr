@@ -1,6 +1,8 @@
 package de.chennemann.plannr.server.partners.service
 
-import de.chennemann.plannr.server.partners.domain.Partner
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 
 interface PartnerService {
     suspend fun create(command: CreatePartnerCommand): Partner
@@ -15,14 +17,3 @@ interface PartnerService {
 
     suspend fun getById(id: String): Partner?
 }
-
-data class CreatePartnerCommand(
-    val name: String,
-    val notes: String?,
-)
-
-data class UpdatePartnerCommand(
-    val id: String,
-    val name: String,
-    val notes: String?,
-)

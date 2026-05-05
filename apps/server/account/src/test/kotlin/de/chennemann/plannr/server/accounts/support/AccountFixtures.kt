@@ -1,10 +1,8 @@
 package de.chennemann.plannr.server.accounts.support
 
-import de.chennemann.plannr.server.accounts.api.dto.CreateAccountRequest
-import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountRequest
 import de.chennemann.plannr.server.accounts.api.dto.Account
-import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
-import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 
 object AccountFixtures {
     const val DEFAULT_ID = "acc_123"
@@ -46,19 +44,6 @@ object AccountFixtures {
             weekendHandling = weekendHandling,
         )
 
-    fun createAccountRequest(
-        name: String = DEFAULT_NAME,
-        institution: String = DEFAULT_INSTITUTION,
-        currencyCode: String = DEFAULT_CURRENCY_CODE,
-        weekendHandling: String = DEFAULT_WEEKEND_HANDLING,
-    ): CreateAccountRequest =
-        CreateAccountRequest(
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-        )
-
     fun updateAccountCommand(
         id: String = DEFAULT_ID,
         name: String = DEFAULT_NAME,
@@ -74,16 +59,4 @@ object AccountFixtures {
             weekendHandling = weekendHandling,
         )
 
-    fun updateAccountRequest(
-        name: String = DEFAULT_NAME,
-        institution: String = DEFAULT_INSTITUTION,
-        currencyCode: String = DEFAULT_CURRENCY_CODE,
-        weekendHandling: String = DEFAULT_WEEKEND_HANDLING,
-    ): UpdateAccountRequest =
-        UpdateAccountRequest(
-            name = name,
-            institution = institution,
-            currencyCode = currencyCode,
-            weekendHandling = weekendHandling,
-        )
 }

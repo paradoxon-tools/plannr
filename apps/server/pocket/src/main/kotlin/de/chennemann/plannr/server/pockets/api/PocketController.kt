@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.pockets.api
 
-import de.chennemann.plannr.server.pockets.api.dto.CreatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.common.error.NotFoundException
 import org.springframework.web.bind.annotation.RestController
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController
 class PocketController(
     private val pocketService: PocketService,
 ) : PocketApi {
-    override suspend fun create(request: CreatePocketRequest): Pocket =
-        pocketService.create(request.toCommand())
+    override suspend fun create(command: CreatePocketCommand): Pocket =
+        pocketService.create(command)
 
-    override suspend fun update(id: String, request: UpdatePocketRequest): Pocket =
-        pocketService.update(request.toCommand(id))
+    override suspend fun update(command: UpdatePocketCommand): Pocket =
+        pocketService.update(command)
 
     override suspend fun archive(id: String): Pocket =
         pocketService.archive(id)

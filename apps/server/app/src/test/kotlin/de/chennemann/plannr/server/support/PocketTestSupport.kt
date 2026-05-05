@@ -2,9 +2,9 @@ package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
-import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
 object TestPockets {
     const val DEFAULT_ID = "poc_123"
@@ -77,14 +77,14 @@ class FakePocketService(
     }
 
     override suspend fun archive(id: String): Pocket {
-        val pocket = existingPocket(id).archive()
+        val pocket = existingPocket(id).copy(isArchived = true)
         pockets[pocket.id] = pocket
         onArchive(pocket)
         return pocket
     }
 
     override suspend fun unarchive(id: String): Pocket {
-        val pocket = existingPocket(id).unarchive()
+        val pocket = existingPocket(id).copy(isArchived = false)
         pockets[pocket.id] = pocket
         onUnarchive(pocket)
         return pocket

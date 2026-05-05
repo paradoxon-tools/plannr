@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.pockets.api
 
-import de.chennemann.plannr.server.pockets.api.dto.CreatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketRequest
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -17,10 +17,10 @@ import org.springframework.web.service.annotation.PutExchange
 interface PocketApi {
     @PostExchange
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun create(@RequestBody request: CreatePocketRequest): Pocket
+    suspend fun create(@RequestBody command: CreatePocketCommand): Pocket
 
-    @PutExchange("/{id}")
-    suspend fun update(@PathVariable id: String, @RequestBody request: UpdatePocketRequest): Pocket
+    @PutExchange
+    suspend fun update(@RequestBody command: UpdatePocketCommand): Pocket
 
     @PostExchange("/{id}/archive")
     suspend fun archive(@PathVariable id: String): Pocket

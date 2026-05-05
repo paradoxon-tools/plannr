@@ -2,9 +2,9 @@ package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
-import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
 class FakePocketService(
     initialPockets: Iterable<Pocket> = listOf(Pocket("poc_123", "acc_123", "Bills", "Monthly fixed costs", 123456, false, false, 1_710_000_100L)),

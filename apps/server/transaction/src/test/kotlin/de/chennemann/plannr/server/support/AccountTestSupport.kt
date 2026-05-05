@@ -2,8 +2,8 @@ package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountService
-import de.chennemann.plannr.server.accounts.service.CreateAccountCommand
-import de.chennemann.plannr.server.accounts.service.UpdateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.common.error.NotFoundException
 
 class FakeAccountService(

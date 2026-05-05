@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.partners.api
 
-import de.chennemann.plannr.server.partners.api.dto.CreatePartnerRequest
-import de.chennemann.plannr.server.partners.api.dto.PartnerResponse
-import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerRequest
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -17,20 +17,20 @@ import org.springframework.web.service.annotation.PutExchange
 interface PartnerApi {
     @PostExchange
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun create(@RequestBody request: CreatePartnerRequest): PartnerResponse
+    suspend fun create(@RequestBody command: CreatePartnerCommand): Partner
 
-    @PutExchange("/{id}")
-    suspend fun update(@PathVariable id: String, @RequestBody request: UpdatePartnerRequest): PartnerResponse
+    @PutExchange
+    suspend fun update(@RequestBody command: UpdatePartnerCommand): Partner
 
     @PostExchange("/{id}/archive")
-    suspend fun archive(@PathVariable id: String): PartnerResponse
+    suspend fun archive(@PathVariable id: String): Partner
 
     @PostExchange("/{id}/unarchive")
-    suspend fun unarchive(@PathVariable id: String): PartnerResponse
+    suspend fun unarchive(@PathVariable id: String): Partner
 
     @GetExchange
     suspend fun list(
         @RequestParam(required = false) query: String?,
         @RequestParam(defaultValue = "false") archived: Boolean,
-    ): List<PartnerResponse>
+    ): List<Partner>
 }

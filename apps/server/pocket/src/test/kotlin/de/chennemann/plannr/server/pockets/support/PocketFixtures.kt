@@ -1,10 +1,8 @@
 package de.chennemann.plannr.server.pockets.support
 
-import de.chennemann.plannr.server.pockets.api.dto.CreatePocketRequest
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketRequest
-import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
-import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
 object PocketFixtures {
     const val DEFAULT_ID = "poc_123"
@@ -67,33 +65,4 @@ object PocketFixtures {
             isDefault = isDefault,
         )
 
-    fun createPocketRequest(
-        accountId: String = DEFAULT_ACCOUNT_ID,
-        name: String = DEFAULT_NAME,
-        description: String? = DEFAULT_DESCRIPTION,
-        color: Int = DEFAULT_COLOR,
-        isDefault: Boolean = false,
-    ): CreatePocketRequest =
-        CreatePocketRequest(
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-        )
-
-    fun updatePocketRequest(
-        accountId: String = DEFAULT_ACCOUNT_ID,
-        name: String = DEFAULT_NAME,
-        description: String? = DEFAULT_DESCRIPTION,
-        color: Int = DEFAULT_COLOR,
-        isDefault: Boolean = false,
-    ): UpdatePocketRequest =
-        UpdatePocketRequest(
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-        )
 }

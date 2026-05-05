@@ -1,34 +1,10 @@
 package de.chennemann.plannr.server.contracts.api
 
-import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
-import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
-import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
+import de.chennemann.plannr.server.contracts.api.dto.Contract as ContractDto
 import de.chennemann.plannr.server.contracts.domain.Contract
-import de.chennemann.plannr.server.contracts.service.ContractService
 
-internal fun CreateContractRequest.toCreateCommand(): ContractService.CreateCommand =
-    ContractService.CreateCommand(
-        pocketId = pocketId,
-        partnerId = partnerId,
-        name = name,
-        startDate = startDate,
-        endDate = endDate,
-        notes = notes,
-    )
-
-internal fun UpdateContractRequest.toUpdateCommand(id: String): ContractService.UpdateCommand =
-    ContractService.UpdateCommand(
-        id = id,
-        pocketId = pocketId,
-        partnerId = partnerId,
-        name = name,
-        startDate = startDate,
-        endDate = endDate,
-        notes = notes,
-    )
-
-internal fun Contract.toResponse(): ContractResponse =
-    ContractResponse(
+internal fun Contract.toResponse(): ContractDto =
+    ContractDto(
         id = id,
         accountId = accountId,
         pocketId = pocketId,

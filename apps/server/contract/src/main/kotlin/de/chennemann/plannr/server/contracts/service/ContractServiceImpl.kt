@@ -3,24 +3,28 @@ package de.chennemann.plannr.server.contracts.service
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.contracts.api.dto.Contract as ContractDto
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
+import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.ContractModel
 import de.chennemann.plannr.server.contracts.persistence.toDomain
+import de.chennemann.plannr.server.contracts.service.ContractService as ContractServiceApi
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 
 @Service
-class ContractService(
+class ContractServiceImpl(
     private val contractRepository: ContractRepository,
     private val pocketService: PocketService,
     private val partnerService: PartnerService,
     private val recurringTransactionCascade: ContractRecurringTransactionCascade,
     private val timeProvider: TimeProvider,
-) {
-    suspend fun create(command: CreateCommand): Contract {
+) : ContractServiceApi {
+    override suspend fun create(command: CreateContractCommand): ContractDto {
         val pocketId = command.pocketId.trim()
         val pocket = pocketService.getById(pocketId)
             ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to pocketId))
@@ -40,10 +44,10 @@ class ContractService(
             notes = command.notes,
             isArchived = false,
             createdAt = timeProvider(),
-        ).toDomain()
+        ).toDomain().toContractDto()
     }
 
-    suspend fun update(command: UpdateCommand): Contract {
+    override suspend fun update(command: UpdateContractCommand): ContractDto {
         val existing = contractRepository.findById(command.id.trim())?.toDomain()
             ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to command.id.trim()))
 
@@ -66,10 +70,10 @@ class ContractService(
             endDate = command.endDate,
             notes = command.notes,
             isArchived = existing.isArchived,
-        ).toDomain()
+        ).toDomain().toContractDto()
     }
 
-    suspend fun archive(id: String): Contract {
+    override suspend fun archive(id: String): ContractDto {
         val existing = contractRepository.findById(id.trim())?.toDomain()
             ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to id.trim()))
 
@@ -86,10 +90,10 @@ class ContractService(
             isArchived = true,
         )
         recurringTransactionCascade.archiveFor(updated)
-        return updated
+        return updated.toContractDto()
     }
 
-    suspend fun unarchive(id: String): Contract {
+    override suspend fun unarchive(id: String): ContractDto {
         val existing = contractRepository.findById(id.trim())?.toDomain()
             ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to id.trim()))
 
@@ -106,13 +110,14 @@ class ContractService(
             isArchived = false,
         )
         recurringTransactionCascade.unarchiveFor(updated)
-        return updated
+        return updated.toContractDto()
     }
 
-    suspend fun list(accountId: String? = null, archived: Boolean = false): List<Contract> =
+    override suspend fun list(accountId: String?, archived: Boolean): List<ContractDto> =
         contractRepository.findAllByAccountIdAndArchived(accountId?.trim()?.takeIf { it.isNotBlank() }, archived)
             .toList()
             .map(ContractModel::toDomain)
+            .map { it.toContractDto() }
 
     private suspend fun resolvePartnerId(partnerId: String?): String? =
         partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {
@@ -120,22 +125,17 @@ class ContractService(
                 ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to it))
         }
 
-    data class CreateCommand(
-        val pocketId: String,
-        val partnerId: String?,
-        val name: String,
-        val startDate: String,
-        val endDate: String?,
-        val notes: String?,
-    )
-
-    data class UpdateCommand(
-        val id: String,
-        val pocketId: String,
-        val partnerId: String?,
-        val name: String,
-        val startDate: String,
-        val endDate: String?,
-        val notes: String?,
-    )
+    private fun Contract.toContractDto(): ContractDto =
+        ContractDto(
+            id = id,
+            accountId = accountId,
+            pocketId = pocketId,
+            partnerId = partnerId,
+            name = name,
+            startDate = startDate,
+            endDate = endDate,
+            notes = notes,
+            isArchived = isArchived,
+            createdAt = createdAt,
+        )
 }

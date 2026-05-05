@@ -19,7 +19,7 @@ class UpdateContractTest {
     fun `updates existing contract`() = runTest {
         val contractRepository = InMemoryContractRepository()
         contractRepository.save(ContractFixtures.contract())
-        val updateContract = ContractService(
+        val updateContract = ContractServiceImpl(
             contractRepository = contractRepository,
             pocketService = FakePocketService(
                 listOf(
@@ -58,7 +58,7 @@ class UpdateContractTest {
 
     @Test
     fun `fails when contract does not exist`() = runTest {
-        val updateContract = ContractService(
+        val updateContract = ContractServiceImpl(
             contractRepository = InMemoryContractRepository(),
             pocketService = FakePocketService(emptyList()),
             partnerService = FakePartnerService(emptyList()),
@@ -76,7 +76,7 @@ class UpdateContractTest {
         val contractRepository = InMemoryContractRepository()
         contractRepository.save(ContractFixtures.contract())
         contractRepository.save(ContractFixtures.contract(id = "con_456", accountId = "acc_456", pocketId = "poc_456"))
-        val updateContract = ContractService(
+        val updateContract = ContractServiceImpl(
             contractRepository = contractRepository,
             pocketService = FakePocketService(
                 listOf(

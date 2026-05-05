@@ -1,10 +1,10 @@
 package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.partners.domain.Partner
-import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 
 class FakePartnerService(
     initialPartners: Iterable<Partner> = listOf(Partner("par_123", "ACME Corp", "Preferred partner", false, 1_710_000_200L)),

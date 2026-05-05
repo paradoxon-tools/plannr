@@ -1,9 +1,9 @@
 package de.chennemann.plannr.server.accounts.api
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
-import de.chennemann.plannr.server.accounts.api.dto.CreateAccountRequest
-import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountRequest
 import de.chennemann.plannr.server.accounts.service.AccountService
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.common.error.NotFoundException
 import org.springframework.web.bind.annotation.RestController
 
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController
 class AccountController(
     private val accountService: AccountService,
 ) : AccountApi {
-    override suspend fun create(request: CreateAccountRequest): Account =
-        accountService.create(request.toCommand())
+    override suspend fun create(command: CreateAccountCommand): Account =
+        accountService.create(command)
 
-    override suspend fun update(id: String, request: UpdateAccountRequest): Account =
-        accountService.update(request.toCommand(id))
+    override suspend fun update(command: UpdateAccountCommand): Account =
+        accountService.update(command)
 
     override suspend fun archive(id: String): Account =
         accountService.archive(id)

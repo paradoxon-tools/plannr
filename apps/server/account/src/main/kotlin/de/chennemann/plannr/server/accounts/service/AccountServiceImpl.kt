@@ -1,6 +1,8 @@
 package de.chennemann.plannr.server.accounts.service
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.events.AccountCreated
 import de.chennemann.plannr.server.accounts.events.AccountUpdated

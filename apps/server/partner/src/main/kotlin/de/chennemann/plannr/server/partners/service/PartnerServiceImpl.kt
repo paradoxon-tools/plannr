@@ -3,7 +3,9 @@ package de.chennemann.plannr.server.partners.service
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.partners.domain.Partner
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.partners.events.PartnerCreated
 import de.chennemann.plannr.server.partners.events.PartnerUpdated

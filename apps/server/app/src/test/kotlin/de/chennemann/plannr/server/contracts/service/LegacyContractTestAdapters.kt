@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.contracts.service
 
-import de.chennemann.plannr.server.contracts.domain.Contract
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,7 +19,7 @@ class CreateContract(
         val endDate: String?,
         val notes: String?,
     ) {
-        fun toServiceCommand() = ContractService.CreateCommand(
+        fun toServiceCommand() = CreateContractCommand(
             pocketId = pocketId,
             partnerId = partnerId,
             name = name,

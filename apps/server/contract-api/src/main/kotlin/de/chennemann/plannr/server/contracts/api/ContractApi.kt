@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.contracts.api
 
-import de.chennemann.plannr.server.contracts.api.dto.ContractResponse
-import de.chennemann.plannr.server.contracts.api.dto.CreateContractRequest
-import de.chennemann.plannr.server.contracts.api.dto.UpdateContractRequest
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
+import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -17,20 +17,20 @@ import org.springframework.web.service.annotation.PutExchange
 interface ContractApi {
     @PostExchange
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun create(@RequestBody request: CreateContractRequest): ContractResponse
+    suspend fun create(@RequestBody command: CreateContractCommand): Contract
 
-    @PutExchange("/{id}")
-    suspend fun update(@PathVariable id: String, @RequestBody request: UpdateContractRequest): ContractResponse
+    @PutExchange
+    suspend fun update(@RequestBody command: UpdateContractCommand): Contract
 
     @PostExchange("/{id}/archive")
-    suspend fun archive(@PathVariable id: String): ContractResponse
+    suspend fun archive(@PathVariable id: String): Contract
 
     @PostExchange("/{id}/unarchive")
-    suspend fun unarchive(@PathVariable id: String): ContractResponse
+    suspend fun unarchive(@PathVariable id: String): Contract
 
     @GetExchange
     suspend fun list(
         @RequestParam(required = false) accountId: String?,
         @RequestParam(defaultValue = "false") archived: Boolean,
-    ): List<ContractResponse>
+    ): List<Contract>
 }

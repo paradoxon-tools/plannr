@@ -1,6 +1,8 @@
 package de.chennemann.plannr.server.accounts.service
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
+import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
+import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 
 interface AccountService {
     suspend fun create(command: CreateAccountCommand): Account
@@ -10,18 +12,3 @@ interface AccountService {
     suspend fun list(archived: Boolean? = null): List<Account>
     suspend fun getById(id: String): Account?
 }
-
-data class CreateAccountCommand(
-    val name: String,
-    val institution: String,
-    val currencyCode: String,
-    val weekendHandling: String,
-)
-
-data class UpdateAccountCommand(
-    val id: String,
-    val name: String,
-    val institution: String,
-    val currencyCode: String,
-    val weekendHandling: String,
-)

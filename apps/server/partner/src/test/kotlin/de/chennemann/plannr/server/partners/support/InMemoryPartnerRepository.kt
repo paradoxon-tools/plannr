@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.partners.support
 
-import de.chennemann.plannr.server.partners.domain.Partner
+import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.partners.persistence.PartnerModel
 import de.chennemann.plannr.server.partners.persistence.toModel

@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.partners.events
 
 import de.chennemann.plannr.server.common.events.ApplicationEvent
-import de.chennemann.plannr.server.partners.domain.Partner
+import de.chennemann.plannr.server.partners.api.dto.Partner
 
 data class PartnerCreated(
     val partner: Partner,

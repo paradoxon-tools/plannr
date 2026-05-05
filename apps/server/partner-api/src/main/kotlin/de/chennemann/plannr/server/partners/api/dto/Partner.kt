@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.partners.api.dto
 
-data class PartnerResponse(
+data class Partner(
     val id: String,
     val name: String,
     val notes: String?,

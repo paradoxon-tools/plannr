@@ -1,10 +1,8 @@
 package de.chennemann.plannr.server.partners.support
 
-import de.chennemann.plannr.server.partners.api.dto.CreatePartnerRequest
-import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerRequest
-import de.chennemann.plannr.server.partners.domain.Partner
-import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
-import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
 
 object PartnerFixtures {
     const val DEFAULT_ID = "par_123"
@@ -47,21 +45,4 @@ object PartnerFixtures {
             notes = notes,
         )
 
-    fun createPartnerRequest(
-        name: String = DEFAULT_NAME,
-        notes: String? = DEFAULT_NOTES,
-    ): CreatePartnerRequest =
-        CreatePartnerRequest(
-            name = name,
-            notes = notes,
-        )
-
-    fun updatePartnerRequest(
-        name: String = DEFAULT_NAME,
-        notes: String? = DEFAULT_NOTES,
-    ): UpdatePartnerRequest =
-        UpdatePartnerRequest(
-            name = name,
-            notes = notes,
-        )
 }

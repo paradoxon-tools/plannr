@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.partners.persistence
 
-import de.chennemann.plannr.server.partners.domain.Partner
+import de.chennemann.plannr.server.partners.api.dto.Partner
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.PersistenceCreator
 import org.springframework.data.annotation.Transient
