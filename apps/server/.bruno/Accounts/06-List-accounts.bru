@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/accounts?archived=false
+  url: {{baseUrl}}/accounts
   body: none
   auth: none
+}
+
+params:query {
+  archived: false
 }
 
 headers {

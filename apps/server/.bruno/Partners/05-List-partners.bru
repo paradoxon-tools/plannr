@@ -5,9 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/partners?query=Acme&archived=false
+  url: {{baseUrl}}/partners
   body: none
   auth: none
+}
+
+params:query {
+  query: Acme
+  archived: false
 }
 
 headers {

@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/transactions/recurring/{{recurringTransactionId}}/unarchive
+  url: {{baseUrl}}/transactions/recurring/:recurringTransactionId/unarchive
   body: none
   auth: none
+}
+
+params:path {
+  recurringTransactionId: recurring-transaction-id
 }
 
 headers {

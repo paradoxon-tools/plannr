@@ -5,9 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contracts?accountId={{accountId}}&archived=false
+  url: {{baseUrl}}/contracts
   body: none
   auth: none
+}
+
+params:query {
+  accountId: account-id
+  archived: false
 }
 
 headers {

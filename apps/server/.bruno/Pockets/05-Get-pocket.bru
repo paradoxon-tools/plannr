@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/pockets/{{pocketId}}
+  url: {{baseUrl}}/pockets/:pocketId
   body: none
   auth: none
+}
+
+params:path {
+  pocketId: pocket-id
 }
 
 headers {

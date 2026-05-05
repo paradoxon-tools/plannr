@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/partners/{{partnerId}}/archive
+  url: {{baseUrl}}/partners/:partnerId/archive
   body: none
   auth: none
+}
+
+params:path {
+  partnerId: partner-id
 }
 
 headers {

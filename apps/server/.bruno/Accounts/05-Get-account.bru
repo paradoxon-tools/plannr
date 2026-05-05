@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/accounts/{{accountId}}
+  url: {{baseUrl}}/accounts/:accountId
   body: none
   auth: none
+}
+
+params:path {
+  accountId: account-id
 }
 
 headers {

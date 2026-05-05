@@ -5,9 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/pockets?accountId={{accountId}}&archived=false
+  url: {{baseUrl}}/pockets
   body: none
   auth: none
+}
+
+params:query {
+  accountId: account-id
+  archived: false
 }
 
 headers {

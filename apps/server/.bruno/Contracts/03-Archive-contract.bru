@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/contracts/{{contractId}}/archive
+  url: {{baseUrl}}/contracts/:contractId/archive
   body: none
   auth: none
+}
+
+params:path {
+  contractId: contract-id
 }
 
 headers {

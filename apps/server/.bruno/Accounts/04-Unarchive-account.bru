@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/accounts/{{accountId}}/unarchive
+  url: {{baseUrl}}/accounts/:accountId/unarchive
   body: none
   auth: none
+}
+
+params:path {
+  accountId: account-id
 }
 
 headers {

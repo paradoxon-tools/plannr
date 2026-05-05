@@ -5,9 +5,13 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/transactions/recurring/{{recurringTransactionId}}
+  url: {{baseUrl}}/transactions/recurring/:recurringTransactionId
   body: json
   auth: none
+}
+
+params:path {
+  recurringTransactionId: recurring-transaction-id
 }
 
 headers {
@@ -18,14 +22,14 @@ headers {
 body:json {
   {
     "updateMode": "overwrite",
-    "contractId": "{{contractId}}",
-    "sourcePocketId": "{{pocketId}}",
+    "contractId": "contract-id",
+    "sourcePocketId": "pocket-id",
     "destinationPocketId": null,
-    "partnerId": "{{partnerId}}",
+    "partnerId": "partner-id",
     "title": "Monthly subscription",
     "description": "Updated recurring expense",
     "amount": 1099,
-    "currencyCode": "{{currencyCode}}",
+    "currencyCode": "EUR",
     "transactionType": "EXPENSE",
     "firstOccurrenceDate": "2026-04-15",
     "finalOccurrenceDate": null,

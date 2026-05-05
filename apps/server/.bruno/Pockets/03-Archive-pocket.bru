@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/pockets/{{pocketId}}/archive
+  url: {{baseUrl}}/pockets/:pocketId/archive
   body: none
   auth: none
+}
+
+params:path {
+  pocketId: pocket-id
 }
 
 headers {
