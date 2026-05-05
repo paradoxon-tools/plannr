@@ -3,13 +3,11 @@ package de.chennemann.plannr.server.pockets
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.toDomain
-import de.chennemann.plannr.server.pockets.domain.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
-import de.chennemann.plannr.server.pockets.service.PocketBalanceProvider
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
-import de.chennemann.plannr.server.transactions.service.CurrentBalanceCalculator
 import org.springframework.stereotype.Component
 
 @Component
@@ -64,13 +62,5 @@ internal class RepositoryPocketArchiveCascade(
             .filter { it.sourcePocketId == pocket.id || it.destinationPocketId == pocket.id }
             .forEach { recurringTransactionRepository.update(it.unarchive().toModel()) }
     }
-}
-
-@Component
-internal class CalculatorPocketBalanceProvider(
-    private val currentBalanceCalculator: CurrentBalanceCalculator,
-) : PocketBalanceProvider {
-    override suspend fun currentBalance(pocketId: String): Long =
-        currentBalanceCalculator.pocketBalance(pocketId)
 }
 

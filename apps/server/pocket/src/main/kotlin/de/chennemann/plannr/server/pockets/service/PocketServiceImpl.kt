@@ -3,8 +3,7 @@ package de.chennemann.plannr.server.pockets.service
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.pockets.domain.Pocket
-import de.chennemann.plannr.server.pockets.domain.PocketQuery
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.events.PocketCreated
 import de.chennemann.plannr.server.pockets.events.PocketUpdated
@@ -19,7 +18,6 @@ internal class PocketServiceImpl(
     private val pocketRepository: PocketRepository,
     private val accountLookup: PocketAccountLookup,
     private val archiveCascade: PocketArchiveCascade,
-    private val balanceProvider: PocketBalanceProvider,
     private val timeProvider: TimeProvider,
     private val applicationEventBus: ApplicationEventBus,
 ) : PocketService {
@@ -98,13 +96,6 @@ internal class PocketServiceImpl(
     override suspend fun getById(id: String): Pocket? =
         pocketRepository.findById(id.trim())?.toDomain()
 
-    override suspend fun listQueries(accountId: String?, archived: Boolean): List<PocketQuery> =
-        list(accountId = accountId, archived = archived)
-            .map { it.toQuery(balanceProvider.currentBalance(it.id)) }
-
-    override suspend fun getQuery(id: String): PocketQuery =
-        existingPocket(id).toQuery(balanceProvider.currentBalance(id.trim()))
-
     private suspend fun existingAccountId(accountId: String): String {
         val normalizedAccountId = accountId.trim()
         if (!accountLookup.exists(normalizedAccountId)) {
@@ -124,17 +115,4 @@ internal class PocketServiceImpl(
                 message = "Pocket not found",
                 details = mapOf("id" to id.trim()),
             )
-
-    private fun Pocket.toQuery(currentBalance: Long): PocketQuery =
-        PocketQuery(
-            pocketId = id,
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-            isArchived = isArchived,
-            createdAt = createdAt,
-            currentBalance = currentBalance,
-        )
 }

@@ -2,15 +2,12 @@ package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.service.AccountArchiveCascade
-import de.chennemann.plannr.server.pockets.api.PocketFutureTransactionFeedQuery
-import de.chennemann.plannr.server.pockets.api.PocketTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.api.ContractFutureTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.api.ContractHistoricalTransactionFeedQuery
 import de.chennemann.plannr.server.contracts.service.ContractRecurringTransactionCascade
-import de.chennemann.plannr.server.pockets.domain.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
-import de.chennemann.plannr.server.pockets.service.PocketBalanceProvider
 import de.chennemann.plannr.server.transactions.api.dto.PocketFutureTransactionFeedPageResponse
 import de.chennemann.plannr.server.transactions.api.dto.PocketTransactionFeedPageResponse
 import org.springframework.context.annotation.Bean
@@ -32,41 +29,11 @@ class ContractTestApplication {
         PocketAccountLookup { true }
 
     @Bean
-    fun pocketTransactionFeedQuery(): PocketTransactionFeedQuery =
-        object : PocketTransactionFeedQuery {
-            override suspend fun list(pocketId: String, limit: Int, before: Long?): PocketTransactionFeedPageResponse =
-                PocketTransactionFeedPageResponse(
-                    items = emptyList(),
-                    nextBefore = null,
-                )
-        }
-
-    @Bean
-    fun pocketFutureTransactionFeedQuery(): PocketFutureTransactionFeedQuery =
-        object : PocketFutureTransactionFeedQuery {
-            override suspend fun list(
-                pocketId: String,
-                fromDate: String?,
-                toDate: String?,
-                after: Long?,
-                limit: Int,
-            ): PocketFutureTransactionFeedPageResponse =
-                PocketFutureTransactionFeedPageResponse(
-                    items = emptyList(),
-                    nextAfter = null,
-                )
-        }
-
-    @Bean
     fun pocketArchiveCascade(): PocketArchiveCascade =
         object : PocketArchiveCascade {
             override suspend fun archiveFor(pocket: Pocket) = Unit
             override suspend fun unarchiveFor(pocket: Pocket) = Unit
         }
-
-    @Bean
-    fun pocketBalanceProvider(): PocketBalanceProvider =
-        PocketBalanceProvider { 0L }
 
     @Bean
     fun contractRecurringTransactionCascade(): ContractRecurringTransactionCascade =

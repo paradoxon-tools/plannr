@@ -18,7 +18,6 @@ class CreatePocketTest {
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { true },
             archiveCascade = NoOpPocketArchiveCascade,
-            balanceProvider = PocketBalanceProvider { 0 },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
             applicationEventBus = NoOpApplicationEventBus,
         )
@@ -35,7 +34,6 @@ class CreatePocketTest {
             pocketRepository = InMemoryPocketRepository(),
             accountLookup = PocketAccountLookup { false },
             archiveCascade = NoOpPocketArchiveCascade,
-            balanceProvider = PocketBalanceProvider { 0 },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
             applicationEventBus = NoOpApplicationEventBus,
         )

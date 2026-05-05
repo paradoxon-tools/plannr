@@ -124,7 +124,6 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .jsonPath("$.description").isEqualTo("Monthly bills")
             .jsonPath("$.color").isEqualTo(123)
             .jsonPath("$.isDefault").isEqualTo(true)
-            .jsonPath("$.currentBalance").isEqualTo(0)
 
         pocketService.update(
             UpdatePocketCommand(
@@ -520,7 +519,6 @@ class QueryLayerIntegrationTest : ApiIntegrationTest() {
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$[0].id").isEqualTo(pocket.id)
-            .jsonPath("$[0].currentBalance").isEqualTo(-100)
 
         webTestClient.get()
             .uri("/contracts?accountId=${account.id}")

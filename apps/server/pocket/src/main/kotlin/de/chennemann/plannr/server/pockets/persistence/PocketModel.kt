@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.pockets.persistence
 
-import de.chennemann.plannr.server.pockets.domain.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.PersistenceCreator
 import org.springframework.data.annotation.Transient

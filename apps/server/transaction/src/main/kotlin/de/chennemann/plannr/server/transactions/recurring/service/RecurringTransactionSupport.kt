@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.partners.service.PartnerService
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.stereotype.Component
 
@@ -56,7 +57,7 @@ class RecurringTransactionContextResolver(
             ?: destinationPocket?.accountId
             ?: throw ValidationException("validation_error", "Recurring transaction must reference at least one pocket or a contract")
 
-        listOfNotNull(sourcePocket, destinationPocket).forEach { pocket: de.chennemann.plannr.server.pockets.domain.Pocket ->
+        listOfNotNull(sourcePocket, destinationPocket).forEach { pocket: Pocket ->
             if (pocket.accountId != accountId) {
                 throw ValidationException("validation_error", "Recurring transaction pockets must belong to the same account")
             }

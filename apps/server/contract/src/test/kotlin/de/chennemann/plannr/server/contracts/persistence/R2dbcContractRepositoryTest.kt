@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.pockets.domain.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.flow.toList

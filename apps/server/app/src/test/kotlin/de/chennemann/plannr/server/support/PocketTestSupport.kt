@@ -1,8 +1,7 @@
 package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.pockets.domain.Pocket
-import de.chennemann.plannr.server.pockets.domain.PocketQuery
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
@@ -41,7 +40,6 @@ class FakePocketService(
     initialPockets: Iterable<Pocket> = listOf(TestPockets.pocket()),
     private val idGenerator: () -> String = { "poc_new" },
     private val timeProvider: () -> Long = { TestPockets.DEFAULT_CREATED_AT },
-    private val balanceProvider: (String) -> Long = { 0 },
     private val onArchive: suspend (Pocket) -> Unit = {},
     private val onUnarchive: suspend (Pocket) -> Unit = {},
 ) : PocketService {
@@ -103,28 +101,9 @@ class FakePocketService(
     override suspend fun getById(id: String): Pocket? =
         pockets[id.trim()]
 
-    override suspend fun listQueries(accountId: String?, archived: Boolean): List<PocketQuery> =
-        list(accountId, archived).map { it.toQuery() }
-
-    override suspend fun getQuery(id: String): PocketQuery =
-        existingPocket(id).toQuery()
-
     fun findByIdNow(id: String): Pocket? = pockets[id.trim()]
 
     private fun existingPocket(id: String): Pocket =
         pockets[id.trim()]
             ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to id.trim()))
-
-    private fun Pocket.toQuery(): PocketQuery =
-        PocketQuery(
-            pocketId = id,
-            accountId = accountId,
-            name = name,
-            description = description,
-            color = color,
-            isDefault = isDefault,
-            isArchived = isArchived,
-            createdAt = createdAt,
-            currentBalance = balanceProvider(id),
-        )
 }

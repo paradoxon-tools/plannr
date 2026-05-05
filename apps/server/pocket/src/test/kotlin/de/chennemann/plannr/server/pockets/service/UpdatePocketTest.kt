@@ -19,7 +19,6 @@ class UpdatePocketTest {
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, "acc_456") },
             archiveCascade = NoOpPocketArchiveCascade,
-            balanceProvider = PocketBalanceProvider { 0 },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
             applicationEventBus = NoOpApplicationEventBus,
         )
@@ -48,7 +47,6 @@ class UpdatePocketTest {
             pocketRepository = InMemoryPocketRepository(),
             accountLookup = PocketAccountLookup { true },
             archiveCascade = NoOpPocketArchiveCascade,
-            balanceProvider = PocketBalanceProvider { 0 },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
             applicationEventBus = NoOpApplicationEventBus,
         )
@@ -66,7 +64,6 @@ class UpdatePocketTest {
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { false },
             archiveCascade = NoOpPocketArchiveCascade,
-            balanceProvider = PocketBalanceProvider { 0 },
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
             applicationEventBus = NoOpApplicationEventBus,
         )

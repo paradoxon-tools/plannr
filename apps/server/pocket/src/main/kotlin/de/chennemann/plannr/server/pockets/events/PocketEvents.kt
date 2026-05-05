@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.pockets.events
 
 import de.chennemann.plannr.server.common.events.ApplicationEvent
-import de.chennemann.plannr.server.pockets.domain.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 
 data class PocketCreated(
     val pocket: Pocket,

@@ -39,7 +39,8 @@ class TransactionFeedService(
     suspend fun listPocketTransactions(pocketId: String, before: Long? = null, limit: Int = DEFAULT_LIMIT): PocketTransactionFeedPage {
         val normalizedLimit = normalizeLimit(limit, MAX_LIMIT)
         val normalizedPocketId = pocketId.trim()
-        pocketService.getQuery(normalizedPocketId)
+        pocketService.getById(normalizedPocketId)
+            ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to normalizedPocketId))
         val items = pocketTransactionFeedRepository.findPage(normalizedPocketId, before, normalizedLimit)
         return PocketTransactionFeedPage(items, items.lastOrNull()?.historyPosition)
     }
@@ -66,9 +67,11 @@ class TransactionFeedService(
         after: Long? = null,
         limit: Int = DEFAULT_LIMIT,
     ): PocketFutureTransactionFeedPage {
-        pocketService.getQuery(pocketId.trim())
+        val normalizedPocketId = pocketId.trim()
+        pocketService.getById(normalizedPocketId)
+            ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to normalizedPocketId))
         val normalizedLimit = normalizeLimit(limit, MAX_LIMIT)
-        val items = pocketFutureTransactionFeedRepository.findPageByPocketId(pocketId.trim(), fromDate, toDate, after, normalizedLimit)
+        val items = pocketFutureTransactionFeedRepository.findPageByPocketId(normalizedPocketId, fromDate, toDate, after, normalizedLimit)
         return PocketFutureTransactionFeedPage(items, items.lastOrNull()?.futurePosition)
     }
 

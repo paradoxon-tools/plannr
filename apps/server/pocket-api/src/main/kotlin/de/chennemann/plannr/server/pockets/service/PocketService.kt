@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.pockets.service
 
-import de.chennemann.plannr.server.pockets.domain.Pocket
-import de.chennemann.plannr.server.pockets.domain.PocketQuery
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 
 interface PocketService {
     suspend fun create(command: CreatePocketCommand): Pocket
@@ -10,8 +9,6 @@ interface PocketService {
     suspend fun unarchive(id: String): Pocket
     suspend fun list(accountId: String? = null, archived: Boolean? = null): List<Pocket>
     suspend fun getById(id: String): Pocket?
-    suspend fun listQueries(accountId: String? = null, archived: Boolean = false): List<PocketQuery>
-    suspend fun getQuery(id: String): PocketQuery
 }
 
 data class CreatePocketCommand(

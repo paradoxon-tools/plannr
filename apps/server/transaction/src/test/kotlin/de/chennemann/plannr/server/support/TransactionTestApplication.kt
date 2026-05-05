@@ -11,8 +11,7 @@ import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.partners.service.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.partners.service.UpdatePartnerCommand
-import de.chennemann.plannr.server.pockets.domain.Pocket
-import de.chennemann.plannr.server.pockets.domain.PocketQuery
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
@@ -105,12 +104,6 @@ class TransactionTestApplication {
                         createdAt = model.createdAt,
                     )
                 }
-
-            override suspend fun listQueries(accountId: String?, archived: Boolean): List<PocketQuery> =
-                throw UnsupportedOperationException("Not used in transaction tests")
-
-            override suspend fun getQuery(id: String): PocketQuery =
-                throw UnsupportedOperationException("Not used in transaction tests")
         }
 
     @Bean

@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.pockets.support
 
-import de.chennemann.plannr.server.pockets.domain.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
 import kotlinx.coroutines.flow.Flow

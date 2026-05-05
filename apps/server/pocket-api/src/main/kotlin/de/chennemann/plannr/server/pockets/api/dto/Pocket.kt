@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.pockets.domain
+package de.chennemann.plannr.server.pockets.api.dto
 
 import de.chennemann.plannr.server.common.error.ValidationException
 

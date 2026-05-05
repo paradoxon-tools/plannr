@@ -60,8 +60,6 @@ class ArchiveContractService(
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
             override suspend fun list(accountId: String?, archived: Boolean?) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
-            override suspend fun listQueries(accountId: String?, archived: Boolean) = throw UnsupportedOperationException()
-            override suspend fun getQuery(id: String) = throw UnsupportedOperationException()
         },
         partnerService = object : PartnerService {
             override suspend fun create(command: de.chennemann.plannr.server.partners.service.CreatePartnerCommand) = throw UnsupportedOperationException()
@@ -92,8 +90,6 @@ class UnarchiveContractService(
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
             override suspend fun list(accountId: String?, archived: Boolean?) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
-            override suspend fun listQueries(accountId: String?, archived: Boolean) = throw UnsupportedOperationException()
-            override suspend fun getQuery(id: String) = throw UnsupportedOperationException()
         },
         partnerService = object : PartnerService {
             override suspend fun create(command: de.chennemann.plannr.server.partners.service.CreatePartnerCommand) = throw UnsupportedOperationException()

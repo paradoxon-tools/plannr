@@ -1,8 +1,7 @@
 package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.pockets.domain.Pocket
-import de.chennemann.plannr.server.pockets.domain.PocketQuery
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.pockets.service.UpdatePocketCommand
@@ -18,7 +17,4 @@ class FakePocketService(
     override suspend fun unarchive(id: String): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> = pockets.values.toList()
     override suspend fun getById(id: String): Pocket? = pockets[id.trim()]
-    override suspend fun listQueries(accountId: String?, archived: Boolean): List<PocketQuery> = emptyList()
-    override suspend fun getQuery(id: String): PocketQuery =
-        throw NotFoundException("not_found", "Pocket not found", mapOf("id" to id.trim()))
 }
