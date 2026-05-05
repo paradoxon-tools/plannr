@@ -4,7 +4,6 @@ import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 
 internal fun accountService(
     accountRepository: AccountRepository = InMemoryAccountRepository(),
@@ -14,7 +13,6 @@ internal fun accountService(
         accountRepository = accountRepository,
         archiveCascade = archiveCascade,
         timeProvider = { AccountFixtures.DEFAULT_CREATED_AT },
-        applicationEventBus = NoOpApplicationEventBus,
     )
 
 private object NoOpAccountArchiveCascade : AccountArchiveCascade {

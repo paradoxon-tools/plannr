@@ -4,13 +4,10 @@ import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
-import de.chennemann.plannr.server.accounts.events.AccountCreated
-import de.chennemann.plannr.server.accounts.events.AccountUpdated
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
 import de.chennemann.plannr.server.accounts.persistence.toDomain
 import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
@@ -22,7 +19,6 @@ internal class AccountServiceImpl(
     private val accountRepository: AccountRepository,
     private val archiveCascade: AccountArchiveCascade,
     private val timeProvider: TimeProvider,
-    private val applicationEventBus: ApplicationEventBus,
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
         val currencyCode = normalizeCurrency(command.currencyCode)
@@ -37,7 +33,6 @@ internal class AccountServiceImpl(
                 createdAt = timeProvider(),
             ),
         ).toDomain()
-        applicationEventBus.publish(AccountCreated(created))
         return created
     }
 
@@ -55,7 +50,6 @@ internal class AccountServiceImpl(
                 createdAt = existing.createdAt,
             ),
         ).toDomain()
-        applicationEventBus.publish(AccountUpdated(existing, persisted))
         return persisted
     }
 
@@ -73,7 +67,6 @@ internal class AccountServiceImpl(
             ),
         ).toDomain()
         archiveCascade.archiveFor(updated)
-        applicationEventBus.publish(AccountUpdated(existing, updated))
         return updated
     }
 
@@ -91,7 +84,6 @@ internal class AccountServiceImpl(
             ),
         ).toDomain()
         archiveCascade.unarchiveFor(updated)
-        applicationEventBus.publish(AccountUpdated(existing, updated))
         return updated
     }
 

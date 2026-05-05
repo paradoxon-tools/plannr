@@ -1,14 +1,11 @@
 package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.common.events.ApplicationEventBus
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
-import de.chennemann.plannr.server.pockets.events.PocketCreated
-import de.chennemann.plannr.server.pockets.events.PocketUpdated
 import de.chennemann.plannr.server.pockets.persistence.toDomain
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
@@ -21,7 +18,6 @@ internal class PocketServiceImpl(
     private val accountLookup: PocketAccountLookup,
     private val archiveCascade: PocketArchiveCascade,
     private val timeProvider: TimeProvider,
-    private val applicationEventBus: ApplicationEventBus,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
@@ -35,7 +31,6 @@ internal class PocketServiceImpl(
             isArchived = false,
             createdAt = timeProvider(),
         ).toDomain()
-        applicationEventBus.publish(PocketCreated(created))
         return created
     }
 
@@ -51,7 +46,6 @@ internal class PocketServiceImpl(
             isDefault = command.isDefault,
             isArchived = existing.isArchived,
         ).toDomain()
-        applicationEventBus.publish(PocketUpdated(existing, persisted))
         return persisted
     }
 
@@ -67,7 +61,6 @@ internal class PocketServiceImpl(
             isArchived = true,
         ).toDomain()
         archiveCascade.archiveFor(updated)
-        applicationEventBus.publish(PocketUpdated(existing, updated))
         return updated
     }
 
@@ -83,7 +76,6 @@ internal class PocketServiceImpl(
             isArchived = false,
         ).toDomain()
         archiveCascade.unarchiveFor(updated)
-        applicationEventBus.publish(PocketUpdated(existing, updated))
         return updated
     }
 

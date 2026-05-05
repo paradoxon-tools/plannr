@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.pockets.persistence.toModel
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -20,7 +19,6 @@ class UpdatePocketTest {
             accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, "acc_456") },
             archiveCascade = NoOpPocketArchiveCascade,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
-            applicationEventBus = NoOpApplicationEventBus,
         )
 
         val updated = pocketService.update(
@@ -48,7 +46,6 @@ class UpdatePocketTest {
             accountLookup = PocketAccountLookup { true },
             archiveCascade = NoOpPocketArchiveCascade,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
-            applicationEventBus = NoOpApplicationEventBus,
         )
 
         assertFailsWith<NotFoundException> {
@@ -65,7 +62,6 @@ class UpdatePocketTest {
             accountLookup = PocketAccountLookup { false },
             archiveCascade = NoOpPocketArchiveCascade,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
-            applicationEventBus = NoOpApplicationEventBus,
         )
 
         assertFailsWith<NotFoundException> {

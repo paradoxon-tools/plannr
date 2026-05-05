@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.partners.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.partners.persistence.toModel
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.partners.support.PartnerFixtures
@@ -18,7 +17,6 @@ class ArchivePartnerTest {
         val partnerService = PartnerServiceImpl(
             partnerRepository = repository,
             timeProvider = { PartnerFixtures.DEFAULT_CREATED_AT },
-            applicationEventBus = NoOpApplicationEventBus,
         )
 
         val result = partnerService.archive(PartnerFixtures.DEFAULT_ID)
@@ -32,7 +30,6 @@ class ArchivePartnerTest {
         val partnerService = PartnerServiceImpl(
             partnerRepository = InMemoryPartnerRepository(),
             timeProvider = { PartnerFixtures.DEFAULT_CREATED_AT },
-            applicationEventBus = NoOpApplicationEventBus,
         )
 
         assertFailsWith<NotFoundException> {

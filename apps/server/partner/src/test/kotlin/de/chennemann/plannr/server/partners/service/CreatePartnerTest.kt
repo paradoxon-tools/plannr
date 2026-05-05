@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.partners.service
 
-import de.chennemann.plannr.server.common.events.NoOpApplicationEventBus
 import de.chennemann.plannr.server.partners.persistence.toDomain
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.partners.support.PartnerFixtures
@@ -15,7 +14,6 @@ class CreatePartnerTest {
         val partnerService = PartnerServiceImpl(
             partnerRepository = repository,
             timeProvider = { PartnerFixtures.DEFAULT_CREATED_AT },
-            applicationEventBus = NoOpApplicationEventBus,
         )
 
         val created = partnerService.create(PartnerFixtures.createPartnerCommand())
