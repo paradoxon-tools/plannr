@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/contracts/{{contractId}}
+  url: {{baseUrl}}/contracts
   body: json
   auth: none
 }
@@ -17,6 +17,7 @@ headers {
 
 body:json {
   {
+    "id": "{{contractId}}",
     "pocketId": "{{pocketId}}",
     "partnerId": "{{partnerId}}",
     "name": "Mobile plan",

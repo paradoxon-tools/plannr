@@ -1,11 +1,11 @@
 meta {
-  name: Unarchive transaction
+  name: List contracts
   type: http
   seq: 5
 }
 
-post {
-  url: {{baseUrl}}/transactions/{{transactionId}}/unarchive
+get {
+  url: {{baseUrl}}/contracts?accountId={{accountId}}&archived=false
   body: none
   auth: none
 }

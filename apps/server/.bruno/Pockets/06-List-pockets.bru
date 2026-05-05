@@ -1,11 +1,11 @@
 meta {
-  name: List accounts
+  name: List pockets
   type: http
-  seq: 8
+  seq: 6
 }
 
 get {
-  url: {{baseUrl}}/accounts?archived=false
+  url: {{baseUrl}}/pockets?accountId={{accountId}}&archived=false
   body: none
   auth: none
 }

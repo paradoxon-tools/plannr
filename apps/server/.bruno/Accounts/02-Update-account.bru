@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/accounts/{{accountId}}
+  url: {{baseUrl}}/accounts
   body: json
   auth: none
 }
@@ -17,6 +17,7 @@ headers {
 
 body:json {
   {
+    "id": "{{accountId}}",
     "name": "Main account",
     "institution": "N26",
     "currencyCode": "{{currencyCode}}",

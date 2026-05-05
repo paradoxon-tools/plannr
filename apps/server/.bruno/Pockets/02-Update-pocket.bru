@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/pockets/{{pocketId}}
+  url: {{baseUrl}}/pockets
   body: json
   auth: none
 }
@@ -17,6 +17,7 @@ headers {
 
 body:json {
   {
+    "id": "{{pocketId}}",
     "accountId": "{{accountId}}",
     "name": "General",
     "description": "Primary pocket",
