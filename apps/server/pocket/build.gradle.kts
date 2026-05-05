@@ -43,3 +43,9 @@ tasks.withType<Test> {
         }
     }
 }
+
+tasks.processTestResources {
+    from("../app/src/main/resources/db/migration") {
+        into("db/migration")
+    }
+}
