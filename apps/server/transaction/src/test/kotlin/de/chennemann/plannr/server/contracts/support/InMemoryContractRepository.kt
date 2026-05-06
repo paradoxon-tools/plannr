@@ -10,45 +10,18 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 
 class InMemoryContractRepository : ContractRepository {
-    private val contracts = linkedMapOf<String, ContractModel>()
-
-    override suspend fun insert(
-        id: String?,
-        accountId: Long,
-        pocketId: String,
-        partnerId: String?,
-        name: String,
-        startDate: String,
-        endDate: String?,
-        notes: String?,
-        isArchived: Boolean,
-        createdAt: Long,
-    ): ContractModel =
-        save(ContractModel(id, accountId, pocketId, partnerId, name, startDate, endDate, notes, isArchived, createdAt))
-
-    override suspend fun update(
-        id: String,
-        accountId: Long,
-        pocketId: String,
-        partnerId: String?,
-        name: String,
-        startDate: String,
-        endDate: String?,
-        notes: String?,
-        isArchived: Boolean,
-    ): ContractModel =
-        save(ContractModel(id, accountId, pocketId, partnerId, name, startDate, endDate, notes, isArchived, contracts[id]?.createdAt ?: 0L, persisted = true))
+    private val contracts = linkedMapOf<Long, ContractModel>()
 
     override suspend fun <S : ContractModel> save(entity: S): S {
-        val persisted = entity.withIdIfMissing("con_${contracts.size + 1}")
+        val persisted = entity.withIdIfMissing((contracts.size + 1).toLong())
         contracts[requireNotNull(persisted.id)] = persisted
         @Suppress("UNCHECKED_CAST")
         return persisted as S
     }
 
-    override suspend fun findById(id: String): ContractModel? = contracts[id]
+    override suspend fun findById(id: Long): ContractModel? = contracts[id]
 
-    override suspend fun findByPocketId(pocketId: String): ContractModel? =
+    override suspend fun findByPocketId(pocketId: Long): ContractModel? =
         contracts.values.firstOrNull { it.pocketId == pocketId }
 
     override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<ContractModel> =
@@ -58,14 +31,14 @@ class InMemoryContractRepository : ContractRepository {
             .sortedWith(compareBy<ContractModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
             .asFlow()
 
-    override suspend fun existsById(id: String): Boolean = contracts.containsKey(id)
+    override suspend fun existsById(id: Long): Boolean = contracts.containsKey(id)
 
     override fun findAll(): Flow<ContractModel> = contracts.values.asFlow()
 
-    override fun findAllById(ids: Iterable<String>): Flow<ContractModel> =
+    override fun findAllById(ids: Iterable<Long>): Flow<ContractModel> =
         ids.mapNotNull(contracts::get).asFlow()
 
-    override fun findAllById(ids: Flow<String>): Flow<ContractModel> = flow {
+    override fun findAllById(ids: Flow<Long>): Flow<ContractModel> = flow {
         ids.collect { id -> contracts[id]?.let { emit(it) } }
     }
 
@@ -79,13 +52,13 @@ class InMemoryContractRepository : ContractRepository {
 
     override suspend fun count(): Long = contracts.size.toLong()
 
-    override suspend fun deleteById(id: String) { contracts.remove(id) }
+    override suspend fun deleteById(id: Long) { contracts.remove(id) }
 
     override suspend fun delete(entity: ContractModel) {
         entity.id?.let(contracts::remove)
     }
 
-    override suspend fun deleteAllById(ids: Iterable<String>) { ids.forEach(contracts::remove) }
+    override suspend fun deleteAllById(ids: Iterable<Long>) { ids.forEach(contracts::remove) }
 
     override suspend fun deleteAll(entities: Iterable<ContractModel>) {
         entities.mapNotNull { it.id }.forEach(contracts::remove)
@@ -103,10 +76,10 @@ class InMemoryContractRepository : ContractRepository {
 
     suspend fun update(contract: Contract): Contract = save(contract)
 
-    fun peekByPocketId(pocketId: String): Contract? =
+    fun peekByPocketId(pocketId: Long): Contract? =
         contracts.values.firstOrNull { it.pocketId == pocketId }?.toDomain()
 
-    private fun ContractModel.withIdIfMissing(id: String): ContractModel = copy(id = this.id ?: id)
+    private fun ContractModel.withIdIfMissing(id: Long): ContractModel = copy(id = this.id ?: id)
 
     private fun ContractModel.toDomain(): Contract =
         Contract(

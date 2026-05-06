@@ -24,14 +24,14 @@ interface PartnerApi {
     suspend fun update(@RequestBody command: UpdatePartnerCommand): Partner
 
     @PostExchange("/{id}/archive")
-    suspend fun archive(@PathVariable id: String): Partner
+    suspend fun archive(@PathVariable id: Long): Partner
 
     @PostExchange("/{id}/unarchive")
-    suspend fun unarchive(@PathVariable id: String): Partner
+    suspend fun unarchive(@PathVariable id: Long): Partner
 
     @DeleteExchange("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun delete(@PathVariable id: String)
+    suspend fun delete(@PathVariable id: Long)
 
     @GetExchange
     suspend fun list(

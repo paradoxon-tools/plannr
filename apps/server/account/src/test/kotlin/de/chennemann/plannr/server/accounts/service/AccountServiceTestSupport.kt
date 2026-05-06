@@ -27,13 +27,13 @@ internal class RecordingPocketService : PocketService {
 
     override suspend fun create(command: CreatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
-    override suspend fun createContract(pocketId: String, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
-    override suspend fun updateContract(pocketId: String, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
-    override suspend fun archive(id: String): Pocket = throw UnsupportedOperationException("Not used")
-    override suspend fun unarchive(id: String): Pocket = throw UnsupportedOperationException("Not used")
-    override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used")
+    override suspend fun createContract(pocketId: Long, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+    override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+    override suspend fun archive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun unarchive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> = throw UnsupportedOperationException("Not used")
-    override suspend fun getById(id: String): Pocket? = throw UnsupportedOperationException("Not used")
+    override suspend fun getById(id: Long): Pocket? = throw UnsupportedOperationException("Not used")
 
     override suspend fun archiveForAccount(accountId: Long) {
         archivedAccountIds += accountId

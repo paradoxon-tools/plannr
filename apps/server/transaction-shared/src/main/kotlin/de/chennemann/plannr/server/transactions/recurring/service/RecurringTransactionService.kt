@@ -9,14 +9,14 @@ interface RecurringTransactionService {
     suspend fun unarchive(id: String): RecurringTransaction
     suspend fun archiveForAccount(accountId: Long)
     suspend fun unarchiveForAccount(accountId: Long)
-    suspend fun archiveForPocket(accountId: Long, pocketId: String)
-    suspend fun unarchiveForPocket(accountId: Long, pocketId: String)
+    suspend fun archiveForPocket(accountId: Long, pocketId: Long)
+    suspend fun unarchiveForPocket(accountId: Long, pocketId: Long)
     suspend fun delete(id: String)
 
     data class CreateCommand(
-        val sourcePocketId: String?,
-        val destinationPocketId: String?,
-        val partnerId: String?,
+        val sourcePocketId: Long?,
+        val destinationPocketId: Long?,
+        val partnerId: Long?,
         val title: String,
         val description: String?,
         val amount: Long,
@@ -36,9 +36,9 @@ interface RecurringTransactionService {
     data class UpdateCommand(
         val id: String,
         val updateMode: String,
-        val sourcePocketId: String?,
-        val destinationPocketId: String?,
-        val partnerId: String?,
+        val sourcePocketId: Long?,
+        val destinationPocketId: Long?,
+        val partnerId: Long?,
         val title: String,
         val description: String?,
         val amount: Long,

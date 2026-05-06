@@ -9,7 +9,7 @@ import de.chennemann.plannr.server.pockets.api.dto.Pocket
 
 object ContractTestPockets {
     fun pocket(
-        id: String = "poc_123",
+        id: Long = 1L,
         accountId: Long = 1L,
         name: String = "Bills",
         description: String? = "Monthly fixed costs",
@@ -24,7 +24,7 @@ object ContractTestPockets {
 
 object ContractTestPartners {
     fun partner(
-        id: String = "par_123",
+        id: Long = 1L,
         name: String = "ACME Corp",
         notes: String? = "Preferred partner",
         isArchived: Boolean = false,
@@ -42,14 +42,14 @@ class FakePartnerService(
 
     override suspend fun update(command: UpdatePartnerCommand): Partner = throw UnsupportedOperationException("Not used in contract tests")
 
-    override suspend fun archive(id: String): Partner = throw UnsupportedOperationException("Not used in contract tests")
+    override suspend fun archive(id: Long): Partner = throw UnsupportedOperationException("Not used in contract tests")
 
-    override suspend fun unarchive(id: String): Partner = throw UnsupportedOperationException("Not used in contract tests")
+    override suspend fun unarchive(id: Long): Partner = throw UnsupportedOperationException("Not used in contract tests")
 
-    override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used in contract tests")
+    override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used in contract tests")
 
     override suspend fun list(query: String?, archived: Boolean): List<Partner> = partners.values.toList()
 
-    override suspend fun getById(id: String): Partner? = partners[id.trim()]
+    override suspend fun getById(id: Long): Partner? = partners[id]
 }
 

@@ -8,6 +8,7 @@ import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.persistence.ContractModel
 import de.chennemann.plannr.server.contracts.persistence.toDomain
+import de.chennemann.plannr.server.contracts.persistence.toModel
 import de.chennemann.plannr.server.contracts.service.ContractService as ContractServiceApi
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
@@ -27,84 +28,68 @@ class ContractServiceImpl(
             throw ConflictException("conflict", "Contract already exists for pocket", mapOf("pocketId" to pocket.id))
         }
 
-        val partnerId = resolvePartnerId(command.partnerId)
-        return contractRepository.insert(
-            id = null,
-            accountId = pocket.accountId,
-            pocketId = pocket.id,
-            partnerId = partnerId,
-            name = command.name,
-            startDate = command.startDate,
-            endDate = command.endDate,
-            notes = command.notes,
-            isArchived = false,
-            createdAt = timeProvider(),
+        val partnerId = resolvepartnerId(command.partnerId)
+        return contractRepository.save(
+            ContractModel(
+                id = null,
+                accountId = pocket.accountId,
+                pocketId = pocket.id,
+                partnerId = partnerId,
+                name = command.name,
+                startDate = command.startDate,
+                endDate = command.endDate,
+                notes = command.notes,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         ).toDomain().toContractDto()
     }
 
     override suspend fun update(pocket: Pocket, command: UpdateContractCommand): ContractDto {
-        val existing = contractRepository.findById(command.id.trim())?.toDomain()
-            ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to command.id.trim()))
+        val existing = contractRepository.findById(command.id)?.toDomain()
+            ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to command.id))
 
         val existingForPocket = contractRepository.findByPocketId(pocket.id)
         if (existingForPocket != null && existingForPocket.id != existing.id) {
             throw ConflictException("conflict", "Contract already exists for pocket", mapOf("pocketId" to pocket.id))
         }
 
-        val partnerId = resolvePartnerId(command.partnerId)
-        return contractRepository.update(
-            id = existing.id,
-            accountId = pocket.accountId,
-            pocketId = pocket.id,
-            partnerId = partnerId,
-            name = command.name,
-            startDate = command.startDate,
-            endDate = command.endDate,
-            notes = command.notes,
-            isArchived = existing.isArchived,
+        val partnerId = resolvepartnerId(command.partnerId)
+        return contractRepository.save(
+            ContractModel(
+                id = existing.id,
+                accountId = pocket.accountId,
+                pocketId = pocket.id,
+                partnerId = partnerId,
+                name = command.name,
+                startDate = command.startDate,
+                endDate = command.endDate,
+                notes = command.notes,
+                isArchived = existing.isArchived,
+                createdAt = existing.createdAt,
+            ),
         ).toDomain().toContractDto()
     }
 
-    override suspend fun archiveForPocket(pocketId: String) {
-        contractRepository.findByPocketId(pocketId.trim())?.toDomain()?.let { existing ->
+    override suspend fun archiveForPocket(pocketId: Long) {
+        contractRepository.findByPocketId(pocketId)?.toDomain()?.let { existing ->
             val updated = existing.archive()
-            contractRepository.update(
-                id = updated.id,
-                accountId = updated.accountId,
-                pocketId = updated.pocketId,
-                partnerId = updated.partnerId,
-                name = updated.name,
-                startDate = updated.startDate,
-                endDate = updated.endDate,
-                notes = updated.notes,
-                isArchived = true,
-            )
+            contractRepository.save(updated.toModel())
         }
     }
 
-    override suspend fun unarchiveForPocket(pocketId: String) {
-        contractRepository.findByPocketId(pocketId.trim())?.toDomain()?.let { existing ->
+    override suspend fun unarchiveForPocket(pocketId: Long) {
+        contractRepository.findByPocketId(pocketId)?.toDomain()?.let { existing ->
             val updated = existing.unarchive()
-            contractRepository.update(
-                id = updated.id,
-                accountId = updated.accountId,
-                pocketId = updated.pocketId,
-                partnerId = updated.partnerId,
-                name = updated.name,
-                startDate = updated.startDate,
-                endDate = updated.endDate,
-                notes = updated.notes,
-                isArchived = false,
-            )
+            contractRepository.save(updated.toModel())
         }
     }
 
-    override suspend fun delete(id: String) {
-        val normalizedId = id.trim()
-        if (contractRepository.findById(normalizedId) == null) {
-            throw NotFoundException("not_found", "Contract not found", mapOf("id" to normalizedId))
+    override suspend fun delete(id: Long) {
+        if (contractRepository.findById(id) == null) {
+            throw NotFoundException("not_found", "Contract not found", mapOf("id" to id))
         }
-        contractRepository.deleteById(normalizedId)
+        contractRepository.deleteById(id)
     }
 
     override suspend fun list(accountId: Long?, archived: Boolean): List<ContractDto> =
@@ -113,8 +98,8 @@ class ContractServiceImpl(
             .map(ContractModel::toDomain)
             .map { it.toContractDto() }
 
-    private suspend fun resolvePartnerId(partnerId: String?): String? =
-        partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {
+    private suspend fun resolvepartnerId(partnerId: Long?): Long? =
+        partnerId?.let {
             partnerService.getById(it)?.id
                 ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to it))
         }

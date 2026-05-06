@@ -22,8 +22,8 @@ class ContractTestApplication {
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException("Not used")
             override suspend fun archiveForAccount(accountId: Long) = Unit
             override suspend fun unarchiveForAccount(accountId: Long) = Unit
-            override suspend fun archiveForPocket(accountId: Long, pocketId: String) = Unit
-            override suspend fun unarchiveForPocket(accountId: Long, pocketId: String) = Unit
+            override suspend fun archiveForPocket(accountId: Long, pocketId: Long) = Unit
+            override suspend fun unarchiveForPocket(accountId: Long, pocketId: Long) = Unit
             override suspend fun delete(id: String) = Unit
         }
 }

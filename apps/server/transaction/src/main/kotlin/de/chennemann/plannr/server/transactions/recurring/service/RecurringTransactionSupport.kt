@@ -14,21 +14,21 @@ class RecurringTransactionContextResolver(
     private val partnerService: PartnerService,
 ) {
     suspend fun resolve(
-        sourcePocketId: String?,
-        destinationPocketId: String?,
-        partnerId: String?,
+        sourcePocketId: Long?,
+        destinationPocketId: Long?,
+        partnerId: Long?,
         transactionType: String,
     ): ResolvedContext {
         val normalizedTransactionType = normalizeTransactionType(transactionType)
-        val sourcePocket = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
+        val sourcePocket = sourcePocketId?.let {
             pocketService.getById(it)
                 ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
         }
-        val destinationPocket = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
+        val destinationPocket = destinationPocketId?.let {
             pocketService.getById(it)
                 ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
         }
-        val resolvedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }?.let {
+        val resolvedpartnerId = partnerId?.let {
             partnerService.getById(it)?.id
                 ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to it))
         }
@@ -58,15 +58,15 @@ class RecurringTransactionContextResolver(
             accountId = accountId,
             sourcePocketId = sourcePocket?.id,
             destinationPocketId = destinationPocket?.id,
-            partnerId = resolvedPartnerId,
+            partnerId = resolvedpartnerId,
         )
     }
 
     data class ResolvedContext(
         val accountId: Long,
-        val sourcePocketId: String?,
-        val destinationPocketId: String?,
-        val partnerId: String?,
+        val sourcePocketId: Long?,
+        val destinationPocketId: Long?,
+        val partnerId: Long?,
     )
 }
 

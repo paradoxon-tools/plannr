@@ -143,14 +143,14 @@ class RecurringTransactionServiceImpl(
     }
 
     @Transactional
-    override suspend fun archiveForPocket(accountId: Long, pocketId: String) {
+    override suspend fun archiveForPocket(accountId: Long, pocketId: Long) {
         recurringTransactionRepository.findAll(accountId = accountId, archived = false)
             .filter { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
             .forEach { recurringTransactionRepository.update(it.archive().toModel()) }
     }
 
     @Transactional
-    override suspend fun unarchiveForPocket(accountId: Long, pocketId: String) {
+    override suspend fun unarchiveForPocket(accountId: Long, pocketId: Long) {
         recurringTransactionRepository.findAll(accountId = accountId, archived = true)
             .filter { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
             .forEach { recurringTransactionRepository.update(it.unarchive().toModel()) }

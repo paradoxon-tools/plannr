@@ -13,7 +13,7 @@ import org.springframework.web.service.annotation.HttpExchange
 interface ContractApi {
     @DeleteExchange("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun delete(@PathVariable id: String)
+    suspend fun delete(@PathVariable id: Long)
 
     @GetExchange
     suspend fun list(

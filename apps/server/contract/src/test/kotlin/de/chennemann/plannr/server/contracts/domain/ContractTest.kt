@@ -11,19 +11,18 @@ class ContractTest {
     @Test
     fun `trims fields and normalizes blank optional values to null`() {
         val contract = ContractFixtures.contract(
-            id = " con_123 ",
             accountId = 1L,
-            pocketId = " poc_123 ",
-            partnerId = "   ",
+            pocketId = 1L,
+            partnerId = null,
             name = " Internet Contract ",
             startDate = "2024-01-01",
             endDate = "   ",
             notes = " 12 month term ",
         )
 
-        assertEquals("con_123", contract.id)
+        assertEquals(1L, contract.id)
         assertEquals(1L, contract.accountId)
-        assertEquals("poc_123", contract.pocketId)
+        assertEquals(1L, contract.pocketId)
         assertNull(contract.partnerId)
         assertEquals("Internet Contract", contract.name)
         assertNull(contract.endDate)
@@ -49,8 +48,6 @@ class ContractTest {
 
     @Test
     fun `rejects blank required fields`() {
-        assertFailsWith<ValidationException> { ContractFixtures.contract(id = "   ") }
-        assertFailsWith<ValidationException> { ContractFixtures.contract(pocketId = "   ") }
         assertFailsWith<ValidationException> { ContractFixtures.contract(name = "   ") }
         assertFailsWith<ValidationException> { ContractFixtures.contract(startDate = "   ") }
     }

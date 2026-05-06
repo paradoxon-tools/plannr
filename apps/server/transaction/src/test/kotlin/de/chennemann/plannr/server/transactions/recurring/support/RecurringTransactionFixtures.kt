@@ -8,9 +8,9 @@ import de.chennemann.plannr.server.transactions.recurring.service.RecurringTrans
 object RecurringTransactionFixtures {
     const val DEFAULT_ID = "rtx_123"
     const val DEFAULT_ACCOUNT_ID = 1L
-    const val DEFAULT_SOURCE_POCKET_ID = "poc_123"
-    const val DEFAULT_DESTINATION_POCKET_ID = "poc_456"
-    const val DEFAULT_PARTNER_ID = "par_123"
+    const val DEFAULT_SOURCE_POCKET_ID = 1L
+    const val DEFAULT_DESTINATION_POCKET_ID = 2L
+    const val DEFAULT_PARTNER_ID = 1L
     const val DEFAULT_TITLE = "Internet Bill"
     const val DEFAULT_DESCRIPTION = "Monthly internet"
     const val DEFAULT_AMOUNT = 4999L
@@ -29,9 +29,9 @@ object RecurringTransactionFixtures {
     fun recurringTransaction(
         id: String = DEFAULT_ID,
         accountId: Long = DEFAULT_ACCOUNT_ID,
-        sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
-        destinationPocketId: String? = null,
-        partnerId: String? = DEFAULT_PARTNER_ID,
+        sourcePocketId: Long? = DEFAULT_SOURCE_POCKET_ID,
+        destinationPocketId: Long? = null,
+        partnerId: Long? = DEFAULT_PARTNER_ID,
         title: String = DEFAULT_TITLE,
         description: String? = DEFAULT_DESCRIPTION,
         amount: Long = DEFAULT_AMOUNT,
@@ -56,9 +56,9 @@ object RecurringTransactionFixtures {
     )
 
     fun createCommand(
-        sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
-        destinationPocketId: String? = null,
-        partnerId: String? = DEFAULT_PARTNER_ID,
+        sourcePocketId: Long? = DEFAULT_SOURCE_POCKET_ID,
+        destinationPocketId: Long? = null,
+        partnerId: Long? = DEFAULT_PARTNER_ID,
         title: String = DEFAULT_TITLE,
         description: String? = DEFAULT_DESCRIPTION,
         amount: Long = DEFAULT_AMOUNT,
@@ -77,9 +77,9 @@ object RecurringTransactionFixtures {
 
     fun updateRequest(
         updateMode: String = "overwrite",
-        sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
-        destinationPocketId: String? = null,
-        partnerId: String? = DEFAULT_PARTNER_ID,
+        sourcePocketId: Long? = DEFAULT_SOURCE_POCKET_ID,
+        destinationPocketId: Long? = null,
+        partnerId: Long? = DEFAULT_PARTNER_ID,
         title: String = DEFAULT_TITLE,
         description: String? = DEFAULT_DESCRIPTION,
         amount: Long = DEFAULT_AMOUNT,
@@ -97,9 +97,9 @@ object RecurringTransactionFixtures {
     ) = UpdateRecurringTransactionRequest(updateMode, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
 
     fun createRequest(
-        sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
-        destinationPocketId: String? = null,
-        partnerId: String? = DEFAULT_PARTNER_ID,
+        sourcePocketId: Long? = DEFAULT_SOURCE_POCKET_ID,
+        destinationPocketId: Long? = null,
+        partnerId: Long? = DEFAULT_PARTNER_ID,
         title: String = DEFAULT_TITLE,
         description: String? = DEFAULT_DESCRIPTION,
         amount: Long = DEFAULT_AMOUNT,

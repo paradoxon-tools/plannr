@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.pockets.api.dto
 
 data class Pocket(
-    val id: String,
+    val id: Long,
     val accountId: Long,
     val name: String,
     val description: String?,

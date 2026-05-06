@@ -22,17 +22,17 @@ class UpdateContractTest {
             partnerService = FakePartnerService(
                 listOf(
                     ContractTestPartners.partner(),
-                    ContractTestPartners.partner(id = "par_456", name = "Telecom GmbH"),
+                    ContractTestPartners.partner(id = 2L, name = "Telecom GmbH"),
                 ),
             ),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
-        val targetPocket = ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent")
+        val targetPocket = ContractTestPockets.pocket(id = 2L, accountId = 2L, name = "Rent")
         val updated = updateContract.update(
             targetPocket,
             ContractFixtures.updateContractCommand(
-                partnerId = "par_456",
+                partnerId = 2L,
                 name = "Updated Contract",
                 startDate = "2024-02-01",
                 endDate = null,
@@ -41,8 +41,8 @@ class UpdateContractTest {
         )
 
         assertEquals(2L, updated.accountId)
-        assertEquals("poc_456", updated.pocketId)
-        assertEquals("par_456", updated.partnerId)
+        assertEquals(2L, updated.pocketId)
+        assertEquals(2L, updated.partnerId)
         assertEquals("Updated Contract", updated.name)
         assertEquals(null, updated.endDate)
         assertEquals(null, updated.notes)
@@ -65,7 +65,7 @@ class UpdateContractTest {
     fun `fails when updated pocket already has another contract`() = runTest {
         val contractRepository = InMemoryContractRepository()
         contractRepository.save(ContractFixtures.contract())
-        contractRepository.save(ContractFixtures.contract(id = "con_456", accountId = 2L, pocketId = "poc_456"))
+        contractRepository.save(ContractFixtures.contract(id = 2L, accountId = 2L, pocketId = 2L))
         val updateContract = ContractServiceImpl(
             contractRepository = contractRepository,
             partnerService = FakePartnerService(emptyList()),
@@ -74,7 +74,7 @@ class UpdateContractTest {
 
         assertFailsWith<ConflictException> {
             updateContract.update(
-                ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent"),
+                ContractTestPockets.pocket(id = 2L, accountId = 2L, name = "Rent"),
                 ContractFixtures.updateContractCommand(partnerId = null),
             )
         }

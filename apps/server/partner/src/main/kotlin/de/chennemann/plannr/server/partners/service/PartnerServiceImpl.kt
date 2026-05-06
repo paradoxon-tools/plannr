@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.partners.persistence.PartnerModel
 import de.chennemann.plannr.server.partners.persistence.toDomain
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
@@ -18,50 +19,61 @@ internal class PartnerServiceImpl(
     private val timeProvider: TimeProvider,
 ) : PartnerService {
     override suspend fun create(command: CreatePartnerCommand): Partner {
-        val created = partnerRepository.insert(
-            id = null,
-            name = command.name,
-            notes = command.notes,
-            isArchived = false,
-            createdAt = timeProvider(),
+        val created = partnerRepository.save(
+            PartnerModel(
+                id = null,
+                name = command.name,
+                notes = command.notes,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
         ).toDomain()
         return created
     }
 
     override suspend fun update(command: UpdatePartnerCommand): Partner {
         val existing = existingPartner(command.id)
-        val persisted = partnerRepository.update(
-            id = existing.id,
-            name = command.name,
-            notes = command.notes,
-            isArchived = existing.isArchived,
+        val persisted = partnerRepository.save(
+            PartnerModel(
+                id = existing.id,
+                name = command.name,
+                notes = command.notes,
+                isArchived = existing.isArchived,
+                createdAt = existing.createdAt,
+            ),
         ).toDomain()
         return persisted
     }
 
-    override suspend fun archive(id: String): Partner {
+    override suspend fun archive(id: Long): Partner {
         val existing = existingPartner(id)
-        val updated = partnerRepository.update(
-            id = existing.id,
-            name = existing.name,
-            notes = existing.notes,
-            isArchived = true,
+        val updated = partnerRepository.save(
+            PartnerModel(
+                id = existing.id,
+                name = existing.name,
+                notes = existing.notes,
+                isArchived = true,
+                createdAt = existing.createdAt,
+            ),
         ).toDomain()
         return updated
     }
 
-    override suspend fun unarchive(id: String): Partner {
+    override suspend fun unarchive(id: Long): Partner {
         val existing = existingPartner(id)
-        val updated = partnerRepository.update(
-            id = existing.id,
-            name = existing.name,
-            notes = existing.notes,
-            isArchived = false,
+        val updated = partnerRepository.save(
+            PartnerModel(
+                id = existing.id,
+                name = existing.name,
+                notes = existing.notes,
+                isArchived = false,
+                createdAt = existing.createdAt,
+            ),
         ).toDomain()
         return updated
     }
 
-    override suspend fun delete(id: String) {
+    override suspend fun delete(id: Long) {
         val normalizedId = existingPartner(id).id
         partnerRepository.deleteById(normalizedId)
     }
@@ -71,14 +83,14 @@ internal class PartnerServiceImpl(
             .toList()
             .map { it.toDomain() }
 
-    override suspend fun getById(id: String): Partner? =
-        partnerRepository.findById(id.trim())?.toDomain()
+    override suspend fun getById(id: Long): Partner? =
+        partnerRepository.findById(id)?.toDomain()
 
-    private suspend fun existingPartner(id: String): Partner =
-        partnerRepository.findById(id.trim())?.toDomain()
+    private suspend fun existingPartner(id: Long): Partner =
+        partnerRepository.findById(id)?.toDomain()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Partner not found",
-                details = mapOf("id" to id.trim()),
+                details = mapOf("id" to id),
             )
 }

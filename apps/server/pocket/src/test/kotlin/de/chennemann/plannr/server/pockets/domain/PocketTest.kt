@@ -8,12 +8,12 @@ class PocketTest {
     @Test
     fun `keeps id account id and name unchanged`() {
         val pocket = PocketFixtures.pocket(
-            id = " poc_123 ",
+            id = 1L,
             accountId = 1L,
             name = " Bills ",
         )
 
-        assertEquals(" poc_123 ", pocket.id)
+        assertEquals(1L, pocket.id)
         assertEquals(1L, pocket.accountId)
         assertEquals(" Bills ", pocket.name)
     }

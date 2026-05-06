@@ -10,62 +10,25 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 
 class InMemoryPocketRepository : PocketRepository {
-    private val pockets = linkedMapOf<String, PocketModel>()
-
-    override suspend fun insert(
-        id: String?,
-        accountId: Long,
-        name: String,
-        description: String?,
-        color: Int,
-        isDefault: Boolean,
-        isContractPocket: Boolean,
-        isArchived: Boolean,
-        createdAt: Long,
-    ): PocketModel =
-        save(PocketModel(id, accountId, name, description, color, isDefault, isContractPocket, isArchived, createdAt))
-
-    override suspend fun update(
-        id: String,
-        accountId: Long,
-        name: String,
-        description: String?,
-        color: Int,
-        isDefault: Boolean,
-        isArchived: Boolean,
-    ): PocketModel =
-        save(
-            PocketModel(
-                id = id,
-                accountId = accountId,
-                name = name,
-                description = description,
-                color = color,
-                isDefault = isDefault,
-                isContractPocket = pockets[id]?.isContractPocket ?: false,
-                isArchived = isArchived,
-                createdAt = pockets[id]?.createdAt ?: 0L,
-                persisted = true,
-            ),
-        )
+    private val pockets = linkedMapOf<Long, PocketModel>()
 
     override suspend fun <S : PocketModel> save(entity: S): S {
-        val persisted = entity.withIdIfMissing("poc_${pockets.size + 1}")
+        val persisted = entity.withIdIfMissing((pockets.size + 1).toLong())
         pockets[requireNotNull(persisted.id)] = persisted
         @Suppress("UNCHECKED_CAST")
         return persisted as S
     }
 
-    override suspend fun findById(id: String): PocketModel? = pockets[id]
+    override suspend fun findById(id: Long): PocketModel? = pockets[id]
 
-    override suspend fun existsById(id: String): Boolean = pockets.containsKey(id)
+    override suspend fun existsById(id: Long): Boolean = pockets.containsKey(id)
 
     override fun findAll(): Flow<PocketModel> = pockets.values.asFlow()
 
-    override fun findAllById(ids: Iterable<String>): Flow<PocketModel> =
+    override fun findAllById(ids: Iterable<Long>): Flow<PocketModel> =
         ids.mapNotNull(pockets::get).asFlow()
 
-    override fun findAllById(ids: Flow<String>): Flow<PocketModel> = flow {
+    override fun findAllById(ids: Flow<Long>): Flow<PocketModel> = flow {
         ids.collect { id -> pockets[id]?.let { emit(it) } }
     }
 
@@ -86,13 +49,13 @@ class InMemoryPocketRepository : PocketRepository {
 
     override suspend fun count(): Long = pockets.size.toLong()
 
-    override suspend fun deleteById(id: String) { pockets.remove(id) }
+    override suspend fun deleteById(id: Long) { pockets.remove(id) }
 
     override suspend fun delete(entity: PocketModel) {
         entity.id?.let(pockets::remove)
     }
 
-    override suspend fun deleteAllById(ids: Iterable<String>) { ids.forEach(pockets::remove) }
+    override suspend fun deleteAllById(ids: Iterable<Long>) { ids.forEach(pockets::remove) }
 
     override suspend fun deleteAll(entities: Iterable<PocketModel>) {
         entities.mapNotNull { it.id }.forEach(pockets::remove)
@@ -108,7 +71,7 @@ class InMemoryPocketRepository : PocketRepository {
 
     suspend fun save(pocket: Pocket): Pocket = save(pocket.toModel()).toDomain()
 
-    private fun PocketModel.withIdIfMissing(id: String): PocketModel = copy(id = this.id ?: id)
+    private fun PocketModel.withIdIfMissing(id: Long): PocketModel = copy(id = this.id ?: id)
 
     private fun PocketModel.toDomain(): Pocket =
         Pocket(

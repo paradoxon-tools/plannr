@@ -20,25 +20,25 @@ class PocketController(
     override suspend fun update(command: UpdatePocketCommand): Pocket =
         pocketService.update(command)
 
-    override suspend fun createContract(id: String, command: CreateContractCommand): Contract =
+    override suspend fun createContract(id: Long, command: CreateContractCommand): Contract =
         pocketService.createContract(id, command)
 
-    override suspend fun updateContract(id: String, command: UpdateContractCommand): Contract =
+    override suspend fun updateContract(id: Long, command: UpdateContractCommand): Contract =
         pocketService.updateContract(id, command)
 
-    override suspend fun archive(id: String): Pocket =
+    override suspend fun archive(id: Long): Pocket =
         pocketService.archive(id)
 
-    override suspend fun unarchive(id: String): Pocket =
+    override suspend fun unarchive(id: Long): Pocket =
         pocketService.unarchive(id)
 
-    override suspend fun delete(id: String) =
+    override suspend fun delete(id: Long) =
         pocketService.delete(id)
 
     override suspend fun list(accountId: Long?, archived: Boolean): List<Pocket> =
         pocketService.list(accountId, archived)
 
-    override suspend fun getById(id: String): Pocket =
-        pocketService.getById(id.trim())
-            ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to id.trim()))
+    override suspend fun getById(id: Long): Pocket =
+        pocketService.getById(id)
+            ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to id))
 }

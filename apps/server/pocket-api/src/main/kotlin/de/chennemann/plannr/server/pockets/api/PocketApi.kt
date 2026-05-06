@@ -28,20 +28,20 @@ interface PocketApi {
 
     @PostExchange("/{id}/contract")
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun createContract(@PathVariable id: String, @RequestBody command: CreateContractCommand): Contract
+    suspend fun createContract(@PathVariable id: Long, @RequestBody command: CreateContractCommand): Contract
 
     @PutExchange("/{id}/contract")
-    suspend fun updateContract(@PathVariable id: String, @RequestBody command: UpdateContractCommand): Contract
+    suspend fun updateContract(@PathVariable id: Long, @RequestBody command: UpdateContractCommand): Contract
 
     @PostExchange("/{id}/archive")
-    suspend fun archive(@PathVariable id: String): Pocket
+    suspend fun archive(@PathVariable id: Long): Pocket
 
     @PostExchange("/{id}/unarchive")
-    suspend fun unarchive(@PathVariable id: String): Pocket
+    suspend fun unarchive(@PathVariable id: Long): Pocket
 
     @DeleteExchange("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun delete(@PathVariable id: String)
+    suspend fun delete(@PathVariable id: Long)
 
     @GetExchange
     suspend fun list(
@@ -50,5 +50,5 @@ interface PocketApi {
     ): List<Pocket>
 
     @GetExchange("/{id}")
-    suspend fun getById(@PathVariable id: String): Pocket
+    suspend fun getById(@PathVariable id: Long): Pocket
 }

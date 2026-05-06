@@ -5,31 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
-interface PartnerRepository : CoroutineCrudRepository<PartnerModel, String> {
-    @Query(
-        """
-        INSERT INTO partners (id, name, notes, is_archived, created_at)
-        VALUES (
-            COALESCE(:id, CONCAT('par_', REPLACE(gen_random_uuid()::text, '-', ''))),
-            :name, :notes, :isArchived, :createdAt
-        )
-        RETURNING id, name, notes, is_archived, created_at
-        """,
-    )
-    suspend fun insert(id: String?, name: String, notes: String?, isArchived: Boolean, createdAt: Long): PartnerModel
-
-    @Query(
-        """
-        UPDATE partners
-        SET name = :name,
-            notes = :notes,
-            is_archived = :isArchived
-        WHERE id = :id
-        RETURNING id, name, notes, is_archived, created_at
-        """,
-    )
-    suspend fun update(id: String, name: String, notes: String?, isArchived: Boolean): PartnerModel
-
+interface PartnerRepository : CoroutineCrudRepository<PartnerModel, Long> {
     @Query(
         """
         SELECT id, name, notes, is_archived, created_at

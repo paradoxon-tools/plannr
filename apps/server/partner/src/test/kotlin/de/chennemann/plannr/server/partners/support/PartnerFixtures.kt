@@ -5,13 +5,13 @@ import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 import de.chennemann.plannr.server.partners.api.dto.Partner
 
 object PartnerFixtures {
-    const val DEFAULT_ID = "par_123"
+    const val DEFAULT_ID = 1L
     const val DEFAULT_NAME = "ACME Corp"
     const val DEFAULT_NOTES = "Preferred partner"
     const val DEFAULT_CREATED_AT = 1_710_000_200L
 
     fun partner(
-        id: String = DEFAULT_ID,
+        id: Long = DEFAULT_ID,
         name: String = DEFAULT_NAME,
         notes: String? = DEFAULT_NOTES,
         isArchived: Boolean = false,
@@ -35,7 +35,7 @@ object PartnerFixtures {
         )
 
     fun updatePartnerCommand(
-        id: String = DEFAULT_ID,
+        id: Long = DEFAULT_ID,
         name: String = DEFAULT_NAME,
         notes: String? = DEFAULT_NOTES,
     ): UpdatePartnerCommand =

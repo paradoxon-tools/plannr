@@ -5,10 +5,10 @@ import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 
 object ContractFixtures {
-    const val DEFAULT_ID = "con_123"
+    const val DEFAULT_ID = 1L
     const val DEFAULT_ACCOUNT_ID = 1L
-    const val DEFAULT_POCKET_ID = "poc_123"
-    const val DEFAULT_PARTNER_ID = "par_123"
+    const val DEFAULT_POCKET_ID = 1L
+    const val DEFAULT_PARTNER_ID = 1L
     const val DEFAULT_NAME = "Internet Contract"
     const val DEFAULT_START_DATE = "2024-01-01"
     const val DEFAULT_END_DATE = "2024-12-31"
@@ -16,10 +16,10 @@ object ContractFixtures {
     const val DEFAULT_CREATED_AT = 1_710_000_300L
 
     fun contract(
-        id: String = DEFAULT_ID,
+        id: Long = DEFAULT_ID,
         accountId: Long = DEFAULT_ACCOUNT_ID,
-        pocketId: String = DEFAULT_POCKET_ID,
-        partnerId: String? = DEFAULT_PARTNER_ID,
+        pocketId: Long = DEFAULT_POCKET_ID,
+        partnerId: Long? = DEFAULT_PARTNER_ID,
         name: String = DEFAULT_NAME,
         startDate: String = DEFAULT_START_DATE,
         endDate: String? = DEFAULT_END_DATE,
@@ -41,7 +41,7 @@ object ContractFixtures {
         )
 
     fun createContractCommand(
-        partnerId: String? = DEFAULT_PARTNER_ID,
+        partnerId: Long? = DEFAULT_PARTNER_ID,
         name: String = DEFAULT_NAME,
         startDate: String = DEFAULT_START_DATE,
         endDate: String? = DEFAULT_END_DATE,
@@ -56,8 +56,8 @@ object ContractFixtures {
         )
 
     fun updateContractCommand(
-        id: String = DEFAULT_ID,
-        partnerId: String? = DEFAULT_PARTNER_ID,
+        id: Long = DEFAULT_ID,
+        partnerId: Long? = DEFAULT_PARTNER_ID,
         name: String = DEFAULT_NAME,
         startDate: String = DEFAULT_START_DATE,
         endDate: String? = DEFAULT_END_DATE,

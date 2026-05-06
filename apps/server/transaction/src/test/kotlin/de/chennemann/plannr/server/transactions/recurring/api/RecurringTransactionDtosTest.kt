@@ -9,7 +9,7 @@ class RecurringTransactionDtosTest {
     @Test
     fun `create request maps max recurrence count to command`() {
         val command = CreateRecurringTransactionRequest(
-            sourcePocketId = "poc_123",
+            sourcePocketId = 1L,
             destinationPocketId = null,
             partnerId = null,
             title = "Rent",
@@ -35,7 +35,7 @@ class RecurringTransactionDtosTest {
     fun `update request maps without effective from date`() {
         val command = UpdateRecurringTransactionRequest(
             updateMode = "new_version",
-            sourcePocketId = "poc_123",
+            sourcePocketId = 1L,
             destinationPocketId = null,
             partnerId = null,
             title = "Rent",

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 class ContractController(
     private val contractService: ContractService,
 ) : ContractApi {
-    override suspend fun delete(id: String) =
+    override suspend fun delete(id: Long) =
         contractService.delete(id)
 
     override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> =

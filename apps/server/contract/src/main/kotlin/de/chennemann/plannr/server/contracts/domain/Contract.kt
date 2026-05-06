@@ -5,10 +5,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
 data class Contract private constructor(
-    val id: String,
+    val id: Long,
     val accountId: Long,
-    val pocketId: String,
-    val partnerId: String?,
+    val pocketId: Long,
+    val partnerId: Long?,
     val name: String,
     val startDate: String,
     val endDate: String?,
@@ -22,10 +22,10 @@ data class Contract private constructor(
 
     companion object {
         operator fun invoke(
-            id: String,
+            id: Long,
             accountId: Long,
-            pocketId: String,
-            partnerId: String?,
+            pocketId: Long,
+            partnerId: Long?,
             name: String,
             startDate: String,
             endDate: String?,
@@ -33,20 +33,11 @@ data class Contract private constructor(
             isArchived: Boolean,
             createdAt: Long,
         ): Contract {
-            val normalizedId = id.trim()
-            val normalizedPocketId = pocketId.trim()
-            val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedName = name.trim()
             val normalizedStartDate = startDate.trim()
             val normalizedEndDate = endDate?.trim()?.takeIf { it.isNotBlank() }
             val normalizedNotes = notes?.trim()?.takeIf { it.isNotBlank() }
 
-            if (normalizedId.isBlank()) {
-                throw ValidationException("validation_error", "Contract id must not be blank")
-            }
-            if (normalizedPocketId.isBlank()) {
-                throw ValidationException("validation_error", "Contract pocket id must not be blank")
-            }
             if (normalizedName.isBlank()) {
                 throw ValidationException("validation_error", "Contract name must not be blank")
             }
@@ -61,10 +52,10 @@ data class Contract private constructor(
             }
 
             return Contract(
-                id = normalizedId,
+                id = id,
                 accountId = accountId,
-                pocketId = normalizedPocketId,
-                partnerId = normalizedPartnerId,
+                pocketId = pocketId,
+                partnerId = partnerId,
                 name = normalizedName,
                 startDate = normalizedStartDate,
                 endDate = normalizedEndDate,

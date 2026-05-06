@@ -12,28 +12,28 @@ import de.chennemann.plannr.server.transactions.recurring.service.RecurringTrans
 internal object NoOpContractService : ContractService {
     override suspend fun create(pocket: Pocket, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
     override suspend fun update(pocket: Pocket, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
-    override suspend fun archiveForPocket(pocketId: String) = Unit
-    override suspend fun unarchiveForPocket(pocketId: String) = Unit
-    override suspend fun delete(id: String) = Unit
+    override suspend fun archiveForPocket(pocketId: Long) = Unit
+    override suspend fun unarchiveForPocket(pocketId: Long) = Unit
+    override suspend fun delete(id: Long) = Unit
     override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> = emptyList()
 }
 
 internal class RecordingContractService : ContractService {
-    val archivedPocketIds = mutableListOf<String>()
-    val unarchivedPocketIds = mutableListOf<String>()
+    val archivedPocketIds = mutableListOf<Long>()
+    val unarchivedPocketIds = mutableListOf<Long>()
 
     override suspend fun create(pocket: Pocket, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
     override suspend fun update(pocket: Pocket, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
 
-    override suspend fun archiveForPocket(pocketId: String) {
+    override suspend fun archiveForPocket(pocketId: Long) {
         archivedPocketIds += pocketId
     }
 
-    override suspend fun unarchiveForPocket(pocketId: String) {
+    override suspend fun unarchiveForPocket(pocketId: Long) {
         unarchivedPocketIds += pocketId
     }
 
-    override suspend fun delete(id: String) = Unit
+    override suspend fun delete(id: Long) = Unit
     override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> = emptyList()
 }
 
@@ -44,8 +44,8 @@ internal object NoOpRecurringTransactionService : RecurringTransactionService {
     override suspend fun unarchive(id: String) = throw UnsupportedOperationException("Not used")
     override suspend fun archiveForAccount(accountId: Long) = Unit
     override suspend fun unarchiveForAccount(accountId: Long) = Unit
-    override suspend fun archiveForPocket(accountId: Long, pocketId: String) = Unit
-    override suspend fun unarchiveForPocket(accountId: Long, pocketId: String) = Unit
+    override suspend fun archiveForPocket(accountId: Long, pocketId: Long) = Unit
+    override suspend fun unarchiveForPocket(accountId: Long, pocketId: Long) = Unit
     override suspend fun delete(id: String) = Unit
 }
 

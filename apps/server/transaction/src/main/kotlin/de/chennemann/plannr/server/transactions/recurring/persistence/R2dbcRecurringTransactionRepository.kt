@@ -149,9 +149,9 @@ class R2dbcRecurringTransactionRepository(
         if (recurringTransaction.id != null) {
             current = current.bind("id", recurringTransaction.id)
         }
-        current = bindNullable(current, "sourcePocketId", recurringTransaction.sourcePocketId)
-        current = bindNullable(current, "destinationPocketId", recurringTransaction.destinationPocketId)
-        current = bindNullable(current, "partnerId", recurringTransaction.partnerId)
+        current = bindNullableLong(current, "sourcePocketId", recurringTransaction.sourcePocketId)
+        current = bindNullableLong(current, "destinationPocketId", recurringTransaction.destinationPocketId)
+        current = bindNullableLong(current, "partnerId", recurringTransaction.partnerId)
         current = bindNullable(current, "description", recurringTransaction.description)
         current = bindNullable(current, "finalOccurrenceDate", recurringTransaction.finalOccurrenceDate)
         current = bindNullable(current, "daysOfWeek", recurringTransaction.daysOfWeek?.joinToString(","))
@@ -165,12 +165,15 @@ class R2dbcRecurringTransactionRepository(
     private fun bindNullable(spec: DatabaseClient.GenericExecuteSpec, name: String, value: String?): DatabaseClient.GenericExecuteSpec =
         if (value != null) spec.bind(name, value) else spec.bindNull(name, String::class.java)
 
+    private fun bindNullableLong(spec: DatabaseClient.GenericExecuteSpec, name: String, value: Long?): DatabaseClient.GenericExecuteSpec =
+        if (value != null) spec.bind(name, value) else spec.bindNull(name, java.lang.Long::class.java)
+
     private fun toRecurringTransaction(row: Map<String, Any?>): de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction = de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction(
         id = row.getValue("id") as String,
         accountId = (row.getValue("account_id") as Number).toLong(),
-        sourcePocketId = row["source_pocket_id"] as String?,
-        destinationPocketId = row["destination_pocket_id"] as String?,
-        partnerId = row["partner_id"] as String?,
+        sourcePocketId = (row["source_pocket_id"] as Number?)?.toLong(),
+        destinationPocketId = (row["destination_pocket_id"] as Number?)?.toLong(),
+        partnerId = (row["partner_id"] as Number?)?.toLong(),
         title = row.getValue("title") as String,
         description = row["description"] as String?,
         amount = (row.getValue("amount") as Number).toLong(),

@@ -10,9 +10,9 @@ import java.time.format.DateTimeParseException
 data class RecurringTransaction private constructor(
     val id: String,
     val accountId: Long,
-    val sourcePocketId: String?,
-    val destinationPocketId: String?,
-    val partnerId: String?,
+    val sourcePocketId: Long?,
+    val destinationPocketId: Long?,
+    val partnerId: Long?,
     val title: String,
     val description: String?,
     val amount: Long,
@@ -44,9 +44,9 @@ data class RecurringTransaction private constructor(
     private fun recreate(
         id: String = this.id,
         accountId: Long = this.accountId,
-        sourcePocketId: String? = this.sourcePocketId,
-        destinationPocketId: String? = this.destinationPocketId,
-        partnerId: String? = this.partnerId,
+        sourcePocketId: Long? = this.sourcePocketId,
+        destinationPocketId: Long? = this.destinationPocketId,
+        partnerId: Long? = this.partnerId,
         title: String = this.title,
         description: String? = this.description,
         amount: Long = this.amount,
@@ -91,9 +91,9 @@ data class RecurringTransaction private constructor(
         operator fun invoke(
             id: String,
             accountId: Long,
-            sourcePocketId: String?,
-            destinationPocketId: String?,
-            partnerId: String?,
+            sourcePocketId: Long?,
+            destinationPocketId: Long?,
+            partnerId: Long?,
             title: String,
             description: String?,
             amount: Long,
@@ -112,9 +112,9 @@ data class RecurringTransaction private constructor(
             createdAt: Long,
         ): RecurringTransaction {
             val normalizedId = id.trim()
-            val normalizedSourcePocketId = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }
-            val normalizedDestinationPocketId = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }
-            val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
+            val normalizedsourcePocketId = sourcePocketId
+            val normalizeddestinationPocketId = destinationPocketId
+            val normalizedpartnerId = partnerId
             val normalizedTitle = title.trim()
             val normalizedDescription = description?.trim()?.takeIf { it.isNotBlank() }
             val normalizedCurrencyCode = normalizeCurrency(currencyCode)
@@ -158,8 +158,8 @@ data class RecurringTransaction private constructor(
 
             validateTransactionTypeCombination(
                 transactionType = normalizedTransactionType,
-                sourcePocketId = normalizedSourcePocketId,
-                destinationPocketId = normalizedDestinationPocketId,
+                sourcePocketId = normalizedsourcePocketId,
+                destinationPocketId = normalizeddestinationPocketId,
             )
             validateRecurrenceCombination(
                 recurrenceType = normalizedRecurrenceType,
@@ -179,9 +179,9 @@ data class RecurringTransaction private constructor(
             return RecurringTransaction(
                 id = normalizedId,
                 accountId = accountId,
-                sourcePocketId = normalizedSourcePocketId,
-                destinationPocketId = normalizedDestinationPocketId,
-                partnerId = normalizedPartnerId,
+                sourcePocketId = normalizedsourcePocketId,
+                destinationPocketId = normalizeddestinationPocketId,
+                partnerId = normalizedpartnerId,
                 title = normalizedTitle,
                 description = normalizedDescription,
                 amount = amount,
@@ -206,8 +206,8 @@ data class RecurringTransaction private constructor(
 
         private fun validateTransactionTypeCombination(
             transactionType: String,
-            sourcePocketId: String?,
-            destinationPocketId: String?,
+            sourcePocketId: Long?,
+            destinationPocketId: Long?,
         ) {
             when (transactionType) {
                 "EXPENSE" -> {

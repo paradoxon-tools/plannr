@@ -98,7 +98,7 @@ class CreateRecurringTransactionTest {
         val pocketService = FakePocketService(
             listOf(
                 PocketFixtures.pocket(),
-                PocketFixtures.pocket(id = "poc_456", accountId = 2L, name = "Savings"),
+                PocketFixtures.pocket(id = 2L, accountId = 2L, name = "Savings"),
             ),
         )
         val partnerService = FakePartnerService()
@@ -115,7 +115,7 @@ class CreateRecurringTransactionTest {
                 RecurringTransactionFixtures.createCommand(
                     transactionType = "TRANSFER",
                     sourcePocketId = PocketFixtures.DEFAULT_ID,
-                    destinationPocketId = "poc_456",
+                    destinationPocketId = 2L,
                 ),
             )
         }

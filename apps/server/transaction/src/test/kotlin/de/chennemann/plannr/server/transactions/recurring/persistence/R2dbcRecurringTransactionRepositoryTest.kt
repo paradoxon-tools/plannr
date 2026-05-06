@@ -7,16 +7,17 @@ import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
-import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
+import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.r2dbc.core.DatabaseClient
 import kotlin.test.assertEquals
 
 class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
@@ -24,7 +25,8 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var accountRepository: AccountRepository
     @Autowired lateinit var pocketRepository: PocketRepository
     @Autowired lateinit var partnerService: PartnerService
-    private lateinit var defaultPartnerId: String
+    @Autowired lateinit var testDatabaseClient: DatabaseClient
+    private var defaultPartnerId: Long = 0L
     private var accountId: Long = 0L
 
     @BeforeEach
@@ -32,8 +34,8 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
         runBlocking {
             cleanDatabase("recurring_transactions", "partners", "pockets", "accounts")
             accountId = accountRepository.insert(AccountFixtures.account()).id
-            pocketRepository.insert(PocketFixtures.pocket(accountId = accountId))
-            pocketRepository.insert(PocketFixtures.pocket(id = "poc_456", accountId = accountId, name = "Income"))
+            insertPocket(PocketFixtures.pocket(accountId = accountId))
+            insertPocket(PocketFixtures.pocket(id = 2L, accountId = accountId, name = "Income"))
             defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", notes = "Preferred partner")).id
         }
     }
@@ -50,7 +52,7 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
                 monthsOfYear = listOf(6, 1, 6),
             ).toModel(),
         )
-        recurringTransactionRepository.save(RecurringTransactionFixtures.recurringTransaction(id = "rtx_2", accountId = accountId, sourcePocketId = null, destinationPocketId = "poc_456", partnerId = null, transactionType = "INCOME", isArchived = true).toModel())
+        recurringTransactionRepository.save(RecurringTransactionFixtures.recurringTransaction(id = "rtx_2", accountId = accountId, sourcePocketId = null, destinationPocketId = 2L, partnerId = null, transactionType = "INCOME", isArchived = true).toModel())
 
         val found = recurringTransactionRepository.findById(RecurringTransactionFixtures.DEFAULT_ID)
         assertEquals(RecurringTransactionFixtures.DEFAULT_ID, found?.id)
@@ -61,21 +63,28 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
         assertEquals(listOf(RecurringTransactionFixtures.DEFAULT_ID), recurringTransactionRepository.findAll(accountId = accountId).map { it.id })
         assertEquals(listOf("rtx_2"), recurringTransactionRepository.findAll(archived = true).map { it.id })
     }
+
+    private suspend fun insertPocket(pocket: de.chennemann.plannr.server.pockets.api.dto.Pocket) {
+        val spec = testDatabaseClient.sql(
+            """
+            INSERT INTO pockets (id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at)
+            VALUES (:id, :accountId, :name, :description, :color, :isDefault, :isContractPocket, :isArchived, :createdAt)
+            """.trimIndent(),
+        )
+            .bind("id", pocket.id)
+            .bind("accountId", pocket.accountId)
+            .bind("name", pocket.name)
+            .bind("color", pocket.color)
+            .bind("isDefault", pocket.isDefault)
+            .bind("isContractPocket", pocket.isContractPocket)
+            .bind("isArchived", pocket.isArchived)
+            .bind("createdAt", pocket.createdAt)
+        val boundSpec = pocket.description?.let { spec.bind("description", it) }
+            ?: spec.bindNull("description", String::class.java)
+        boundSpec.fetch().rowsUpdated().awaitSingle()
+    }
 }
 
 private suspend fun AccountRepository.insert(account: Account): Account = save(account.toModel().copy(id = null)).toDomain()
 
-private suspend fun PocketRepository.insert(pocket: Pocket) {
-    insert(
-        id = pocket.id,
-        accountId = pocket.accountId,
-        name = pocket.name,
-        description = pocket.description,
-        color = pocket.color,
-        isDefault = pocket.isDefault,
-        isContractPocket = pocket.isContractPocket,
-        isArchived = pocket.isArchived,
-        createdAt = pocket.createdAt,
-    )
-}
 

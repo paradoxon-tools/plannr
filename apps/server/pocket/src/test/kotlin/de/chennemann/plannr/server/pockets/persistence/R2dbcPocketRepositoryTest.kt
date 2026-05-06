@@ -30,36 +30,16 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
     fun `saves and finds pocket by id`() = runBlocking {
         val pocket = PocketFixtures.pocket()
 
-        pocketRepository.insert(
-            id = pocket.id,
-            accountId = pocket.accountId,
-            name = pocket.name,
-            description = pocket.description,
-            color = pocket.color,
-            isDefault = pocket.isDefault,
-            isContractPocket = pocket.isContractPocket,
-            isArchived = pocket.isArchived,
-            createdAt = pocket.createdAt,
-        )
+        val saved = pocketRepository.save(pocket.toModel().copy(id = null))
 
-        assertEquals(pocket, pocketRepository.findById(PocketFixtures.DEFAULT_ID)?.toDomain())
-        assertNull(pocketRepository.findById("poc_missing"))
+        assertEquals(pocket.copy(id = saved.toDomain().id), pocketRepository.findById(saved.toDomain().id)?.toDomain())
+        assertNull(pocketRepository.findById(999L))
     }
 
     @Test
     fun `updates and finds pocket by id`() = runBlocking {
         val original = PocketFixtures.pocket()
-        pocketRepository.insert(
-            id = original.id,
-            accountId = original.accountId,
-            name = original.name,
-            description = original.description,
-            color = original.color,
-            isDefault = original.isDefault,
-            isContractPocket = original.isContractPocket,
-            isArchived = original.isArchived,
-            createdAt = original.createdAt,
-        )
+        insertPocket(original.toModel())
         val updated = PocketFixtures.pocket(
             accountId = 2L,
             name = "Updated",
@@ -70,30 +50,22 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             isArchived = true,
         )
 
-        pocketRepository.update(
-            id = updated.id,
-            accountId = updated.accountId,
-            name = updated.name,
-            description = updated.description,
-            color = updated.color,
-            isDefault = updated.isDefault,
-            isArchived = updated.isArchived,
-        )
+        pocketRepository.save(updated.toModel())
 
         assertEquals(updated, pocketRepository.findById(PocketFixtures.DEFAULT_ID)?.toDomain())
     }
 
     @Test
     fun `finds all pockets ordered by created at and id and supports filters`() = runBlocking {
-        pocketRepository.insert(id = "poc_2", accountId = 1L, name = "Second", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 2)
-        pocketRepository.insert(id = "poc_1", accountId = 1L, name = "First", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = true, createdAt = 1)
-        pocketRepository.insert(id = "poc_3", accountId = 2L, name = "Third", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 3)
+        insertPocket(PocketModel(id = 2L, accountId = 1L, name = "Second", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 2))
+        insertPocket(PocketModel(id = 1L, accountId = 1L, name = "First", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = true, createdAt = 1))
+        insertPocket(PocketModel(id = 3L, accountId = 2L, name = "Third", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 3))
 
         val all = pocketRepository.findAllByAccountIdAndArchived(accountId = null, archived = null).toList()
         val filtered = pocketRepository.findAllByAccountIdAndArchived(accountId = 1L, archived = true).toList()
 
-        assertEquals(listOf("poc_1", "poc_2", "poc_3"), all.map { it.id })
-        assertEquals(listOf("poc_1"), filtered.map { it.id })
+        assertEquals(listOf(1L, 2L, 3L), all.map { it.id })
+        assertEquals(listOf(1L), filtered.map { it.id })
     }
 
     private suspend fun insertAccount(id: Long, name: String) {
@@ -108,5 +80,25 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             .fetch()
             .rowsUpdated()
             .awaitSingle()
+    }
+
+    private suspend fun insertPocket(pocket: PocketModel) {
+        val spec = databaseClient.sql(
+            """
+            INSERT INTO pockets (id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at)
+            VALUES (:id, :accountId, :name, :description, :color, :isDefault, :isContractPocket, :isArchived, :createdAt)
+            """.trimIndent(),
+        )
+            .bind("id", requireNotNull(pocket.id))
+            .bind("accountId", pocket.accountId)
+            .bind("name", pocket.name)
+            .bind("color", pocket.color)
+            .bind("isDefault", pocket.isDefault)
+            .bind("isContractPocket", pocket.isContractPocket)
+            .bind("isArchived", pocket.isArchived)
+            .bind("createdAt", pocket.createdAt)
+        val boundSpec = pocket.description?.let { spec.bind("description", it) }
+            ?: spec.bindNull("description", String::class.java)
+        boundSpec.fetch().rowsUpdated().awaitSingle()
     }
 }

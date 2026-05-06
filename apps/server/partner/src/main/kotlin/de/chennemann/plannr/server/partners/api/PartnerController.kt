@@ -16,13 +16,13 @@ class PartnerController(
     override suspend fun update(command: UpdatePartnerCommand): Partner =
         partnerService.update(command)
 
-    override suspend fun archive(id: String): Partner =
+    override suspend fun archive(id: Long): Partner =
         partnerService.archive(id)
 
-    override suspend fun unarchive(id: String): Partner =
+    override suspend fun unarchive(id: Long): Partner =
         partnerService.unarchive(id)
 
-    override suspend fun delete(id: String) =
+    override suspend fun delete(id: Long) =
         partnerService.delete(id)
 
     override suspend fun list(query: String?, archived: Boolean): List<Partner> =

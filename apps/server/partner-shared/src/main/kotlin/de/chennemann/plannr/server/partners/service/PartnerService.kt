@@ -9,13 +9,13 @@ interface PartnerService {
 
     suspend fun update(command: UpdatePartnerCommand): Partner
 
-    suspend fun archive(id: String): Partner
+    suspend fun archive(id: Long): Partner
 
-    suspend fun unarchive(id: String): Partner
+    suspend fun unarchive(id: Long): Partner
 
-    suspend fun delete(id: String)
+    suspend fun delete(id: Long)
 
     suspend fun list(query: String? = null, archived: Boolean = false): List<Partner>
 
-    suspend fun getById(id: String): Partner?
+    suspend fun getById(id: Long): Partner?
 }

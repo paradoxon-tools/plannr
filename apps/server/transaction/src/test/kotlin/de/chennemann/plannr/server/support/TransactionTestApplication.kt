@@ -7,15 +7,19 @@ import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.contracts.api.dto.Contract
 import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.persistence.PartnerModel
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import kotlinx.coroutines.flow.toList
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -75,10 +79,16 @@ class TransactionTestApplication {
             override suspend fun update(command: UpdatePocketCommand): Pocket =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun archive(id: String): Pocket =
+            override suspend fun createContract(pocketId: Long, command: CreateContractCommand): Contract =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun unarchive(id: String): Pocket =
+            override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): Contract =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun archive(id: Long): Pocket =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun unarchive(id: Long): Pocket =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun archiveForAccount(accountId: Long) =
@@ -87,14 +97,14 @@ class TransactionTestApplication {
             override suspend fun unarchiveForAccount(accountId: Long) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun delete(id: String) =
+            override suspend fun delete(id: Long) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun getById(id: String): Pocket? =
-                pocketRepository.findById(id.trim())?.let { model ->
+            override suspend fun getById(id: Long): Pocket? =
+                pocketRepository.findById(id)?.let { model ->
                     Pocket(
                         id = requireNotNull(model.id),
                         accountId = model.accountId,
@@ -113,28 +123,23 @@ class TransactionTestApplication {
     fun partnerService(partnerRepository: PartnerRepository): PartnerService =
         object : PartnerService {
             override suspend fun create(command: CreatePartnerCommand): Partner =
-                partnerRepository.insert(
-                    id = null,
-                    name = command.name,
-                    notes = command.notes,
-                    isArchived = false,
-                    createdAt = 1L,
-                ).let { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
+                partnerRepository.save(PartnerModel(null, command.name, command.notes, false, 1L))
+                    .let { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
 
             override suspend fun update(command: UpdatePartnerCommand): Partner {
-                val existing = partnerRepository.findById(command.id.trim())
-                    ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to command.id.trim()))
-                return partnerRepository.update(existing.id!!, command.name, command.notes, existing.isArchived)
+                val existing = partnerRepository.findById(command.id)
+                    ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to command.id))
+                return partnerRepository.save(PartnerModel(existing.id, command.name, command.notes, existing.isArchived, existing.createdAt))
                     .let { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
             }
 
-            override suspend fun archive(id: String): Partner =
+            override suspend fun archive(id: Long): Partner =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun unarchive(id: String): Partner =
+            override suspend fun unarchive(id: Long): Partner =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun delete(id: String) =
+            override suspend fun delete(id: Long) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun list(query: String?, archived: Boolean): List<Partner> =
@@ -142,8 +147,8 @@ class TransactionTestApplication {
                     .toList()
                     .map { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
 
-            override suspend fun getById(id: String): Partner? =
-                partnerRepository.findById(id.trim())
+            override suspend fun getById(id: Long): Partner? =
+                partnerRepository.findById(id)
                     ?.let { Partner(requireNotNull(it.id), it.name, it.notes, it.isArchived, it.createdAt) }
         }
 }

@@ -13,7 +13,7 @@ class RecurringTransactionTest {
         val value = RecurringTransactionFixtures.recurringTransaction(
             id = " rtx_123 ",
             accountId = 1L,
-            sourcePocketId = " poc_123 ",
+            sourcePocketId = 1L,
             title = " Internet Bill ",
             description = " Monthly internet ",
             currencyCode = " eur ",
@@ -43,18 +43,18 @@ class RecurringTransactionTest {
     fun `accepts all valid transaction type combinations`() {
         RecurringTransactionFixtures.recurringTransaction(
             transactionType = "EXPENSE",
-            sourcePocketId = "poc_123",
+            sourcePocketId = 1L,
             destinationPocketId = null,
         )
         RecurringTransactionFixtures.recurringTransaction(
             transactionType = "INCOME",
             sourcePocketId = null,
-            destinationPocketId = "poc_456",
+            destinationPocketId = 2L,
         )
         RecurringTransactionFixtures.recurringTransaction(
             transactionType = "TRANSFER",
-            sourcePocketId = "poc_123",
-            destinationPocketId = "poc_456",
+            sourcePocketId = 1L,
+            destinationPocketId = 2L,
         )
     }
 
@@ -64,25 +64,25 @@ class RecurringTransactionTest {
             RecurringTransactionFixtures.recurringTransaction(transactionType = "EXPENSE", sourcePocketId = null, destinationPocketId = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "EXPENSE", sourcePocketId = "poc_123", destinationPocketId = "poc_456")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "EXPENSE", sourcePocketId = 1L, destinationPocketId = 2L)
         }
         assertFailsWith<ValidationException> {
             RecurringTransactionFixtures.recurringTransaction(transactionType = "INCOME", sourcePocketId = null, destinationPocketId = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "INCOME", sourcePocketId = "poc_123", destinationPocketId = "poc_456")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "INCOME", sourcePocketId = 1L, destinationPocketId = 2L)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = null, destinationPocketId = "poc_456")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = null, destinationPocketId = 2L)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = "poc_123", destinationPocketId = null)
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = 1L, destinationPocketId = null)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = "poc_123", destinationPocketId = "poc_123")
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "TRANSFER", sourcePocketId = 1L, destinationPocketId = 1L)
         }
         assertFailsWith<ValidationException> {
-            RecurringTransactionFixtures.recurringTransaction(transactionType = "unknown", sourcePocketId = "poc_123", destinationPocketId = null)
+            RecurringTransactionFixtures.recurringTransaction(transactionType = "unknown", sourcePocketId = 1L, destinationPocketId = null)
         }
     }
 
