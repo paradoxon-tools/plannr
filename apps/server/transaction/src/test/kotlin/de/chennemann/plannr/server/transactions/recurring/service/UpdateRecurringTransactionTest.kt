@@ -3,9 +3,6 @@ package de.chennemann.plannr.server.transactions.recurring.service
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.transactions.recurring.api.toUpdateCommand
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
-import de.chennemann.plannr.server.pockets.support.PocketFixtures
-import de.chennemann.plannr.server.support.FakePartnerService
-import de.chennemann.plannr.server.support.FakePocketService
 import de.chennemann.plannr.server.transactions.recurring.support.InMemoryRecurringTransactionRepository
 import de.chennemann.plannr.server.transactions.recurring.support.RecurringTransactionFixtures
 import kotlinx.coroutines.test.runTest
@@ -225,11 +222,8 @@ class UpdateRecurringTransactionTest {
     }
 
     private suspend fun useCase(recurringRepository: InMemoryRecurringTransactionRepository): RecurringTransactionService {
-        val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
-        val partnerService = FakePartnerService()
         return RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
-            contextResolver = contextResolver(pocketService, partnerService),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),

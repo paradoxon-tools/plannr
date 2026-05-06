@@ -11,10 +11,6 @@ class ArchiveRecurringTransactionTest {
         val repo = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction()) }
         val result = RecurringTransactionServiceImpl(
             recurringTransactionRepository = repo,
-            contextResolver = contextResolver(
-                de.chennemann.plannr.server.support.FakePocketService(),
-                de.chennemann.plannr.server.support.FakePartnerService(),
-            ),
             timeProvider = { 1L },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),

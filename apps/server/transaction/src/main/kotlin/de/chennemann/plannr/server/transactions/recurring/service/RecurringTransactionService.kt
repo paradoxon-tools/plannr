@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class RecurringTransactionServiceImpl(
     private val recurringTransactionRepository: RecurringTransactionRepository,
-    private val contextResolver: RecurringTransactionContextResolver,
     private val timeProvider: TimeProvider,
     private val normalization: RecurringTransactionNormalization,
     private val versioningService: RecurringVersioningService,
@@ -22,7 +21,6 @@ class RecurringTransactionServiceImpl(
     @Transactional
     override suspend fun create(command: RecurringTransactionService.CreateCommand): RecurringTransaction {
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val context = contextResolver.resolve(command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(
                 firstOccurrenceDate = command.firstOccurrenceDate,
@@ -39,9 +37,9 @@ class RecurringTransactionServiceImpl(
         return recurringTransactionRepository.save(
             RecurringTransactionModel(
                 id = null,
-                sourcePocketId = context.sourcePocketId,
-                destinationPocketId = context.destinationPocketId,
-                partnerId = context.partnerId,
+                sourcePocketId = command.sourcePocketId,
+                destinationPocketId = command.destinationPocketId,
+                partnerId = command.partnerId,
                 title = command.title,
                 description = command.description,
                 amount = command.amount,
@@ -67,7 +65,6 @@ class RecurringTransactionServiceImpl(
         val existing = recurringTransactionRepository.findById(command.id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to command.id.trim()))
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val context = contextResolver.resolve(command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(
                 firstOccurrenceDate = command.firstOccurrenceDate,
@@ -87,10 +84,10 @@ class RecurringTransactionServiceImpl(
             "overwrite" -> recurringTransactionRepository.update(
                 RecurringTransaction(
                     id = existing.id,
-                    accountId = context.accountId,
-                    sourcePocketId = context.sourcePocketId,
-                    destinationPocketId = context.destinationPocketId,
-                    partnerId = context.partnerId,
+                    accountId = existing.accountId,
+                    sourcePocketId = command.sourcePocketId,
+                    destinationPocketId = command.destinationPocketId,
+                    partnerId = command.partnerId,
                     title = command.title,
                     description = command.description,
                     amount = command.amount,
@@ -109,7 +106,7 @@ class RecurringTransactionServiceImpl(
                     createdAt = existing.createdAt,
                 ).toModel(),
             )
-            "new_version" -> createNewVersion(existing, context, command, currencyCode, normalizedRecurrence)
+            "new_version" -> createNewVersion(existing, command, currencyCode, normalizedRecurrence)
             else -> throw ValidationException("validation_error", "Recurring transaction update mode is invalid")
         }
     }
@@ -167,7 +164,6 @@ class RecurringTransactionServiceImpl(
 
     private suspend fun createNewVersion(
         existing: RecurringTransaction,
-        context: RecurringTransactionContextResolver.ResolvedContext,
         command: RecurringTransactionService.UpdateCommand,
         currencyCode: String,
         normalizedRecurrence: RecurringTransactionNormalization.NormalizedFields,
@@ -180,9 +176,9 @@ class RecurringTransactionServiceImpl(
         return recurringTransactionRepository.save(
             RecurringTransactionModel(
                 id = null,
-                sourcePocketId = context.sourcePocketId,
-                destinationPocketId = context.destinationPocketId,
-                partnerId = context.partnerId,
+                sourcePocketId = command.sourcePocketId,
+                destinationPocketId = command.destinationPocketId,
+                partnerId = command.partnerId,
                 title = command.title,
                 description = command.description,
                 amount = command.amount,
