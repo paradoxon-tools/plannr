@@ -4,6 +4,6 @@ import de.chennemann.plannr.server.accounts.persistence.AccountModel
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
-interface AccountRepository : CoroutineCrudRepository<AccountModel, String> {
+interface AccountRepository : CoroutineCrudRepository<AccountModel, Long> {
     fun findAllByOrderByCreatedAtAscIdAsc(): Flow<AccountModel>
 }

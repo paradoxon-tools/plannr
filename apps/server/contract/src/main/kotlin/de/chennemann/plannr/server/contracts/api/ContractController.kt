@@ -25,6 +25,6 @@ class ContractController(
     override suspend fun delete(id: String) =
         contractService.delete(id)
 
-    override suspend fun list(accountId: String?, archived: Boolean): List<Contract> =
+    override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> =
         contractService.list(accountId, archived)
 }

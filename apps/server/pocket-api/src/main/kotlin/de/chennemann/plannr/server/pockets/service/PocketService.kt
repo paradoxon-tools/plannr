@@ -10,6 +10,6 @@ interface PocketService {
     suspend fun archive(id: String): Pocket
     suspend fun unarchive(id: String): Pocket
     suspend fun delete(id: String)
-    suspend fun list(accountId: String? = null, archived: Boolean? = null): List<Pocket>
+    suspend fun list(accountId: Long? = null, archived: Boolean? = null): List<Pocket>
     suspend fun getById(id: String): Pocket?
 }

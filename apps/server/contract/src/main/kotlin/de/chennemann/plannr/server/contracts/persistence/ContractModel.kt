@@ -15,7 +15,7 @@ data class ContractModel(
     @get:JvmName("getEntityId")
     val id: String?,
     @Column("account_id")
-    val accountId: String,
+    val accountId: Long,
     @Column("pocket_id")
     val pocketId: String,
     @Column("partner_id")
@@ -36,7 +36,7 @@ data class ContractModel(
     @PersistenceCreator
     constructor(
         id: String?,
-        accountId: String,
+        accountId: Long,
         pocketId: String,
         partnerId: String?,
         name: String,

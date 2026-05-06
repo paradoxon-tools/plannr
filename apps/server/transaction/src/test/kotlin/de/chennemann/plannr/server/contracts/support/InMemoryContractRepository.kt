@@ -14,7 +14,7 @@ class InMemoryContractRepository : ContractRepository {
 
     override suspend fun insert(
         id: String?,
-        accountId: String,
+        accountId: Long,
         pocketId: String,
         partnerId: String?,
         name: String,
@@ -28,7 +28,7 @@ class InMemoryContractRepository : ContractRepository {
 
     override suspend fun update(
         id: String,
-        accountId: String,
+        accountId: Long,
         pocketId: String,
         partnerId: String?,
         name: String,
@@ -51,7 +51,7 @@ class InMemoryContractRepository : ContractRepository {
     override suspend fun findByPocketId(pocketId: String): ContractModel? =
         contracts.values.firstOrNull { it.pocketId == pocketId }
 
-    override fun findAllByAccountIdAndArchived(accountId: String?, archived: Boolean): Flow<ContractModel> =
+    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<ContractModel> =
         contracts.values
             .filter { it.isArchived == archived }
             .filter { accountId == null || it.accountId == accountId }
@@ -79,17 +79,13 @@ class InMemoryContractRepository : ContractRepository {
 
     override suspend fun count(): Long = contracts.size.toLong()
 
-    override suspend fun deleteById(id: String) {
-        contracts.remove(id)
-    }
+    override suspend fun deleteById(id: String) { contracts.remove(id) }
 
     override suspend fun delete(entity: ContractModel) {
         entity.id?.let(contracts::remove)
     }
 
-    override suspend fun deleteAllById(ids: Iterable<String>) {
-        ids.forEach(contracts::remove)
-    }
+    override suspend fun deleteAllById(ids: Iterable<String>) { ids.forEach(contracts::remove) }
 
     override suspend fun deleteAll(entities: Iterable<ContractModel>) {
         entities.mapNotNull { it.id }.forEach(contracts::remove)

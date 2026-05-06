@@ -50,20 +50,20 @@ class TransactionTestApplication {
             override suspend fun update(command: UpdateAccountCommand): Account =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun archive(id: String): Account =
+            override suspend fun archive(id: Long): Account =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun unarchive(id: String): Account =
+            override suspend fun unarchive(id: Long): Account =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun delete(id: String) =
+            override suspend fun delete(id: Long) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun list(archived: Boolean?): List<Account> =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun getById(id: String): Account? =
-                accountRepository.findById(id.trim())?.toDomain()
+            override suspend fun getById(id: Long): Account? =
+                accountRepository.findById(id)?.toDomain()
         }
 
     @Bean
@@ -84,7 +84,7 @@ class TransactionTestApplication {
             override suspend fun delete(id: String) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
-            override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> =
+            override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
             override suspend fun getById(id: String): Pocket? =

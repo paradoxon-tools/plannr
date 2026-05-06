@@ -25,7 +25,7 @@ export function createEmptyAccountForm(currencyCode = 'EUR'): AccountForm {
   };
 }
 
-export function createEmptyPocketForm(accountId = ''): PocketForm {
+export function createEmptyPocketForm(accountId: number | null = null): PocketForm {
   return {
     id: null,
     accountId,
@@ -40,7 +40,7 @@ export function createEmptyPartnerForm(): PartnerForm {
   return { id: null, name: '', notes: '' };
 }
 
-export function createEmptyContractForm(accountId = ''): ContractForm {
+export function createEmptyContractForm(accountId: number | null = null): ContractForm {
   return {
     id: null,
     accountId,
@@ -151,7 +151,7 @@ export function recurrenceSummary(item: RecurringTransaction) {
   return parts.join(' · ');
 }
 
-export function accountDisplayName(accountId: string, accounts: Account[]) {
+export function accountDisplayName(accountId: number, accounts: Account[]) {
   const account = accounts.find((item) => item.id === accountId);
-  return account ? `${account.name} · ${account.institution}` : accountId;
+  return account ? `${account.name} · ${account.institution}` : String(accountId);
 }

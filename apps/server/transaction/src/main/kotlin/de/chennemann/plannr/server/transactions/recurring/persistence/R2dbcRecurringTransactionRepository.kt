@@ -83,7 +83,7 @@ class R2dbcRecurringTransactionRepository(
         .bind("id", id)
         .fetch().one().map(::toRecurringTransaction).awaitSingleOrNull()
 
-    override suspend fun findAll(accountId: String?, contractId: String?, archived: Boolean): List<de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction> {
+    override suspend fun findAll(accountId: Long?, contractId: String?, archived: Boolean): List<de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction> {
         val conditions = mutableListOf("rt.is_archived = :archived")
         if (accountId != null) conditions += "COALESCE(sp.account_id, dp.account_id) = :accountId"
         if (contractId != null) conditions += "c.id = :contractId"
@@ -177,7 +177,7 @@ class R2dbcRecurringTransactionRepository(
     private fun toRecurringTransaction(row: Map<String, Any?>): de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction = de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction(
         id = row.getValue("id") as String,
         contractId = row["contract_id"] as String?,
-        accountId = row.getValue("account_id") as String,
+        accountId = (row.getValue("account_id") as Number).toLong(),
         sourcePocketId = row["source_pocket_id"] as String?,
         destinationPocketId = row["destination_pocket_id"] as String?,
         partnerId = row["partner_id"] as String?,

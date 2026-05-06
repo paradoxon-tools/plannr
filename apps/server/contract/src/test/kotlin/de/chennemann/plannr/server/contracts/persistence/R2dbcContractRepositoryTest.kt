@@ -26,15 +26,15 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var accountRepository: AccountRepository
     private lateinit var defaultPartnerId: String
-    private lateinit var mainAccountId: String
-    private lateinit var savingsAccountId: String
+    private var mainAccountId: Long = 0L
+    private var savingsAccountId: Long = 0L
 
     @BeforeEach
     fun setUp() {
         runBlocking {
             cleanDatabase("contracts", "partners", "pockets", "accounts")
-            mainAccountId = accountRepository.insert(Account("acc_123", "Main Account", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_000L)).id
-            savingsAccountId = accountRepository.insert(Account("acc_456", "Savings", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_001L)).id
+            mainAccountId = accountRepository.insert(Account(1L, "Main Account", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_000L)).id
+            savingsAccountId = accountRepository.insert(Account(2L, "Savings", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_001L)).id
             pocketRepository.insert(Pocket("poc_123", mainAccountId, "Bills", "Monthly fixed costs", 123456, false, false, 1_710_000_100L))
             pocketRepository.insert(Pocket("poc_456", savingsAccountId, "Rent", "Monthly fixed costs", 123456, false, false, 1_710_000_101L))
             defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", notes = "Preferred partner")).id

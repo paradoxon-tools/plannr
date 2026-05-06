@@ -55,7 +55,7 @@ class UpdateAccountTest {
         val accountService = accountService(accountRepository = InMemoryAccountRepository())
 
         assertFailsWith<NotFoundException> {
-            accountService.update(AccountFixtures.updateAccountCommand(id = "acc_missing"))
+            accountService.update(AccountFixtures.updateAccountCommand(id = 999L))
         }
     }
 

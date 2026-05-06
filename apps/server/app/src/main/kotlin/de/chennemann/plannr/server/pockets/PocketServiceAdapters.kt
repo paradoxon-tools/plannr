@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 internal class RepositoryPocketAccountLookup(
     private val accountRepository: AccountRepository,
 ) : PocketAccountLookup {
-    override suspend fun exists(accountId: String): Boolean =
+    override suspend fun exists(accountId: Long): Boolean =
         accountRepository.findById(accountId) != null
 }
 

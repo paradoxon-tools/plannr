@@ -24,14 +24,14 @@ interface AccountApi {
     suspend fun update(@RequestBody command: UpdateAccountCommand): Account
 
     @PostExchange("/{id}/archive")
-    suspend fun archive(@PathVariable id: String): Account
+    suspend fun archive(@PathVariable id: Long): Account
 
     @PostExchange("/{id}/unarchive")
-    suspend fun unarchive(@PathVariable id: String): Account
+    suspend fun unarchive(@PathVariable id: Long): Account
 
     @DeleteExchange("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun delete(@PathVariable id: String)
+    suspend fun delete(@PathVariable id: Long)
 
     @GetExchange
     suspend fun list(
@@ -39,5 +39,5 @@ interface AccountApi {
     ): List<Account>
 
     @GetExchange("/{id}")
-    suspend fun getById(@PathVariable id: String): Account
+    suspend fun getById(@PathVariable id: Long): Account
 }

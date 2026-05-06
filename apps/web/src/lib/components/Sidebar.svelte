@@ -2,7 +2,7 @@
   import type { Account, SectionId } from '$lib/types';
   import { sections } from '$lib/types';
   export let activeSection: SectionId;
-  export let selectedAccountId = '';
+  export let selectedAccountId: number | null = null;
   export let accounts: Account[] = [];
   export let activeAccountCount = 0;
   export let activePocketCount = 0;
@@ -35,7 +35,7 @@
   <div class="panel inset selector-card">
     <label class="label" for="account-scope">Focused account</label>
     <select id="account-scope" bind:value={selectedAccountId}>
-      <option value="">All accounts</option>
+      <option value={null}>All accounts</option>
       {#each accounts as account}
         <option value={account.id}>{account.name} {account.isArchived ? '· archived' : ''}</option>
       {/each}

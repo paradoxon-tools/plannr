@@ -10,5 +10,5 @@ interface ContractService {
     suspend fun archive(id: String): Contract
     suspend fun unarchive(id: String): Contract
     suspend fun delete(id: String)
-    suspend fun list(accountId: String? = null, archived: Boolean = false): List<Contract>
+    suspend fun list(accountId: Long? = null, archived: Boolean = false): List<Contract>
 }

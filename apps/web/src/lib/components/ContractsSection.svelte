@@ -8,7 +8,7 @@
   export let partners: Partner[] = [];
   export let accounts: Account[] = [];
   export let selectedAccount: Account | null = null;
-  export let selectedAccountId = '';
+  export let selectedAccountId: number | null = null;
   export let showArchived = false;
   export let isSaving = false;
 
@@ -24,7 +24,7 @@
   <article class="panel form-panel">
     <div class="section-heading"><div><p class="eyebrow">Contracts</p><h3>{form.id ? 'Edit contract' : 'Create contract'}</h3></div>{#if form.id}<button type="button" class="secondary" on:click={() => dispatch('reset')}>New contract</button>{/if}</div>
     <form class="form-grid" on:submit|preventDefault={() => dispatch('submit')}>
-      <label><span>Account</span><select bind:value={form.accountId} required><option value="" disabled>Select account</option>{#each availableAccounts as account}<option value={account.id}>{account.name} · {account.institution}</option>{/each}</select></label>
+      <label><span>Account</span><select bind:value={form.accountId} required><option value={null} disabled>Select account</option>{#each availableAccounts as account}<option value={account.id}>{account.name} · {account.institution}</option>{/each}</select></label>
       <label><span>Partner</span><select bind:value={form.partnerId}><option value="">No partner</option>{#each partners.filter((partner) => !partner.isArchived) as partner}<option value={partner.id}>{partner.name}</option>{/each}</select></label>
       <label><span>Name</span><input bind:value={form.name} placeholder="Gym membership" required /></label>
       <p class="card-text full-span">A dedicated pocket will be created automatically inside the selected account using the contract name.</p>

@@ -11,28 +11,28 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 
 class InMemoryAccountRepository : AccountRepository {
-    private val accounts = linkedMapOf<String, AccountModel>()
+    private val accounts = linkedMapOf<Long, AccountModel>()
 
     override suspend fun <S : AccountModel> save(entity: S): S {
-        val persisted = entity.copy(id = entity.id ?: "acc_${accounts.size + 1}")
+        val persisted = entity.copy(id = entity.id ?: (accounts.size + 1).toLong())
         accounts[requireNotNull(persisted.id)] = persisted
         @Suppress("UNCHECKED_CAST")
         return persisted as S
     }
 
-    override suspend fun findById(id: String): AccountModel? = accounts[id]
+    override suspend fun findById(id: Long): AccountModel? = accounts[id]
 
     override fun findAllByOrderByCreatedAtAscIdAsc(): Flow<AccountModel> =
         accounts.values.sortedWith(compareBy<AccountModel> { it.createdAt }.thenBy { requireNotNull(it.id) }).asFlow()
 
-    override suspend fun existsById(id: String): Boolean = accounts.containsKey(id)
+    override suspend fun existsById(id: Long): Boolean = accounts.containsKey(id)
 
     override fun findAll(): Flow<AccountModel> = accounts.values.asFlow()
 
-    override fun findAllById(ids: Iterable<String>): Flow<AccountModel> =
+    override fun findAllById(ids: Iterable<Long>): Flow<AccountModel> =
         ids.mapNotNull(accounts::get).asFlow()
 
-    override fun findAllById(ids: Flow<String>): Flow<AccountModel> = flow {
+    override fun findAllById(ids: Flow<Long>): Flow<AccountModel> = flow {
         ids.collect { id -> accounts[id]?.let { emit(it) } }
     }
 
@@ -46,7 +46,7 @@ class InMemoryAccountRepository : AccountRepository {
 
     override suspend fun count(): Long = accounts.size.toLong()
 
-    override suspend fun deleteById(id: String) {
+    override suspend fun deleteById(id: Long) {
         accounts.remove(id)
     }
 
@@ -54,7 +54,7 @@ class InMemoryAccountRepository : AccountRepository {
         entity.id?.let(accounts::remove)
     }
 
-    override suspend fun deleteAllById(ids: Iterable<String>) {
+    override suspend fun deleteAllById(ids: Iterable<Long>) {
         ids.forEach(accounts::remove)
     }
 

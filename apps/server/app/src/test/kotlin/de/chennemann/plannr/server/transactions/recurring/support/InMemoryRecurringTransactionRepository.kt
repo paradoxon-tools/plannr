@@ -7,8 +7,8 @@ import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 
 class InMemoryRecurringTransactionRepository(
     private val contractIdResolver: (RecurringTransactionModel) -> String? = { null },
-    private val accountIdResolver: (RecurringTransactionModel) -> String = { model ->
-        (model.sourcePocketId ?: model.destinationPocketId)?.replaceFirst("poc_", "acc_") ?: "acc_unknown"
+    private val accountIdResolver: (RecurringTransactionModel) -> Long = { model ->
+        1L
     },
 ) : RecurringTransactionRepository {
     private val values = linkedMapOf<String, RecurringTransaction>()
@@ -23,7 +23,7 @@ class InMemoryRecurringTransactionRepository(
         return persisted
     }
     override suspend fun findById(id: String): RecurringTransaction? = values[id]
-    override suspend fun findAll(accountId: String?, contractId: String?, archived: Boolean): List<RecurringTransaction> =
+    override suspend fun findAll(accountId: Long?, contractId: String?, archived: Boolean): List<RecurringTransaction> =
         values.values.filter { it.isArchived == archived && (accountId == null || it.accountId == accountId) && (contractId == null || it.contractId == contractId) }
     override suspend fun findByContractId(contractId: String): List<RecurringTransaction> = values.values.filter { it.contractId == contractId }
     override suspend fun findByPreviousVersionId(previousVersionId: String): List<RecurringTransaction> = values.values.filter { it.previousVersionId == previousVersionId }

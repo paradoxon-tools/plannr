@@ -16,14 +16,14 @@ class UpdatePocketTest {
         pocketRepository.save(PocketFixtures.pocket().toModel())
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
-            accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, "acc_456") },
+            accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, 2L) },
             archiveCascade = NoOpPocketArchiveCascade,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
 
         val updated = pocketService.update(
             PocketFixtures.updatePocketCommand(
-                accountId = "acc_456",
+                accountId = 2L,
                 name = "Updated",
                 description = "Updated description",
                 color = 99,
@@ -31,7 +31,7 @@ class UpdatePocketTest {
             ),
         )
 
-        assertEquals("acc_456", updated.accountId)
+        assertEquals(2L, updated.accountId)
         assertEquals("Updated", updated.name)
         assertEquals("Updated description", updated.description)
         assertEquals(99, updated.color)
@@ -65,7 +65,7 @@ class UpdatePocketTest {
         )
 
         assertFailsWith<NotFoundException> {
-            pocketService.update(PocketFixtures.updatePocketCommand(accountId = "acc_missing"))
+            pocketService.update(PocketFixtures.updatePocketCommand(accountId = 999L))
         }
     }
 }

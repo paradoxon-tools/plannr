@@ -18,7 +18,7 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, String> {
     )
     suspend fun insert(
         id: String?,
-        accountId: String,
+        accountId: Long,
         pocketId: String,
         partnerId: String?,
         name: String,
@@ -46,7 +46,7 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, String> {
     )
     suspend fun update(
         id: String,
-        accountId: String,
+        accountId: Long,
         pocketId: String,
         partnerId: String?,
         name: String,
@@ -67,5 +67,5 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, String> {
         ORDER BY created_at ASC, id ASC
         """,
     )
-    fun findAllByAccountIdAndArchived(accountId: String?, archived: Boolean): Flow<ContractModel>
+    fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<ContractModel>
 }

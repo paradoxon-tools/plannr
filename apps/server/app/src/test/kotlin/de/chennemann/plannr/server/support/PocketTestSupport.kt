@@ -8,7 +8,7 @@ import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
 object TestPockets {
     const val DEFAULT_ID = "poc_123"
-    const val DEFAULT_ACCOUNT_ID = "acc_123"
+    const val DEFAULT_ACCOUNT_ID = 1L
     const val DEFAULT_NAME = "Bills"
     const val DEFAULT_DESCRIPTION = "Monthly fixed costs"
     const val DEFAULT_COLOR = 123456
@@ -16,7 +16,7 @@ object TestPockets {
 
     fun pocket(
         id: String = DEFAULT_ID,
-        accountId: String = DEFAULT_ACCOUNT_ID,
+        accountId: Long = DEFAULT_ACCOUNT_ID,
         name: String = DEFAULT_NAME,
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
@@ -94,8 +94,8 @@ class FakePocketService(
         pockets.remove(existingPocket(id).id)
     }
 
-    override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> {
-        val normalizedAccountId = accountId?.trim()?.takeIf { it.isNotBlank() }
+    override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> {
+        val normalizedAccountId = accountId
         return pockets.values
             .filter { normalizedAccountId == null || it.accountId == normalizedAccountId }
             .filter { archived == null || it.isArchived == archived }
@@ -109,5 +109,5 @@ class FakePocketService(
 
     private fun existingPocket(id: String): Pocket =
         pockets[id.trim()]
-            ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to id.trim()))
+            ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to id))
 }

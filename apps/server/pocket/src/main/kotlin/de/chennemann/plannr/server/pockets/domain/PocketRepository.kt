@@ -18,7 +18,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, String> {
     )
     suspend fun insert(
         id: String?,
-        accountId: String,
+        accountId: Long,
         name: String,
         description: String?,
         color: Int,
@@ -42,7 +42,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, String> {
     )
     suspend fun update(
         id: String,
-        accountId: String,
+        accountId: Long,
         name: String,
         description: String?,
         color: Int,
@@ -59,5 +59,5 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, String> {
         ORDER BY created_at ASC, id ASC
         """,
     )
-    fun findAllByAccountIdAndArchived(accountId: String?, archived: Boolean?): Flow<PocketModel>
+    fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketModel>
 }

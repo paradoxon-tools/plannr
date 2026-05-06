@@ -7,7 +7,7 @@ export type SectionId =
   | 'partners';
 
 export type Account = {
-  id: string;
+  id: number;
   name: string;
   institution: string;
   currencyCode: string;
@@ -18,7 +18,7 @@ export type Account = {
 
 export type Pocket = {
   id: string;
-  accountId: string;
+  accountId: number;
   name: string;
   description: string | null;
   color: number;
@@ -37,7 +37,7 @@ export type Partner = {
 
 export type Contract = {
   id: string;
-  accountId: string;
+  accountId: number;
   pocketId: string;
   partnerId: string | null;
   name: string;
@@ -51,7 +51,7 @@ export type Contract = {
 export type RecurringTransaction = {
   id: string;
   contractId: string | null;
-  accountId: string;
+  accountId: number;
   sourcePocketId: string | null;
   destinationPocketId: string | null;
   partnerId: string | null;
@@ -96,7 +96,7 @@ export type Notice = {
 } | null;
 
 export type AccountForm = {
-  id: string | null;
+  id: number | null;
   name: string;
   institution: string;
   currencyCode: string;
@@ -105,7 +105,7 @@ export type AccountForm = {
 
 export type PocketForm = {
   id: string | null;
-  accountId: string;
+  accountId: number | null;
   name: string;
   description: string;
   color: number;
@@ -120,7 +120,7 @@ export type PartnerForm = {
 
 export type ContractForm = {
   id: string | null;
-  accountId: string;
+  accountId: number | null;
   pocketId: string;
   partnerId: string;
   name: string;

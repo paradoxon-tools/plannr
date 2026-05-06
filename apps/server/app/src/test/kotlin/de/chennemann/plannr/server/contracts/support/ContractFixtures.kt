@@ -6,7 +6,7 @@ import de.chennemann.plannr.server.contracts.domain.Contract
 
 object ContractFixtures {
     const val DEFAULT_ID = "con_123"
-    const val DEFAULT_ACCOUNT_ID = "acc_123"
+    const val DEFAULT_ACCOUNT_ID = 1L
     const val DEFAULT_POCKET_ID = "poc_123"
     const val DEFAULT_PARTNER_ID = "par_123"
     const val DEFAULT_NAME = "Internet Contract"
@@ -17,7 +17,7 @@ object ContractFixtures {
 
     fun contract(
         id: String = DEFAULT_ID,
-        accountId: String = DEFAULT_ACCOUNT_ID,
+        accountId: Long = DEFAULT_ACCOUNT_ID,
         pocketId: String = DEFAULT_POCKET_ID,
         partnerId: String? = DEFAULT_PARTNER_ID,
         name: String = DEFAULT_NAME,

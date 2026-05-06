@@ -6,7 +6,7 @@ import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
 object PocketFixtures {
     const val DEFAULT_ID = "poc_123"
-    const val DEFAULT_ACCOUNT_ID = "acc_123"
+    const val DEFAULT_ACCOUNT_ID = 1L
     const val DEFAULT_NAME = "Bills"
     const val DEFAULT_DESCRIPTION = "Monthly fixed costs"
     const val DEFAULT_COLOR = 123456
@@ -14,7 +14,7 @@ object PocketFixtures {
 
     fun pocket(
         id: String = DEFAULT_ID,
-        accountId: String = DEFAULT_ACCOUNT_ID,
+        accountId: Long = DEFAULT_ACCOUNT_ID,
         name: String = DEFAULT_NAME,
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
@@ -25,7 +25,7 @@ object PocketFixtures {
         Pocket(id, accountId, name, description, color, isDefault, isArchived, createdAt)
 
     fun createPocketCommand(
-        accountId: String = DEFAULT_ACCOUNT_ID,
+        accountId: Long = DEFAULT_ACCOUNT_ID,
         name: String = DEFAULT_NAME,
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
@@ -35,7 +35,7 @@ object PocketFixtures {
 
     fun updatePocketCommand(
         id: String = DEFAULT_ID,
-        accountId: String = DEFAULT_ACCOUNT_ID,
+        accountId: Long = DEFAULT_ACCOUNT_ID,
         name: String = DEFAULT_NAME,
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,

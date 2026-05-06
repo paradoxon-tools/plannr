@@ -13,7 +13,7 @@ class InMemoryPocketRepository : PocketRepository {
 
     override suspend fun insert(
         id: String?,
-        accountId: String,
+        accountId: Long,
         name: String,
         description: String?,
         color: Int,
@@ -25,7 +25,7 @@ class InMemoryPocketRepository : PocketRepository {
 
     override suspend fun update(
         id: String,
-        accountId: String,
+        accountId: Long,
         name: String,
         description: String?,
         color: Int,
@@ -62,7 +62,7 @@ class InMemoryPocketRepository : PocketRepository {
         entityStream.collect { emit(save(it)) }
     }
 
-    override fun findAllByAccountIdAndArchived(accountId: String?, archived: Boolean?): Flow<PocketModel> =
+    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketModel> =
         pockets.values
             .filter { accountId == null || it.accountId == accountId }
             .filter { archived == null || it.isArchived == archived }

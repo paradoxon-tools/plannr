@@ -21,8 +21,8 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
     fun setUp() {
         runBlocking {
             cleanDatabase("pockets", "accounts")
-            insertAccount("acc_123", "Main")
-            insertAccount("acc_456", "Savings")
+            insertAccount(1L, "Main")
+            insertAccount(2L, "Savings")
         }
     }
 
@@ -59,7 +59,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             createdAt = original.createdAt,
         )
         val updated = PocketFixtures.pocket(
-            accountId = "acc_456",
+            accountId = 2L,
             name = "Updated",
             description = null,
             color = 42,
@@ -82,18 +82,18 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `finds all pockets ordered by created at and id and supports filters`() = runBlocking {
-        pocketRepository.insert(id = "poc_2", accountId = "acc_123", name = "Second", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 2)
-        pocketRepository.insert(id = "poc_1", accountId = "acc_123", name = "First", description = null, color = 0, isDefault = false, isArchived = true, createdAt = 1)
-        pocketRepository.insert(id = "poc_3", accountId = "acc_456", name = "Third", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 3)
+        pocketRepository.insert(id = "poc_2", accountId = 1L, name = "Second", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 2)
+        pocketRepository.insert(id = "poc_1", accountId = 1L, name = "First", description = null, color = 0, isDefault = false, isArchived = true, createdAt = 1)
+        pocketRepository.insert(id = "poc_3", accountId = 2L, name = "Third", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 3)
 
         val all = pocketRepository.findAllByAccountIdAndArchived(accountId = null, archived = null).toList()
-        val filtered = pocketRepository.findAllByAccountIdAndArchived(accountId = "acc_123", archived = true).toList()
+        val filtered = pocketRepository.findAllByAccountIdAndArchived(accountId = 1L, archived = true).toList()
 
         assertEquals(listOf("poc_1", "poc_2", "poc_3"), all.map { it.id })
         assertEquals(listOf("poc_1"), filtered.map { it.id })
     }
 
-    private suspend fun insertAccount(id: String, name: String) {
+    private suspend fun insertAccount(id: Long, name: String) {
         databaseClient.sql(
             """
             INSERT INTO accounts (id, name, institution, currency_code, weekend_handling, is_archived, created_at)

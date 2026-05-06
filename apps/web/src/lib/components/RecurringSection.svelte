@@ -19,7 +19,7 @@
   export let partners: Partner[] = [];
   export let currencies: Currency[] = [];
   export let selectedAccount: Account | null = null;
-  export let selectedAccountId = '';
+  export let selectedAccountId: number | null = null;
   export let showArchived = false;
   export let isSaving = false;
 

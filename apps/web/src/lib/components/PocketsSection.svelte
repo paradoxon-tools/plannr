@@ -8,7 +8,7 @@
   export let accounts: Account[] = [];
   export let pockets: Pocket[] = [];
   export let selectedAccount: Account | null = null;
-  export let selectedAccountId = '';
+  export let selectedAccountId: number | null = null;
   export let showArchived = false;
   export let isSaving = false;
 
@@ -30,7 +30,7 @@
       {#if form.id}<button type="button" class="secondary" on:click={() => dispatch('reset')}>New pocket</button>{/if}
     </div>
     <form class="form-grid" on:submit|preventDefault={() => dispatch('submit')}>
-      <label><span>Account</span><select bind:value={form.accountId} required><option value="" disabled>Select account</option>{#each accounts.filter((account) => !account.isArchived) as account}<option value={account.id}>{account.name} · {account.institution}</option>{/each}</select></label>
+      <label><span>Account</span><select bind:value={form.accountId} required><option value={null} disabled>Select account</option>{#each accounts.filter((account) => !account.isArchived) as account}<option value={account.id}>{account.name} · {account.institution}</option>{/each}</select></label>
       <label><span>Name</span><input bind:value={form.name} placeholder="Bills" required /></label>
       <label class="full-span"><span>Description</span><textarea bind:value={form.description} rows="3" placeholder="What lives inside this pocket?"></textarea></label>
       <div class="full-span"><span class="label">Color</span><div class="color-palette">{#each colorPalette as color}<button type="button" aria-label={`Select ${hexColor(color)}`} class:active={form.color === color} class="color-chip" style={`background:${hexColor(color)}`} on:click={() => (form.color = color)}></button>{/each}</div></div>

@@ -43,7 +43,7 @@
   let isLoading = true;
   let isSaving = false;
   let activeSection: SectionId = 'overview';
-  let selectedAccountId = '';
+  let selectedAccountId: number | null = null;
   let accountFilter = 'all';
   let showArchivedPockets = false;
   let showArchivedContracts = false;
@@ -112,7 +112,7 @@
       recurringTransactions = sortByCreatedAt(dedupeBy([...activeRecurring, ...archivedRecurring], (item) => item.id));
 
       if (!selectedAccountId || !accounts.some((item) => item.id === selectedAccountId)) {
-        selectedAccountId = accounts.find((item) => !item.isArchived)?.id ?? accounts[0]?.id ?? '';
+        selectedAccountId = accounts.find((item) => !item.isArchived)?.id ?? accounts[0]?.id ?? null;
       }
 
       syncDefaultFormValues();
@@ -318,7 +318,7 @@
     } catch (error) { setNotice('error', getErrorMessage(error)); } finally { isSaving = false; }
   }
 
-  async function toggleArchive(resource: 'accounts' | 'pockets' | 'partners' | 'contracts' | 'recurring-transactions', id: string, archived: boolean) {
+  async function toggleArchive(resource: 'accounts' | 'pockets' | 'partners' | 'contracts' | 'recurring-transactions', id: string | number, archived: boolean) {
     if (!window.confirm(`${archived ? 'Unarchive' : 'Archive'} this item?`)) return;
     isSaving = true;
     try {

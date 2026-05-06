@@ -3,7 +3,7 @@ package de.chennemann.plannr.server.pockets.service
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 
 fun interface PocketAccountLookup {
-    suspend fun exists(accountId: String): Boolean
+    suspend fun exists(accountId: Long): Boolean
 }
 
 interface PocketArchiveCascade {

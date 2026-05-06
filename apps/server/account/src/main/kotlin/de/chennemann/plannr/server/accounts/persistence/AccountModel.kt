@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Table
 @Table("accounts")
 data class AccountModel(
     @Id
-    val id: String?,
+    val id: Long?,
     val name: String,
     val institution: String,
     @Column("currency_code")

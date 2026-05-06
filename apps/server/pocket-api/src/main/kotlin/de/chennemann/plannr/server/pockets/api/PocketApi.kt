@@ -35,7 +35,7 @@ interface PocketApi {
 
     @GetExchange
     suspend fun list(
-        @RequestParam(required = false) accountId: String?,
+        @RequestParam(required = false) accountId: Long?,
         @RequestParam(defaultValue = "false") archived: Boolean,
     ): List<Pocket>
 

@@ -14,7 +14,7 @@ class InMemoryPocketRepository : PocketRepository {
 
     override suspend fun insert(
         id: String?,
-        accountId: String,
+        accountId: Long,
         name: String,
         description: String?,
         color: Int,
@@ -26,7 +26,7 @@ class InMemoryPocketRepository : PocketRepository {
 
     override suspend fun update(
         id: String,
-        accountId: String,
+        accountId: Long,
         name: String,
         description: String?,
         color: Int,
@@ -63,7 +63,7 @@ class InMemoryPocketRepository : PocketRepository {
         entityStream.collect { emit(save(it)) }
     }
 
-    override fun findAllByAccountIdAndArchived(accountId: String?, archived: Boolean?): Flow<PocketModel> =
+    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketModel> =
         pockets.values
             .filter { accountId == null || it.accountId == accountId }
             .filter { archived == null || it.isArchived == archived }
@@ -72,17 +72,13 @@ class InMemoryPocketRepository : PocketRepository {
 
     override suspend fun count(): Long = pockets.size.toLong()
 
-    override suspend fun deleteById(id: String) {
-        pockets.remove(id)
-    }
+    override suspend fun deleteById(id: String) { pockets.remove(id) }
 
     override suspend fun delete(entity: PocketModel) {
         entity.id?.let(pockets::remove)
     }
 
-    override suspend fun deleteAllById(ids: Iterable<String>) {
-        ids.forEach(pockets::remove)
-    }
+    override suspend fun deleteAllById(ids: Iterable<String>) { ids.forEach(pockets::remove) }
 
     override suspend fun deleteAll(entities: Iterable<PocketModel>) {
         entities.mapNotNull { it.id }.forEach(pockets::remove)

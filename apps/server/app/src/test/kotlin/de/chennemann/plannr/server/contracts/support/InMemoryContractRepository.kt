@@ -14,7 +14,7 @@ class InMemoryContractRepository : ContractRepository {
 
     override suspend fun insert(
         id: String?,
-        accountId: String,
+        accountId: Long,
         pocketId: String,
         partnerId: String?,
         name: String,
@@ -28,7 +28,7 @@ class InMemoryContractRepository : ContractRepository {
 
     override suspend fun update(
         id: String,
-        accountId: String,
+        accountId: Long,
         pocketId: String,
         partnerId: String?,
         name: String,
@@ -51,7 +51,7 @@ class InMemoryContractRepository : ContractRepository {
     override suspend fun findByPocketId(pocketId: String): ContractModel? =
         contracts.values.firstOrNull { it.pocketId == pocketId }
 
-    override fun findAllByAccountIdAndArchived(accountId: String?, archived: Boolean): Flow<ContractModel> =
+    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<ContractModel> =
         contracts.values
             .filter { it.isArchived == archived }
             .filter { accountId == null || it.accountId == accountId }

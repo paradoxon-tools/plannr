@@ -14,7 +14,7 @@ class UnarchiveAccountTest {
     fun `unarchives account and all pockets and contracts in that account`() = runTest {
         val accountRepository = InMemoryAccountRepository()
         accountRepository.save(AccountFixtures.account(isArchived = true).toModel())
-        accountRepository.save(AccountFixtures.account(id = "acc_456", name = "Savings", isArchived = true).toModel())
+        accountRepository.save(AccountFixtures.account(id = 2L, name = "Savings", isArchived = true).toModel())
         val archiveCascade = RecordingAccountArchiveCascade()
         val accountService = accountService(accountRepository = accountRepository, archiveCascade = archiveCascade)
 
@@ -30,7 +30,7 @@ class UnarchiveAccountTest {
         val accountService = accountService(accountRepository = InMemoryAccountRepository())
 
         assertFailsWith<NotFoundException> {
-            accountService.unarchive("acc_missing")
+            accountService.unarchive(999L)
         }
     }
 }

@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.contracts.api.dto
 
 data class Contract(
     val id: String,
-    val accountId: String,
+    val accountId: Long,
     val pocketId: String,
     val partnerId: String?,
     val name: String,

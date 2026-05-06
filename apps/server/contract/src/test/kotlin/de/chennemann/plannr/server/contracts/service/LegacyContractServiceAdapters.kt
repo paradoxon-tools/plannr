@@ -61,7 +61,7 @@ class ArchiveContractServiceImpl(
             override suspend fun archive(id: String) = throw UnsupportedOperationException()
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
             override suspend fun delete(id: String) = throw UnsupportedOperationException()
-            override suspend fun list(accountId: String?, archived: Boolean?) = throw UnsupportedOperationException()
+            override suspend fun list(accountId: Long?, archived: Boolean?) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
         },
         partnerService = object : PartnerService {
@@ -93,7 +93,7 @@ class UnarchiveContractServiceImpl(
             override suspend fun archive(id: String) = throw UnsupportedOperationException()
             override suspend fun unarchive(id: String) = throw UnsupportedOperationException()
             override suspend fun delete(id: String) = throw UnsupportedOperationException()
-            override suspend fun list(accountId: String?, archived: Boolean?) = throw UnsupportedOperationException()
+            override suspend fun list(accountId: Long?, archived: Boolean?) = throw UnsupportedOperationException()
             override suspend fun getById(id: String) = throw UnsupportedOperationException()
         },
         partnerService = object : PartnerService {

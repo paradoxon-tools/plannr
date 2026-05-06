@@ -8,7 +8,7 @@ import de.chennemann.plannr.server.transactions.recurring.service.RecurringTrans
 object RecurringTransactionFixtures {
     const val DEFAULT_ID = "rtx_123"
     const val DEFAULT_CONTRACT_ID = "con_123"
-    const val DEFAULT_ACCOUNT_ID = "acc_123"
+    const val DEFAULT_ACCOUNT_ID = 1L
     const val DEFAULT_SOURCE_POCKET_ID = "poc_123"
     const val DEFAULT_DESTINATION_POCKET_ID = "poc_456"
     const val DEFAULT_PARTNER_ID = "par_123"
@@ -30,7 +30,7 @@ object RecurringTransactionFixtures {
     fun recurringTransaction(
         id: String = DEFAULT_ID,
         contractId: String? = DEFAULT_CONTRACT_ID,
-        accountId: String = DEFAULT_ACCOUNT_ID,
+        accountId: Long = DEFAULT_ACCOUNT_ID,
         sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
         destinationPocketId: String? = null,
         partnerId: String? = DEFAULT_PARTNER_ID,

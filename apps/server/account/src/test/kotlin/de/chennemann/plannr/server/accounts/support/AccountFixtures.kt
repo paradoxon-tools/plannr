@@ -5,7 +5,7 @@ import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 
 object AccountFixtures {
-    const val DEFAULT_ID = "acc_123"
+    const val DEFAULT_ID = 1L
     const val DEFAULT_NAME = "Main Account"
     const val DEFAULT_INSTITUTION = "Demo Bank"
     const val DEFAULT_CURRENCY_CODE = "EUR"
@@ -13,7 +13,7 @@ object AccountFixtures {
     const val DEFAULT_CREATED_AT = 1_710_000_000L
 
     fun account(
-        id: String = DEFAULT_ID,
+        id: Long = DEFAULT_ID,
         name: String = DEFAULT_NAME,
         institution: String = DEFAULT_INSTITUTION,
         currencyCode: String = DEFAULT_CURRENCY_CODE,
@@ -45,7 +45,7 @@ object AccountFixtures {
         )
 
     fun updateAccountCommand(
-        id: String = DEFAULT_ID,
+        id: Long = DEFAULT_ID,
         name: String = DEFAULT_NAME,
         institution: String = DEFAULT_INSTITUTION,
         currencyCode: String = DEFAULT_CURRENCY_CODE,

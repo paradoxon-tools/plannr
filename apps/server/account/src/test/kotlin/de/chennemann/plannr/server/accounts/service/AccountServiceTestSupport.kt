@@ -21,8 +21,8 @@ private object NoOpAccountArchiveCascade : AccountArchiveCascade {
 }
 
 internal class RecordingAccountArchiveCascade : AccountArchiveCascade {
-    val archivedAccountIds = mutableListOf<String>()
-    val unarchivedAccountIds = mutableListOf<String>()
+    val archivedAccountIds = mutableListOf<Long>()
+    val unarchivedAccountIds = mutableListOf<Long>()
 
     override suspend fun archiveFor(account: Account) {
         archivedAccountIds += account.id

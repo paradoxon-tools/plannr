@@ -15,7 +15,7 @@ data class PocketModel(
     @get:JvmName("getEntityId")
     val id: String?,
     @Column("account_id")
-    val accountId: String,
+    val accountId: Long,
     val name: String,
     val description: String?,
     val color: Int,
@@ -31,7 +31,7 @@ data class PocketModel(
     @PersistenceCreator
     constructor(
         id: String?,
-        accountId: String,
+        accountId: Long,
         name: String,
         description: String?,
         color: Int,

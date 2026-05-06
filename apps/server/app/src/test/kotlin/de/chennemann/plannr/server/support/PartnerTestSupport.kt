@@ -93,5 +93,5 @@ class FakePartnerService(
 
     private fun existingPartner(id: String): Partner =
         partners[id.trim()]
-            ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to id.trim()))
+            ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to id))
 }

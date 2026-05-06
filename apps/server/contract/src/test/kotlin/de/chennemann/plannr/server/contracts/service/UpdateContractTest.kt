@@ -24,7 +24,7 @@ class UpdateContractTest {
             pocketService = FakePocketService(
                 listOf(
                     ContractTestPockets.pocket(),
-                    ContractTestPockets.pocket(id = "poc_456", accountId = "acc_456", name = "Rent"),
+                    ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent"),
                 ),
             ),
             partnerService = FakePartnerService(
@@ -48,7 +48,7 @@ class UpdateContractTest {
             ),
         )
 
-        assertEquals("acc_456", updated.accountId)
+        assertEquals(2L, updated.accountId)
         assertEquals("poc_456", updated.pocketId)
         assertEquals("par_456", updated.partnerId)
         assertEquals("Updated Contract", updated.name)
@@ -75,13 +75,13 @@ class UpdateContractTest {
     fun `fails when updated pocket already has another contract`() = runTest {
         val contractRepository = InMemoryContractRepository()
         contractRepository.save(ContractFixtures.contract())
-        contractRepository.save(ContractFixtures.contract(id = "con_456", accountId = "acc_456", pocketId = "poc_456"))
+        contractRepository.save(ContractFixtures.contract(id = "con_456", accountId = 2L, pocketId = "poc_456"))
         val updateContract = ContractServiceImpl(
             contractRepository = contractRepository,
             pocketService = FakePocketService(
                 listOf(
                     ContractTestPockets.pocket(),
-                    ContractTestPockets.pocket(id = "poc_456", accountId = "acc_456", name = "Rent"),
+                    ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent"),
                 ),
             ),
             partnerService = FakePartnerService(emptyList()),

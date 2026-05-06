@@ -53,7 +53,7 @@ internal class AccountServiceImpl(
         return persisted
     }
 
-    override suspend fun archive(id: String): Account {
+    override suspend fun archive(id: Long): Account {
         val existing = existingAccount(id)
         val updated = accountRepository.save(
             AccountModel(
@@ -70,7 +70,7 @@ internal class AccountServiceImpl(
         return updated
     }
 
-    override suspend fun unarchive(id: String): Account {
+    override suspend fun unarchive(id: Long): Account {
         val existing = existingAccount(id)
         val updated = accountRepository.save(
             AccountModel(
@@ -87,7 +87,7 @@ internal class AccountServiceImpl(
         return updated
     }
 
-    override suspend fun delete(id: String) {
+    override suspend fun delete(id: Long) {
         val normalizedId = existingAccount(id).id
         accountRepository.deleteById(normalizedId)
     }
@@ -98,14 +98,14 @@ internal class AccountServiceImpl(
             .map(AccountModel::toDomain)
             .filter { archived == null || it.isArchived == archived }
 
-    override suspend fun getById(id: String): Account? =
-        accountRepository.findById(id.trim())?.toDomain()
+    override suspend fun getById(id: Long): Account? =
+        accountRepository.findById(id)?.toDomain()
 
-    private suspend fun existingAccount(id: String): Account =
-        accountRepository.findById(id.trim())?.toDomain()
+    private suspend fun existingAccount(id: Long): Account =
+        accountRepository.findById(id)?.toDomain()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Account not found",
-                details = mapOf("id" to id.trim()),
+                details = mapOf("id" to id),
             )
 }

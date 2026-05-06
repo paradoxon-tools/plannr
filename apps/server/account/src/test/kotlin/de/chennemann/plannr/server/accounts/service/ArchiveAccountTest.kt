@@ -14,7 +14,7 @@ class ArchiveAccountTest {
     fun `archives account and all pockets and contracts in that account`() = runTest {
         val accountRepository = InMemoryAccountRepository()
         accountRepository.save(AccountFixtures.account().toModel())
-        accountRepository.save(AccountFixtures.account(id = "acc_456", name = "Savings").toModel())
+        accountRepository.save(AccountFixtures.account(id = 2L, name = "Savings").toModel())
         val archiveCascade = RecordingAccountArchiveCascade()
         val accountService = accountService(accountRepository = accountRepository, archiveCascade = archiveCascade)
 
@@ -30,7 +30,7 @@ class ArchiveAccountTest {
         val accountService = accountService(accountRepository = InMemoryAccountRepository())
 
         assertFailsWith<NotFoundException> {
-            accountService.archive("acc_missing")
+            accountService.archive(999L)
         }
     }
 }

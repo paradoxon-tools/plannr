@@ -6,7 +6,7 @@ import java.time.format.DateTimeParseException
 
 data class Contract private constructor(
     val id: String,
-    val accountId: String,
+    val accountId: Long,
     val pocketId: String,
     val partnerId: String?,
     val name: String,
@@ -23,7 +23,7 @@ data class Contract private constructor(
     companion object {
         operator fun invoke(
             id: String,
-            accountId: String,
+            accountId: Long,
             pocketId: String,
             partnerId: String?,
             name: String,
@@ -34,7 +34,6 @@ data class Contract private constructor(
             createdAt: Long,
         ): Contract {
             val normalizedId = id.trim()
-            val normalizedAccountId = accountId.trim()
             val normalizedPocketId = pocketId.trim()
             val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedName = name.trim()
@@ -44,9 +43,6 @@ data class Contract private constructor(
 
             if (normalizedId.isBlank()) {
                 throw ValidationException("validation_error", "Contract id must not be blank")
-            }
-            if (normalizedAccountId.isBlank()) {
-                throw ValidationException("validation_error", "Contract account id must not be blank")
             }
             if (normalizedPocketId.isBlank()) {
                 throw ValidationException("validation_error", "Contract pocket id must not be blank")
@@ -66,7 +62,7 @@ data class Contract private constructor(
 
             return Contract(
                 id = normalizedId,
-                accountId = normalizedAccountId,
+                accountId = accountId,
                 pocketId = normalizedPocketId,
                 partnerId = normalizedPartnerId,
                 name = normalizedName,

@@ -121,8 +121,8 @@ class ContractServiceImpl(
         contractRepository.deleteById(normalizedId)
     }
 
-    override suspend fun list(accountId: String?, archived: Boolean): List<ContractDto> =
-        contractRepository.findAllByAccountIdAndArchived(accountId?.trim()?.takeIf { it.isNotBlank() }, archived)
+    override suspend fun list(accountId: Long?, archived: Boolean): List<ContractDto> =
+        contractRepository.findAllByAccountIdAndArchived(accountId, archived)
             .toList()
             .map(ContractModel::toDomain)
             .map { it.toContractDto() }

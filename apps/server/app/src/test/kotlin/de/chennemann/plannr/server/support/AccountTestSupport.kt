@@ -7,7 +7,7 @@ import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.common.error.NotFoundException
 
 object TestAccounts {
-    const val DEFAULT_ID = "acc_123"
+    const val DEFAULT_ID = 1L
     const val DEFAULT_NAME = "Main Account"
     const val DEFAULT_INSTITUTION = "Demo Bank"
     const val DEFAULT_CURRENCY_CODE = "EUR"
@@ -15,7 +15,7 @@ object TestAccounts {
     const val DEFAULT_CREATED_AT = 1_710_000_000L
 
     fun account(
-        id: String = DEFAULT_ID,
+        id: Long = DEFAULT_ID,
         name: String = DEFAULT_NAME,
         institution: String = DEFAULT_INSTITUTION,
         currencyCode: String = DEFAULT_CURRENCY_CODE,
@@ -28,7 +28,7 @@ object TestAccounts {
 
 class FakeAccountService(
     initialAccounts: Iterable<Account> = listOf(TestAccounts.account()),
-    private val idGenerator: () -> String = { "acc_new" },
+    private val idGenerator: () -> Long = { 999L },
     private val timeProvider: () -> Long = { TestAccounts.DEFAULT_CREATED_AT },
 ) : AccountService {
     private val accounts = initialAccounts.associateByTo(linkedMapOf()) { it.id }
@@ -62,19 +62,19 @@ class FakeAccountService(
         return account
     }
 
-    override suspend fun archive(id: String): Account {
+    override suspend fun archive(id: Long): Account {
         val account = existingAccount(id).copy(isArchived = true)
         accounts[account.id] = account
         return account
     }
 
-    override suspend fun unarchive(id: String): Account {
+    override suspend fun unarchive(id: Long): Account {
         val account = existingAccount(id).copy(isArchived = false)
         accounts[account.id] = account
         return account
     }
 
-    override suspend fun delete(id: String) {
+    override suspend fun delete(id: Long) {
         accounts.remove(existingAccount(id).id)
     }
 
@@ -83,10 +83,10 @@ class FakeAccountService(
             .filter { archived == null || it.isArchived == archived }
             .sortedWith(compareBy<Account> { it.createdAt }.thenBy { it.id })
 
-    override suspend fun getById(id: String): Account? =
-        accounts[id.trim()]
+    override suspend fun getById(id: Long): Account? =
+        accounts[id]
 
-    private fun existingAccount(id: String): Account =
-        accounts[id.trim()]
-            ?: throw NotFoundException("not_found", "Account not found", mapOf("id" to id.trim()))
+    private fun existingAccount(id: Long): Account =
+        accounts[id]
+            ?: throw NotFoundException("not_found", "Account not found", mapOf("id" to id))
 }

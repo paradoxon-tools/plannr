@@ -86,7 +86,7 @@ class RecurringTransactionContextResolver(
 
     data class ResolvedContext(
         val contractId: String?,
-        val accountId: String,
+        val accountId: Long,
         val sourcePocketId: String?,
         val destinationPocketId: String?,
         val partnerId: String?,

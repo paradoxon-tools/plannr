@@ -15,7 +15,7 @@ import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 object ContractTestPockets {
     fun pocket(
         id: String = "poc_123",
-        accountId: String = "acc_123",
+        accountId: Long = 1L,
         name: String = "Bills",
         description: String? = "Monthly fixed costs",
         color: Int = 123456,
@@ -52,7 +52,7 @@ class FakePocketService(
 
     override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used in contract tests")
 
-    override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> = pockets.values.toList()
+    override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> = pockets.values.toList()
 
     override suspend fun getById(id: String): Pocket? = pockets[id.trim()]
 }

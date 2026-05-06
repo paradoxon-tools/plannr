@@ -7,15 +7,15 @@ import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.common.error.NotFoundException
 
 class FakeAccountService(
-    initialAccounts: Iterable<Account> = listOf(Account("acc_123", "Main Account", "Demo Bank", "EUR", "MOVE_AFTER", false, 1_710_000_000L)),
+    initialAccounts: Iterable<Account> = listOf(Account(1L, "Main Account", "Demo Bank", "EUR", "MOVE_AFTER", false, 1_710_000_000L)),
 ) : AccountService {
     private val accounts = initialAccounts.associateByTo(linkedMapOf()) { it.id }
 
     override suspend fun create(command: CreateAccountCommand): Account = throw UnsupportedOperationException("Not used")
     override suspend fun update(command: UpdateAccountCommand): Account = throw UnsupportedOperationException("Not used")
-    override suspend fun archive(id: String): Account = throw UnsupportedOperationException("Not used")
-    override suspend fun unarchive(id: String): Account = throw UnsupportedOperationException("Not used")
-    override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used")
+    override suspend fun archive(id: Long): Account = throw UnsupportedOperationException("Not used")
+    override suspend fun unarchive(id: Long): Account = throw UnsupportedOperationException("Not used")
+    override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun list(archived: Boolean?): List<Account> = accounts.values.toList()
-    override suspend fun getById(id: String): Account? = accounts[id.trim()]
+    override suspend fun getById(id: Long): Account? = accounts[id]
 }

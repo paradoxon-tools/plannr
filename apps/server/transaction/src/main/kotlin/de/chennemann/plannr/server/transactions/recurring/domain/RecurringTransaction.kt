@@ -10,7 +10,7 @@ import java.time.format.DateTimeParseException
 data class RecurringTransaction private constructor(
     val id: String,
     val contractId: String?,
-    val accountId: String,
+    val accountId: Long,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
     val partnerId: String?,
@@ -45,7 +45,7 @@ data class RecurringTransaction private constructor(
     private fun recreate(
         id: String = this.id,
         contractId: String? = this.contractId,
-        accountId: String = this.accountId,
+        accountId: Long = this.accountId,
         sourcePocketId: String? = this.sourcePocketId,
         destinationPocketId: String? = this.destinationPocketId,
         partnerId: String? = this.partnerId,
@@ -94,7 +94,7 @@ data class RecurringTransaction private constructor(
         operator fun invoke(
             id: String,
             contractId: String?,
-            accountId: String,
+            accountId: Long,
             sourcePocketId: String?,
             destinationPocketId: String?,
             partnerId: String?,
@@ -117,7 +117,6 @@ data class RecurringTransaction private constructor(
         ): RecurringTransaction {
             val normalizedId = id.trim()
             val normalizedContractId = contractId?.trim()?.takeIf { it.isNotBlank() }
-            val normalizedAccountId = accountId.trim()
             val normalizedSourcePocketId = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedDestinationPocketId = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
@@ -149,7 +148,6 @@ data class RecurringTransaction private constructor(
             val normalizedPreviousVersionId = previousVersionId?.trim()?.takeIf { it.isNotBlank() }
 
             if (normalizedId.isBlank()) throw ValidationException("validation_error", "Recurring transaction id must not be blank")
-            if (normalizedAccountId.isBlank()) throw ValidationException("validation_error", "Recurring transaction account id must not be blank")
             if (normalizedTitle.isBlank()) throw ValidationException("validation_error", "Recurring transaction title must not be blank")
             if (normalizedTransactionType.isBlank()) throw ValidationException("validation_error", "Recurring transaction type must not be blank")
             if (normalizedFirstOccurrenceDate.isBlank()) throw ValidationException("validation_error", "Recurring transaction first occurrence date must not be blank")
@@ -186,7 +184,7 @@ data class RecurringTransaction private constructor(
             return RecurringTransaction(
                 id = normalizedId,
                 contractId = normalizedContractId,
-                accountId = normalizedAccountId,
+                accountId = accountId,
                 sourcePocketId = normalizedSourcePocketId,
                 destinationPocketId = normalizedDestinationPocketId,
                 partnerId = normalizedPartnerId,

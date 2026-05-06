@@ -26,7 +26,7 @@ class CoroutineAccountRepositoryTest : ApiIntegrationTest() {
         val saved = accountRepository.save(account.toModel().copy(id = null)).toDomain()
 
         assertEquals(account.copy(id = saved.id), accountRepository.findById(saved.id)?.toDomain())
-        assertNull(accountRepository.findById("acc_missing"))
+        assertNull(accountRepository.findById(999L))
     }
 
     @Test

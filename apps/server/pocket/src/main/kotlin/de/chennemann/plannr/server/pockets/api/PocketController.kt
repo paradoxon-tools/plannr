@@ -26,7 +26,7 @@ class PocketController(
     override suspend fun delete(id: String) =
         pocketService.delete(id)
 
-    override suspend fun list(accountId: String?, archived: Boolean): List<Pocket> =
+    override suspend fun list(accountId: Long?, archived: Boolean): List<Pocket> =
         pocketService.list(accountId, archived)
 
     override suspend fun getById(id: String): Pocket =

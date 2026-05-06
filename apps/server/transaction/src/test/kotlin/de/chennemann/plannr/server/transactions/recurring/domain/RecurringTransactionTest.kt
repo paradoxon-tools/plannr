@@ -13,7 +13,7 @@ class RecurringTransactionTest {
         val value = RecurringTransactionFixtures.recurringTransaction(
             id = " rtx_123 ",
             contractId = "   ",
-            accountId = " acc_123 ",
+            accountId = 1L,
             sourcePocketId = " poc_123 ",
             title = " Internet Bill ",
             description = " Monthly internet ",
@@ -24,7 +24,7 @@ class RecurringTransactionTest {
         )
         assertEquals("rtx_123", value.id)
         assertNull(value.contractId)
-        assertEquals("acc_123", value.accountId)
+        assertEquals(1L, value.accountId)
         assertEquals("Internet Bill", value.title)
         assertEquals("Monthly internet", value.description)
         assertEquals("EUR", value.currencyCode)

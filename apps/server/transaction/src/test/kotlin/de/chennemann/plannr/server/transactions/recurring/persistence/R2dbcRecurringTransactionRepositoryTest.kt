@@ -29,7 +29,7 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var partnerService: PartnerService
     @Autowired lateinit var contractRepository: ContractRepository
     private lateinit var defaultPartnerId: String
-    private lateinit var accountId: String
+    private var accountId: Long = 0L
 
     @BeforeEach
     fun setUp() {

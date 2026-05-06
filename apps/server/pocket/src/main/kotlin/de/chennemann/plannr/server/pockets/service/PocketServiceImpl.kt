@@ -84,9 +84,9 @@ internal class PocketServiceImpl(
         pocketRepository.deleteById(normalizedId)
     }
 
-    override suspend fun list(accountId: String?, archived: Boolean?): List<Pocket> =
+    override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> =
         pocketRepository.findAllByAccountIdAndArchived(
-            accountId = accountId?.trim()?.takeIf { it.isNotBlank() },
+            accountId = accountId,
             archived = archived,
         )
             .toList()
@@ -95,16 +95,15 @@ internal class PocketServiceImpl(
     override suspend fun getById(id: String): Pocket? =
         pocketRepository.findById(id.trim())?.toDomain()
 
-    private suspend fun existingAccountId(accountId: String): String {
-        val normalizedAccountId = accountId.trim()
-        if (!accountLookup.exists(normalizedAccountId)) {
+    private suspend fun existingAccountId(accountId: Long): Long {
+        if (!accountLookup.exists(accountId)) {
             throw NotFoundException(
                 code = "not_found",
                 message = "Account not found",
-                details = mapOf("id" to normalizedAccountId),
+                details = mapOf("id" to accountId),
             )
         }
-        return normalizedAccountId
+        return accountId
     }
 
     private suspend fun existingPocket(id: String): Pocket =
