@@ -7,6 +7,7 @@ import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
 import de.chennemann.plannr.server.accounts.persistence.toDomain
 import de.chennemann.plannr.server.common.domain.normalizeCurrency
+import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import kotlinx.coroutines.flow.toList
@@ -21,6 +22,7 @@ internal class AccountServiceImpl(
     private val timeProvider: TimeProvider,
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
+        ensureNameAvailable(name = command.name, institution = command.institution, currentAccountId = null)
         val currencyCode = normalizeCurrency(command.currencyCode)
         val created = accountRepository.save(
             AccountModel(
@@ -38,6 +40,7 @@ internal class AccountServiceImpl(
 
     override suspend fun update(command: UpdateAccountCommand): Account {
         val existing = existingAccount(command.id)
+        ensureNameAvailable(name = command.name, institution = command.institution, currentAccountId = existing.id)
         val currencyCode = normalizeCurrency(command.currencyCode)
         val persisted = accountRepository.save(
             AccountModel(
@@ -108,4 +111,15 @@ internal class AccountServiceImpl(
                 message = "Account not found",
                 details = mapOf("id" to id),
             )
+
+    private suspend fun ensureNameAvailable(name: String, institution: String, currentAccountId: Long?) {
+        val existing = accountRepository.findByNameAndInstitution(name, institution)?.toDomain()
+        if (existing != null && existing.id != currentAccountId) {
+            throw ConflictException(
+                code = "conflict",
+                message = "Account already exists for institution with name",
+                details = mapOf("name" to name, "institution" to institution),
+            )
+        }
+    }
 }

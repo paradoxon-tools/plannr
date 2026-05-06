@@ -6,4 +6,6 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface AccountRepository : CoroutineCrudRepository<AccountModel, Long> {
     fun findAllByOrderByCreatedAtAscIdAsc(): Flow<AccountModel>
+
+    suspend fun findByNameAndInstitution(name: String, institution: String): AccountModel?
 }

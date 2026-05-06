@@ -22,6 +22,9 @@ class InMemoryAccountRepository : AccountRepository {
 
     override suspend fun findById(id: Long): AccountModel? = accounts[id]
 
+    override suspend fun findByNameAndInstitution(name: String, institution: String): AccountModel? =
+        accounts.values.firstOrNull { it.name == name && it.institution == institution }
+
     override fun findAllByOrderByCreatedAtAscIdAsc(): Flow<AccountModel> =
         accounts.values.sortedWith(compareBy<AccountModel> { it.createdAt }.thenBy { requireNotNull(it.id) }).asFlow()
 

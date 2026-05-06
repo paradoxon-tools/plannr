@@ -44,4 +44,18 @@ class CoroutineAccountRepositoryTest : ApiIntegrationTest() {
 
         assertEquals(updated, accountRepository.findById(saved.id)?.toDomain())
     }
+
+    @Test
+    fun `finds account by name and institution`() = runBlocking {
+        val account = accountRepository.save(
+            AccountFixtures.account(name = "Primary Account", institution = "Demo Bank").toModel().copy(id = null),
+        ).toDomain()
+        accountRepository.save(
+            AccountFixtures.account(name = "Primary Account", institution = "Other Bank").toModel().copy(id = null),
+        )
+
+        assertEquals(account, accountRepository.findByNameAndInstitution("Primary Account", "Demo Bank")?.toDomain())
+        assertNull(accountRepository.findByNameAndInstitution("Missing Account", "Demo Bank"))
+        assertNull(accountRepository.findByNameAndInstitution("Primary Account", "Missing Bank"))
+    }
 }
