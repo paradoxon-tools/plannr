@@ -1,0 +1,2 @@
+ALTER TABLE pockets
+    ADD COLUMN is_contract_pocket BOOLEAN NOT NULL DEFAULT FALSE;

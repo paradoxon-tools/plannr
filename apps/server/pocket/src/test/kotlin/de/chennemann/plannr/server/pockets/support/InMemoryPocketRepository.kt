@@ -19,10 +19,11 @@ class InMemoryPocketRepository : PocketRepository {
         description: String?,
         color: Int,
         isDefault: Boolean,
+        isContractPocket: Boolean,
         isArchived: Boolean,
         createdAt: Long,
     ): PocketModel =
-        save(PocketModel(id, accountId, name, description, color, isDefault, isArchived, createdAt))
+        save(PocketModel(id, accountId, name, description, color, isDefault, isContractPocket, isArchived, createdAt))
 
     override suspend fun update(
         id: String,
@@ -33,7 +34,20 @@ class InMemoryPocketRepository : PocketRepository {
         isDefault: Boolean,
         isArchived: Boolean,
     ): PocketModel =
-        save(PocketModel(id, accountId, name, description, color, isDefault, isArchived, pockets[id]?.createdAt ?: 0L, persisted = true))
+        save(
+            PocketModel(
+                id = id,
+                accountId = accountId,
+                name = name,
+                description = description,
+                color = color,
+                isDefault = isDefault,
+                isContractPocket = pockets[id]?.isContractPocket ?: false,
+                isArchived = isArchived,
+                createdAt = pockets[id]?.createdAt ?: 0L,
+                persisted = true,
+            ),
+        )
 
     override suspend fun <S : PocketModel> save(entity: S): S {
         val persisted = entity.withIdIfMissing("poc_${pockets.size + 1}")
@@ -104,6 +118,7 @@ class InMemoryPocketRepository : PocketRepository {
             description = description,
             color = color,
             isDefault = isDefault,
+            isContractPocket = isContractPocket,
             isArchived = isArchived,
             createdAt = createdAt,
         )

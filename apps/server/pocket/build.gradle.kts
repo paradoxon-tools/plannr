@@ -6,6 +6,8 @@ plugins {
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":contract-api"))
+    implementation(project(":contract-shared"))
     implementation(project(":pocket-api"))
     implementation(project(":pocket-shared"))
     implementation(project(":transaction-api"))

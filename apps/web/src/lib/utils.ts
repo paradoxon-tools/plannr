@@ -58,7 +58,6 @@ export function createEmptyRecurringForm(currencyCode = 'EUR'): RecurringForm {
     id: null,
     updateMode: 'overwrite',
     effectiveFromDate: '',
-    contractId: '',
     sourcePocketId: '',
     destinationPocketId: '',
     partnerId: '',

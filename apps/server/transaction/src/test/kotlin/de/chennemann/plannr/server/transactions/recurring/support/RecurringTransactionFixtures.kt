@@ -7,7 +7,6 @@ import de.chennemann.plannr.server.transactions.recurring.service.RecurringTrans
 
 object RecurringTransactionFixtures {
     const val DEFAULT_ID = "rtx_123"
-    const val DEFAULT_CONTRACT_ID = "con_123"
     const val DEFAULT_ACCOUNT_ID = 1L
     const val DEFAULT_SOURCE_POCKET_ID = "poc_123"
     const val DEFAULT_DESTINATION_POCKET_ID = "poc_456"
@@ -29,7 +28,6 @@ object RecurringTransactionFixtures {
 
     fun recurringTransaction(
         id: String = DEFAULT_ID,
-        contractId: String? = DEFAULT_CONTRACT_ID,
         accountId: Long = DEFAULT_ACCOUNT_ID,
         sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
         destinationPocketId: String? = null,
@@ -51,14 +49,13 @@ object RecurringTransactionFixtures {
         isArchived: Boolean = false,
         createdAt: Long = DEFAULT_CREATED_AT,
     ) = RecurringTransaction(
-        id, contractId, accountId, sourcePocketId, destinationPocketId, partnerId, title, description, amount,
+        id, accountId, sourcePocketId, destinationPocketId, partnerId, title, description, amount,
         currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount,
         daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, previousVersionId,
         isArchived, createdAt,
     )
 
     fun createCommand(
-        contractId: String? = DEFAULT_CONTRACT_ID,
         sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
         destinationPocketId: String? = null,
         partnerId: String? = DEFAULT_PARTNER_ID,
@@ -76,11 +73,10 @@ object RecurringTransactionFixtures {
         daysOfMonth: List<Int>? = DEFAULT_DAYS_OF_MONTH,
         monthsOfYear: List<Int>? = DEFAULT_MONTHS_OF_YEAR,
         maxRecurrenceCount: Int? = null,
-    ) = RecurringTransactionService.CreateCommand(contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
+    ) = RecurringTransactionService.CreateCommand(sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
 
     fun updateRequest(
         updateMode: String = "overwrite",
-        contractId: String? = DEFAULT_CONTRACT_ID,
         sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
         destinationPocketId: String? = null,
         partnerId: String? = DEFAULT_PARTNER_ID,
@@ -98,10 +94,9 @@ object RecurringTransactionFixtures {
         daysOfMonth: List<Int>? = DEFAULT_DAYS_OF_MONTH,
         monthsOfYear: List<Int>? = DEFAULT_MONTHS_OF_YEAR,
         maxRecurrenceCount: Int? = null,
-    ) = UpdateRecurringTransactionRequest(updateMode, contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
+    ) = UpdateRecurringTransactionRequest(updateMode, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
 
     fun createRequest(
-        contractId: String? = DEFAULT_CONTRACT_ID,
         sourcePocketId: String? = DEFAULT_SOURCE_POCKET_ID,
         destinationPocketId: String? = null,
         partnerId: String? = DEFAULT_PARTNER_ID,
@@ -119,6 +114,6 @@ object RecurringTransactionFixtures {
         daysOfMonth: List<Int>? = DEFAULT_DAYS_OF_MONTH,
         monthsOfYear: List<Int>? = DEFAULT_MONTHS_OF_YEAR,
         maxRecurrenceCount: Int? = null,
-    ) = CreateRecurringTransactionRequest(contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
+    ) = CreateRecurringTransactionRequest(sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount)
 }
 

@@ -14,7 +14,6 @@ class UnarchiveRecurringTransactionTest {
             contextResolver = contextResolver(
                 de.chennemann.plannr.server.support.FakePocketService(),
                 de.chennemann.plannr.server.support.FakePartnerService(),
-                de.chennemann.plannr.server.contracts.support.InMemoryContractRepository(),
             ),
             timeProvider = { 1L },
             normalization = RecurringTransactionNormalization(),

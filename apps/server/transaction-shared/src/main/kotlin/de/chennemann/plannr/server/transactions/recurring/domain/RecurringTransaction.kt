@@ -9,7 +9,6 @@ import java.time.format.DateTimeParseException
 
 data class RecurringTransaction private constructor(
     val id: String,
-    val contractId: String?,
     val accountId: Long,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
@@ -44,7 +43,6 @@ data class RecurringTransaction private constructor(
 
     private fun recreate(
         id: String = this.id,
-        contractId: String? = this.contractId,
         accountId: Long = this.accountId,
         sourcePocketId: String? = this.sourcePocketId,
         destinationPocketId: String? = this.destinationPocketId,
@@ -67,7 +65,6 @@ data class RecurringTransaction private constructor(
         createdAt: Long = this.createdAt,
     ): RecurringTransaction = RecurringTransaction(
         id = id,
-        contractId = contractId,
         accountId = accountId,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
@@ -93,7 +90,6 @@ data class RecurringTransaction private constructor(
     companion object {
         operator fun invoke(
             id: String,
-            contractId: String?,
             accountId: Long,
             sourcePocketId: String?,
             destinationPocketId: String?,
@@ -116,7 +112,6 @@ data class RecurringTransaction private constructor(
             createdAt: Long,
         ): RecurringTransaction {
             val normalizedId = id.trim()
-            val normalizedContractId = contractId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedSourcePocketId = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedDestinationPocketId = destinationPocketId?.trim()?.takeIf { it.isNotBlank() }
             val normalizedPartnerId = partnerId?.trim()?.takeIf { it.isNotBlank() }
@@ -183,7 +178,6 @@ data class RecurringTransaction private constructor(
 
             return RecurringTransaction(
                 id = normalizedId,
-                contractId = normalizedContractId,
                 accountId = accountId,
                 sourcePocketId = normalizedSourcePocketId,
                 destinationPocketId = normalizedDestinationPocketId,

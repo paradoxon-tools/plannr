@@ -8,9 +8,7 @@ import de.chennemann.plannr.server.contracts.support.ContractTestPartners
 import de.chennemann.plannr.server.contracts.support.ContractTestPockets
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.FakePartnerService
-import de.chennemann.plannr.server.contracts.support.FakePocketService
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
-import de.chennemann.plannr.server.contracts.support.RecordingContractRecurringTransactionCascade
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,13 +20,11 @@ class CreateContractTest {
         val contractRepository = InMemoryContractRepository()
         val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
-            pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(listOf(ContractTestPartners.partner())),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
-        val created = createContract.create(ContractFixtures.createContractCommand())
+        val created = createContract.create(ContractTestPockets.pocket(), ContractFixtures.createContractCommand())
 
         assertEquals(ContractFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
         assertEquals(created.id, contractRepository.findById(created.id)?.toDomain()?.id)
@@ -39,13 +35,11 @@ class CreateContractTest {
         val contractRepository = InMemoryContractRepository()
         val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
-            pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(emptyList()),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
-        val created = createContract.create(ContractFixtures.createContractCommand(partnerId = null))
+        val created = createContract.create(ContractTestPockets.pocket(), ContractFixtures.createContractCommand(partnerId = null))
 
         assertEquals(null, created.partnerId)
     }
@@ -56,29 +50,12 @@ class CreateContractTest {
         contractRepository.save(ContractFixtures.contract().toModel())
         val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
-            pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(listOf(ContractTestPartners.partner())),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         assertFailsWith<ConflictException> {
-            createContract.create(ContractFixtures.createContractCommand())
-        }
-    }
-
-    @Test
-    fun `fails when pocket does not exist`() = runTest {
-        val createContract = ContractServiceImpl(
-            contractRepository = InMemoryContractRepository(),
-            pocketService = FakePocketService(emptyList()),
-            partnerService = FakePartnerService(emptyList()),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
-        )
-
-        assertFailsWith<NotFoundException> {
-            createContract.create(ContractFixtures.createContractCommand())
+            createContract.create(ContractTestPockets.pocket(), ContractFixtures.createContractCommand())
         }
     }
 
@@ -86,14 +63,12 @@ class CreateContractTest {
     fun `fails when partner does not exist`() = runTest {
         val createContract = ContractServiceImpl(
             contractRepository = InMemoryContractRepository(),
-            pocketService = FakePocketService(listOf(ContractTestPockets.pocket())),
             partnerService = FakePartnerService(emptyList()),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         assertFailsWith<NotFoundException> {
-            createContract.create(ContractFixtures.createContractCommand())
+            createContract.create(ContractTestPockets.pocket(), ContractFixtures.createContractCommand())
         }
     }
 }

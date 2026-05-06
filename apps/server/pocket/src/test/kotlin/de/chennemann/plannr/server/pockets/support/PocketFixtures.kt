@@ -19,6 +19,7 @@ object PocketFixtures {
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
+        isContractPocket: Boolean = false,
         isArchived: Boolean = false,
         createdAt: Long = DEFAULT_CREATED_AT,
     ): Pocket =
@@ -29,6 +30,7 @@ object PocketFixtures {
             description = description,
             color = color,
             isDefault = isDefault,
+            isContractPocket = isContractPocket,
             isArchived = isArchived,
             createdAt = createdAt,
         )
@@ -39,6 +41,7 @@ object PocketFixtures {
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
+        isContractPocket: Boolean = false,
     ): CreatePocketCommand =
         CreatePocketCommand(
             accountId = accountId,
@@ -46,6 +49,7 @@ object PocketFixtures {
             description = description,
             color = color,
             isDefault = isDefault,
+            isContractPocket = isContractPocket,
         )
 
     fun updatePocketCommand(

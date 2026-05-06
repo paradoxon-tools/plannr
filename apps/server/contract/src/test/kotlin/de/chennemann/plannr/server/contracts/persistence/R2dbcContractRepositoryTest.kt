@@ -35,8 +35,8 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
             cleanDatabase("contracts", "partners", "pockets", "accounts")
             mainAccountId = accountRepository.insert(Account(1L, "Main Account", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_000L)).id
             savingsAccountId = accountRepository.insert(Account(2L, "Savings", "Demo Bank", "EUR", "NO_SHIFT", false, 1_710_000_001L)).id
-            pocketRepository.insert(Pocket("poc_123", mainAccountId, "Bills", "Monthly fixed costs", 123456, false, false, 1_710_000_100L))
-            pocketRepository.insert(Pocket("poc_456", savingsAccountId, "Rent", "Monthly fixed costs", 123456, false, false, 1_710_000_101L))
+            pocketRepository.insert(Pocket("poc_123", mainAccountId, "Bills", "Monthly fixed costs", 123456, false, false, false, 1_710_000_100L))
+            pocketRepository.insert(Pocket("poc_456", savingsAccountId, "Rent", "Monthly fixed costs", 123456, false, false, false, 1_710_000_101L))
             defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", notes = "Preferred partner")).id
             partnerService.create(CreatePartnerCommand(name = "Telecom GmbH", notes = null))
         }
@@ -144,6 +144,7 @@ private suspend fun PocketRepository.insert(pocket: Pocket) {
         description = pocket.description,
         color = pocket.color,
         isDefault = pocket.isDefault,
+        isContractPocket = pocket.isContractPocket,
         isArchived = pocket.isArchived,
         createdAt = pocket.createdAt,
     )

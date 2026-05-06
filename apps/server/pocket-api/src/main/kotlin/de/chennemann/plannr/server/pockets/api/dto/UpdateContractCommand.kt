@@ -1,7 +1,7 @@
-package de.chennemann.plannr.server.contracts.api.dto
+package de.chennemann.plannr.server.pockets.api.dto
 
-data class CreateContractCommand(
-    val pocketId: String,
+data class UpdateContractCommand(
+    val id: String,
     val partnerId: String?,
     val name: String,
     val startDate: String,

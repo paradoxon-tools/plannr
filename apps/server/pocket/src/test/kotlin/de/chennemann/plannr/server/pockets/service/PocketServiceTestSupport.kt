@@ -1,27 +1,40 @@
 package de.chennemann.plannr.server.pockets.service
 
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.service.ContractService
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 
-internal object NoOpPocketArchiveCascade : PocketArchiveCascade {
-    override suspend fun archiveFor(pocket: Pocket) = Unit
-
-    override suspend fun unarchiveFor(pocket: Pocket) = Unit
+internal object NoOpContractService : ContractService {
+    override suspend fun create(pocket: Pocket, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+    override suspend fun update(pocket: Pocket, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+    override suspend fun archiveForPocket(pocketId: String) = Unit
+    override suspend fun unarchiveForPocket(pocketId: String) = Unit
+    override suspend fun delete(id: String) = Unit
+    override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> = emptyList()
 }
 
-internal class RecordingPocketArchiveCascade : PocketArchiveCascade {
+internal class RecordingContractService : ContractService {
     val archivedPocketIds = mutableListOf<String>()
     val unarchivedPocketIds = mutableListOf<String>()
 
-    override suspend fun archiveFor(pocket: Pocket) {
-        archivedPocketIds += pocket.id
+    override suspend fun create(pocket: Pocket, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+    override suspend fun update(pocket: Pocket, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+
+    override suspend fun archiveForPocket(pocketId: String) {
+        archivedPocketIds += pocketId
     }
 
-    override suspend fun unarchiveFor(pocket: Pocket) {
-        unarchivedPocketIds += pocket.id
+    override suspend fun unarchiveForPocket(pocketId: String) {
+        unarchivedPocketIds += pocketId
     }
+
+    override suspend fun delete(id: String) = Unit
+    override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> = emptyList()
 }
 
 internal object NoOpRecurringTransactionService : RecurringTransactionService {
@@ -38,14 +51,14 @@ internal object NoOpRecurringTransactionService : RecurringTransactionService {
 
 internal fun pocketService(
     repository: InMemoryPocketRepository = InMemoryPocketRepository(),
-    archiveCascade: PocketArchiveCascade = NoOpPocketArchiveCascade,
+    contractService: ContractService = NoOpContractService,
     accountLookup: PocketAccountLookup = PocketAccountLookup { true },
     recurringTransactionService: RecurringTransactionService = NoOpRecurringTransactionService,
 ): PocketServiceImpl =
     PocketServiceImpl(
         pocketRepository = repository,
         accountLookup = accountLookup,
-        archiveCascade = archiveCascade,
+        contractService = contractService,
         recurringTransactionService = recurringTransactionService,
         timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
     )

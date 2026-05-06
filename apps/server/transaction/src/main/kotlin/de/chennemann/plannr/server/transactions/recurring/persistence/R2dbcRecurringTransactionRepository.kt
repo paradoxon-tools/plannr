@@ -83,21 +83,14 @@ class R2dbcRecurringTransactionRepository(
         .bind("id", id)
         .fetch().one().map(::toRecurringTransaction).awaitSingleOrNull()
 
-    override suspend fun findAll(accountId: Long?, contractId: String?, archived: Boolean): List<de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction> {
+    override suspend fun findAll(accountId: Long?, archived: Boolean): List<de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction> {
         val conditions = mutableListOf("rt.is_archived = :archived")
         if (accountId != null) conditions += "COALESCE(sp.account_id, dp.account_id) = :accountId"
-        if (contractId != null) conditions += "c.id = :contractId"
         var spec = databaseClient.sql(selectSql("WHERE ${conditions.joinToString(" AND ")}"))
             .bind("archived", archived)
         if (accountId != null) spec = spec.bind("accountId", accountId)
-        if (contractId != null) spec = spec.bind("contractId", contractId)
         return spec.fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
     }
-
-    override suspend fun findByContractId(contractId: String): List<de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction> =
-        databaseClient.sql(selectSql("WHERE c.id = :contractId"))
-            .bind("contractId", contractId)
-            .fetch().all().map(::toRecurringTransaction).collectList().awaitSingle()
 
     override suspend fun findByPreviousVersionId(previousVersionId: String): List<de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction> =
         databaseClient.sql(selectSql("WHERE rt.previous_version_id = :previousVersionId"))
@@ -115,7 +108,6 @@ class R2dbcRecurringTransactionRepository(
     private fun selectSql(whereClause: String) =
         """
         SELECT rt.id,
-               c.id AS contract_id,
                COALESCE(sp.account_id, dp.account_id) AS account_id,
                rt.source_pocket_id,
                rt.destination_pocket_id,
@@ -139,7 +131,6 @@ class R2dbcRecurringTransactionRepository(
         FROM recurring_transactions rt
         LEFT JOIN pockets sp ON sp.id = rt.source_pocket_id
         LEFT JOIN pockets dp ON dp.id = rt.destination_pocket_id
-        LEFT JOIN contracts c ON c.pocket_id = rt.source_pocket_id OR c.pocket_id = rt.destination_pocket_id
         $whereClause
         ORDER BY rt.created_at ASC, rt.id ASC
         """.trimIndent()
@@ -176,7 +167,6 @@ class R2dbcRecurringTransactionRepository(
 
     private fun toRecurringTransaction(row: Map<String, Any?>): de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction = de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction(
         id = row.getValue("id") as String,
-        contractId = row["contract_id"] as String?,
         accountId = (row.getValue("account_id") as Number).toLong(),
         sourcePocketId = row["source_pocket_id"] as String?,
         destinationPocketId = row["destination_pocket_id"] as String?,

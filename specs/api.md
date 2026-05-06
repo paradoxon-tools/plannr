@@ -12,8 +12,8 @@ Draft baseline for v1.
 
 - REST-style JSON over HTTP
 - Granular resource endpoints
-- Contracts are a user-facing abstraction over one or more recurring transactions
-- Recurring transactions can also exist independently of contracts
+- Contracts are user-facing metadata attached to a dedicated pocket
+- Recurring transactions are wired to pockets, not contracts
 - Clear domain validation rules
 - Consistent error responses and HTTP status codes
 - Keep the API simple first; defer response expansion/include optimizations
@@ -123,9 +123,9 @@ A contract:
 
 - belongs to exactly one pocket
 - may reference one partner
-- may have zero or more recurring transactions
 - is not restricted to a single income/expense type at the API level
 - may have an optional `endDate`
+- is archived through its pocket lifecycle
 
 ### Recurring transaction
 
@@ -133,8 +133,7 @@ A recurring transaction defines a recurring transaction pattern.
 
 A recurring transaction:
 
-- may belong to a contract
-- may exist without a contract
+- references source and/or destination pockets according to transaction type
 - may represent expense, income, or transfer
 - is archiveable
 - supports version/history over time
@@ -178,13 +177,6 @@ A contract contains at least:
 
 ### Endpoints
 
-#### `POST /contracts`
-Create a contract.
-
-Notes:
-- creates contract metadata only
-- does not create recurring transactions in the same request
-
 #### `GET /contracts`
 List contracts.
 
@@ -195,24 +187,7 @@ Baseline filtering:
 #### `GET /contracts/{contractId}`
 Get contract detail.
 
-#### `PUT /contracts`
-Replace contract metadata.
-
-Notes:
-- updates contract metadata only
-- recurring transactions are managed through their own endpoints
-
-#### `POST /contracts/{contractId}/archive`
-Archive a contract.
-
-Behavior:
-- archiving a contract also archives its recurring transactions
-
-#### `POST /contracts/{contractId}/unarchive`
-Unarchive a contract.
-
-Behavior:
-- unarchiving policy for recurring transactions should restore previously contract-owned archived recurring transactions; exact implementation detail can be decided later, but the desired API behavior must be documented and consistent
+Contracts do not expose independent create, update, or archive endpoints. Contract metadata is created and updated through the associated pocket, and a user-facing "archive contract" action archives the associated pocket through `POST /pockets/{pocketId}/archive`.
 
 ## Recurring transactions
 
@@ -221,7 +196,6 @@ Behavior:
 A recurring transaction contains at least:
 
 - `id`
-- `contractId` (nullable)
 - `accountId`
 - `sourcePocketId` (nullable)
 - `destinationPocketId` (nullable)
@@ -280,15 +254,13 @@ Because history is baseline behavior, implementation should model lineage/versio
 Create a recurring transaction.
 
 Notes:
-- may be linked to a contract
-- may be standalone
+- must be wired through source and/or destination pockets
 
 #### `GET /recurring-transactions`
 List recurring transactions.
 
 Baseline filtering may include:
 - `accountId`
-- `contractId`
 - optional archived filter
 
 #### `GET /recurring-transactions/{recurringTransactionId}`
@@ -356,6 +328,7 @@ A pocket contains at least:
 - `description` (nullable)
 - `color`
 - `isDefault`
+- `isContractPocket`
 - `isArchived`
 - `createdAt`
 
@@ -363,6 +336,8 @@ A pocket contains at least:
 
 #### `POST /pockets`
 Create a pocket.
+
+Create accepts `isContractPocket`; it defaults to `false` and is returned on the pocket model.
 
 #### `GET /pockets`
 List pockets.
@@ -374,16 +349,32 @@ Baseline filtering may include:
 #### `GET /pockets/{pocketId}`
 Get pocket detail.
 
+#### `POST /pockets/{pocketId}/contract`
+Create contract metadata for a pocket.
+
+Notes:
+- request body contains contract metadata only; `pocketId` comes from the path
+- the pocket service validates that the pocket exists before relaying to the contract service
+- fails if the pocket already has a contract
+
+#### `PUT /pockets/{pocketId}/contract`
+Update contract metadata for a pocket.
+
+Notes:
+- request body contains contract metadata and the contract `id`; `pocketId` comes from the path
+- the pocket service validates that the pocket exists before relaying to the contract service
+
 #### `PUT /pockets`
 Update a pocket.
+
+`isContractPocket` is not editable through update.
 
 #### `POST /pockets/{pocketId}/archive`
 Archive a pocket.
 
 Behavior:
 - archive cascades to its contract, if present
-- archive also cascades to recurring transactions owned through that contract
-- direct transaction-side handling can be defined later if needed
+- archive cascades to recurring transactions wired to the pocket
 
 #### `POST /pockets/{pocketId}/unarchive`
 Unarchive a pocket.
@@ -465,17 +456,15 @@ The API should enforce the following baseline rules.
 - every contract belongs to exactly one account through its pocket
 - a pocket can have at most one contract
 - `accountId` in responses is derived from the pocket's account
-- a contract may exist without recurring transactions
-- contract archive cascades to contract-owned recurring transactions
+- contracts do not own recurring transactions
+- contract lifecycle is controlled by the associated pocket
 - `startDate` must be a plain date
 - `endDate`, if present, must not be before `startDate`
 
 ### Recurring transaction rules
 
-- a recurring transaction may exist without a contract
-- a recurring transaction linked to a contract must be compatible with that contract's account/pocket context
-- transfer recurring transactions may exist independently of contracts
-- if a recurring transaction is attached to a contract, the implementation must define and enforce the allowed compatibility rules between contract pocket and transaction source/destination pockets
+- recurring transactions are not linked to contracts
+- transfer recurring transactions may reference any two distinct pockets in the same account
 - all money amounts are integer minor units paired with `currencyCode`
 - recurrence rules must be internally consistent
 - history/version updates must preserve lineage semantics for `effective_from`
@@ -484,7 +473,7 @@ The API should enforce the following baseline rules.
 
 - pocket belongs to exactly one account
 - account archive cascades to child pockets, contracts, and recurring transactions
-- pocket archive cascades to child contract and related recurring transactions
+- pocket archive cascades to its child contract when `isContractPocket` is set and to recurring transactions wired to the pocket
 - if `isDefault` is enforced as unique per account, that should be validated at the API boundary
 
 ### Partner rules
@@ -521,7 +510,6 @@ The following are intentionally out of scope for this baseline document and can 
 
 ## Open implementation notes
 
-- The current database draft separates `Contract` and `RecurringTransaction`; implementation will likely need schema evolution to support a contract-to-many recurring transaction relation and explicit recurring transaction history/versioning.
 - The current database draft uses `isActive` for recurring transactions; the API baseline standardizes on `isArchived`, so persistence and query logic should be aligned accordingly.
 - The current database draft does not model archived currencies; if currency CRUD with archiving is implemented, the schema will need to support it.
 - The API should keep the service/domain layer explicit about domain failures while still returning proper HTTP status codes and structured error responses.

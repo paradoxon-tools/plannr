@@ -6,4 +6,5 @@ data class CreatePocketCommand(
     val description: String?,
     val color: Int,
     val isDefault: Boolean,
+    val isContractPocket: Boolean = false,
 )

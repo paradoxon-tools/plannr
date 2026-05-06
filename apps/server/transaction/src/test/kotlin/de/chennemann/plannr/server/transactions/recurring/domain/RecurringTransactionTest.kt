@@ -12,7 +12,6 @@ class RecurringTransactionTest {
     fun `normalizes strings and optional values`() {
         val value = RecurringTransactionFixtures.recurringTransaction(
             id = " rtx_123 ",
-            contractId = "   ",
             accountId = 1L,
             sourcePocketId = " poc_123 ",
             title = " Internet Bill ",
@@ -23,7 +22,6 @@ class RecurringTransactionTest {
             finalOccurrenceDate = "   ",
         )
         assertEquals("rtx_123", value.id)
-        assertNull(value.contractId)
         assertEquals(1L, value.accountId)
         assertEquals("Internet Bill", value.title)
         assertEquals("Monthly internet", value.description)

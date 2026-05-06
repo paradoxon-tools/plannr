@@ -6,9 +6,7 @@ import de.chennemann.plannr.server.contracts.support.ContractTestPartners
 import de.chennemann.plannr.server.contracts.support.ContractTestPockets
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
 import de.chennemann.plannr.server.contracts.support.FakePartnerService
-import de.chennemann.plannr.server.contracts.support.FakePocketService
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
-import de.chennemann.plannr.server.contracts.support.RecordingContractRecurringTransactionCascade
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,25 +19,19 @@ class UpdateContractTest {
         contractRepository.save(ContractFixtures.contract())
         val updateContract = ContractServiceImpl(
             contractRepository = contractRepository,
-            pocketService = FakePocketService(
-                listOf(
-                    ContractTestPockets.pocket(),
-                    ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent"),
-                ),
-            ),
             partnerService = FakePartnerService(
                 listOf(
                     ContractTestPartners.partner(),
                     ContractTestPartners.partner(id = "par_456", name = "Telecom GmbH"),
                 ),
             ),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
+        val targetPocket = ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent")
         val updated = updateContract.update(
+            targetPocket,
             ContractFixtures.updateContractCommand(
-                pocketId = "poc_456",
                 partnerId = "par_456",
                 name = "Updated Contract",
                 startDate = "2024-02-01",
@@ -60,14 +52,12 @@ class UpdateContractTest {
     fun `fails when contract does not exist`() = runTest {
         val updateContract = ContractServiceImpl(
             contractRepository = InMemoryContractRepository(),
-            pocketService = FakePocketService(emptyList()),
             partnerService = FakePartnerService(emptyList()),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         assertFailsWith<NotFoundException> {
-            updateContract.update(ContractFixtures.updateContractCommand())
+            updateContract.update(ContractTestPockets.pocket(), ContractFixtures.updateContractCommand())
         }
     }
 
@@ -78,19 +68,15 @@ class UpdateContractTest {
         contractRepository.save(ContractFixtures.contract(id = "con_456", accountId = 2L, pocketId = "poc_456"))
         val updateContract = ContractServiceImpl(
             contractRepository = contractRepository,
-            pocketService = FakePocketService(
-                listOf(
-                    ContractTestPockets.pocket(),
-                    ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent"),
-                ),
-            ),
             partnerService = FakePartnerService(emptyList()),
-            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
             timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         assertFailsWith<ConflictException> {
-            updateContract.update(ContractFixtures.updateContractCommand(pocketId = "poc_456", partnerId = null))
+            updateContract.update(
+                ContractTestPockets.pocket(id = "poc_456", accountId = 2L, name = "Rent"),
+                ContractFixtures.updateContractCommand(partnerId = null),
+            )
         }
     }
 }

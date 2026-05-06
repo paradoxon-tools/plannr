@@ -1,7 +1,10 @@
 package de.chennemann.plannr.server.pockets.api
 
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,6 +25,13 @@ interface PocketApi {
 
     @PutExchange
     suspend fun update(@RequestBody command: UpdatePocketCommand): Pocket
+
+    @PostExchange("/{id}/contract")
+    @ResponseStatus(HttpStatus.CREATED)
+    suspend fun createContract(@PathVariable id: String, @RequestBody command: CreateContractCommand): Contract
+
+    @PutExchange("/{id}/contract")
+    suspend fun updateContract(@PathVariable id: String, @RequestBody command: UpdateContractCommand): Contract
 
     @PostExchange("/{id}/archive")
     suspend fun archive(@PathVariable id: String): Pocket

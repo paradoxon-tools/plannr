@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.transactions.recurring.api.dto
 
 data class CreateRecurringTransactionRequest(
-    val contractId: String?,
     val sourcePocketId: String?,
     val destinationPocketId: String?,
     val partnerId: String?,

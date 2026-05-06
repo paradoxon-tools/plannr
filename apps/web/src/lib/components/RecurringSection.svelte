@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Account, Contract, Currency, Partner, Pocket, RecurringForm, RecurringTransaction } from '$lib/types';
+  import type { Account, Currency, Partner, Pocket, RecurringForm, RecurringTransaction } from '$lib/types';
   import { createEventDispatcher } from 'svelte';
   import {
     daysOfMonthOptions,
@@ -15,7 +15,6 @@
   export let form: RecurringForm;
   export let transactions: RecurringTransaction[] = [];
   export let pockets: Pocket[] = [];
-  export let contracts: Contract[] = [];
   export let partners: Partner[] = [];
   export let currencies: Currency[] = [];
   export let selectedAccount: Account | null = null;
@@ -26,7 +25,6 @@
   const dispatch = createEventDispatcher<{ submit: void; reset: void; edit: { item: RecurringTransaction }; archive: { item: RecurringTransaction } }>();
 
   $: availablePockets = pockets.filter((pocket) => (!selectedAccountId || pocket.accountId === selectedAccountId) && !pocket.isArchived);
-  $: availableContracts = contracts.filter((contract) => (!selectedAccountId || contract.accountId === selectedAccountId) && !contract.isArchived);
   $: scopedTransactions = transactions.filter((item) => (!selectedAccountId || item.accountId === selectedAccountId) && (showArchived || !item.isArchived));
 
   function pocketName(pocketId: string | null) { return pocketId ? pockets.find((item) => item.id === pocketId)?.name ?? pocketId : '—'; }
@@ -39,7 +37,6 @@
         <label><span>Update mode</span><select bind:value={form.updateMode}>{#each updateModes as mode}<option value={mode.value}>{mode.label}</option>{/each}</select></label>
         <label><span>Effective from</span><input bind:value={form.effectiveFromDate} type="date" disabled={form.updateMode !== 'effective_from'} /></label>
       {/if}
-      <label><span>Linked contract</span><select bind:value={form.contractId}><option value="">Standalone</option>{#each availableContracts as contract}<option value={contract.id}>{contract.name}</option>{/each}</select></label>
       <label><span>Partner</span><select bind:value={form.partnerId}><option value="">No partner</option>{#each partners.filter((partner) => !partner.isArchived) as partner}<option value={partner.id}>{partner.name}</option>{/each}</select></label>
       <label><span>Title</span><input bind:value={form.title} required /></label>
       <label><span>Amount (minor units)</span><input bind:value={form.amount} type="number" min="0" required /></label>

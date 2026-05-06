@@ -21,6 +21,8 @@ data class PocketModel(
     val color: Int,
     @Column("is_default")
     val isDefault: Boolean,
+    @Column("is_contract_pocket")
+    val isContractPocket: Boolean,
     @Column("is_archived")
     val isArchived: Boolean,
     @Column("created_at")
@@ -36,9 +38,10 @@ data class PocketModel(
         description: String?,
         color: Int,
         isDefault: Boolean,
+        isContractPocket: Boolean,
         isArchived: Boolean,
         createdAt: Long,
-    ) : this(id, accountId, name, description, color, isDefault, isArchived, createdAt, persisted = true)
+    ) : this(id, accountId, name, description, color, isDefault, isContractPocket, isArchived, createdAt, persisted = true)
 
     override fun getId(): String? = id
 
@@ -55,6 +58,7 @@ internal fun PocketModel.toDomain(): Pocket =
         description = description,
         color = color,
         isDefault = isDefault,
+        isContractPocket = isContractPocket,
         isArchived = isArchived,
         createdAt = createdAt,
     )
@@ -67,6 +71,7 @@ internal fun Pocket.toModel(): PocketModel =
         description = description,
         color = color,
         isDefault = isDefault,
+        isContractPocket = isContractPocket,
         isArchived = isArchived,
         createdAt = createdAt,
     )

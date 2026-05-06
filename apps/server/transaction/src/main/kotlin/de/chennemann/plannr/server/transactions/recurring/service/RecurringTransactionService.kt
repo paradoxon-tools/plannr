@@ -22,7 +22,7 @@ class RecurringTransactionServiceImpl(
     @Transactional
     override suspend fun create(command: RecurringTransactionService.CreateCommand): RecurringTransaction {
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
+        val context = contextResolver.resolve(command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(
                 firstOccurrenceDate = command.firstOccurrenceDate,
@@ -67,7 +67,7 @@ class RecurringTransactionServiceImpl(
         val existing = recurringTransactionRepository.findById(command.id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to command.id.trim()))
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
+        val context = contextResolver.resolve(command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
             RecurringTransactionNormalization.Fields(
                 firstOccurrenceDate = command.firstOccurrenceDate,
@@ -87,7 +87,6 @@ class RecurringTransactionServiceImpl(
             "overwrite" -> recurringTransactionRepository.update(
                 RecurringTransaction(
                     id = existing.id,
-                    contractId = context.contractId,
                     accountId = context.accountId,
                     sourcePocketId = context.sourcePocketId,
                     destinationPocketId = context.destinationPocketId,

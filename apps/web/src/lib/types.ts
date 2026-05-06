@@ -23,6 +23,7 @@ export type Pocket = {
   description: string | null;
   color: number;
   isDefault: boolean;
+  isContractPocket: boolean;
   isArchived: boolean;
   createdAt: number;
 };
@@ -50,7 +51,6 @@ export type Contract = {
 
 export type RecurringTransaction = {
   id: string;
-  contractId: string | null;
   accountId: number;
   sourcePocketId: string | null;
   destinationPocketId: string | null;
@@ -133,7 +133,6 @@ export type RecurringForm = {
   id: string | null;
   updateMode: string;
   effectiveFromDate: string;
-  contractId: string;
   sourcePocketId: string;
   destinationPocketId: string;
   partnerId: string;

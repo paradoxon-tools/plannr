@@ -2,8 +2,12 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.service.ContractService
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.persistence.toDomain
@@ -17,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 internal class PocketServiceImpl(
     private val pocketRepository: PocketRepository,
     private val accountLookup: PocketAccountLookup,
-    private val archiveCascade: PocketArchiveCascade,
+    private val contractService: ContractService,
     private val recurringTransactionService: RecurringTransactionService,
     private val timeProvider: TimeProvider,
 ) : PocketService {
@@ -30,6 +34,7 @@ internal class PocketServiceImpl(
             description = command.description,
             color = command.color,
             isDefault = command.isDefault,
+            isContractPocket = command.isContractPocket,
             isArchived = false,
             createdAt = timeProvider(),
         ).toDomain()
@@ -51,6 +56,12 @@ internal class PocketServiceImpl(
         return persisted
     }
 
+    override suspend fun createContract(pocketId: String, command: CreateContractCommand): Contract =
+        contractService.create(existingPocket(pocketId), command)
+
+    override suspend fun updateContract(pocketId: String, command: UpdateContractCommand): Contract =
+        contractService.update(existingPocket(pocketId), command)
+
     override suspend fun archive(id: String): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.update(
@@ -62,7 +73,9 @@ internal class PocketServiceImpl(
             isDefault = existing.isDefault,
             isArchived = true,
         ).toDomain()
-        archiveCascade.archiveFor(updated)
+        if (updated.isContractPocket) {
+            contractService.archiveForPocket(updated.id)
+        }
         recurringTransactionService.archiveForPocket(updated.accountId, updated.id)
         return updated
     }
@@ -78,7 +91,9 @@ internal class PocketServiceImpl(
             isDefault = existing.isDefault,
             isArchived = false,
         ).toDomain()
-        archiveCascade.unarchiveFor(updated)
+        if (updated.isContractPocket) {
+            contractService.unarchiveForPocket(updated.id)
+        }
         recurringTransactionService.unarchiveForPocket(updated.accountId, updated.id)
         return updated
     }

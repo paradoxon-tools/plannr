@@ -181,7 +181,6 @@
       id: item.id,
       updateMode: 'overwrite',
       effectiveFromDate: '',
-      contractId: item.contractId ?? '',
       sourcePocketId: item.sourcePocketId ?? '',
       destinationPocketId: item.destinationPocketId ?? '',
       partnerId: item.partnerId ?? '',
@@ -254,7 +253,8 @@
             name: contractForm.name,
             description: normalizeOptionalString(contractForm.notes),
             color: colorPalette[8],
-            isDefault: false
+            isDefault: false,
+            isContractPocket: true
           })
         });
         pocketId = createdPocket.id;
@@ -272,15 +272,14 @@
       }
 
       const payload = {
-        pocketId,
         partnerId: normalizeOptionalString(contractForm.partnerId),
         name: contractForm.name,
         startDate: contractForm.startDate,
         endDate: normalizeOptionalString(contractForm.endDate),
         notes: normalizeOptionalString(contractForm.notes)
       };
-      if (contractForm.id) await api('/contracts', { method: 'PUT', body: JSON.stringify({ id: contractForm.id, ...payload }) });
-      else await api('/contracts', { method: 'POST', body: JSON.stringify(payload) });
+      if (contractForm.id) await api(`/pockets/${pocketId}/contract`, { method: 'PUT', body: JSON.stringify({ id: contractForm.id, ...payload }) });
+      else await api(`/pockets/${pocketId}/contract`, { method: 'POST', body: JSON.stringify(payload) });
       await loadAll();
       resetContractForm();
       setNotice('success', 'Contract saved and pocket prepared automatically.');
@@ -292,7 +291,6 @@
     try {
       const payload = {
         ...(recurringForm.id ? { updateMode: recurringForm.updateMode, effectiveFromDate: recurringForm.updateMode === 'effective_from' ? normalizeOptionalString(recurringForm.effectiveFromDate) : null } : {}),
-        contractId: normalizeOptionalString(recurringForm.contractId),
         sourcePocketId: normalizeOptionalString(recurringForm.sourcePocketId),
         destinationPocketId: normalizeOptionalString(recurringForm.destinationPocketId),
         partnerId: normalizeOptionalString(recurringForm.partnerId),
@@ -383,12 +381,12 @@
           on:submit={submitContract}
           on:reset={resetContractForm}
           on:edit={(e) => editContract(e.detail.contract)}
-          on:archive={(e) => toggleArchive('contracts', e.detail.contract.id, e.detail.contract.isArchived)}
-          on:addRecurring={(e) => { recurringForm.contractId = e.detail.contract.id; activeSection = 'recurring'; }} />
+          on:archive={(e) => toggleArchive('pockets', e.detail.contract.pocketId, e.detail.contract.isArchived)}
+          on:addRecurring={(e) => { recurringForm.sourcePocketId = e.detail.contract.pocketId; activeSection = 'recurring'; }} />
       {/if}
 
       {#if activeSection === 'recurring'}
-        <RecurringSection bind:form={recurringForm} bind:showArchived={showArchivedRecurring} transactions={recurringTransactions} pockets={pockets} {contracts} {partners} {currencies} {selectedAccount} bind:selectedAccountId {isSaving}
+        <RecurringSection bind:form={recurringForm} bind:showArchived={showArchivedRecurring} transactions={recurringTransactions} pockets={pockets} {partners} {currencies} {selectedAccount} bind:selectedAccountId {isSaving}
           on:submit={submitRecurring}
           on:reset={resetRecurringForm}
           on:edit={(e) => editRecurring(e.detail.item)}

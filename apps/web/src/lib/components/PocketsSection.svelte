@@ -49,7 +49,7 @@
           <article class="entity-card">
             <div class="entity-topline">
               <div class="entity-title-with-color"><span class="swatch" style={`background:${hexColor(pocket.color)}`}></span><div><h4>{pocket.name}</h4><p>{accountDisplayName(pocket.accountId, accounts)}</p></div></div>
-              <span class:archived={pocket.isArchived} class="status-pill">{pocket.isArchived ? 'Archived' : pocket.isDefault ? 'Default' : 'Active'}</span>
+              <span class:archived={pocket.isArchived} class="status-pill">{pocket.isArchived ? 'Archived' : pocket.isContractPocket ? 'Contract' : pocket.isDefault ? 'Default' : 'Active'}</span>
             </div>
             <p class="card-text">{pocket.description || 'No description'}</p>
             <div class="entity-actions">

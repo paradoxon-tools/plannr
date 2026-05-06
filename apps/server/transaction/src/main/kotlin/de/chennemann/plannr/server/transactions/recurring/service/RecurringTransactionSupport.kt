@@ -3,8 +3,6 @@ package de.chennemann.plannr.server.transactions.recurring.service
 import de.chennemann.plannr.server.common.domain.normalizeTransactionType
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
-import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketService
@@ -12,22 +10,16 @@ import org.springframework.stereotype.Component
 
 @Component
 class RecurringTransactionContextResolver(
-    private val contractRepository: ContractRepository,
     private val pocketService: PocketService,
     private val partnerService: PartnerService,
 ) {
     suspend fun resolve(
-        contractId: String?,
         sourcePocketId: String?,
         destinationPocketId: String?,
         partnerId: String?,
         transactionType: String,
     ): ResolvedContext {
         val normalizedTransactionType = normalizeTransactionType(transactionType)
-        val contract = contractId?.trim()?.takeIf { it.isNotBlank() }?.let {
-            contractRepository.findById(it)?.toDomain()
-                ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to it))
-        }
         val sourcePocket = sourcePocketId?.trim()?.takeIf { it.isNotBlank() }?.let {
             pocketService.getById(it)
                 ?: throw NotFoundException("not_found", "Pocket not found", mapOf("id" to it))
@@ -52,10 +44,9 @@ class RecurringTransactionContextResolver(
             else -> throw ValidationException("validation_error", "Recurring transaction type is invalid")
         }
 
-        val accountId = contract?.accountId
-            ?: sourcePocket?.accountId
+        val accountId = sourcePocket?.accountId
             ?: destinationPocket?.accountId
-            ?: throw ValidationException("validation_error", "Recurring transaction must reference at least one pocket or a contract")
+            ?: throw ValidationException("validation_error", "Recurring transaction must reference at least one pocket")
 
         listOfNotNull(sourcePocket, destinationPocket).forEach { pocket: Pocket ->
             if (pocket.accountId != accountId) {
@@ -63,20 +54,7 @@ class RecurringTransactionContextResolver(
             }
         }
 
-        if (contract != null) {
-            if (sourcePocket != null && sourcePocket.accountId != contract.accountId) {
-                throw ValidationException("validation_error", "Recurring transaction source pocket must belong to the contract account")
-            }
-            if (destinationPocket != null && destinationPocket.accountId != contract.accountId) {
-                throw ValidationException("validation_error", "Recurring transaction destination pocket must belong to the contract account")
-            }
-            if (sourcePocket?.id != contract.pocketId && destinationPocket?.id != contract.pocketId) {
-                throw ValidationException("validation_error", "Recurring transaction must reference the contract pocket as source or destination")
-            }
-        }
-
         return ResolvedContext(
-            contractId = contract?.id,
             accountId = accountId,
             sourcePocketId = sourcePocket?.id,
             destinationPocketId = destinationPocket?.id,
@@ -85,7 +63,6 @@ class RecurringTransactionContextResolver(
     }
 
     data class ResolvedContext(
-        val contractId: String?,
         val accountId: Long,
         val sourcePocketId: String?,
         val destinationPocketId: String?,

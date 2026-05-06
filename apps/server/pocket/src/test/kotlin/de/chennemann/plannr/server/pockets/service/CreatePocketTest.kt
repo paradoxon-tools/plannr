@@ -16,7 +16,7 @@ class CreatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { true },
-            archiveCascade = NoOpPocketArchiveCascade,
+            contractService = NoOpContractService,
             recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -24,7 +24,24 @@ class CreatePocketTest {
         val created = pocketService.create(PocketFixtures.createPocketCommand())
 
         assertEquals(PocketFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
+        assertEquals(false, created.isContractPocket)
         assertEquals(created, pocketRepository.findById(created.id)?.toDomain())
+    }
+
+    @Test
+    fun `sets contract ownership flag only during creation`() = runTest {
+        val pocketRepository = InMemoryPocketRepository()
+        val pocketService = PocketServiceImpl(
+            pocketRepository = pocketRepository,
+            accountLookup = PocketAccountLookup { true },
+            contractService = NoOpContractService,
+            recurringTransactionService = NoOpRecurringTransactionService,
+            timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
+        )
+
+        val created = pocketService.create(PocketFixtures.createPocketCommand(isContractPocket = true))
+
+        assertEquals(true, created.isContractPocket)
     }
 
     @Test
@@ -32,7 +49,7 @@ class CreatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = InMemoryPocketRepository(),
             accountLookup = PocketAccountLookup { false },
-            archiveCascade = NoOpPocketArchiveCascade,
+            contractService = NoOpContractService,
             recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )

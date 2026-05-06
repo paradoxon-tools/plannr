@@ -6,7 +6,6 @@ import de.chennemann.plannr.server.transactions.recurring.persistence.RecurringT
 import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 
 class InMemoryRecurringTransactionRepository(
-    private val contractIdResolver: (RecurringTransactionModel) -> String? = { null },
     private val accountIdResolver: (RecurringTransactionModel) -> Long = { model ->
         1L
     },
@@ -23,9 +22,8 @@ class InMemoryRecurringTransactionRepository(
         return persisted
     }
     override suspend fun findById(id: String): RecurringTransaction? = values[id]
-    override suspend fun findAll(accountId: Long?, contractId: String?, archived: Boolean): List<RecurringTransaction> =
-        values.values.filter { it.isArchived == archived && (accountId == null || it.accountId == accountId) && (contractId == null || it.contractId == contractId) }
-    override suspend fun findByContractId(contractId: String): List<RecurringTransaction> = values.values.filter { it.contractId == contractId }
+    override suspend fun findAll(accountId: Long?, archived: Boolean): List<RecurringTransaction> =
+        values.values.filter { it.isArchived == archived && (accountId == null || it.accountId == accountId) }
     override suspend fun findByPreviousVersionId(previousVersionId: String): List<RecurringTransaction> = values.values.filter { it.previousVersionId == previousVersionId }
     override suspend fun deleteById(id: String) { values.remove(id) }
 
@@ -42,7 +40,6 @@ class InMemoryRecurringTransactionRepository(
     private fun RecurringTransactionModel.toDomain(fallbackId: String): RecurringTransaction {
         return RecurringTransaction(
             id = id ?: fallbackId,
-            contractId = contractIdResolver(this),
             accountId = accountIdResolver(this),
             sourcePocketId = sourcePocketId,
             destinationPocketId = destinationPocketId,

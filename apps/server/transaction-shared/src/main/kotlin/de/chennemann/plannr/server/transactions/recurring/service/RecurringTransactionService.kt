@@ -14,7 +14,6 @@ interface RecurringTransactionService {
     suspend fun delete(id: String)
 
     data class CreateCommand(
-        val contractId: String?,
         val sourcePocketId: String?,
         val destinationPocketId: String?,
         val partnerId: String?,
@@ -37,7 +36,6 @@ interface RecurringTransactionService {
     data class UpdateCommand(
         val id: String,
         val updateMode: String,
-        val contractId: String?,
         val sourcePocketId: String?,
         val destinationPocketId: String?,
         val partnerId: String?,

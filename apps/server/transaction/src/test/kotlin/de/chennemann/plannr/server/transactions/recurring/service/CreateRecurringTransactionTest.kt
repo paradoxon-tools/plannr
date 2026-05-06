@@ -1,9 +1,6 @@
 package de.chennemann.plannr.server.transactions.recurring.service
 
 import de.chennemann.plannr.server.common.error.ValidationException
-import de.chennemann.plannr.server.contracts.persistence.toModel
-import de.chennemann.plannr.server.contracts.support.ContractFixtures
-import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.FakePartnerService
 import de.chennemann.plannr.server.support.FakePocketService
@@ -20,10 +17,9 @@ class CreateRecurringTransactionTest {
         val recurringRepository = InMemoryRecurringTransactionRepository()
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
-        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
-            contextResolver = contextResolver(pocketService, partnerService, contractRepository),
+            contextResolver = contextResolver(pocketService, partnerService),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
@@ -39,10 +35,9 @@ class CreateRecurringTransactionTest {
         val recurringRepository = InMemoryRecurringTransactionRepository()
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
-        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
-            contextResolver = contextResolver(pocketService, partnerService, contractRepository),
+            contextResolver = contextResolver(pocketService, partnerService),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
@@ -69,10 +64,9 @@ class CreateRecurringTransactionTest {
         val recurringRepository = InMemoryRecurringTransactionRepository()
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
-        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
-            contextResolver = contextResolver(pocketService, partnerService, contractRepository),
+            contextResolver = contextResolver(pocketService, partnerService),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
@@ -100,25 +94,30 @@ class CreateRecurringTransactionTest {
     }
 
     @Test
-    fun `fails when contract pocket is not referenced`() = runTest {
+    fun `fails when pockets belong to different accounts`() = runTest {
         val pocketService = FakePocketService(
             listOf(
                 PocketFixtures.pocket(),
-                PocketFixtures.pocket(id = "poc_456", accountId = PocketFixtures.DEFAULT_ACCOUNT_ID, name = "Savings"),
+                PocketFixtures.pocket(id = "poc_456", accountId = 2L, name = "Savings"),
             ),
         )
         val partnerService = FakePartnerService()
-        val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
         val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = InMemoryRecurringTransactionRepository(),
-            contextResolver = contextResolver(pocketService, partnerService, contractRepository),
+            contextResolver = contextResolver(pocketService, partnerService),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
             normalization = RecurringTransactionNormalization(),
             versioningService = RecurringVersioningService(),
         )
 
         assertFailsWith<ValidationException> {
-            useCase.create(RecurringTransactionFixtures.createCommand(sourcePocketId = "poc_456"))
+            useCase.create(
+                RecurringTransactionFixtures.createCommand(
+                    transactionType = "TRANSFER",
+                    sourcePocketId = PocketFixtures.DEFAULT_ID,
+                    destinationPocketId = "poc_456",
+                ),
+            )
         }
     }
 }

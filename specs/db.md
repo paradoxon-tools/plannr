@@ -108,6 +108,7 @@ A budgeting bucket inside an account.
 | `description` | TEXT | Yes |  | Optional description |
 | `color` | INTEGER | No |  | Display color |
 | `isDefault` | INTEGER | No |  | Whether this is the account default pocket |
+| `isContractPocket` | INTEGER | No |  | Whether this pocket was created for a contract; set only on create |
 | `isArchived` | INTEGER | No |  | Soft archive flag, default `0` |
 | `createdAt` | INTEGER | No |  | Creation timestamp |
 

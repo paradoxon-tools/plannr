@@ -13,11 +13,11 @@ class UpdatePocketTest {
     @Test
     fun `updates existing pocket`() = runTest {
         val pocketRepository = InMemoryPocketRepository()
-        pocketRepository.save(PocketFixtures.pocket().toModel())
+        pocketRepository.save(PocketFixtures.pocket(isContractPocket = true).toModel())
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, 2L) },
-            archiveCascade = NoOpPocketArchiveCascade,
+            contractService = NoOpContractService,
             recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -37,6 +37,7 @@ class UpdatePocketTest {
         assertEquals("Updated description", updated.description)
         assertEquals(99, updated.color)
         assertEquals(true, updated.isDefault)
+        assertEquals(true, updated.isContractPocket)
         assertEquals(PocketFixtures.DEFAULT_CREATED_AT, updated.createdAt)
     }
 
@@ -45,7 +46,7 @@ class UpdatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = InMemoryPocketRepository(),
             accountLookup = PocketAccountLookup { true },
-            archiveCascade = NoOpPocketArchiveCascade,
+            contractService = NoOpContractService,
             recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -62,7 +63,7 @@ class UpdatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { false },
-            archiveCascade = NoOpPocketArchiveCascade,
+            contractService = NoOpContractService,
             recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )

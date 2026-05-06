@@ -7,20 +7,19 @@ import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransa
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 
 fun CreateRecurringTransactionRequest.toCreateCommand() = RecurringTransactionService.CreateCommand(
-    contractId, sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode,
+    sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode,
     transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek,
     weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
 )
 
 fun UpdateRecurringTransactionRequest.toUpdateCommand(id: String) = RecurringTransactionService.UpdateCommand(
-    id, updateMode, contractId, sourcePocketId, destinationPocketId, partnerId, title,
+    id, updateMode, sourcePocketId, destinationPocketId, partnerId, title,
     description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate,
     recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
 )
 
 fun RecurringTransaction.toResponse() = RecurringTransactionResponse(
     id,
-    contractId,
     accountId,
     sourcePocketId,
     destinationPocketId,

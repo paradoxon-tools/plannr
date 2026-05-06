@@ -8,12 +8,12 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 interface PocketRepository : CoroutineCrudRepository<PocketModel, String> {
     @Query(
         """
-        INSERT INTO pockets (id, account_id, name, description, color, is_default, is_archived, created_at)
+        INSERT INTO pockets (id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at)
         VALUES (
             COALESCE(:id, CONCAT('poc_', REPLACE(gen_random_uuid()::text, '-', ''))),
-            :accountId, :name, :description, :color, :isDefault, :isArchived, :createdAt
+            :accountId, :name, :description, :color, :isDefault, :isContractPocket, :isArchived, :createdAt
         )
-        RETURNING id, account_id, name, description, color, is_default, is_archived, created_at
+        RETURNING id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at
         """,
     )
     suspend fun insert(
@@ -23,6 +23,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, String> {
         description: String?,
         color: Int,
         isDefault: Boolean,
+        isContractPocket: Boolean,
         isArchived: Boolean,
         createdAt: Long,
     ): PocketModel
@@ -37,7 +38,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, String> {
             is_default = :isDefault,
             is_archived = :isArchived
         WHERE id = :id
-        RETURNING id, account_id, name, description, color, is_default, is_archived, created_at
+        RETURNING id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at
         """,
     )
     suspend fun update(
@@ -52,7 +53,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, String> {
 
     @Query(
         """
-        SELECT id, account_id, name, description, color, is_default, is_archived, created_at
+        SELECT id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at
         FROM pockets
         WHERE (:accountId IS NULL OR account_id = :accountId)
           AND (:archived IS NULL OR is_archived = :archived)

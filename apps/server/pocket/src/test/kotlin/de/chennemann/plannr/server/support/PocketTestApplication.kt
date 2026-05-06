@@ -1,8 +1,11 @@
 package de.chennemann.plannr.server.support
 
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.service.ContractService
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
-import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 import org.springframework.context.annotation.Bean
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -16,11 +19,14 @@ class PocketTestApplication {
         PocketAccountLookup { true }
 
     @Bean
-    fun pocketArchiveCascade(): PocketArchiveCascade =
-        object : PocketArchiveCascade {
-            override suspend fun archiveFor(pocket: Pocket) = Unit
-
-            override suspend fun unarchiveFor(pocket: Pocket) = Unit
+    fun contractService(): ContractService =
+        object : ContractService {
+            override suspend fun create(pocket: Pocket, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+            override suspend fun update(pocket: Pocket, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+            override suspend fun archiveForPocket(pocketId: String) = Unit
+            override suspend fun unarchiveForPocket(pocketId: String) = Unit
+            override suspend fun delete(id: String) = Unit
+            override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> = emptyList()
         }
 
     @Bean

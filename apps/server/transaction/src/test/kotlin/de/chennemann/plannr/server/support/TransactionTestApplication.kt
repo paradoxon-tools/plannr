@@ -102,6 +102,7 @@ class TransactionTestApplication {
                         description = model.description,
                         color = model.color,
                         isDefault = model.isDefault,
+                        isContractPocket = model.isContractPocket,
                         isArchived = model.isArchived,
                         createdAt = model.createdAt,
                     )

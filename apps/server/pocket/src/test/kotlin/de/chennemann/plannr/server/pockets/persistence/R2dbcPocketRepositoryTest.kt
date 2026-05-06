@@ -37,6 +37,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             description = pocket.description,
             color = pocket.color,
             isDefault = pocket.isDefault,
+            isContractPocket = pocket.isContractPocket,
             isArchived = pocket.isArchived,
             createdAt = pocket.createdAt,
         )
@@ -55,6 +56,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             description = original.description,
             color = original.color,
             isDefault = original.isDefault,
+            isContractPocket = original.isContractPocket,
             isArchived = original.isArchived,
             createdAt = original.createdAt,
         )
@@ -64,6 +66,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             description = null,
             color = 42,
             isDefault = true,
+            isContractPocket = original.isContractPocket,
             isArchived = true,
         )
 
@@ -82,9 +85,9 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `finds all pockets ordered by created at and id and supports filters`() = runBlocking {
-        pocketRepository.insert(id = "poc_2", accountId = 1L, name = "Second", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 2)
-        pocketRepository.insert(id = "poc_1", accountId = 1L, name = "First", description = null, color = 0, isDefault = false, isArchived = true, createdAt = 1)
-        pocketRepository.insert(id = "poc_3", accountId = 2L, name = "Third", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 3)
+        pocketRepository.insert(id = "poc_2", accountId = 1L, name = "Second", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 2)
+        pocketRepository.insert(id = "poc_1", accountId = 1L, name = "First", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = true, createdAt = 1)
+        pocketRepository.insert(id = "poc_3", accountId = 2L, name = "Third", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 3)
 
         val all = pocketRepository.findAllByAccountIdAndArchived(accountId = null, archived = null).toList()
         val filtered = pocketRepository.findAllByAccountIdAndArchived(accountId = 1L, archived = true).toList()

@@ -1,8 +1,8 @@
 package de.chennemann.plannr.server.contracts.support
 
-import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
-import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.contracts.domain.Contract
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
+import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 
 object ContractFixtures {
     const val DEFAULT_ID = "con_123"
@@ -41,7 +41,6 @@ object ContractFixtures {
         )
 
     fun createContractCommand(
-        pocketId: String = DEFAULT_POCKET_ID,
         partnerId: String? = DEFAULT_PARTNER_ID,
         name: String = DEFAULT_NAME,
         startDate: String = DEFAULT_START_DATE,
@@ -49,7 +48,6 @@ object ContractFixtures {
         notes: String? = DEFAULT_NOTES,
     ): CreateContractCommand =
         CreateContractCommand(
-            pocketId = pocketId,
             partnerId = partnerId,
             name = name,
             startDate = startDate,
@@ -59,7 +57,6 @@ object ContractFixtures {
 
     fun updateContractCommand(
         id: String = DEFAULT_ID,
-        pocketId: String = DEFAULT_POCKET_ID,
         partnerId: String? = DEFAULT_PARTNER_ID,
         name: String = DEFAULT_NAME,
         startDate: String = DEFAULT_START_DATE,
@@ -68,7 +65,6 @@ object ContractFixtures {
     ): UpdateContractCommand =
         UpdateContractCommand(
             id = id,
-            pocketId = pocketId,
             partnerId = partnerId,
             name = name,
             startDate = startDate,

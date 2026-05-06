@@ -3,8 +3,11 @@ package de.chennemann.plannr.server.accounts.service
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 
@@ -24,6 +27,8 @@ internal class RecordingPocketService : PocketService {
 
     override suspend fun create(command: CreatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun createContract(pocketId: String, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+    override suspend fun updateContract(pocketId: String, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: String): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: String): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used")

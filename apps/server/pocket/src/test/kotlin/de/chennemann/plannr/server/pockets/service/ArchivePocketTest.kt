@@ -13,20 +13,20 @@ class ArchivePocketTest {
     @Test
     fun `archives pocket and its contract`() = runTest {
         val repository = InMemoryPocketRepository()
-        val archiveCascade = RecordingPocketArchiveCascade()
-        repository.save(PocketFixtures.pocket().toModel())
-        val pocketService = pocketService(repository, archiveCascade)
+        val contractService = RecordingContractService()
+        repository.save(PocketFixtures.pocket(isContractPocket = true).toModel())
+        val pocketService = pocketService(repository, contractService)
 
         val result = pocketService.archive(PocketFixtures.DEFAULT_ID)
 
         assertEquals(true, result.isArchived)
         assertEquals(true, repository.findById(PocketFixtures.DEFAULT_ID)?.isArchived)
-        assertEquals(listOf(PocketFixtures.DEFAULT_ID), archiveCascade.archivedPocketIds)
+        assertEquals(listOf(PocketFixtures.DEFAULT_ID), contractService.archivedPocketIds)
     }
 
     @Test
     fun `fails for unknown pocket`() = runTest {
-        val pocketService = pocketService(InMemoryPocketRepository(), RecordingPocketArchiveCascade())
+        val pocketService = pocketService(InMemoryPocketRepository(), RecordingContractService())
 
         assertFailsWith<NotFoundException> {
             pocketService.archive(PocketFixtures.DEFAULT_ID)

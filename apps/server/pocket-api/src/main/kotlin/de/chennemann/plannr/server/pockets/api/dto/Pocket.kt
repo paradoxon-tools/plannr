@@ -7,6 +7,7 @@ data class Pocket(
     val description: String?,
     val color: Int,
     val isDefault: Boolean,
+    val isContractPocket: Boolean,
     val isArchived: Boolean,
     val createdAt: Long,
 )
