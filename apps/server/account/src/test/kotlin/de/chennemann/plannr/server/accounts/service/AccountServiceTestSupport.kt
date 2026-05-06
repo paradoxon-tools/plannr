@@ -22,10 +22,24 @@ internal fun accountService(
     )
 
 internal class RecordingPocketService : PocketService {
+    val createCommands = mutableListOf<CreatePocketCommand>()
     val archivedAccountIds = mutableListOf<Long>()
     val unarchivedAccountIds = mutableListOf<Long>()
 
-    override suspend fun create(command: CreatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun create(command: CreatePocketCommand): Pocket {
+        createCommands += command
+        return Pocket(
+            id = createCommands.size.toLong(),
+            accountId = command.accountId,
+            name = command.name,
+            description = command.description,
+            color = command.color,
+            isDefault = command.isDefault,
+            isContractPocket = command.isContractPocket,
+            isArchived = false,
+            createdAt = AccountFixtures.DEFAULT_CREATED_AT,
+        )
+    }
     override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun createContract(pocketId: Long, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
     override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")

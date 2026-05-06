@@ -8,6 +8,7 @@ dependencies {
     implementation(project(":account-api"))
     implementation(project(":account-shared"))
     implementation(project(":common"))
+    implementation(project(":pocket-api"))
     implementation(project(":pocket-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework:spring-web")

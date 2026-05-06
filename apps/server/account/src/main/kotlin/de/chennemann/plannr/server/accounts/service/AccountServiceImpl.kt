@@ -11,6 +11,7 @@ import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
@@ -37,6 +38,15 @@ internal class AccountServiceImpl(
                 createdAt = timeProvider(),
             ),
         ).toDomain()
+        pocketService.create(
+            CreatePocketCommand(
+                accountId = created.id,
+                name = DEFAULT_POCKET_NAME,
+                description = null,
+                color = DEFAULT_POCKET_COLOR,
+                isDefault = true,
+            ),
+        )
         return created
     }
 
@@ -100,5 +110,10 @@ internal class AccountServiceImpl(
                 details = mapOf("name" to name, "institution" to institution),
             )
         }
+    }
+
+    private companion object {
+        const val DEFAULT_POCKET_NAME = "Default"
+        const val DEFAULT_POCKET_COLOR = 0
     }
 }

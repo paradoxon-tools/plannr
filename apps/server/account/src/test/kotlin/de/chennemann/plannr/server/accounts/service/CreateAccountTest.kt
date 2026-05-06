@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.ValidationException
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,6 +22,31 @@ class CreateAccountTest {
 
         assertEquals(AccountFixtures.DEFAULT_CURRENCY_CODE, created.currencyCode)
         assertEquals(created, accountRepository.findById(created.id)?.toDomain())
+    }
+
+    @Test
+    fun `creates default pocket for created account`() = runTest {
+        val accountRepository = InMemoryAccountRepository()
+        val pocketService = RecordingPocketService()
+        val accountService = accountService(
+            accountRepository = accountRepository,
+            pocketService = pocketService,
+        )
+
+        val created = accountService.create(AccountFixtures.createAccountCommand())
+
+        assertEquals(
+            listOf(
+                CreatePocketCommand(
+                    accountId = created.id,
+                    name = "Default",
+                    description = null,
+                    color = 0,
+                    isDefault = true,
+                ),
+            ),
+            pocketService.createCommands,
+        )
     }
 
     @Test
