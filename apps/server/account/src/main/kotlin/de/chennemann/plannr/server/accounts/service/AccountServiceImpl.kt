@@ -4,6 +4,7 @@ import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.api.dto.CreateAccountCommand
 import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
+import de.chennemann.plannr.server.accounts.domain.save
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
 import de.chennemann.plannr.server.accounts.persistence.toDomain
 import de.chennemann.plannr.server.common.domain.normalizeCurrency
@@ -44,49 +45,26 @@ internal class AccountServiceImpl(
         ensureNameAvailable(name = command.name, institution = command.institution, currentAccountId = existing.id)
         val currencyCode = normalizeCurrency(command.currencyCode)
         val persisted = accountRepository.save(
-            AccountModel(
-                id = existing.id,
+            existing.copy(
                 name = command.name,
                 institution = command.institution,
                 currencyCode = currencyCode,
                 weekendHandling = command.weekendHandling,
-                isArchived = existing.isArchived,
-                createdAt = existing.createdAt,
             ),
-        ).toDomain()
+        )
         return persisted
     }
 
     override suspend fun archive(id: Long): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.save(
-            AccountModel(
-                id = existing.id,
-                name = existing.name,
-                institution = existing.institution,
-                currencyCode = existing.currencyCode,
-                weekendHandling = existing.weekendHandling,
-                isArchived = true,
-                createdAt = existing.createdAt,
-            ),
-        ).toDomain()
+        val updated = accountRepository.save(existing.copy(isArchived = true))
         pocketService.archiveForAccount(updated.id)
         return updated
     }
 
     override suspend fun unarchive(id: Long): Account {
         val existing = existingAccount(id)
-        val updated = accountRepository.save(
-            AccountModel(
-                id = existing.id,
-                name = existing.name,
-                institution = existing.institution,
-                currencyCode = existing.currencyCode,
-                weekendHandling = existing.weekendHandling,
-                isArchived = false,
-                createdAt = existing.createdAt,
-            ),
-        ).toDomain()
+        val updated = accountRepository.save(existing.copy(isArchived = false))
         pocketService.unarchiveForAccount(updated.id)
         return updated
     }

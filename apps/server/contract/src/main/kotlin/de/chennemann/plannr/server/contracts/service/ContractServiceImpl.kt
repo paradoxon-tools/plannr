@@ -6,9 +6,9 @@ import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.api.dto.Contract as ContractDto
 import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
+import de.chennemann.plannr.server.contracts.domain.save
 import de.chennemann.plannr.server.contracts.persistence.ContractModel
 import de.chennemann.plannr.server.contracts.persistence.toDomain
-import de.chennemann.plannr.server.contracts.persistence.toModel
 import de.chennemann.plannr.server.contracts.service.ContractService as ContractServiceApi
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
@@ -74,14 +74,14 @@ class ContractServiceImpl(
     override suspend fun archiveForPocket(pocketId: Long) {
         contractRepository.findByPocketId(pocketId)?.toDomain()?.let { existing ->
             val updated = existing.archive()
-            contractRepository.save(updated.toModel())
+            contractRepository.save(updated)
         }
     }
 
     override suspend fun unarchiveForPocket(pocketId: Long) {
         contractRepository.findByPocketId(pocketId)?.toDomain()?.let { existing ->
             val updated = existing.unarchive()
-            contractRepository.save(updated.toModel())
+            contractRepository.save(updated)
         }
     }
 

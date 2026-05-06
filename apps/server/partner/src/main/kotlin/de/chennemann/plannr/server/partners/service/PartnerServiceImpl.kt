@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
+import de.chennemann.plannr.server.partners.domain.save
 import de.chennemann.plannr.server.partners.persistence.PartnerModel
 import de.chennemann.plannr.server.partners.persistence.toDomain
 import kotlinx.coroutines.flow.toList
@@ -34,42 +35,23 @@ internal class PartnerServiceImpl(
     override suspend fun update(command: UpdatePartnerCommand): Partner {
         val existing = existingPartner(command.id)
         val persisted = partnerRepository.save(
-            PartnerModel(
-                id = existing.id,
+            existing.copy(
                 name = command.name,
                 notes = command.notes,
-                isArchived = existing.isArchived,
-                createdAt = existing.createdAt,
             ),
-        ).toDomain()
+        )
         return persisted
     }
 
     override suspend fun archive(id: Long): Partner {
         val existing = existingPartner(id)
-        val updated = partnerRepository.save(
-            PartnerModel(
-                id = existing.id,
-                name = existing.name,
-                notes = existing.notes,
-                isArchived = true,
-                createdAt = existing.createdAt,
-            ),
-        ).toDomain()
+        val updated = partnerRepository.save(existing.copy(isArchived = true))
         return updated
     }
 
     override suspend fun unarchive(id: Long): Partner {
         val existing = existingPartner(id)
-        val updated = partnerRepository.save(
-            PartnerModel(
-                id = existing.id,
-                name = existing.name,
-                notes = existing.notes,
-                isArchived = false,
-                createdAt = existing.createdAt,
-            ),
-        ).toDomain()
+        val updated = partnerRepository.save(existing.copy(isArchived = false))
         return updated
     }
 

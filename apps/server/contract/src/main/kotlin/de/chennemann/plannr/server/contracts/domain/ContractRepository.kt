@@ -1,6 +1,8 @@
 package de.chennemann.plannr.server.contracts.domain
 
 import de.chennemann.plannr.server.contracts.persistence.ContractModel
+import de.chennemann.plannr.server.contracts.persistence.toDomain
+import de.chennemann.plannr.server.contracts.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
@@ -19,3 +21,6 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, Long> {
     )
     fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<ContractModel>
 }
+
+suspend fun ContractRepository.save(contract: Contract): Contract =
+    save(contract.toModel()).toDomain()

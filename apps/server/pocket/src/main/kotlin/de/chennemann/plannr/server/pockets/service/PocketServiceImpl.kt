@@ -10,6 +10,7 @@ import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
+import de.chennemann.plannr.server.pockets.domain.save
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
 import de.chennemann.plannr.server.pockets.persistence.toDomain
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
@@ -48,18 +49,14 @@ internal class PocketServiceImpl(
         val existing = existingPocket(command.id)
         val accountId = existingAccountId(command.accountId)
         val persisted = pocketRepository.save(
-            PocketModel(
-                id = existing.id,
+            existing.copy(
                 accountId = accountId,
                 name = command.name,
                 description = command.description,
                 color = command.color,
                 isDefault = command.isDefault,
-                isContractPocket = existing.isContractPocket,
-                isArchived = existing.isArchived,
-                createdAt = existing.createdAt,
             ),
-        ).toDomain()
+        )
         return persisted
     }
 
@@ -71,19 +68,7 @@ internal class PocketServiceImpl(
 
     override suspend fun archive(id: Long): Pocket {
         val existing = existingPocket(id)
-        val updated = pocketRepository.save(
-            PocketModel(
-                id = existing.id,
-                accountId = existing.accountId,
-                name = existing.name,
-                description = existing.description,
-                color = existing.color,
-                isDefault = existing.isDefault,
-                isContractPocket = existing.isContractPocket,
-                isArchived = true,
-                createdAt = existing.createdAt,
-            ),
-        ).toDomain()
+        val updated = pocketRepository.save(existing.copy(isArchived = true))
         if (updated.isContractPocket) {
             contractService.archiveForPocket(updated.id)
         }
@@ -93,19 +78,7 @@ internal class PocketServiceImpl(
 
     override suspend fun unarchive(id: Long): Pocket {
         val existing = existingPocket(id)
-        val updated = pocketRepository.save(
-            PocketModel(
-                id = existing.id,
-                accountId = existing.accountId,
-                name = existing.name,
-                description = existing.description,
-                color = existing.color,
-                isDefault = existing.isDefault,
-                isContractPocket = existing.isContractPocket,
-                isArchived = false,
-                createdAt = existing.createdAt,
-            ),
-        ).toDomain()
+        val updated = pocketRepository.save(existing.copy(isArchived = false))
         if (updated.isContractPocket) {
             contractService.unarchiveForPocket(updated.id)
         }

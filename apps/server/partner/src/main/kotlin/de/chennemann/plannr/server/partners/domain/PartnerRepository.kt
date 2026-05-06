@@ -1,6 +1,9 @@
 package de.chennemann.plannr.server.partners.domain
 
+import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.persistence.PartnerModel
+import de.chennemann.plannr.server.partners.persistence.toDomain
+import de.chennemann.plannr.server.partners.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
@@ -17,3 +20,6 @@ interface PartnerRepository : CoroutineCrudRepository<PartnerModel, Long> {
     )
     fun findAllByQueryAndArchived(query: String?, archived: Boolean): Flow<PartnerModel>
 }
+
+internal suspend fun PartnerRepository.save(partner: Partner): Partner =
+    save(partner.toModel()).toDomain()

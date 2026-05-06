@@ -1,6 +1,9 @@
 package de.chennemann.plannr.server.pockets.domain
 
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
+import de.chennemann.plannr.server.pockets.persistence.toDomain
+import de.chennemann.plannr.server.pockets.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
@@ -17,3 +20,6 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
     )
     fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketModel>
 }
+
+internal suspend fun PocketRepository.save(pocket: Pocket): Pocket =
+    save(pocket.toModel()).toDomain()
