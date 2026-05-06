@@ -21,7 +21,7 @@ class CreateRecurringTransactionTest {
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
-        val useCase = RecurringTransactionService(
+        val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
@@ -40,7 +40,7 @@ class CreateRecurringTransactionTest {
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
-        val useCase = RecurringTransactionService(
+        val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
@@ -70,7 +70,7 @@ class CreateRecurringTransactionTest {
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
-        val useCase = RecurringTransactionService(
+        val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },
@@ -109,7 +109,7 @@ class CreateRecurringTransactionTest {
         )
         val partnerService = FakePartnerService()
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
-        val useCase = RecurringTransactionService(
+        val useCase = RecurringTransactionServiceImpl(
             recurringTransactionRepository = InMemoryRecurringTransactionRepository(),
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT },

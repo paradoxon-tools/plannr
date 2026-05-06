@@ -12,15 +12,15 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class RecurringTransactionService(
+class RecurringTransactionServiceImpl(
     private val recurringTransactionRepository: RecurringTransactionRepository,
     private val contextResolver: RecurringTransactionContextResolver,
     private val timeProvider: TimeProvider,
     private val normalization: RecurringTransactionNormalization,
     private val versioningService: RecurringVersioningService,
-) {
+) : RecurringTransactionService {
     @Transactional
-    suspend fun create(command: CreateCommand): RecurringTransaction {
+    override suspend fun create(command: RecurringTransactionService.CreateCommand): RecurringTransaction {
         val currencyCode = normalizeCurrency(command.currencyCode)
         val context = contextResolver.resolve(command.contractId, command.sourcePocketId, command.destinationPocketId, command.partnerId, command.transactionType)
         val normalizedRecurrence = normalization.normalize(
@@ -63,7 +63,7 @@ class RecurringTransactionService(
     }
 
     @Transactional
-    suspend fun update(command: UpdateCommand): RecurringTransaction {
+    override suspend fun update(command: RecurringTransactionService.UpdateCommand): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(command.id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to command.id.trim()))
         val currencyCode = normalizeCurrency(command.currencyCode)
@@ -116,7 +116,7 @@ class RecurringTransactionService(
     }
 
     @Transactional
-    suspend fun archive(id: String): RecurringTransaction {
+    override suspend fun archive(id: String): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to id.trim()))
         val updated = existing.archive()
@@ -124,7 +124,7 @@ class RecurringTransactionService(
     }
 
     @Transactional
-    suspend fun unarchive(id: String): RecurringTransaction {
+    override suspend fun unarchive(id: String): RecurringTransaction {
         val existing = recurringTransactionRepository.findById(id.trim())
             ?: throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to id.trim()))
         val updated = existing.unarchive()
@@ -132,7 +132,7 @@ class RecurringTransactionService(
     }
 
     @Transactional
-    suspend fun delete(id: String) {
+    override suspend fun delete(id: String) {
         val normalizedId = id.trim()
         if (recurringTransactionRepository.findById(normalizedId) == null) {
             throw NotFoundException("not_found", "Recurring transaction not found", mapOf("id" to normalizedId))
@@ -143,7 +143,7 @@ class RecurringTransactionService(
     private suspend fun createNewVersion(
         existing: RecurringTransaction,
         context: RecurringTransactionContextResolver.ResolvedContext,
-        command: UpdateCommand,
+        command: RecurringTransactionService.UpdateCommand,
         currencyCode: String,
         normalizedRecurrence: RecurringTransactionNormalization.NormalizedFields,
     ): RecurringTransaction {
@@ -178,47 +178,4 @@ class RecurringTransactionService(
         )
     }
 
-    data class CreateCommand(
-        val contractId: String?,
-        val sourcePocketId: String?,
-        val destinationPocketId: String?,
-        val partnerId: String?,
-        val title: String,
-        val description: String?,
-        val amount: Long,
-        val currencyCode: String,
-        val transactionType: String,
-        val firstOccurrenceDate: String,
-        val finalOccurrenceDate: String?,
-        val recurrenceType: String,
-        val skipCount: Int,
-        val daysOfWeek: List<String>?,
-        val weeksOfMonth: List<Int>?,
-        val daysOfMonth: List<Int>?,
-        val monthsOfYear: List<Int>?,
-        val maxRecurrenceCount: Int?,
-    )
-
-    data class UpdateCommand(
-        val id: String,
-        val updateMode: String,
-        val contractId: String?,
-        val sourcePocketId: String?,
-        val destinationPocketId: String?,
-        val partnerId: String?,
-        val title: String,
-        val description: String?,
-        val amount: Long,
-        val currencyCode: String,
-        val transactionType: String,
-        val firstOccurrenceDate: String,
-        val finalOccurrenceDate: String?,
-        val recurrenceType: String,
-        val skipCount: Int,
-        val daysOfWeek: List<String>?,
-        val weeksOfMonth: List<Int>?,
-        val daysOfMonth: List<Int>?,
-        val monthsOfYear: List<Int>?,
-        val maxRecurrenceCount: Int?,
-    )
 }

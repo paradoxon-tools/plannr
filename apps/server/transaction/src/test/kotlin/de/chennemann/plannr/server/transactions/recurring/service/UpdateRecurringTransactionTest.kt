@@ -231,7 +231,7 @@ class UpdateRecurringTransactionTest {
         val pocketService = FakePocketService(listOf(PocketFixtures.pocket()))
         val partnerService = FakePartnerService()
         val contractRepository = InMemoryContractRepository().apply { save(ContractFixtures.contract().toModel()) }
-        return RecurringTransactionService(
+        return RecurringTransactionServiceImpl(
             recurringTransactionRepository = recurringRepository,
             contextResolver = contextResolver(pocketService, partnerService, contractRepository),
             timeProvider = { RecurringTransactionFixtures.DEFAULT_CREATED_AT + 1 },

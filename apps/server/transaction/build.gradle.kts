@@ -4,11 +4,15 @@ plugins {
 
 dependencies {
     implementation(project(":account-api"))
+    implementation(project(":account-shared"))
     implementation(project(":common"))
     implementation(project(":contract"))
     implementation(project(":partner-api"))
+    implementation(project(":partner-shared"))
     implementation(project(":pocket-api"))
+    implementation(project(":pocket-shared"))
     implementation(project(":transaction-api"))
+    implementation(project(":transaction-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
     runtimeOnly("org.postgresql:r2dbc-postgresql")

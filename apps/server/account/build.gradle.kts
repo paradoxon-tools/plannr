@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation(project(":account-api"))
+    implementation(project(":account-shared"))
     implementation(project(":common"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework:spring-web")

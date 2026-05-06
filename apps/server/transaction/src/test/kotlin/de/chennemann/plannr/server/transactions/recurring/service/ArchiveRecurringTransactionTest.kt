@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 class ArchiveRecurringTransactionTest {
     @Test fun `archives`() = runTest {
         val repo = InMemoryRecurringTransactionRepository().apply { save(RecurringTransactionFixtures.recurringTransaction()) }
-        val result = RecurringTransactionService(
+        val result = RecurringTransactionServiceImpl(
             recurringTransactionRepository = repo,
             contextResolver = contextResolver(
                 de.chennemann.plannr.server.support.FakePocketService(),
