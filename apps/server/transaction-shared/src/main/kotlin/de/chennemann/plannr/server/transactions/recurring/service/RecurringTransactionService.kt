@@ -7,6 +7,10 @@ interface RecurringTransactionService {
     suspend fun update(command: UpdateCommand): RecurringTransaction
     suspend fun archive(id: String): RecurringTransaction
     suspend fun unarchive(id: String): RecurringTransaction
+    suspend fun archiveForAccount(accountId: Long)
+    suspend fun unarchiveForAccount(accountId: Long)
+    suspend fun archiveForPocket(accountId: Long, pocketId: String)
+    suspend fun unarchiveForPocket(accountId: Long, pocketId: String)
     suspend fun delete(id: String)
 
     data class CreateCommand(

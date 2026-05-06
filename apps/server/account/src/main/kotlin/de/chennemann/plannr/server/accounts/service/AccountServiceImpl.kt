@@ -10,6 +10,7 @@ import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.pockets.service.PocketService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 internal class AccountServiceImpl(
     private val accountRepository: AccountRepository,
-    private val archiveCascade: AccountArchiveCascade,
+    private val pocketService: PocketService,
     private val timeProvider: TimeProvider,
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
@@ -69,7 +70,7 @@ internal class AccountServiceImpl(
                 createdAt = existing.createdAt,
             ),
         ).toDomain()
-        archiveCascade.archiveFor(updated)
+        pocketService.archiveForAccount(updated.id)
         return updated
     }
 
@@ -86,7 +87,7 @@ internal class AccountServiceImpl(
                 createdAt = existing.createdAt,
             ),
         ).toDomain()
-        archiveCascade.unarchiveFor(updated)
+        pocketService.unarchiveForAccount(updated.id)
         return updated
     }
 

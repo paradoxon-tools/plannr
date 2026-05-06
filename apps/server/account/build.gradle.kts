@@ -8,6 +8,7 @@ dependencies {
     implementation(project(":account-api"))
     implementation(project(":account-shared"))
     implementation(project(":common"))
+    implementation(project(":pocket-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework:spring-web")
 
@@ -15,6 +16,7 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    testImplementation(project(":pocket-api"))
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("org.flywaydb:flyway-database-postgresql")
     testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.4"))

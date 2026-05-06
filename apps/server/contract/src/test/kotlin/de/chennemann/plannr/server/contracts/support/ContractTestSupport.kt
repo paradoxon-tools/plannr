@@ -50,6 +50,10 @@ class FakePocketService(
 
     override suspend fun unarchive(id: String): Pocket = throw UnsupportedOperationException("Not used in contract tests")
 
+    override suspend fun archiveForAccount(accountId: Long) = throw UnsupportedOperationException("Not used in contract tests")
+
+    override suspend fun unarchiveForAccount(accountId: Long) = throw UnsupportedOperationException("Not used in contract tests")
+
     override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used in contract tests")
 
     override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> = pockets.values.toList()

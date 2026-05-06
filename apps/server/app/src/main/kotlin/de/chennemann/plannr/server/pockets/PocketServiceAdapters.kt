@@ -6,8 +6,6 @@ import de.chennemann.plannr.server.contracts.persistence.toDomain
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.pockets.service.PocketArchiveCascade
-import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransactionRepository
-import de.chennemann.plannr.server.transactions.recurring.persistence.toModel
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,7 +19,6 @@ internal class RepositoryPocketAccountLookup(
 @Component
 internal class RepositoryPocketArchiveCascade(
     private val contractRepository: ContractRepository,
-    private val recurringTransactionRepository: RecurringTransactionRepository,
 ) : PocketArchiveCascade {
     override suspend fun archiveFor(pocket: Pocket) {
         contractRepository.findByPocketId(pocket.id)?.toDomain()?.let {
@@ -38,9 +35,6 @@ internal class RepositoryPocketArchiveCascade(
                 isArchived = true,
             )
         }
-        recurringTransactionRepository.findAll(accountId = pocket.accountId, archived = false)
-            .filter { it.sourcePocketId == pocket.id || it.destinationPocketId == pocket.id }
-            .forEach { recurringTransactionRepository.update(it.archive().toModel()) }
     }
 
     override suspend fun unarchiveFor(pocket: Pocket) {
@@ -58,9 +52,6 @@ internal class RepositoryPocketArchiveCascade(
                 isArchived = false,
             )
         }
-        recurringTransactionRepository.findAll(accountId = pocket.accountId, archived = true)
-            .filter { it.sourcePocketId == pocket.id || it.destinationPocketId == pocket.id }
-            .forEach { recurringTransactionRepository.update(it.unarchive().toModel()) }
     }
 }
 

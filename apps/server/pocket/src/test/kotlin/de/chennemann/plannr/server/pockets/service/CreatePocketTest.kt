@@ -17,6 +17,7 @@ class CreatePocketTest {
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { true },
             archiveCascade = NoOpPocketArchiveCascade,
+            recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
 
@@ -32,6 +33,7 @@ class CreatePocketTest {
             pocketRepository = InMemoryPocketRepository(),
             accountLookup = PocketAccountLookup { false },
             archiveCascade = NoOpPocketArchiveCascade,
+            recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
 

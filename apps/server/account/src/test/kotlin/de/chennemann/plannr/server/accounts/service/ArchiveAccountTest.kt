@@ -15,14 +15,14 @@ class ArchiveAccountTest {
         val accountRepository = InMemoryAccountRepository()
         accountRepository.save(AccountFixtures.account().toModel())
         accountRepository.save(AccountFixtures.account(id = 2L, name = "Savings").toModel())
-        val archiveCascade = RecordingAccountArchiveCascade()
-        val accountService = accountService(accountRepository = accountRepository, archiveCascade = archiveCascade)
+        val pocketService = RecordingPocketService()
+        val accountService = accountService(accountRepository = accountRepository, pocketService = pocketService)
 
         val result = accountService.archive(AccountFixtures.DEFAULT_ID)
 
         assertEquals(true, result.isArchived)
         assertEquals(true, accountRepository.findById(AccountFixtures.DEFAULT_ID)?.isArchived)
-        assertEquals(listOf(AccountFixtures.DEFAULT_ID), archiveCascade.archivedAccountIds)
+        assertEquals(listOf(AccountFixtures.DEFAULT_ID), pocketService.archivedAccountIds)
     }
 
     @Test

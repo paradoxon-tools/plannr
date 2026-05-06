@@ -2,6 +2,8 @@ package de.chennemann.plannr.server.contracts.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
+import de.chennemann.plannr.server.contracts.support.FakePartnerService
+import de.chennemann.plannr.server.contracts.support.FakePocketService
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.contracts.support.RecordingContractRecurringTransactionCascade
 import kotlinx.coroutines.test.runTest
@@ -15,9 +17,15 @@ class ArchiveContractTest {
         val repository = InMemoryContractRepository()
         repository.save(ContractFixtures.contract())
         val archiveCascade = RecordingContractRecurringTransactionCascade()
-        val archiveContract = ArchiveContractServiceImpl(repository, archiveCascade)
+        val contractService = ContractServiceImpl(
+            contractRepository = repository,
+            pocketService = FakePocketService(),
+            partnerService = FakePartnerService(),
+            recurringTransactionCascade = archiveCascade,
+            timeProvider = { 0L },
+        )
 
-        val result = archiveContract(ContractFixtures.DEFAULT_ID)
+        val result = contractService.archive(ContractFixtures.DEFAULT_ID)
 
         assertEquals(true, result.isArchived)
         assertEquals(true, repository.findById(ContractFixtures.DEFAULT_ID)?.isArchived)
@@ -26,10 +34,16 @@ class ArchiveContractTest {
 
     @Test
     fun `fails for unknown contract`() = runTest {
-        val archiveContract = ArchiveContractServiceImpl(InMemoryContractRepository(), RecordingContractRecurringTransactionCascade())
+        val contractService = ContractServiceImpl(
+            contractRepository = InMemoryContractRepository(),
+            pocketService = FakePocketService(),
+            partnerService = FakePartnerService(),
+            recurringTransactionCascade = RecordingContractRecurringTransactionCascade(),
+            timeProvider = { 0L },
+        )
 
         assertFailsWith<NotFoundException> {
-            archiveContract(ContractFixtures.DEFAULT_ID)
+            contractService.archive(ContractFixtures.DEFAULT_ID)
         }
     }
 }

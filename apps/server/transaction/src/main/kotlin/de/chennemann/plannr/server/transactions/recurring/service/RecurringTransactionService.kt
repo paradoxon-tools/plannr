@@ -132,6 +132,32 @@ class RecurringTransactionServiceImpl(
     }
 
     @Transactional
+    override suspend fun archiveForAccount(accountId: Long) {
+        recurringTransactionRepository.findAll(accountId = accountId, archived = false)
+            .forEach { recurringTransactionRepository.update(it.archive().toModel()) }
+    }
+
+    @Transactional
+    override suspend fun unarchiveForAccount(accountId: Long) {
+        recurringTransactionRepository.findAll(accountId = accountId, archived = true)
+            .forEach { recurringTransactionRepository.update(it.unarchive().toModel()) }
+    }
+
+    @Transactional
+    override suspend fun archiveForPocket(accountId: Long, pocketId: String) {
+        recurringTransactionRepository.findAll(accountId = accountId, archived = false)
+            .filter { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
+            .forEach { recurringTransactionRepository.update(it.archive().toModel()) }
+    }
+
+    @Transactional
+    override suspend fun unarchiveForPocket(accountId: Long, pocketId: String) {
+        recurringTransactionRepository.findAll(accountId = accountId, archived = true)
+            .filter { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
+            .forEach { recurringTransactionRepository.update(it.unarchive().toModel()) }
+    }
+
+    @Transactional
     override suspend fun delete(id: String) {
         val normalizedId = id.trim()
         if (recurringTransactionRepository.findById(normalizedId) == null) {

@@ -1,7 +1,9 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.accounts.api.dto.Account
-import de.chennemann.plannr.server.accounts.service.AccountArchiveCascade
+import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
+import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
+import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
@@ -10,10 +12,16 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
 @EnableR2dbcRepositories(basePackages = ["de.chennemann.plannr.server"])
 class AccountTestApplication {
     @Bean
-    fun accountArchiveCascade(): AccountArchiveCascade =
-        object : AccountArchiveCascade {
-            override suspend fun archiveFor(account: Account) = Unit
-
-            override suspend fun unarchiveFor(account: Account) = Unit
+    fun pocketService(): PocketService =
+        object : PocketService {
+            override suspend fun create(command: CreatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
+            override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
+            override suspend fun archive(id: String): Pocket = throw UnsupportedOperationException("Not used")
+            override suspend fun unarchive(id: String): Pocket = throw UnsupportedOperationException("Not used")
+            override suspend fun archiveForAccount(accountId: Long) = Unit
+            override suspend fun unarchiveForAccount(accountId: Long) = Unit
+            override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used")
+            override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> = throw UnsupportedOperationException("Not used")
+            override suspend fun getById(id: String): Pocket? = throw UnsupportedOperationException("Not used")
         }
 }

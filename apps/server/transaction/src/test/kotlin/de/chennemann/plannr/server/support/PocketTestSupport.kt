@@ -15,6 +15,8 @@ class FakePocketService(
     override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: String): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: String): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun archiveForAccount(accountId: Long) = throw UnsupportedOperationException("Not used")
+    override suspend fun unarchiveForAccount(accountId: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun delete(id: String) = throw UnsupportedOperationException("Not used")
     override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> = pockets.values.toList()
     override suspend fun getById(id: String): Pocket? = pockets[id.trim()]

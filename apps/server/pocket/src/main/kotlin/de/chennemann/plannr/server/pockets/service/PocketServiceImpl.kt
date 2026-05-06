@@ -7,6 +7,7 @@ import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.persistence.toDomain
+import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +18,7 @@ internal class PocketServiceImpl(
     private val pocketRepository: PocketRepository,
     private val accountLookup: PocketAccountLookup,
     private val archiveCascade: PocketArchiveCascade,
+    private val recurringTransactionService: RecurringTransactionService,
     private val timeProvider: TimeProvider,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
@@ -61,6 +63,7 @@ internal class PocketServiceImpl(
             isArchived = true,
         ).toDomain()
         archiveCascade.archiveFor(updated)
+        recurringTransactionService.archiveForPocket(updated.accountId, updated.id)
         return updated
     }
 
@@ -76,7 +79,18 @@ internal class PocketServiceImpl(
             isArchived = false,
         ).toDomain()
         archiveCascade.unarchiveFor(updated)
+        recurringTransactionService.unarchiveForPocket(updated.accountId, updated.id)
         return updated
+    }
+
+    override suspend fun archiveForAccount(accountId: Long) {
+        list(accountId = accountId).forEach { archive(it.id) }
+        recurringTransactionService.archiveForAccount(accountId)
+    }
+
+    override suspend fun unarchiveForAccount(accountId: Long) {
+        list(accountId = accountId).forEach { unarchive(it.id) }
+        recurringTransactionService.unarchiveForAccount(accountId)
     }
 
     override suspend fun delete(id: String) {

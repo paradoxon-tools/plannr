@@ -81,6 +81,12 @@ class TransactionTestApplication {
             override suspend fun unarchive(id: String): Pocket =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
+            override suspend fun archiveForAccount(accountId: Long) =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
+            override suspend fun unarchiveForAccount(accountId: Long) =
+                throw UnsupportedOperationException("Not used in transaction tests")
+
             override suspend fun delete(id: String) =
                 throw UnsupportedOperationException("Not used in transaction tests")
 
