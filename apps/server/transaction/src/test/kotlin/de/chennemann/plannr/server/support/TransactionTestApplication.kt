@@ -32,7 +32,6 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
         "de.chennemann.plannr.server.accounts.persistence",
         "de.chennemann.plannr.server.partners.persistence",
         "de.chennemann.plannr.server.pockets.persistence",
-        "de.chennemann.plannr.server.contracts.persistence",
     ],
 )
 @EnableR2dbcRepositories(
@@ -40,7 +39,6 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
         "de.chennemann.plannr.server.accounts.domain",
         "de.chennemann.plannr.server.partners.domain",
         "de.chennemann.plannr.server.pockets.domain",
-        "de.chennemann.plannr.server.contracts.domain",
     ],
 )
 class TransactionTestApplication {

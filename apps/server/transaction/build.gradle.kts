@@ -6,7 +6,6 @@ dependencies {
     implementation(project(":account-api"))
     implementation(project(":account-shared"))
     implementation(project(":common"))
-    implementation(project(":contract"))
     implementation(project(":partner-api"))
     implementation(project(":partner-shared"))
     implementation(project(":pocket-api"))
@@ -18,7 +17,6 @@ dependencies {
     runtimeOnly("org.postgresql:r2dbc-postgresql")
 
     testImplementation(project(":account"))
-    testImplementation(project(":contract-api"))
     testImplementation(project(":partner"))
     testImplementation(project(":pocket"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

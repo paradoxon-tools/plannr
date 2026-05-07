@@ -11,17 +11,15 @@ import kotlin.test.assertFailsWith
 
 class ArchivePocketTest {
     @Test
-    fun `archives pocket and its contract`() = runTest {
+    fun `archives pocket and recurring transactions`() = runTest {
         val repository = InMemoryPocketRepository()
-        val contractService = RecordingContractService()
         repository.save(PocketFixtures.pocket(isContractPocket = true).toModel())
-        val pocketService = pocketService(repository, contractService)
+        val pocketService = pocketService(repository)
 
         val result = pocketService.archive(PocketFixtures.DEFAULT_ID)
 
         assertEquals(true, result.isArchived)
         assertEquals(true, repository.findById(PocketFixtures.DEFAULT_ID)?.isArchived)
-        assertEquals(listOf(PocketFixtures.DEFAULT_ID), contractService.archivedPocketIds)
     }
 
     @Test

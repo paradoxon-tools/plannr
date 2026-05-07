@@ -121,10 +121,10 @@ Examples:
 
 A contract:
 
-- belongs to exactly one pocket
+- is metadata on exactly one dedicated pocket
 - may reference one partner
 - is not restricted to a single income/expense type at the API level
-- may have an optional `endDate`
+- may have optional signing, expiration, and cancellation dates
 - is archived through its pocket lifecycle
 
 ### Recurring transaction
@@ -162,18 +162,25 @@ The concrete persistence model can be decided during implementation, but the API
 
 ### Shape
 
-A contract contains at least:
+A contract list item is a pocket with joined contract metadata:
 
 - `id`
 - `accountId`
-- `pocketId`
-- `partnerId` (nullable)
 - `name`
-- `startDate`
-- `endDate` (nullable)
 - `description` (nullable)
+- `color`
+- `isDefault`
+- `isContractPocket`
 - `isArchived`
 - `createdAt`
+- `contractInfo`
+
+`contractInfo` contains:
+
+- `partnerId` (nullable)
+- `signingDate` (nullable)
+- `expirationDate` (nullable)
+- `lastCancellationDate` (nullable)
 
 ### Endpoints
 
@@ -184,10 +191,7 @@ Baseline filtering:
 - `accountId`
 - optional archived filter
 
-#### `GET /contracts/{contractId}`
-Get contract detail.
-
-Contracts do not expose independent create, update, or archive endpoints. Contract metadata is created and updated through the associated pocket, and a user-facing "archive contract" action archives the associated pocket through `POST /pockets/{pocketId}/archive`.
+Contracts do not expose independent create, update, delete, archive, or unarchive endpoints. Contract metadata is created and updated through the associated pocket, and a user-facing "archive contract" action archives the associated pocket through `POST /pockets/{pocketId}/archive`.
 
 ## Recurring transactions
 
@@ -358,8 +362,8 @@ Get pocket detail.
 Update contract metadata for a pocket.
 
 description:
-- request body contains contract metadata and the contract `id`; `pocketId` comes from the path
-- the pocket service validates that the pocket exists before relaying to the contract service
+- request body contains contract metadata; `pocketId` comes from the path
+- the pocket service validates that the pocket exists before updating metadata
 
 #### `PUT /pockets`
 Update a pocket.
@@ -370,7 +374,7 @@ Update a pocket.
 Archive a pocket.
 
 Behavior:
-- archive cascades to its contract, if present
+- archive controls contract visibility because contract lifecycle is derived from the owning pocket
 - archive cascades to recurring transactions wired to the pocket
 
 #### `POST /pockets/{pocketId}/unarchive`
@@ -455,8 +459,9 @@ The API should enforce the following baseline rules.
 - `accountId` in responses is derived from the pocket's account
 - contracts do not own recurring transactions
 - contract lifecycle is controlled by the associated pocket
-- `startDate` must be a plain date
-- `endDate`, if present, must not be before `startDate`
+- contract metadata does not have a standalone id; the pocket id identifies it
+- contract metadata does not duplicate pocket name, description, archive state, account id, or created timestamp
+- date fields, when present, use plain dates
 
 ### Recurring transaction rules
 
@@ -470,7 +475,7 @@ The API should enforce the following baseline rules.
 
 - pocket belongs to exactly one account
 - account archive cascades to child pockets, contracts, and recurring transactions
-- pocket archive cascades to its child contract when `isContractPocket` is set and to recurring transactions wired to the pocket
+- pocket archive controls child contract visibility and cascades to recurring transactions wired to the pocket
 - if `isDefault` is enforced as unique per account, that should be validated at the API boundary
 
 ### Partner rules

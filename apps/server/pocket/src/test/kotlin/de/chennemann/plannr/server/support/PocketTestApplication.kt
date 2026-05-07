@@ -1,10 +1,9 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.contracts.service.ContractService
-import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
-import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
-import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
+import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
+import de.chennemann.plannr.server.partners.api.dto.Partner
+import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
+import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 import org.springframework.context.annotation.Bean
@@ -19,14 +18,15 @@ class PocketTestApplication {
         PocketAccountLookup { true }
 
     @Bean
-    fun contractService(): ContractService =
-        object : ContractService {
-            override suspend fun create(pocket: Pocket, command: CreateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
-            override suspend fun update(pocket: Pocket, command: UpdateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
-            override suspend fun archiveForPocket(pocketId: Long) = Unit
-            override suspend fun unarchiveForPocket(pocketId: Long) = Unit
-            override suspend fun delete(id: Long) = Unit
-            override suspend fun list(accountId: Long?, archived: Boolean): List<PocketWithContract> = emptyList()
+    fun partnerService(): PartnerService =
+        object : PartnerService {
+            override suspend fun create(command: CreatePartnerCommand): Partner = throw UnsupportedOperationException("Not used")
+            override suspend fun update(command: UpdatePartnerCommand): Partner = throw UnsupportedOperationException("Not used")
+            override suspend fun archive(id: Long): Partner = throw UnsupportedOperationException("Not used")
+            override suspend fun unarchive(id: Long): Partner = throw UnsupportedOperationException("Not used")
+            override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")
+            override suspend fun list(query: String?, archived: Boolean): List<Partner> = emptyList()
+            override suspend fun getById(id: Long): Partner? = null
         }
 
     @Bean

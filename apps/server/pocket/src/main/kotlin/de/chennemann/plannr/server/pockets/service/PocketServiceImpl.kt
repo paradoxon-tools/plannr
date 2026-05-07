@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.contracts.service.ContractService
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
@@ -66,9 +65,6 @@ internal class PocketServiceImpl(
     override suspend fun archive(id: Long): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = true))
-        if (updated.isContractPocket) {
-            contractService.archiveForPocket(updated.id)
-        }
         recurringTransactionService.archiveForPocket(updated.accountId, updated.id)
         return updated
     }
@@ -76,9 +72,6 @@ internal class PocketServiceImpl(
     override suspend fun unarchive(id: Long): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = false))
-        if (updated.isContractPocket) {
-            contractService.unarchiveForPocket(updated.id)
-        }
         recurringTransactionService.unarchiveForPocket(updated.accountId, updated.id)
         return updated
     }

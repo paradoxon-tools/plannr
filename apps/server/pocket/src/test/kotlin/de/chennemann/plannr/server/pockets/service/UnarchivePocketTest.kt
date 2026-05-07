@@ -11,17 +11,15 @@ import kotlin.test.assertFailsWith
 
 class UnarchivePocketTest {
     @Test
-    fun `unarchives pocket and its contract`() = runTest {
+    fun `unarchives pocket and recurring transactions`() = runTest {
         val repository = InMemoryPocketRepository()
-        val contractService = RecordingContractService()
         repository.save(PocketFixtures.pocket(isContractPocket = true, isArchived = true).toModel())
-        val pocketService = pocketService(repository, contractService)
+        val pocketService = pocketService(repository)
 
         val result = pocketService.unarchive(PocketFixtures.DEFAULT_ID)
 
         assertEquals(false, result.isArchived)
         assertEquals(false, repository.findById(PocketFixtures.DEFAULT_ID)?.isArchived)
-        assertEquals(listOf(PocketFixtures.DEFAULT_ID), contractService.unarchivedPocketIds)
     }
 
     @Test

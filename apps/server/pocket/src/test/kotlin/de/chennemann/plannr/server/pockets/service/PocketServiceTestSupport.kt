@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.pockets.service
 
-import de.chennemann.plannr.server.contracts.service.ContractService
 import de.chennemann.plannr.server.pockets.api.dto.ContractInfo
 import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
@@ -13,16 +12,11 @@ import de.chennemann.plannr.server.transactions.recurring.service.RecurringTrans
 internal object NoOpContractService : ContractService {
     override suspend fun create(pocket: Pocket, command: CreateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
     override suspend fun update(pocket: Pocket, command: UpdateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
-    override suspend fun archiveForPocket(pocketId: Long) = Unit
-    override suspend fun unarchiveForPocket(pocketId: Long) = Unit
-    override suspend fun delete(id: Long) = Unit
     override suspend fun list(accountId: Long?, archived: Boolean): List<PocketWithContract> = emptyList()
 }
 
 internal class RecordingContractService : ContractService {
     val createdContracts = mutableListOf<Pair<Pocket, CreateContractCommand>>()
-    val archivedPocketIds = mutableListOf<Long>()
-    val unarchivedPocketIds = mutableListOf<Long>()
 
     override suspend fun create(pocket: Pocket, command: CreateContractCommand): PocketWithContract {
         createdContracts += pocket to command
@@ -40,16 +34,6 @@ internal class RecordingContractService : ContractService {
         )
     }
     override suspend fun update(pocket: Pocket, command: UpdateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
-
-    override suspend fun archiveForPocket(pocketId: Long) {
-        archivedPocketIds += pocketId
-    }
-
-    override suspend fun unarchiveForPocket(pocketId: Long) {
-        unarchivedPocketIds += pocketId
-    }
-
-    override suspend fun delete(id: Long) = Unit
     override suspend fun list(accountId: Long?, archived: Boolean): List<PocketWithContract> = emptyList()
 }
 

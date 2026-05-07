@@ -1,8 +1,8 @@
-package de.chennemann.plannr.server.contracts.support
+package de.chennemann.plannr.server.pockets.contracts.support
 
-import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.contracts.persistence.ContractModel
-import de.chennemann.plannr.server.contracts.persistence.PocketWithContractModel
+import de.chennemann.plannr.server.pockets.domain.ContractRepository
+import de.chennemann.plannr.server.pockets.persistence.ContractModel
+import de.chennemann.plannr.server.pockets.persistence.PocketWithContractModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect

@@ -1,10 +1,11 @@
-package de.chennemann.plannr.server.contracts.support
+package de.chennemann.plannr.server.pockets.contracts.support
 
-import de.chennemann.plannr.server.contracts.persistence.ContractModel
 import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
+import de.chennemann.plannr.server.pockets.persistence.ContractModel
 
 object ContractFixtures {
+    const val DEFAULT_ACCOUNT_ID = 1L
     const val DEFAULT_POCKET_ID = 1L
     const val DEFAULT_PARTNER_ID = 1L
     const val DEFAULT_START_DATE = "2024-01-01"
@@ -17,7 +18,13 @@ object ContractFixtures {
         expirationDate: String? = DEFAULT_END_DATE,
         lastCancellationDate: String? = null,
     ): ContractModel =
-        ContractModel(pocketId, partnerId, signingDate, expirationDate, lastCancellationDate)
+        ContractModel(
+            pocketId = pocketId,
+            partnerId = partnerId,
+            signingDate = signingDate,
+            expirationDate = expirationDate,
+            lastCancellationDate = lastCancellationDate,
+        )
 
     fun createContractCommand(
         partnerId: Long? = DEFAULT_PARTNER_ID,
@@ -25,7 +32,12 @@ object ContractFixtures {
         expirationDate: String? = DEFAULT_END_DATE,
         lastCancellationDate: String? = null,
     ): CreateContractCommand =
-        CreateContractCommand(partnerId, signingDate, expirationDate, lastCancellationDate)
+        CreateContractCommand(
+            partnerId = partnerId,
+            signingDate = signingDate,
+            expirationDate = expirationDate,
+            lastCancellationDate = lastCancellationDate,
+        )
 
     fun updateContractCommand(
         partnerId: Long? = DEFAULT_PARTNER_ID,
@@ -33,5 +45,10 @@ object ContractFixtures {
         expirationDate: String? = DEFAULT_END_DATE,
         lastCancellationDate: String? = null,
     ): UpdateContractCommand =
-        UpdateContractCommand(partnerId, signingDate, expirationDate, lastCancellationDate)
+        UpdateContractCommand(
+            partnerId = partnerId,
+            signingDate = signingDate,
+            expirationDate = expirationDate,
+            lastCancellationDate = lastCancellationDate,
+        )
 }

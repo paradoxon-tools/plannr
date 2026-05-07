@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.contracts.persistence
+package de.chennemann.plannr.server.pockets.persistence
 
 import de.chennemann.plannr.server.pockets.api.dto.ContractInfo
 import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract

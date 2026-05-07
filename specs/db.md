@@ -149,27 +149,25 @@ A person or organization associated with a transaction or contract.
 
 ### Contract
 
-Structured metadata attached to a pocket, optionally linked to a partner.
+Structured metadata attached to a pocket, optionally linked to a partner. Contract metadata is owned by the pocket lifecycle and uses the pocket id as its identity.
 
 | Column | Type | Null | Key | description |
 |---|---|---:|---|---|
-| `id` | TEXT | No | PK | Contract identifier |
-| `pocketId` | TEXT | No | Unique, FK | References `Pocket(id)` with `ON DELETE CASCADE` |
+| `pocketId` | TEXT | No | PK, FK | References `Pocket(id)` with `ON DELETE CASCADE` |
 | `partnerId` | TEXT | Yes | FK | References `Partner(id)` with `ON DELETE SET NULL` |
-| `name` | TEXT | No |  | Contract name |
-| `startDate` | TEXT | No |  | Contract start date |
-| `description` | TEXT | Yes |  | Optional description |
-| `isArchived` | INTEGER | No |  | Soft archive flag, default `0` |
-| `createdAt` | INTEGER | No |  | Creation timestamp |
+| `signingDate` | TEXT | Yes |  | Optional signing date |
+| `expirationDate` | TEXT | Yes |  | Optional expiration date |
+| `lastCancellationDate` | TEXT | Yes |  | Optional last cancellation date |
 
 **Relationships:**
-- One contract belongs to exactly one pocket.
+- One contract metadata row belongs to exactly one pocket.
 - A pocket can have at most one contract.
 - A contract can optionally be associated with one partner.
+- Contract name, description, archive state, account id, and created timestamp are derived from the owning pocket.
 
 **Important behavior from queries:**
-- Contract detail queries join the contract with its pocket and calculate a current balance for that pocket.
-- Non-archived contracts can be fetched by account through the pocket relation.
+- Contract list queries join contract metadata with the owning pocket.
+- Non-archived contracts are fetched by filtering the owning pocket's archive state.
 
 ---
 
@@ -350,7 +348,6 @@ Soft archive flags exist on:
 - `Account`
 - `Pocket`
 - `Partner`
-- `Contract`
 - `TransactionRecord`
 
-`Currency`, `RecurringTransaction`, `Tag`, and `TransactionTag` do not use `isArchived`; recurring templates instead use `isActive`.
+`Contract`, `Currency`, `RecurringTransaction`, `Tag`, and `TransactionTag` do not use `isArchived`; contract lifecycle is derived from the owning pocket and recurring templates instead use `isActive`.

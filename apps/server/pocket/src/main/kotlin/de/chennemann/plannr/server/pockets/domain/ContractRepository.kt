@@ -1,7 +1,7 @@
-package de.chennemann.plannr.server.contracts.domain
+package de.chennemann.plannr.server.pockets.domain
 
-import de.chennemann.plannr.server.contracts.persistence.ContractModel
-import de.chennemann.plannr.server.contracts.persistence.PocketWithContractModel
+import de.chennemann.plannr.server.pockets.persistence.ContractModel
+import de.chennemann.plannr.server.pockets.persistence.PocketWithContractModel
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Modifying
 import org.springframework.data.r2dbc.repository.Query

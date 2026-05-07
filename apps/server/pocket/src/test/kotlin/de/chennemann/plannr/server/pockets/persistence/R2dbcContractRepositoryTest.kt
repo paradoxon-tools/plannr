@@ -1,26 +1,24 @@
-package de.chennemann.plannr.server.contracts.persistence
+package de.chennemann.plannr.server.pockets.persistence
 
-import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.contracts.domain.upsert
-import de.chennemann.plannr.server.contracts.support.ContractFixtures
+import de.chennemann.plannr.server.pockets.contracts.support.ContractFixtures
+import de.chennemann.plannr.server.pockets.domain.ContractRepository
+import de.chennemann.plannr.server.pockets.domain.upsert
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.r2dbc.core.DatabaseClient
 import kotlin.test.assertEquals
 
 @Tag("integration")
 class R2dbcContractRepositoryTest : ApiIntegrationTest() {
     @Autowired lateinit var contractRepository: ContractRepository
-    @Autowired lateinit var databaseClient: DatabaseClient
 
     @BeforeEach
-    fun clean() {
+    fun clean() = runBlocking {
         cleanDatabase("contracts", "pockets", "accounts")
     }
 
