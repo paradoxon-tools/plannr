@@ -1,0 +1,24 @@
+meta {
+  name: Insurance & Contracts
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/accounts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Insurance & Contracts",
+    "institution": "C24",
+    "currencyCode": "EUR",
+    "weekendHandling": "NO_SHIFT"
+  }
+}

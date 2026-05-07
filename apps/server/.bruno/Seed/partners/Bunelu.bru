@@ -1,0 +1,22 @@
+meta {
+  name: Bunelu
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Bunelu",
+    "description": null
+  }
+}

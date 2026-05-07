@@ -1,0 +1,18 @@
+meta {
+  name: Unarchive partner
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners/:partnerId/unarchive
+  body: none
+  auth: none
+}
+
+params:path {
+  partnerId: partner-id
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Gisela Hies
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Gisela Hies",
+    "description": null
+  }
+}

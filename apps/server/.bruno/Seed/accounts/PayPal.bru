@@ -1,0 +1,24 @@
+meta {
+  name: PayPal
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/accounts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "PayPal",
+    "institution": "PayPal",
+    "currencyCode": "EUR",
+    "weekendHandling": "NO_SHIFT"
+  }
+}

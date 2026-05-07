@@ -1,0 +1,28 @@
+meta {
+  name: Update contract
+  type: http
+}
+
+put {
+  url: {{baseUrl}}/pockets/:pocketId/contract
+  body: json
+  auth: none
+}
+
+params:path {
+  pocketId: pocket-id
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "partnerId": "partner-id",
+    "signingDate": "2026-01-01",
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

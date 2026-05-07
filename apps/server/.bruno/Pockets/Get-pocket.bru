@@ -1,0 +1,18 @@
+meta {
+  name: Get pocket
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/pockets/:pocketId
+  body: none
+  auth: none
+}
+
+params:path {
+  pocketId: pocket-id
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Duolingo
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Duolingo",
+    "description": "Language learning subscription service."
+  }
+}

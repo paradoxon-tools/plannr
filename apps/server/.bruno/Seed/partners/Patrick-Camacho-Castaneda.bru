@@ -1,0 +1,22 @@
+meta {
+  name: Patrick Camacho Castaneda
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Patrick Camacho Castaneda",
+    "description": null
+  }
+}

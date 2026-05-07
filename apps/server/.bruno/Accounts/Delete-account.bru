@@ -1,0 +1,18 @@
+meta {
+  name: Delete account
+  type: http
+}
+
+delete {
+  url: {{baseUrl}}/accounts/:accountId
+  body: none
+  auth: none
+}
+
+params:path {
+  accountId: 235
+}
+
+headers {
+  Accept: application/json
+}

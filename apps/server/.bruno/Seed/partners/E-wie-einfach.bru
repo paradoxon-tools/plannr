@@ -1,0 +1,22 @@
+meta {
+  name: E wie einfach
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "E wie einfach",
+    "description": "Energy provider."
+  }
+}

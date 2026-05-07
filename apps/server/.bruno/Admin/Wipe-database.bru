@@ -1,0 +1,14 @@
+meta {
+  name: Wipe database
+  type: http
+}
+
+delete {
+  url: {{baseUrl}}/admin/database
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Get account
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/accounts/:accountId
+  body: none
+  auth: none
+}
+
+params:path {
+  accountId: account-id
+}
+
+headers {
+  Accept: application/json
+}

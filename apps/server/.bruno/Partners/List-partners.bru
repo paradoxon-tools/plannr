@@ -1,0 +1,19 @@
+meta {
+  name: List partners
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/partners
+  body: none
+  auth: none
+}
+
+params:query {
+  query: Acme
+  archived: false
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,22 @@
+meta {
+  name: ARD ZDF Deutschlandradio Beitragsservice
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "ARD ZDF Deutschlandradio Beitragsservice",
+    "description": "German public broadcasting fee collection service."
+  }
+}

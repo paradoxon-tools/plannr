@@ -1,0 +1,22 @@
+meta {
+  name: Dr. Paul Peter Polarz
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Dr. Paul Peter Polarz",
+    "description": null
+  }
+}

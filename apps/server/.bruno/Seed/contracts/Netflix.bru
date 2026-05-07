@@ -1,0 +1,36 @@
+meta {
+  name: Netflix
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{seedAccountId}}",
+    "name": "Netflix",
+    "description": null,
+    "color": 13970206,
+    "isDefault": false,
+    "contract": {
+      "partnerId": "{{seedPartnerId}}",
+      "signingDate": null,
+      "expirationDate": null,
+      "lastCancellationDate": null
+    }
+  }
+}
+
+vars:pre-request {
+  accountName: Insurance & Contracts
+  partnerName: Netflix
+}

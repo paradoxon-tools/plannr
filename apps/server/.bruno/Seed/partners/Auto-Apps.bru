@@ -1,0 +1,22 @@
+meta {
+  name: Auto Apps
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Auto Apps",
+    "description": "Ambiguous app or software-related partner inferred from wallet and transaction data."
+  }
+}

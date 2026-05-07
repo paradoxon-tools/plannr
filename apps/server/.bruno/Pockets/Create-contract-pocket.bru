@@ -1,0 +1,31 @@
+meta {
+  name: Create contract pocket
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "account-id",
+    "name": "Mobile plan",
+    "description": "Sample contract",
+    "color": 9125110,
+    "isDefault": false,
+    "contract": {
+      "partnerId": "partner-id",
+      "signingDate": "2026-01-01",
+      "expirationDate": null,
+      "lastCancellationDate": null
+    }
+  }
+}

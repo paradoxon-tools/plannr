@@ -1,0 +1,22 @@
+meta {
+  name: HUK24
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "HUK24",
+    "description": null
+  }
+}

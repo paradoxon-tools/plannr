@@ -1,0 +1,22 @@
+meta {
+  name: The System Vault
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "The System Vault",
+    "description": "Business or project partner inferred from wallet and transaction data."
+  }
+}

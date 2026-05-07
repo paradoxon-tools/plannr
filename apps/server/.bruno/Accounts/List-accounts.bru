@@ -1,0 +1,18 @@
+meta {
+  name: List accounts
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/accounts
+  body: none
+  auth: none
+}
+
+params:query {
+  archived: false
+}
+
+headers {
+  Accept: application/json
+}

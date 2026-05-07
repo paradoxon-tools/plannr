@@ -1,0 +1,18 @@
+meta {
+  name: Delete partner
+  type: http
+}
+
+delete {
+  url: {{baseUrl}}/partners/:partnerId
+  body: none
+  auth: none
+}
+
+params:path {
+  partnerId: partner-id
+}
+
+headers {
+  Accept: application/json
+}

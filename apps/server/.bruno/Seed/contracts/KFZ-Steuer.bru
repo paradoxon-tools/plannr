@@ -1,0 +1,36 @@
+meta {
+  name: KFZ-Steuer
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{seedAccountId}}",
+    "name": "KFZ-Steuer",
+    "description": null,
+    "color": 4545124,
+    "isDefault": false,
+    "contract": {
+      "partnerId": "{{seedPartnerId}}",
+      "signingDate": null,
+      "expirationDate": null,
+      "lastCancellationDate": null
+    }
+  }
+}
+
+vars:pre-request {
+  accountName: Insurance & Contracts
+  partnerName: Hauptzollamt
+}
