@@ -66,13 +66,7 @@ class ContractServiceImpl(
         }
 
     private suspend fun existingPocketWithContract(pocketId: Long): PocketWithContract =
-        contractRepository.findAllWithPocketsByAccountIdAndArchived(accountId = null, archived = false)
-            .toList()
-            .firstOrNull { it.id == pocketId }
+        contractRepository.findWithPocketByPocketId(pocketId)
             ?.toDto()
-            ?: contractRepository.findAllWithPocketsByAccountIdAndArchived(accountId = null, archived = true)
-                .toList()
-                .firstOrNull { it.id == pocketId }
-                ?.toDto()
             ?: throw NotFoundException("not_found", "Contract not found", mapOf("pocketId" to pocketId))
 }

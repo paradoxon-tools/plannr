@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.pockets.contracts.support
 
 import de.chennemann.plannr.server.pockets.domain.ContractRepository
 import de.chennemann.plannr.server.pockets.persistence.ContractModel
-import de.chennemann.plannr.server.pockets.persistence.PocketWithContractModel
+import de.chennemann.plannr.server.pockets.persistence.PocketContractRow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
@@ -33,31 +33,43 @@ class InMemoryContractRepository : ContractRepository {
         return 1
     }
 
-    override fun findAllWithPocketsByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<PocketWithContractModel> =
-        contracts.values
-            .mapNotNull { contract ->
-                val pocket = pockets[contract.pocketId] ?: return@mapNotNull null
-                if (pocket.isArchived != archived || (accountId != null && pocket.accountId != accountId)) {
+    override fun findAllWithPocketsByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<PocketContractRow> =
+        pockets.values
+            .mapNotNull { pocket ->
+                if (!pocket.isContractPocket) {
                     return@mapNotNull null
                 }
-                PocketWithContractModel(
-                    id = pocket.id,
-                    accountId = pocket.accountId,
-                    name = pocket.name,
-                    description = pocket.description,
-                    color = pocket.color,
-                    isDefault = pocket.isDefault,
-                    isContractPocket = pocket.isContractPocket,
-                    isArchived = pocket.isArchived,
-                    createdAt = pocket.createdAt,
-                    partnerId = contract.partnerId,
-                    signingDate = contract.signingDate,
-                    expirationDate = contract.expirationDate,
-                    lastCancellationDate = contract.lastCancellationDate,
-                )
+                val row = joinPocketAndContract(pocket.id) ?: return@mapNotNull null
+                if (row.isArchived != archived || (accountId != null && row.accountId != accountId)) {
+                    return@mapNotNull null
+                }
+                row
             }
-            .sortedWith(compareBy<PocketWithContractModel> { it.createdAt }.thenBy { it.id })
+            .sortedWith(compareBy<PocketContractRow> { it.createdAt }.thenBy { it.id })
             .asFlow()
+
+    override suspend fun findWithPocketByPocketId(pocketId: Long): PocketContractRow? =
+        joinPocketAndContract(pocketId)
+
+    private fun joinPocketAndContract(pocketId: Long): PocketContractRow? {
+        val pocket = pockets[pocketId]?.takeIf { it.isContractPocket } ?: return null
+        val contract = contracts[pocketId]
+        return PocketContractRow(
+            id = pocket.id,
+            accountId = pocket.accountId,
+            name = pocket.name,
+            description = pocket.description,
+            color = pocket.color,
+            isDefault = pocket.isDefault,
+            isContractPocket = pocket.isContractPocket,
+            isArchived = pocket.isArchived,
+            createdAt = pocket.createdAt,
+            partnerId = contract?.partnerId,
+            signingDate = contract?.signingDate,
+            expirationDate = contract?.expirationDate,
+            lastCancellationDate = contract?.lastCancellationDate,
+        )
+    }
 
     override suspend fun existsById(id: Long): Boolean = contracts.containsKey(id)
     override fun findAll(): Flow<ContractModel> = contracts.values.asFlow()

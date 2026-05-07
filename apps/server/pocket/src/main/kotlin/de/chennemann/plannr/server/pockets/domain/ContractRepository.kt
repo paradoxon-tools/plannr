@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.pockets.domain
 
 import de.chennemann.plannr.server.pockets.persistence.ContractModel
-import de.chennemann.plannr.server.pockets.persistence.PocketWithContractModel
+import de.chennemann.plannr.server.pockets.persistence.PocketContractRow
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Modifying
 import org.springframework.data.r2dbc.repository.Query
@@ -45,13 +45,38 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, Long> {
             c.expiration_date,
             c.last_cancellation_date
         FROM pockets p
-        INNER JOIN contracts c ON c.pocket_id = p.id
+        LEFT JOIN contracts c ON c.pocket_id = p.id
         WHERE (:accountId IS NULL OR p.account_id = :accountId)
+          AND p.is_contract_pocket = TRUE
           AND p.is_archived = :archived
         ORDER BY p.created_at ASC, p.id ASC
         """,
     )
-    fun findAllWithPocketsByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<PocketWithContractModel>
+    fun findAllWithPocketsByAccountIdAndArchived(accountId: Long?, archived: Boolean): Flow<PocketContractRow>
+
+    @Query(
+        """
+        SELECT
+            p.id,
+            p.account_id,
+            p.name,
+            p.description,
+            p.color,
+            p.is_default,
+            p.is_contract_pocket,
+            p.is_archived,
+            p.created_at,
+            c.partner_id,
+            c.signing_date,
+            c.expiration_date,
+            c.last_cancellation_date
+        FROM pockets p
+        LEFT JOIN contracts c ON c.pocket_id = p.id
+        WHERE p.id = :pocketId
+          AND p.is_contract_pocket = TRUE
+        """,
+    )
+    suspend fun findWithPocketByPocketId(pocketId: Long): PocketContractRow?
 }
 
 suspend fun ContractRepository.upsert(model: ContractModel) {

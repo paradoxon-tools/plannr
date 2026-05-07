@@ -52,6 +52,18 @@ class R2dbcContractRepositoryTest : ApiIntegrationTest() {
         assertEquals("2024-01-01", active.single().signingDate)
     }
 
+    @Test
+    fun `lists contract pockets even when contract metadata is missing`() = runBlocking {
+        insertAccount(1L)
+        insertPocket(1L, 1L, "Internet", false, 1L)
+
+        val active = contractRepository.findAllWithPocketsByAccountIdAndArchived(null, false).toList()
+
+        assertEquals(listOf(1L), active.map { it.id })
+        assertEquals(null, active.single().partnerId)
+        assertEquals(null, active.single().signingDate)
+    }
+
     private suspend fun insertAccount(id: Long) {
         databaseClient.sql(
             """
