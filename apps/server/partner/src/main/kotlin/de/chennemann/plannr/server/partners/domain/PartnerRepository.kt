@@ -11,7 +11,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 interface PartnerRepository : CoroutineCrudRepository<PartnerModel, Long> {
     @Query(
         """
-        SELECT id, name, notes, is_archived, created_at
+        SELECT id, name, description, is_archived, created_at
         FROM partners
         WHERE (:query IS NULL OR LOWER(name) LIKE LOWER(CONCAT('%', :query, '%')))
           AND is_archived = :archived

@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.persistence.toDomain
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
@@ -29,19 +30,27 @@ class CreatePocketTest {
     }
 
     @Test
-    fun `sets contract ownership flag only during creation`() = runTest {
+    fun `creates contract pocket with nested contract metadata`() = runTest {
         val pocketRepository = InMemoryPocketRepository()
+        val contractService = RecordingContractService()
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { true },
-            contractService = NoOpContractService,
+            contractService = contractService,
             recurringTransactionService = NoOpRecurringTransactionService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
+        val contract = CreateContractCommand(
+            partnerId = null,
+            signingDate = "2026-01-01",
+            expirationDate = null,
+            lastCancellationDate = null,
+        )
 
-        val created = pocketService.create(PocketFixtures.createPocketCommand(isContractPocket = true))
+        val created = pocketService.create(PocketFixtures.createPocketCommand(contract = contract))
 
         assertEquals(true, created.isContractPocket)
+        assertEquals(listOf(created to contract), contractService.createdContracts)
     }
 
     @Test

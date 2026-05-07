@@ -1,11 +1,11 @@
 meta {
-  name: Delete pocket
+  name: Unarchive contract
   type: http
-  seq: 7
+  seq: 3
 }
 
-delete {
-  url: {{baseUrl}}/pockets/:pocketId
+post {
+  url: {{baseUrl}}/pockets/:pocketId/unarchive
   body: none
   auth: none
 }

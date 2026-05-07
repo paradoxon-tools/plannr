@@ -24,7 +24,7 @@ internal class PartnerServiceImpl(
             PartnerModel(
                 id = null,
                 name = command.name,
-                notes = command.notes,
+                description = command.description,
                 isArchived = false,
                 createdAt = timeProvider(),
             ),
@@ -37,7 +37,7 @@ internal class PartnerServiceImpl(
         val persisted = partnerRepository.save(
             existing.copy(
                 name = command.name,
-                notes = command.notes,
+                description = command.description,
             ),
         )
         return persisted

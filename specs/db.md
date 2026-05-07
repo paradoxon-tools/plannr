@@ -60,7 +60,7 @@ TransactionRecord (1) ─────< TransactionTag >───── (1) Tag
 
 Supported currencies and formatting metadata.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | Description |
 |---|---|---:|---|---|
 | `code` | TEXT | No | PK | Currency code, e.g. `EUR`, `USD` |
 | `name` | TEXT | No |  | Display name |
@@ -76,7 +76,7 @@ Supported currencies and formatting metadata.
 
 A real-world financial account such as a bank account.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | Description |
 |---|---|---:|---|---|
 | `id` | TEXT | No | PK | Account identifier |
 | `name` | TEXT | No |  | User-visible account name |
@@ -100,7 +100,7 @@ A real-world financial account such as a bank account.
 
 A budgeting bucket inside an account.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | description |
 |---|---|---:|---|---|
 | `id` | TEXT | No | PK | Pocket identifier |
 | `accountId` | TEXT | No | FK | References `Account(id)` with `ON DELETE CASCADE` |
@@ -128,11 +128,11 @@ A budgeting bucket inside an account.
 
 A person or organization associated with a transaction or contract.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | description |
 |---|---|---:|---|---|
 | `id` | TEXT | No | PK | Partner identifier |
 | `name` | TEXT | No |  | Partner name |
-| `notes` | TEXT | Yes |  | Optional notes |
+| `description` | TEXT | Yes |  | Optional description |
 | `isArchived` | INTEGER | No |  | Soft archive flag, default `0` |
 | `createdAt` | INTEGER | No |  | Creation timestamp |
 
@@ -151,14 +151,14 @@ A person or organization associated with a transaction or contract.
 
 Structured metadata attached to a pocket, optionally linked to a partner.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | description |
 |---|---|---:|---|---|
 | `id` | TEXT | No | PK | Contract identifier |
 | `pocketId` | TEXT | No | Unique, FK | References `Pocket(id)` with `ON DELETE CASCADE` |
 | `partnerId` | TEXT | Yes | FK | References `Partner(id)` with `ON DELETE SET NULL` |
 | `name` | TEXT | No |  | Contract name |
 | `startDate` | TEXT | No |  | Contract start date |
-| `notes` | TEXT | Yes |  | Optional notes |
+| `description` | TEXT | Yes |  | Optional description |
 | `isArchived` | INTEGER | No |  | Soft archive flag, default `0` |
 | `createdAt` | INTEGER | No |  | Creation timestamp |
 
@@ -177,7 +177,7 @@ Structured metadata attached to a pocket, optionally linked to a partner.
 
 A template for generating future transactions.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | description |
 |---|---|---:|---|---|
 | `id` | TEXT | No | PK | Template identifier |
 | `title` | TEXT | No |  | Display title |
@@ -216,7 +216,7 @@ A template for generating future transactions.
 
 The central ledger table for all actual transactions.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | description |
 |---|---|---:|---|---|
 | `id` | TEXT | No | PK | Transaction identifier |
 | `type` | TEXT | No |  | Transaction type enum |
@@ -266,7 +266,7 @@ The central ledger table for all actual transactions.
 
 A reusable label for categorizing transactions.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | description |
 |---|---|---:|---|---|
 | `id` | TEXT | No | PK | Tag identifier |
 | `name` | TEXT | No | Unique | Unique tag name |
@@ -286,7 +286,7 @@ A reusable label for categorizing transactions.
 
 Join table linking tags to transactions.
 
-| Column | Type | Null | Key | Notes |
+| Column | Type | Null | Key | description |
 |---|---|---:|---|---|
 | `transactionId` | TEXT | No | PK, FK | References `TransactionRecord(id)` with `ON DELETE CASCADE` |
 | `tagId` | TEXT | No | PK, FK | References `Tag(id)` with `ON DELETE CASCADE` |

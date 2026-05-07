@@ -1,10 +1,14 @@
 package de.chennemann.plannr.server.pockets.api.dto
 
-data class CreatePocketCommand(
+data class PocketWithContract(
+    val id: Long,
     val accountId: Long,
     val name: String,
     val description: String?,
     val color: Int,
     val isDefault: Boolean,
-    val contract: CreateContractCommand? = null,
+    val isContractPocket: Boolean,
+    val isArchived: Boolean,
+    val createdAt: Long,
+    val contractInfo: ContractInfo,
 )

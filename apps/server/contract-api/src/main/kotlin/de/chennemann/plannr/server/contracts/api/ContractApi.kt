@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.contracts.api
 
-import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.http.HttpStatus
@@ -19,5 +19,5 @@ interface ContractApi {
     suspend fun list(
         @RequestParam(required = false) accountId: Long?,
         @RequestParam(defaultValue = "false") archived: Boolean,
-    ): List<Contract>
+    ): List<PocketWithContract>
 }

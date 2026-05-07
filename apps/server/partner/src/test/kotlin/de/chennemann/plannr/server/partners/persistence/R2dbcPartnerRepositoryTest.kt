@@ -39,7 +39,7 @@ class R2dbcPartnerRepositoryTest : ApiIntegrationTest() {
     fun `updates and finds partner by id`() = runBlocking {
         val original = PartnerFixtures.partner()
         insertPartner(original.toModel())
-        val updated = PartnerFixtures.partner(name = "Updated", notes = null, isArchived = true)
+        val updated = PartnerFixtures.partner(name = "Updated", description = null, isArchived = true)
 
         partnerRepository.save(updated.toModel())
 
@@ -48,9 +48,9 @@ class R2dbcPartnerRepositoryTest : ApiIntegrationTest() {
 
     @Test
     fun `finds all partners ordered by created at and id with filters`() = runBlocking {
-        insertPartner(PartnerModel(id = 2L, name = "Beta GmbH", notes = null, isArchived = false, createdAt = 2))
-        insertPartner(PartnerModel(id = 1L, name = "ACME Corp", notes = null, isArchived = true, createdAt = 1))
-        insertPartner(PartnerModel(id = 3L, name = "Acme Services", notes = null, isArchived = false, createdAt = 3))
+        insertPartner(PartnerModel(id = 2L, name = "Beta GmbH", description = null, isArchived = false, createdAt = 2))
+        insertPartner(PartnerModel(id = 1L, name = "ACME Corp", description = null, isArchived = true, createdAt = 1))
+        insertPartner(PartnerModel(id = 3L, name = "Acme Services", description = null, isArchived = false, createdAt = 3))
 
         val defaultList = partnerRepository.findAllByQueryAndArchived(query = null, archived = false).toList()
         val queryList = partnerRepository.findAllByQueryAndArchived(query = "acme", archived = false).toList()
@@ -64,15 +64,15 @@ class R2dbcPartnerRepositoryTest : ApiIntegrationTest() {
     private suspend fun insertPartner(partner: PartnerModel) {
         val spec = testDatabaseClient.sql(
             """
-            INSERT INTO partners (id, name, notes, is_archived, created_at)
-            VALUES (:id, :name, :notes, :isArchived, :createdAt)
+            INSERT INTO partners (id, name, description, is_archived, created_at)
+            VALUES (:id, :name, :description, :isArchived, :createdAt)
             """.trimIndent(),
         )
             .bind("id", requireNotNull(partner.id))
             .bind("name", partner.name)
             .bind("isArchived", partner.isArchived)
             .bind("createdAt", partner.createdAt)
-        val boundSpec = partner.notes?.let { spec.bind("notes", it) } ?: spec.bindNull("notes", String::class.java)
+        val boundSpec = partner.description?.let { spec.bind("description", it) } ?: spec.bindNull("description", String::class.java)
         boundSpec
             .fetch()
             .rowsUpdated()

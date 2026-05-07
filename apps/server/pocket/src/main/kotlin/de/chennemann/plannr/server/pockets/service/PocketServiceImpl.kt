@@ -2,11 +2,10 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.contracts.api.dto.Contract
 import de.chennemann.plannr.server.contracts.service.ContractService
-import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
@@ -37,11 +36,12 @@ internal class PocketServiceImpl(
                 description = command.description,
                 color = command.color,
                 isDefault = command.isDefault,
-                isContractPocket = command.isContractPocket,
+                isContractPocket = command.contract != null,
                 isArchived = false,
                 createdAt = timeProvider(),
             ),
         ).toDomain()
+        command.contract?.let { contractService.create(created, it) }
         return created
     }
 
@@ -60,10 +60,7 @@ internal class PocketServiceImpl(
         return persisted
     }
 
-    override suspend fun createContract(pocketId: Long, command: CreateContractCommand): Contract =
-        contractService.create(existingPocket(pocketId), command)
-
-    override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): Contract =
+    override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): PocketWithContract =
         contractService.update(existingPocket(pocketId), command)
 
     override suspend fun archive(id: Long): Pocket {

@@ -2,8 +2,6 @@ package de.chennemann.plannr.server.contracts.service
 
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.contracts.persistence.toDomain
-import de.chennemann.plannr.server.contracts.persistence.toModel
 import de.chennemann.plannr.server.contracts.support.ContractTestPartners
 import de.chennemann.plannr.server.contracts.support.ContractTestPockets
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
@@ -21,13 +19,12 @@ class CreateContractTest {
         val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
             partnerService = FakePartnerService(listOf(ContractTestPartners.partner())),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         val created = createContract.create(ContractTestPockets.pocket(), ContractFixtures.createContractCommand())
 
         assertEquals(ContractFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
-        assertEquals(created.id, contractRepository.findById(created.id)?.toDomain()?.id)
+        assertEquals(created.id, contractRepository.findById(created.id)?.pocketId)
     }
 
     @Test
@@ -36,22 +33,20 @@ class CreateContractTest {
         val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
             partnerService = FakePartnerService(emptyList()),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         val created = createContract.create(ContractTestPockets.pocket(), ContractFixtures.createContractCommand(partnerId = null))
 
-        assertEquals(null, created.partnerId)
+        assertEquals(null, created.contractInfo.partnerId)
     }
 
     @Test
     fun `fails when pocket already has a contract`() = runTest {
         val contractRepository = InMemoryContractRepository()
-        contractRepository.save(ContractFixtures.contract().toModel())
+        contractRepository.save(ContractFixtures.contractModel())
         val createContract = ContractServiceImpl(
             contractRepository = contractRepository,
             partnerService = FakePartnerService(listOf(ContractTestPartners.partner())),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         assertFailsWith<ConflictException> {
@@ -64,7 +59,6 @@ class CreateContractTest {
         val createContract = ContractServiceImpl(
             contractRepository = InMemoryContractRepository(),
             partnerService = FakePartnerService(emptyList()),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         assertFailsWith<NotFoundException> {

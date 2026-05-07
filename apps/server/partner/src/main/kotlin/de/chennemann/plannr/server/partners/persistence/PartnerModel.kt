@@ -10,7 +10,7 @@ data class PartnerModel(
     @Id
     val id: Long?,
     val name: String,
-    val notes: String?,
+    val description: String?,
     @Column("is_archived")
     val isArchived: Boolean,
     @Column("created_at")
@@ -21,7 +21,7 @@ internal fun PartnerModel.toDomain(): Partner =
     Partner(
         id = requireNotNull(id) { "PartnerModel.id must not be null when mapping to domain" },
         name = name,
-        notes = notes,
+        description = description,
         isArchived = isArchived,
         createdAt = createdAt,
     )
@@ -30,7 +30,7 @@ internal fun Partner.toModel(): PartnerModel =
     PartnerModel(
         id = id,
         name = name,
-        notes = notes,
+        description = description,
         isArchived = isArchived,
         createdAt = createdAt,
     )

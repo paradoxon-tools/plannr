@@ -22,12 +22,12 @@ class UpdatePartnerTest {
         val updated = partnerService.update(
             PartnerFixtures.updatePartnerCommand(
                 name = "Updated Partner",
-                notes = null,
+                description = null,
             ),
         )
 
         assertEquals("Updated Partner", updated.name)
-        assertEquals(null, updated.notes)
+        assertEquals(null, updated.description)
         assertEquals(PartnerFixtures.DEFAULT_CREATED_AT, updated.createdAt)
     }
 

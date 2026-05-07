@@ -1,9 +1,8 @@
 package de.chennemann.plannr.server.pockets.api
 
-import de.chennemann.plannr.server.contracts.api.dto.Contract
-import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
@@ -20,10 +19,7 @@ class PocketController(
     override suspend fun update(command: UpdatePocketCommand): Pocket =
         pocketService.update(command)
 
-    override suspend fun createContract(id: Long, command: CreateContractCommand): Contract =
-        pocketService.createContract(id, command)
-
-    override suspend fun updateContract(id: Long, command: UpdateContractCommand): Contract =
+    override suspend fun updateContract(id: Long, command: UpdateContractCommand): PocketWithContract =
         pocketService.updateContract(id, command)
 
     override suspend fun archive(id: Long): Pocket =

@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.pockets.support
 
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
@@ -31,9 +32,9 @@ object PocketFixtures {
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
-        isContractPocket: Boolean = false,
+        contract: CreateContractCommand? = null,
     ): CreatePocketCommand =
-        CreatePocketCommand(accountId, name, description, color, isDefault, isContractPocket)
+        CreatePocketCommand(accountId, name, description, color, isDefault, contract)
 
     fun updatePocketCommand(
         id: Long = DEFAULT_ID,

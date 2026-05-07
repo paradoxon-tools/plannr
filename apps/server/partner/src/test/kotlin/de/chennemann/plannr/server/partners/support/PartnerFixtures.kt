@@ -13,36 +13,36 @@ object PartnerFixtures {
     fun partner(
         id: Long = DEFAULT_ID,
         name: String = DEFAULT_NAME,
-        notes: String? = DEFAULT_NOTES,
+        description: String? = DEFAULT_NOTES,
         isArchived: Boolean = false,
         createdAt: Long = DEFAULT_CREATED_AT,
     ): Partner =
         Partner(
             id = id,
             name = name,
-            notes = notes,
+            description = description,
             isArchived = isArchived,
             createdAt = createdAt,
         )
 
     fun createPartnerCommand(
         name: String = DEFAULT_NAME,
-        notes: String? = DEFAULT_NOTES,
+        description: String? = DEFAULT_NOTES,
     ): CreatePartnerCommand =
         CreatePartnerCommand(
             name = name,
-            notes = notes,
+            description = description,
         )
 
     fun updatePartnerCommand(
         id: Long = DEFAULT_ID,
         name: String = DEFAULT_NAME,
-        notes: String? = DEFAULT_NOTES,
+        description: String? = DEFAULT_NOTES,
     ): UpdatePartnerCommand =
         UpdatePartnerCommand(
             id = id,
             name = name,
-            notes = notes,
+            description = description,
         )
 
 }

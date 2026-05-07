@@ -81,7 +81,7 @@ class InMemoryPartnerRepository : PartnerRepository {
         Partner(
             id = requireNotNull(id),
             name = name,
-            notes = notes,
+            description = description,
             isArchived = isArchived,
             createdAt = createdAt,
         )

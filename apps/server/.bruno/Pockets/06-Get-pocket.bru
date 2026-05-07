@@ -1,11 +1,11 @@
 meta {
-  name: Unarchive pocket
+  name: Get pocket
   type: http
-  seq: 4
+  seq: 6
 }
 
-post {
-  url: {{baseUrl}}/pockets/:pocketId/unarchive
+get {
+  url: {{baseUrl}}/pockets/:pocketId
   body: none
   auth: none
 }

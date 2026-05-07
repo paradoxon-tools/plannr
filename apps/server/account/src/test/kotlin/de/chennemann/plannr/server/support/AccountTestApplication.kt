@@ -1,12 +1,11 @@
 package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
-import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
-import de.chennemann.plannr.server.contracts.api.dto.Contract
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
@@ -19,8 +18,7 @@ class AccountTestApplication {
         object : PocketService {
             override suspend fun create(command: CreatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
             override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
-            override suspend fun createContract(pocketId: Long, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
-            override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+            override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
             override suspend fun archive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
             override suspend fun unarchive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
             override suspend fun archiveForAccount(accountId: Long) = Unit

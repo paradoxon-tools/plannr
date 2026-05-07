@@ -1,17 +1,17 @@
 meta {
-  name: Archive contract
+  name: Archive pocket
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
-  url: {{baseUrl}}/contracts/:contractId/archive
+  url: {{baseUrl}}/pockets/:pocketId/archive
   body: none
   auth: none
 }
 
 params:path {
-  contractId: contract-id
+  pocketId: pocket-id
 }
 
 headers {

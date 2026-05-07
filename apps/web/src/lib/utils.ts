@@ -37,7 +37,7 @@ export function createEmptyPocketForm(accountId: number | null = null): PocketFo
 }
 
 export function createEmptyPartnerForm(): PartnerForm {
-  return { id: null, name: '', notes: '' };
+  return { id: null, name: '', description: '' };
 }
 
 export function createEmptyContractForm(accountId: number | null = null): ContractForm {
@@ -47,9 +47,9 @@ export function createEmptyContractForm(accountId: number | null = null): Contra
     pocketId: '',
     partnerId: '',
     name: '',
-    startDate: today(),
-    endDate: '',
-    notes: ''
+    signingDate: today(),
+    expirationDate: '',
+    lastCancellationDate: ''
   };
 }
 

@@ -1,13 +1,17 @@
 meta {
-  name: Create contract
+  name: Update contract
   type: http
   seq: 1
 }
 
-post {
-  url: {{baseUrl}}/contracts
+put {
+  url: {{baseUrl}}/pockets/:pocketId/contract
   body: json
   auth: none
+}
+
+params:path {
+  pocketId: pocket-id
 }
 
 headers {
@@ -17,11 +21,10 @@ headers {
 
 body:json {
   {
-    "pocketId": "pocket-id",
+    "id": "contract-id",
     "partnerId": "partner-id",
-    "name": "Mobile plan",
     "startDate": "2026-01-01",
     "endDate": null,
-    "notes": "Sample contract"
+    "description": "Updated sample contract"
   }
 }

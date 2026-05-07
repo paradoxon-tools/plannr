@@ -171,7 +171,7 @@ A contract contains at least:
 - `name`
 - `startDate`
 - `endDate` (nullable)
-- `notes` (nullable)
+- `description` (nullable)
 - `isArchived`
 - `createdAt`
 
@@ -253,7 +253,7 @@ Because history is baseline behavior, implementation should model lineage/versio
 #### `POST /recurring-transactions`
 Create a recurring transaction.
 
-Notes:
+description:
 - must be wired through source and/or destination pockets
 
 #### `GET /recurring-transactions`
@@ -269,7 +269,7 @@ Get recurring transaction detail.
 #### `PUT /recurring-transactions/{recurringTransactionId}`
 Update a recurring transaction.
 
-Notes:
+description:
 - request must specify intended update mode
 - baseline modes: `overwrite`, `effective_from`, `parallel`
 
@@ -337,7 +337,12 @@ A pocket contains at least:
 #### `POST /pockets`
 Create a pocket.
 
-Create accepts `isContractPocket`; it defaults to `false` and is returned on the pocket model.
+Create accepts pocket metadata and may include an optional `contract` object. `isContractPocket` is inferred from whether `contract` is present and is returned on the pocket model.
+
+When `contract` is present:
+- the pocket is created with `isContractPocket = true`
+- the contract metadata is created in the same request
+- the contract's `pocketId` comes from the created pocket
 
 #### `GET /pockets`
 List pockets.
@@ -349,18 +354,10 @@ Baseline filtering may include:
 #### `GET /pockets/{pocketId}`
 Get pocket detail.
 
-#### `POST /pockets/{pocketId}/contract`
-Create contract metadata for a pocket.
-
-Notes:
-- request body contains contract metadata only; `pocketId` comes from the path
-- the pocket service validates that the pocket exists before relaying to the contract service
-- fails if the pocket already has a contract
-
 #### `PUT /pockets/{pocketId}/contract`
 Update contract metadata for a pocket.
 
-Notes:
+description:
 - request body contains contract metadata and the contract `id`; `pocketId` comes from the path
 - the pocket service validates that the pocket exists before relaying to the contract service
 
@@ -387,7 +384,7 @@ A partner contains at least:
 
 - `id`
 - `name`
-- `notes` (nullable)
+- `description` (nullable)
 - `isArchived`
 - `createdAt`
 

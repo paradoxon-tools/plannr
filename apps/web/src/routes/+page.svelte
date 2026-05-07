@@ -12,8 +12,8 @@
     Account,
     AccountForm,
     ApiErrorEnvelope,
-    Contract,
     ContractForm,
+    PocketWithContract,
     Currency,
     Notice,
     Partner,
@@ -55,7 +55,7 @@
   let accounts: Account[] = [];
   let pockets: Pocket[] = [];
   let partners: Partner[] = [];
-  let contracts: Contract[] = [];
+  let contracts: PocketWithContract[] = [];
   let recurringTransactions: RecurringTransaction[] = [];
   let currencies: Currency[] = supportedCurrencies;
 
@@ -99,8 +99,8 @@
           api<Pocket[]>('/pockets?archived=true'),
           api<Partner[]>('/partners?archived=false'),
           api<Partner[]>('/partners?archived=true'),
-          api<Contract[]>('/contracts?archived=false'),
-          api<Contract[]>('/contracts?archived=true'),
+          api<PocketWithContract[]>('/contracts?archived=false'),
+          api<PocketWithContract[]>('/contracts?archived=true'),
           api<RecurringTransaction[]>('/recurring-transactions?archived=false'),
           api<RecurringTransaction[]>('/recurring-transactions?archived=true')
         ]);
@@ -165,13 +165,22 @@
 
   function editPartner(partner: Partner) {
     activeSection = 'partners';
-    partnerForm = { id: partner.id, name: partner.name, notes: partner.notes ?? '' };
+    partnerForm = { id: partner.id, name: partner.name, description: partner.description ?? '' };
   }
 
-  function editContract(contract: Contract) {
+  function editContract(contract: PocketWithContract) {
     activeSection = 'contracts';
     selectedAccountId = contract.accountId;
-    contractForm = { id: contract.id, accountId: contract.accountId, pocketId: contract.pocketId, partnerId: contract.partnerId ?? '', name: contract.name, startDate: contract.startDate, endDate: contract.endDate ?? '', notes: contract.notes ?? '' };
+    contractForm = {
+      id: contract.id,
+      accountId: contract.accountId,
+      pocketId: contract.id,
+      partnerId: contract.contractInfo.partnerId ?? '',
+      name: contract.name,
+      signingDate: contract.contractInfo.signingDate ?? '',
+      expirationDate: contract.contractInfo.expirationDate ?? '',
+      lastCancellationDate: contract.contractInfo.lastCancellationDate ?? ''
+    };
   }
 
   function editRecurring(item: RecurringTransaction) {
@@ -228,7 +237,7 @@
   async function submitPartner() {
     isSaving = true;
     try {
-      const payload = { name: partnerForm.name, notes: normalizeOptionalString(partnerForm.notes) };
+      const payload = { name: partnerForm.name, description: normalizeOptionalString(partnerForm.description) };
       if (partnerForm.id) await api('/partners', { method: 'PUT', body: JSON.stringify({ id: partnerForm.id, ...payload }) });
       else await api('/partners', { method: 'POST', body: JSON.stringify(payload) });
       await loadAll();
@@ -241,45 +250,41 @@
     isSaving = true;
     try {
       let pocketId = contractForm.pocketId;
-      const existingContract = contractForm.id ? contracts.find((item) => item.id === contractForm.id) : null;
       const existingPocket = pocketId ? pockets.find((item) => item.id === pocketId) : null;
-      const needsNewPocket = !contractForm.id || existingContract?.accountId !== contractForm.accountId || !pocketId;
+      const needsNewPocket = !contractForm.id || !pocketId;
+      const payload = {
+        partnerId: normalizeOptionalString(contractForm.partnerId),
+        signingDate: normalizeOptionalString(contractForm.signingDate),
+        expirationDate: normalizeOptionalString(contractForm.expirationDate),
+        lastCancellationDate: normalizeOptionalString(contractForm.lastCancellationDate)
+      };
 
       if (needsNewPocket) {
-        const createdPocket = await api<Pocket>('/pockets', {
+        await api<Pocket>('/pockets', {
           method: 'POST',
           body: JSON.stringify({
             accountId: contractForm.accountId,
             name: contractForm.name,
-            description: normalizeOptionalString(contractForm.notes),
+            description: null,
             color: colorPalette[8],
             isDefault: false,
-            isContractPocket: true
+            contract: payload
           })
         });
-        pocketId = createdPocket.id;
       } else if (existingPocket) {
         await api<Pocket>(`/pockets/${existingPocket.id}`, {
           method: 'PUT',
           body: JSON.stringify({
-            accountId: existingPocket.accountId,
+            accountId: contractForm.accountId ?? existingPocket.accountId,
             name: contractForm.name,
-            description: normalizeOptionalString(contractForm.notes),
+            description: existingPocket.description,
             color: existingPocket.color,
             isDefault: existingPocket.isDefault
           })
         });
       }
 
-      const payload = {
-        partnerId: normalizeOptionalString(contractForm.partnerId),
-        name: contractForm.name,
-        startDate: contractForm.startDate,
-        endDate: normalizeOptionalString(contractForm.endDate),
-        notes: normalizeOptionalString(contractForm.notes)
-      };
-      if (contractForm.id) await api(`/pockets/${pocketId}/contract`, { method: 'PUT', body: JSON.stringify({ id: contractForm.id, ...payload }) });
-      else await api(`/pockets/${pocketId}/contract`, { method: 'POST', body: JSON.stringify(payload) });
+      if (contractForm.id) await api(`/pockets/${pocketId}/contract`, { method: 'PUT', body: JSON.stringify(payload) });
       await loadAll();
       resetContractForm();
       setNotice('success', 'Contract saved and pocket prepared automatically.');
@@ -381,8 +386,8 @@
           on:submit={submitContract}
           on:reset={resetContractForm}
           on:edit={(e) => editContract(e.detail.contract)}
-          on:archive={(e) => toggleArchive('pockets', e.detail.contract.pocketId, e.detail.contract.isArchived)}
-          on:addRecurring={(e) => { recurringForm.sourcePocketId = e.detail.contract.pocketId; activeSection = 'recurring'; }} />
+          on:archive={(e) => toggleArchive('pockets', e.detail.contract.id, e.detail.contract.isArchived)}
+          on:addRecurring={(e) => { recurringForm.sourcePocketId = e.detail.contract.id; activeSection = 'recurring'; }} />
       {/if}
 
       {#if activeSection === 'recurring'}

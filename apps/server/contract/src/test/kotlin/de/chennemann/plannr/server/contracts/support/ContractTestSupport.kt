@@ -26,11 +26,11 @@ object ContractTestPartners {
     fun partner(
         id: Long = 1L,
         name: String = "ACME Corp",
-        notes: String? = "Preferred partner",
+        description: String? = "Preferred partner",
         isArchived: Boolean = false,
         createdAt: Long = 1_710_000_200L,
     ): Partner =
-        Partner(id, name, notes, isArchived, createdAt)
+        Partner(id, name, description, isArchived, createdAt)
 }
 
 class FakePartnerService(

@@ -31,22 +31,29 @@ export type Pocket = {
 export type Partner = {
   id: string;
   name: string;
-  notes: string | null;
+  description: string | null;
   isArchived: boolean;
   createdAt: number;
 };
 
-export type Contract = {
+export type ContractInfo = {
+  partnerId: string | null;
+  signingDate: string | null;
+  expirationDate: string | null;
+  lastCancellationDate: string | null;
+};
+
+export type PocketWithContract = {
   id: string;
   accountId: number;
-  pocketId: string;
-  partnerId: string | null;
   name: string;
-  startDate: string;
-  endDate: string | null;
-  notes: string | null;
+  description: string | null;
+  color: number;
+  isDefault: boolean;
+  isContractPocket: boolean;
   isArchived: boolean;
   createdAt: number;
+  contractInfo: ContractInfo;
 };
 
 export type RecurringTransaction = {
@@ -115,7 +122,7 @@ export type PocketForm = {
 export type PartnerForm = {
   id: string | null;
   name: string;
-  notes: string;
+  description: string;
 };
 
 export type ContractForm = {
@@ -124,9 +131,9 @@ export type ContractForm = {
   pocketId: string;
   partnerId: string;
   name: string;
-  startDate: string;
-  endDate: string;
-  notes: string;
+  signingDate: string;
+  expirationDate: string;
+  lastCancellationDate: string;
 };
 
 export type RecurringForm = {

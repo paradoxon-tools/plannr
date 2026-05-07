@@ -4,5 +4,4 @@ plugins {
 
 dependencies {
     implementation(project(":common"))
-    implementation(project(":contract-api"))
 }

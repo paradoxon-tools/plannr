@@ -1,9 +1,9 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.contracts.api.dto.Contract
 import de.chennemann.plannr.server.contracts.service.ContractService
 import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
@@ -21,12 +21,12 @@ class PocketTestApplication {
     @Bean
     fun contractService(): ContractService =
         object : ContractService {
-            override suspend fun create(pocket: Pocket, command: CreateContractCommand): Contract = throw UnsupportedOperationException("Not used")
-            override suspend fun update(pocket: Pocket, command: UpdateContractCommand): Contract = throw UnsupportedOperationException("Not used")
+            override suspend fun create(pocket: Pocket, command: CreateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
+            override suspend fun update(pocket: Pocket, command: UpdateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
             override suspend fun archiveForPocket(pocketId: Long) = Unit
             override suspend fun unarchiveForPocket(pocketId: Long) = Unit
             override suspend fun delete(id: Long) = Unit
-            override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> = emptyList()
+            override suspend fun list(accountId: Long?, archived: Boolean): List<PocketWithContract> = emptyList()
         }
 
     @Bean

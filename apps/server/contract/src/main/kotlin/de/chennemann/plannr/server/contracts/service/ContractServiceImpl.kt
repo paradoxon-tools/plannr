@@ -2,17 +2,15 @@ package de.chennemann.plannr.server.contracts.service
 
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
-import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.contracts.api.dto.Contract as ContractDto
-import de.chennemann.plannr.server.contracts.domain.Contract
 import de.chennemann.plannr.server.contracts.domain.ContractRepository
-import de.chennemann.plannr.server.contracts.domain.save
+import de.chennemann.plannr.server.contracts.domain.upsert
 import de.chennemann.plannr.server.contracts.persistence.ContractModel
-import de.chennemann.plannr.server.contracts.persistence.toDomain
+import de.chennemann.plannr.server.contracts.persistence.toDto
 import de.chennemann.plannr.server.contracts.service.ContractService as ContractServiceApi
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
+import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
@@ -21,82 +19,61 @@ import org.springframework.stereotype.Service
 class ContractServiceImpl(
     private val contractRepository: ContractRepository,
     private val partnerService: PartnerService,
-    private val timeProvider: TimeProvider,
 ) : ContractServiceApi {
-    override suspend fun create(pocket: Pocket, command: CreateContractCommand): ContractDto {
-        if (contractRepository.findByPocketId(pocket.id) != null) {
+    override suspend fun create(pocket: Pocket, command: CreateContractCommand): PocketWithContract {
+        if (contractRepository.findById(pocket.id) != null) {
             throw ConflictException("conflict", "Contract already exists for pocket", mapOf("pocketId" to pocket.id))
         }
 
         val partnerId = resolvepartnerId(command.partnerId)
-        return contractRepository.save(
+        contractRepository.upsert(
             ContractModel(
-                id = null,
-                accountId = pocket.accountId,
                 pocketId = pocket.id,
                 partnerId = partnerId,
-                name = command.name,
-                startDate = command.startDate,
-                endDate = command.endDate,
-                notes = command.notes,
-                isArchived = false,
-                createdAt = timeProvider(),
+                signingDate = command.signingDate,
+                expirationDate = command.expirationDate,
+                lastCancellationDate = command.lastCancellationDate,
             ),
-        ).toDomain().toContractDto()
+        )
+        return existingPocketWithContract(pocket.id)
     }
 
-    override suspend fun update(pocket: Pocket, command: UpdateContractCommand): ContractDto {
-        val existing = contractRepository.findById(command.id)?.toDomain()
-            ?: throw NotFoundException("not_found", "Contract not found", mapOf("id" to command.id))
-
-        val existingForPocket = contractRepository.findByPocketId(pocket.id)
-        if (existingForPocket != null && existingForPocket.id != existing.id) {
-            throw ConflictException("conflict", "Contract already exists for pocket", mapOf("pocketId" to pocket.id))
-        }
+    override suspend fun update(pocket: Pocket, command: UpdateContractCommand): PocketWithContract {
+        contractRepository.findById(pocket.id)
+            ?: throw NotFoundException("not_found", "Contract not found", mapOf("pocketId" to pocket.id))
 
         val partnerId = resolvepartnerId(command.partnerId)
-        return contractRepository.save(
+        contractRepository.upsert(
             ContractModel(
-                id = existing.id,
-                accountId = pocket.accountId,
                 pocketId = pocket.id,
                 partnerId = partnerId,
-                name = command.name,
-                startDate = command.startDate,
-                endDate = command.endDate,
-                notes = command.notes,
-                isArchived = existing.isArchived,
-                createdAt = existing.createdAt,
+                signingDate = command.signingDate,
+                expirationDate = command.expirationDate,
+                lastCancellationDate = command.lastCancellationDate,
             ),
-        ).toDomain().toContractDto()
+        )
+        return existingPocketWithContract(pocket.id)
     }
 
     override suspend fun archiveForPocket(pocketId: Long) {
-        contractRepository.findByPocketId(pocketId)?.toDomain()?.let { existing ->
-            val updated = existing.archive()
-            contractRepository.save(updated)
-        }
+        // Contract lifecycle is derived from the owning pocket.
     }
 
     override suspend fun unarchiveForPocket(pocketId: Long) {
-        contractRepository.findByPocketId(pocketId)?.toDomain()?.let { existing ->
-            val updated = existing.unarchive()
-            contractRepository.save(updated)
-        }
+        // Contract lifecycle is derived from the owning pocket.
     }
 
-    override suspend fun delete(id: Long) {
-        if (contractRepository.findById(id) == null) {
-            throw NotFoundException("not_found", "Contract not found", mapOf("id" to id))
+    override suspend fun delete(pocketId: Long) {
+        if (contractRepository.findById(pocketId) == null) {
+            throw NotFoundException("not_found", "Contract not found", mapOf("pocketId" to pocketId))
         }
-        contractRepository.deleteById(id)
+        contractRepository.deleteById(pocketId)
     }
 
-    override suspend fun list(accountId: Long?, archived: Boolean): List<ContractDto> =
-        contractRepository.findAllByAccountIdAndArchived(accountId, archived)
+    override suspend fun list(accountId: Long?, archived: Boolean): List<PocketWithContract> =
+        contractRepository.findAllWithPocketsByAccountIdAndArchived(accountId, archived)
             .toList()
-            .map(ContractModel::toDomain)
-            .map { it.toContractDto() }
+            .map { it.toDto() }
 
     private suspend fun resolvepartnerId(partnerId: Long?): Long? =
         partnerId?.let {
@@ -104,17 +81,14 @@ class ContractServiceImpl(
                 ?: throw NotFoundException("not_found", "Partner not found", mapOf("id" to it))
         }
 
-    private fun Contract.toContractDto(): ContractDto =
-        ContractDto(
-            id = id,
-            accountId = accountId,
-            pocketId = pocketId,
-            partnerId = partnerId,
-            name = name,
-            startDate = startDate,
-            endDate = endDate,
-            notes = notes,
-            isArchived = isArchived,
-            createdAt = createdAt,
-        )
+    private suspend fun existingPocketWithContract(pocketId: Long): PocketWithContract =
+        contractRepository.findAllWithPocketsByAccountIdAndArchived(accountId = null, archived = false)
+            .toList()
+            .firstOrNull { it.id == pocketId }
+            ?.toDto()
+            ?: contractRepository.findAllWithPocketsByAccountIdAndArchived(accountId = null, archived = true)
+                .toList()
+                .firstOrNull { it.id == pocketId }
+                ?.toDto()
+            ?: throw NotFoundException("not_found", "Contract not found", mapOf("pocketId" to pocketId))
 }

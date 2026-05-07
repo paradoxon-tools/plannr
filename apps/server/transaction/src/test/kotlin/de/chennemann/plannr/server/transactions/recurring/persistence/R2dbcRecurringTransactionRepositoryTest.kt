@@ -36,7 +36,7 @@ class R2dbcRecurringTransactionRepositoryTest : ApiIntegrationTest() {
             accountId = accountRepository.insert(AccountFixtures.account()).id
             insertPocket(PocketFixtures.pocket(accountId = accountId))
             insertPocket(PocketFixtures.pocket(id = 2L, accountId = accountId, name = "Income"))
-            defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", notes = "Preferred partner")).id
+            defaultPartnerId = partnerService.create(CreatePartnerCommand(name = "ACME Corp", description = "Preferred partner")).id
         }
     }
 

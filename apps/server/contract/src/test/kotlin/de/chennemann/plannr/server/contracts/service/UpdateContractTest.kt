@@ -1,6 +1,5 @@
 package de.chennemann.plannr.server.contracts.service
 
-import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.support.ContractTestPartners
 import de.chennemann.plannr.server.contracts.support.ContractTestPockets
@@ -16,7 +15,7 @@ class UpdateContractTest {
     @Test
     fun `updates existing contract`() = runTest {
         val contractRepository = InMemoryContractRepository()
-        contractRepository.save(ContractFixtures.contract())
+        contractRepository.save(ContractFixtures.contractModel())
         val updateContract = ContractServiceImpl(
             contractRepository = contractRepository,
             partnerService = FakePartnerService(
@@ -25,27 +24,23 @@ class UpdateContractTest {
                     ContractTestPartners.partner(id = 2L, name = "Telecom GmbH"),
                 ),
             ),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
-        val targetPocket = ContractTestPockets.pocket(id = 2L, accountId = 2L, name = "Rent")
+        val targetPocket = ContractTestPockets.pocket()
         val updated = updateContract.update(
             targetPocket,
             ContractFixtures.updateContractCommand(
                 partnerId = 2L,
-                name = "Updated Contract",
-                startDate = "2024-02-01",
-                endDate = null,
-                notes = null,
+                signingDate = "2024-02-01",
+                expirationDate = null,
             ),
         )
 
-        assertEquals(2L, updated.accountId)
-        assertEquals(2L, updated.pocketId)
-        assertEquals(2L, updated.partnerId)
-        assertEquals("Updated Contract", updated.name)
-        assertEquals(null, updated.endDate)
-        assertEquals(null, updated.notes)
+        assertEquals(1L, updated.accountId)
+        assertEquals(1L, updated.id)
+        assertEquals(2L, updated.contractInfo.partnerId)
+        assertEquals("Bills", updated.name)
+        assertEquals(null, updated.contractInfo.expirationDate)
     }
 
     @Test
@@ -53,7 +48,6 @@ class UpdateContractTest {
         val updateContract = ContractServiceImpl(
             contractRepository = InMemoryContractRepository(),
             partnerService = FakePartnerService(emptyList()),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
         )
 
         assertFailsWith<NotFoundException> {
@@ -61,23 +55,5 @@ class UpdateContractTest {
         }
     }
 
-    @Test
-    fun `fails when updated pocket already has another contract`() = runTest {
-        val contractRepository = InMemoryContractRepository()
-        contractRepository.save(ContractFixtures.contract())
-        contractRepository.save(ContractFixtures.contract(id = 2L, accountId = 2L, pocketId = 2L))
-        val updateContract = ContractServiceImpl(
-            contractRepository = contractRepository,
-            partnerService = FakePartnerService(emptyList()),
-            timeProvider = { ContractFixtures.DEFAULT_CREATED_AT },
-        )
-
-        assertFailsWith<ConflictException> {
-            updateContract.update(
-                ContractTestPockets.pocket(id = 2L, accountId = 2L, name = "Rent"),
-                ContractFixtures.updateContractCommand(partnerId = null),
-            )
-        }
-    }
 }
 

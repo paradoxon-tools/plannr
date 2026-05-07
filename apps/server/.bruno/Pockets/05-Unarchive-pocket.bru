@@ -1,17 +1,17 @@
 meta {
-  name: Unarchive contract
+  name: Unarchive pocket
   type: http
-  seq: 4
+  seq: 5
 }
 
 post {
-  url: {{baseUrl}}/contracts/:contractId/unarchive
+  url: {{baseUrl}}/pockets/:pocketId/unarchive
   body: none
   auth: none
 }
 
 params:path {
-  contractId: contract-id
+  pocketId: pocket-id
 }
 
 headers {
