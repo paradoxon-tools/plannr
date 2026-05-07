@@ -1,0 +1,58 @@
+meta {
+  name: contracts
+  seq: 2
+}
+
+script:pre-request {
+  const baseUrl = bru.getEnvVar("baseUrl") || bru.getVar("baseUrl");
+  const accountName = bru.getRequestVar("accountName");
+  const partnerName = bru.getRequestVar("partnerName");
+  
+  function send(options) {
+    return new Promise((resolve, reject) => {
+      bru.sendRequest(options, (err, res) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        
+        resolve(res);
+      });
+    });
+  }
+  
+  function responseData(response) {
+    return response.data || response.body || [];
+  }
+  
+  const accountsResponse = await send({
+    method: "GET",
+    url: `${baseUrl}/accounts`,
+    headers: {
+      Accept: "application/json"
+    }
+  });
+  
+  const account = responseData(accountsResponse).find((item) => item.name === accountName);
+  
+  if (!account) {
+    throw new Error(`No account found with name '${accountName}'`);
+  }
+  
+  const partnersResponse = await send({
+    method: "GET",
+    url: `${baseUrl}/partners?archived=false`,
+    headers: {
+      Accept: "application/json"
+    }
+  });
+  
+  const partner = responseData(partnersResponse).find((item) => item.name === partnerName);
+  
+  if (!partner) {
+    throw new Error(`No partner found with name '${partnerName}'`);
+  }
+  
+  bru.setVar("seedAccountId", account.id);
+  bru.setVar("seedPartnerId", partner.id);
+}
