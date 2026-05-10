@@ -7,6 +7,7 @@ import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
+import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
 import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
 
 internal object NoOpContractService : ContractService {
@@ -40,13 +41,13 @@ internal class RecordingContractService : ContractService {
 internal object NoOpRecurringTransactionService : RecurringTransactionService {
     override suspend fun create(command: RecurringTransactionService.CreateCommand) = throw UnsupportedOperationException("Not used")
     override suspend fun update(command: RecurringTransactionService.UpdateCommand) = throw UnsupportedOperationException("Not used")
-    override suspend fun archive(id: String) = throw UnsupportedOperationException("Not used")
-    override suspend fun unarchive(id: String) = throw UnsupportedOperationException("Not used")
-    override suspend fun archiveForAccount(accountId: Long) = Unit
-    override suspend fun unarchiveForAccount(accountId: Long) = Unit
-    override suspend fun archiveForPocket(accountId: Long, pocketId: Long) = Unit
-    override suspend fun unarchiveForPocket(accountId: Long, pocketId: Long) = Unit
-    override suspend fun delete(id: String) = Unit
+    override suspend fun archive(id: Long) = throw UnsupportedOperationException("Not used")
+    override suspend fun unarchive(id: Long) = throw UnsupportedOperationException("Not used")
+    override suspend fun archiveForPocket(pocketId: Long) = Unit
+    override suspend fun unarchiveForPocket(pocketId: Long) = Unit
+    override suspend fun delete(id: Long) = Unit
+    override suspend fun list(archived: Boolean?): List<RecurringTransaction> = emptyList()
+    override suspend fun getById(id: Long) = null
 }
 
 internal fun pocketService(

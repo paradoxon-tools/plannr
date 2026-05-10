@@ -12,15 +12,14 @@ fun CreateRecurringTransactionRequest.toCreateCommand() = RecurringTransactionSe
     weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
 )
 
-fun UpdateRecurringTransactionRequest.toUpdateCommand(id: String) = RecurringTransactionService.UpdateCommand(
-    id, updateMode, sourcePocketId, destinationPocketId, partnerId, title,
+fun UpdateRecurringTransactionRequest.toUpdateCommand(id: Long) = RecurringTransactionService.UpdateCommand(
+    id, sourcePocketId, destinationPocketId, partnerId, title,
     description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate,
     recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
 )
 
 fun RecurringTransaction.toResponse() = RecurringTransactionResponse(
     id,
-    accountId,
     sourcePocketId,
     destinationPocketId,
     partnerId,

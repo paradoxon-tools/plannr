@@ -1,8 +1,7 @@
 package de.chennemann.plannr.server.transactions.recurring.api.dto
 
 data class RecurringTransactionResponse(
-    val id: String,
-    val accountId: Long,
+    val id: Long,
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,
     val partnerId: Long?,
@@ -19,7 +18,7 @@ data class RecurringTransactionResponse(
     val weeksOfMonth: List<Int>?,
     val daysOfMonth: List<Int>?,
     val monthsOfYear: List<Int>?,
-    val previousVersionId: String?,
+    val previousVersionId: Long?,
     val isArchived: Boolean,
     val createdAt: Long,
 ) {

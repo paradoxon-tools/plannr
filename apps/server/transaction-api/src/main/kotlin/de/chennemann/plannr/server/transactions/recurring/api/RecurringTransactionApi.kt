@@ -8,26 +8,36 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.service.annotation.DeleteExchange
+import org.springframework.web.service.annotation.GetExchange
 import org.springframework.web.service.annotation.HttpExchange
 import org.springframework.web.service.annotation.PostExchange
 import org.springframework.web.service.annotation.PutExchange
+import org.springframework.web.bind.annotation.RequestParam
 
 @HttpExchange("/transactions/recurring")
-interface RecurringTransactionIngressApi {
+interface RecurringTransactionApi {
     @PostExchange
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun create(@RequestBody request: CreateRecurringTransactionRequest): RecurringTransactionResponse
 
     @PutExchange("/{id}")
-    suspend fun update(@PathVariable id: String, @RequestBody request: UpdateRecurringTransactionRequest): RecurringTransactionResponse
+    suspend fun update(@PathVariable id: Long, @RequestBody request: UpdateRecurringTransactionRequest): RecurringTransactionResponse
 
     @PostExchange("/{id}/archive")
-    suspend fun archive(@PathVariable id: String): RecurringTransactionResponse
+    suspend fun archive(@PathVariable id: Long): RecurringTransactionResponse
 
     @PostExchange("/{id}/unarchive")
-    suspend fun unarchive(@PathVariable id: String): RecurringTransactionResponse
+    suspend fun unarchive(@PathVariable id: Long): RecurringTransactionResponse
 
     @DeleteExchange("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun delete(@PathVariable id: String)
+    suspend fun delete(@PathVariable id: Long)
+
+    @GetExchange
+    suspend fun list(
+        @RequestParam(required = false) archived: Boolean?,
+    ): List<RecurringTransactionResponse>
+
+    @GetExchange("/{id}")
+    suspend fun getById(@PathVariable id: Long): RecurringTransactionResponse
 }

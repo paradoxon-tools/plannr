@@ -65,25 +65,23 @@ internal class PocketServiceImpl(
     override suspend fun archive(id: Long): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = true))
-        recurringTransactionService.archiveForPocket(updated.accountId, updated.id)
+        recurringTransactionService.archiveForPocket(updated.id)
         return updated
     }
 
     override suspend fun unarchive(id: Long): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = false))
-        recurringTransactionService.unarchiveForPocket(updated.accountId, updated.id)
+        recurringTransactionService.unarchiveForPocket(updated.id)
         return updated
     }
 
     override suspend fun archiveForAccount(accountId: Long) {
         list(accountId = accountId).forEach { archive(it.id) }
-        recurringTransactionService.archiveForAccount(accountId)
     }
 
     override suspend fun unarchiveForAccount(accountId: Long) {
         list(accountId = accountId).forEach { unarchive(it.id) }
-        recurringTransactionService.unarchiveForAccount(accountId)
     }
 
     override suspend fun delete(id: Long) {

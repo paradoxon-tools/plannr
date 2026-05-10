@@ -5,13 +5,13 @@ import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransa
 interface RecurringTransactionService {
     suspend fun create(command: CreateCommand): RecurringTransaction
     suspend fun update(command: UpdateCommand): RecurringTransaction
-    suspend fun archive(id: String): RecurringTransaction
-    suspend fun unarchive(id: String): RecurringTransaction
-    suspend fun archiveForAccount(accountId: Long)
-    suspend fun unarchiveForAccount(accountId: Long)
-    suspend fun archiveForPocket(accountId: Long, pocketId: Long)
-    suspend fun unarchiveForPocket(accountId: Long, pocketId: Long)
-    suspend fun delete(id: String)
+    suspend fun archive(id: Long): RecurringTransaction
+    suspend fun unarchive(id: Long): RecurringTransaction
+    suspend fun archiveForPocket(pocketId: Long)
+    suspend fun unarchiveForPocket(pocketId: Long)
+    suspend fun delete(id: Long)
+    suspend fun list(archived: Boolean? = null): List<RecurringTransaction>
+    suspend fun getById(id: Long): RecurringTransaction?
 
     data class CreateCommand(
         val sourcePocketId: Long?,
@@ -34,8 +34,7 @@ interface RecurringTransactionService {
     )
 
     data class UpdateCommand(
-        val id: String,
-        val updateMode: String,
+        val id: Long,
         val sourcePocketId: Long?,
         val destinationPocketId: Long?,
         val partnerId: Long?,

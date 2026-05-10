@@ -39,6 +39,7 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
         "de.chennemann.plannr.server.accounts.domain",
         "de.chennemann.plannr.server.partners.domain",
         "de.chennemann.plannr.server.pockets.domain",
+        "de.chennemann.plannr.server.transactions.recurring.domain",
     ],
 )
 class TransactionTestApplication {
