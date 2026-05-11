@@ -1,0 +1,35 @@
+contract: WWK (Linka)
+contract_request: WWK-Linka.bru
+source_account: Insurance & Contracts
+source_wallet: WWK (Linka)
+source_rows: 16
+source_date_range: 2025-10-01..2026-05-01
+
+suggested_templates:
+- id: template-01
+  amount: -5500
+  date_range: 2025-10-01..2026-05-01
+  suggested_pattern: monthly
+  pattern_basis: every month around day 1, anchored at 2025-10-01
+  occurrences: 8
+  observed_notes: WWK (7)
+  source_dates: 2025-10-01, 2025-11-01, 2025-12-01, 2026-01-01, 2026-02-01, 2026-03-01, 2026-04-01, 2026-05-01
+  source_transaction_ids: 1493, 1568, 1658, 1738, 1830, 1902, 1987, 2071
+- id: template-02
+  amount: 5500
+  date_range: 2025-10-01..2026-05-01
+  suggested_pattern: monthly
+  pattern_basis: every month around day 1, anchored at 2025-10-01
+  occurrences: 8
+  observed_notes: Rückstellung (7)
+  source_dates: 2025-10-01, 2025-11-01, 2025-12-01, 2026-01-01, 2026-02-01, 2026-03-01, 2026-04-01, 2026-05-01
+  source_transaction_ids: 1492, 1567, 1657, 1737, 1829, 1901, 1986, 2070
+
+unmatched_or_irregular_source_rows:
+- none
+
+notes:
+- Amounts are raw integer values from data.db; positive values are savings/reserves, negative values are expenses.
+- Source matching uses both source_account and source_wallet, so duplicate wallet names in other accounts are ignored.
+- Recurrence detection groups primarily by exact amount. Notes and memos are included only as observed annotations.
+- Monthly detection requires consecutive months within +-5 days of the first occurrence day.

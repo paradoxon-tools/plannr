@@ -1,0 +1,41 @@
+contract: Rechtsschutzversicherung
+contract_request: Rechtsschutzversicherung.bru
+source_account: Insurance & Contracts
+source_wallet: Rechtsschutz (Auxilia)
+source_rows: 29
+source_date_range: 2024-04-01..2026-05-01
+
+suggested_templates:
+- id: template-01
+  amount: 2225
+  date_range: 2024-04-01..2026-05-01
+  suggested_pattern: monthly
+  pattern_basis: every month around day 1, anchored at 2024-04-01
+  occurrences: 26
+  observed_notes: RÃ¼ckstellung (9)
+  source_dates: 2024-04-01, 2024-05-01, 2024-06-01, 2024-07-01, 2024-08-01, 2024-09-01, 2024-10-01, 2024-11-01, 2024-12-01, 2025-01-01, 2025-02-01, 2025-03-01, 2025-04-01, 2025-05-01, 2025-06-01, 2025-07-01, 2025-08-01, 2025-09-01, 2025-10-01, 2025-11-01, 2025-12-01, 2026-01-01, 2026-02-01, 2026-03-01, 2026-04-01, 2026-05-01
+  source_transaction_ids: 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 1357, 1443, 1540, 1629, 1710, 1791, 1868, 1929, 2017
+- id: template-02
+  amount: -26700
+  date_range: 2025-04-01..2026-04-01
+  suggested_pattern: yearly
+  pattern_basis: every year around 04-01, anchored at 2025-04-01
+  occurrences: 2
+  observed_notes: Rechtsschutzversicherung
+  source_dates: 2025-04-01, 2026-04-01
+  source_transaction_ids: 95, 1930
+
+unmatched_or_irregular_source_rows:
+- amount: 3508
+  date_range: 2026-01-10..2026-01-10
+  classification: one-off adjustment for price increase
+  occurrences: 1
+  observed_notes: Preiserhöhung
+  source_dates: 2026-01-10
+  source_transaction_ids: 1760
+
+notes:
+- Amounts are raw integer values from data.db; positive values are savings/reserves, negative values are expenses.
+- Source matching uses both source_account and source_wallet, so duplicate wallet names in other accounts are ignored.
+- Recurrence detection groups primarily by exact amount. Notes and memos are included only as observed annotations.
+- Monthly detection requires consecutive months within +-5 days of the first occurrence day.

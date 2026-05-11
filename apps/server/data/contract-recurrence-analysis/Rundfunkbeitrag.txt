@@ -1,0 +1,42 @@
+contract: Rundfunkbeitrag
+contract_request: Rundfunkbeitrag.bru
+source_account: Insurance & Contracts
+source_wallet: Rundfunkbeitrag
+source_rows: 28
+source_date_range: 2024-09-01..2026-05-01
+
+suggested_templates:
+- id: template-01
+  amount: 1836
+  date_range: 2024-09-01..2026-05-01
+  suggested_pattern: monthly
+  pattern_basis: every month around day 1, anchored at 2024-09-01
+  occurrences: 21
+  observed_notes: Rückstellung (9)
+  source_dates: 2024-09-01, 2024-10-01, 2024-11-01, 2024-12-01, 2025-01-01, 2025-02-01, 2025-03-01, 2025-04-01, 2025-05-01, 2025-06-01, 2025-07-01, 2025-08-01, 2025-09-01, 2025-10-01, 2025-11-01, 2025-12-01, 2026-01-01, 2026-02-01, 2026-03-01, 2026-04-01, 2026-05-01
+  source_transaction_ids: 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 1359, 1445, 1542, 1631, 1712, 1793, 1870, 1932, 2019
+
+- id: template-02
+  amount: -5508
+  date_range: 2024-11-15..2026-02-15
+  suggested_pattern: quarterly
+  pattern_basis: quarterly payment on the 15th; 2026-03-15 source row omitted as original-data error
+  occurrences: 6
+  observed_notes: Rundfunkbeitrag (3)
+  source_dates: 2024-11-15, 2025-02-15, 2025-05-15, 2025-08-15, 2025-11-15, 2026-02-15
+  source_transaction_ids: 125, 126, 127, 1327, 1591, 1841
+
+unmatched_or_irregular_source_rows:
+- amount: -5508
+  date_range: 2026-03-15..2026-03-15
+  classification: omitted original-data error
+  occurrences: 1
+  observed_notes: Rundfunkbeitrag
+  source_dates: 2026-03-15
+  source_transaction_ids: 1933
+
+notes:
+- Amounts are raw integer values from data.db; positive values are savings/reserves, negative values are expenses.
+- Source matching uses both source_account and source_wallet, so duplicate wallet names in other accounts are ignored.
+- Recurrence detection groups primarily by exact amount. Notes and memos are included only as observed annotations.
+- Monthly detection requires consecutive months within +-5 days of the first occurrence day.

@@ -1,0 +1,41 @@
+contract: Kfz-Versicherung
+contract_request: Kfz-Versicherung.bru
+source_account: Insurance & Contracts
+source_wallet: Kfz-Versicherung (HUK24)
+source_rows: 22
+source_date_range: 2024-11-01..2026-05-01
+
+suggested_templates:
+- id: template-01
+  amount: 4594
+  date_range: 2024-11-01..2026-05-01
+  suggested_pattern: monthly
+  pattern_basis: every month around day 1, anchored at 2024-11-01
+  occurrences: 19
+  observed_notes: RÃ¼ckstellung (9)
+  source_dates: 2024-11-01, 2024-12-01, 2025-01-01, 2025-02-01, 2025-03-01, 2025-04-01, 2025-05-01, 2025-06-01, 2025-07-01, 2025-08-01, 2025-09-01, 2025-10-01, 2025-11-01, 2025-12-01, 2026-01-01, 2026-02-01, 2026-03-01, 2026-04-01, 2026-05-01
+  source_transaction_ids: 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 1354, 1440, 1537, 1626, 1707, 1788, 1865, 1926, 2014
+
+- id: template-02
+  amount: -55124
+  date_range: 2024-12-20..2025-11-20
+  suggested_pattern: yearly
+  pattern_basis: annual insurance payment inferred from repeated yearly charges with amount drift; use the first recorded charge as the template amount unless adjusted later
+  occurrences: 2
+  source_dates: 2024-12-20, 2025-11-20
+  source_transaction_ids: 50, 51
+  observed_amounts: -55124, -54042
+unmatched_or_irregular_source_rows:
+- amount: 55128
+  date_range: 2024-11-28..2024-11-28
+  classification: initial one-off adjustment for unsaved contract start
+  occurrences: 1
+  observed_notes: Initiale Einzahlung
+  source_dates: 2024-11-28
+  source_transaction_ids: 39
+
+notes:
+- Amounts are raw integer values from data.db; positive values are savings/reserves, negative values are expenses.
+- Source matching uses both source_account and source_wallet, so duplicate wallet names in other accounts are ignored.
+- Recurrence detection groups primarily by exact amount. Notes and memos are included only as observed annotations.
+- Monthly detection requires consecutive months within +-5 days of the first occurrence day.

@@ -1,0 +1,56 @@
+contract: Internet
+contract_request: Internet.bru
+source_account: Rent & Appliances
+source_wallet: Internet
+source_rows: 37
+source_date_range: 2024-11-03..2026-05-03
+
+suggested_templates:
+- id: template-01
+  amount: 2498
+  date_range: 2024-11-03..2025-02-03
+  suggested_pattern: monthly
+  pattern_basis: every month around day 3, anchored at 2024-11-03
+  occurrences: 4
+  source_dates: 2024-11-03, 2024-12-03, 2025-01-03, 2025-02-03
+  source_transaction_ids: 375, 376, 377, 378
+- id: template-02
+  amount: -2498
+  date_range: 2024-11-30..2025-01-30
+  suggested_pattern: monthly
+  pattern_basis: every month around day 30, anchored at 2024-11-30
+  occurrences: 3
+  source_dates: 2024-11-30, 2024-12-30, 2025-01-30
+  source_transaction_ids: 366, 367, 368
+- id: template-03
+  amount: 6998
+  date_range: 2025-03-03..2026-05-03
+  suggested_pattern: monthly
+  pattern_basis: every month around day 3, anchored at 2025-03-03
+  occurrences: 15
+  observed_notes: RÃ¼ckstellung (9)
+  source_dates: 2025-03-03, 2025-04-03, 2025-05-03, 2025-06-03, 2025-07-03, 2025-08-03, 2025-09-03, 2025-10-01, 2025-11-03, 2025-12-03, 2026-01-03, 2026-02-03, 2026-03-03, 2026-04-03, 2026-05-03
+  source_transaction_ids: 379, 380, 381, 382, 383, 384, 1369, 1459, 1582, 1672, 1752, 1803, 1920, 2004, 2084
+- id: template-04
+  amount: -6998
+  date_range: 2025-03-28..2026-04-28
+  suggested_pattern: monthly
+  pattern_basis: every month around day 28, anchored at 2025-03-28
+  occurrences: 14
+  observed_notes: Internet (9)
+  source_dates: 2025-03-28, 2025-04-28, 2025-05-28, 2025-06-28, 2025-07-28, 2025-08-28, 2025-09-28, 2025-10-28, 2025-11-28, 2025-12-28, 2026-01-28, 2026-02-28, 2026-03-28, 2026-04-28
+  source_transaction_ids: 370, 371, 372, 373, 374, 1350, 1437, 1532, 1621, 1705, 1786, 1880, 1946, 2031
+
+unmatched_or_irregular_source_rows:
+- amount: -2659
+  date_range: 2025-02-28..2025-02-28
+  classification: one-off promotional transition charge
+  occurrences: 1
+  source_dates: 2025-02-28
+  source_transaction_ids: 369
+
+notes:
+- Amounts are raw integer values from data.db; positive values are savings/reserves, negative values are expenses.
+- Source matching uses both source_account and source_wallet, so duplicate wallet names in other accounts are ignored.
+- Recurrence detection groups primarily by exact amount. Notes and memos are included only as observed annotations.
+- Monthly detection requires consecutive months within +-5 days of the first occurrence day.
