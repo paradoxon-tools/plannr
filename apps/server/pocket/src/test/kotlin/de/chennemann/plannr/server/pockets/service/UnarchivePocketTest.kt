@@ -11,7 +11,7 @@ import kotlin.test.assertFailsWith
 
 class UnarchivePocketTest {
     @Test
-    fun `unarchives pocket and recurring transactions`() = runTest {
+    fun `unarchives pocket and transaction templates`() = runTest {
         val repository = InMemoryPocketRepository()
         repository.save(PocketFixtures.pocket(isContractPocket = true, isArchived = true).toModel())
         val pocketService = pocketService(repository)

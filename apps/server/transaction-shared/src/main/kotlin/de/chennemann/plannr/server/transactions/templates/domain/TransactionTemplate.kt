@@ -1,0 +1,17 @@
+package de.chennemann.plannr.server.transactions.templates.domain
+
+data class TransactionTemplate(
+    val id: Long,
+    val sourcePocketId: Long?,
+    val destinationPocketId: Long?,
+    val partnerId: Long?,
+    val title: String,
+    val description: String?,
+    val amount: Long,
+    val currencyCode: String,
+    val transactionType: String,
+    val recurrencePattern: RecurrencePattern,
+    val previousVersionId: Long?,
+    val isArchived: Boolean,
+    val createdAt: Long,
+)

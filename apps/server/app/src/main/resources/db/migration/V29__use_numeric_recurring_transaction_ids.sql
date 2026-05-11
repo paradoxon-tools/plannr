@@ -2,9 +2,6 @@ TRUNCATE TABLE
     recurring_transactions
 CASCADE;
 
-ALTER TABLE transactions
-    DROP CONSTRAINT IF EXISTS fk_transactions_recurring;
-
 ALTER TABLE recurring_transactions
     DROP CONSTRAINT IF EXISTS fk_recurring_transactions_previous_version;
 
@@ -20,13 +17,6 @@ ALTER TABLE recurring_transactions
 
 ALTER SEQUENCE recurring_transactions_id_seq OWNED BY recurring_transactions.id;
 
-ALTER TABLE transactions
-    ALTER COLUMN recurring_transaction_id TYPE BIGINT USING NULL::BIGINT;
-
 ALTER TABLE recurring_transactions
     ADD CONSTRAINT fk_recurring_transactions_previous_version
         FOREIGN KEY (previous_version_id) REFERENCES recurring_transactions(id) ON DELETE SET NULL;
-
-ALTER TABLE transactions
-    ADD CONSTRAINT fk_transactions_recurring
-        FOREIGN KEY (recurring_transaction_id) REFERENCES recurring_transactions(id) ON DELETE SET NULL;

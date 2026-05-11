@@ -5,8 +5,8 @@ import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
-import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
-import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
+import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
+import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import org.springframework.context.annotation.Bean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
@@ -31,16 +31,16 @@ class PocketTestApplication {
         }
 
     @Bean
-    fun recurringTransactionService(): RecurringTransactionService =
-        object : RecurringTransactionService {
-            override suspend fun create(command: RecurringTransactionService.CreateCommand) = throw UnsupportedOperationException("Not used")
-            override suspend fun update(command: RecurringTransactionService.UpdateCommand) = throw UnsupportedOperationException("Not used")
+    fun transactionTemplateService(): TransactionTemplateService =
+        object : TransactionTemplateService {
+            override suspend fun create(command: TransactionTemplateService.CreateCommand) = throw UnsupportedOperationException("Not used")
+            override suspend fun update(command: TransactionTemplateService.UpdateCommand) = throw UnsupportedOperationException("Not used")
             override suspend fun archive(id: Long) = throw UnsupportedOperationException("Not used")
             override suspend fun unarchive(id: Long) = throw UnsupportedOperationException("Not used")
             override suspend fun archiveForPocket(pocketId: Long) = Unit
             override suspend fun unarchiveForPocket(pocketId: Long) = Unit
             override suspend fun delete(id: Long) = Unit
-            override suspend fun list(archived: Boolean?): List<RecurringTransaction> = emptyList()
+            override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
             override suspend fun getById(id: Long) = null
         }
 }

@@ -18,7 +18,7 @@ class CreatePocketTest {
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { true },
             contractService = NoOpContractService,
-            recurringTransactionService = NoOpRecurringTransactionService,
+            transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
 
@@ -37,7 +37,7 @@ class CreatePocketTest {
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { true },
             contractService = contractService,
-            recurringTransactionService = NoOpRecurringTransactionService,
+            transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
         val contract = CreateContractCommand(
@@ -59,7 +59,7 @@ class CreatePocketTest {
             pocketRepository = InMemoryPocketRepository(),
             accountLookup = PocketAccountLookup { false },
             contractService = NoOpContractService,
-            recurringTransactionService = NoOpRecurringTransactionService,
+            transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
 

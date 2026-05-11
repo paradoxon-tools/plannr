@@ -6,7 +6,7 @@ fun normalizeTransactionType(value: String): String = normalizeEnumValue<Transac
 
 fun normalizeTransactionStatus(value: String): String = normalizeEnumValue<TransactionStatus>(value, "Transaction status is invalid")
 
-fun normalizeRecurrenceType(value: String): String = normalizeEnumValue<RecurrenceType>(value, "Recurring transaction recurrence type is invalid")
+fun normalizeRecurrenceType(value: String): String = normalizeEnumValue<RecurrenceType>(value, "Transaction template recurrence type is invalid")
 
 fun normalizeWeekendHandling(value: String): String = normalizeEnumValue<WeekendHandling>(value, "Account weekend handling is invalid")
 

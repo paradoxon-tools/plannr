@@ -7,8 +7,8 @@ import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
 import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
-import de.chennemann.plannr.server.transactions.recurring.domain.RecurringTransaction
-import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
+import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
+import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 
 internal object NoOpContractService : ContractService {
     override suspend fun create(pocket: Pocket, command: CreateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
@@ -38,15 +38,15 @@ internal class RecordingContractService : ContractService {
     override suspend fun list(accountId: Long?, archived: Boolean): List<PocketWithContract> = emptyList()
 }
 
-internal object NoOpRecurringTransactionService : RecurringTransactionService {
-    override suspend fun create(command: RecurringTransactionService.CreateCommand) = throw UnsupportedOperationException("Not used")
-    override suspend fun update(command: RecurringTransactionService.UpdateCommand) = throw UnsupportedOperationException("Not used")
+internal object NoOpTransactionTemplateService : TransactionTemplateService {
+    override suspend fun create(command: TransactionTemplateService.CreateCommand) = throw UnsupportedOperationException("Not used")
+    override suspend fun update(command: TransactionTemplateService.UpdateCommand) = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun archiveForPocket(pocketId: Long) = Unit
     override suspend fun unarchiveForPocket(pocketId: Long) = Unit
     override suspend fun delete(id: Long) = Unit
-    override suspend fun list(archived: Boolean?): List<RecurringTransaction> = emptyList()
+    override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
     override suspend fun getById(id: Long) = null
 }
 
@@ -54,12 +54,12 @@ internal fun pocketService(
     repository: InMemoryPocketRepository = InMemoryPocketRepository(),
     contractService: ContractService = NoOpContractService,
     accountLookup: PocketAccountLookup = PocketAccountLookup { true },
-    recurringTransactionService: RecurringTransactionService = NoOpRecurringTransactionService,
+    transactionTemplateService: TransactionTemplateService = NoOpTransactionTemplateService,
 ): PocketServiceImpl =
     PocketServiceImpl(
         pocketRepository = repository,
         accountLookup = accountLookup,
         contractService = contractService,
-        recurringTransactionService = recurringTransactionService,
+        transactionTemplateService = transactionTemplateService,
         timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
     )

@@ -11,7 +11,7 @@ import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.domain.save
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
 import de.chennemann.plannr.server.pockets.persistence.toDomain
-import de.chennemann.plannr.server.transactions.recurring.service.RecurringTransactionService
+import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -22,7 +22,7 @@ internal class PocketServiceImpl(
     private val pocketRepository: PocketRepository,
     private val accountLookup: PocketAccountLookup,
     private val contractService: ContractService,
-    private val recurringTransactionService: RecurringTransactionService,
+    private val transactionTemplateService: TransactionTemplateService,
     private val timeProvider: TimeProvider,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
@@ -65,14 +65,14 @@ internal class PocketServiceImpl(
     override suspend fun archive(id: Long): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = true))
-        recurringTransactionService.archiveForPocket(updated.id)
+        transactionTemplateService.archiveForPocket(updated.id)
         return updated
     }
 
     override suspend fun unarchive(id: Long): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = false))
-        recurringTransactionService.unarchiveForPocket(updated.id)
+        transactionTemplateService.unarchiveForPocket(updated.id)
         return updated
     }
 

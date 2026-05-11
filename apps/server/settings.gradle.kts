@@ -25,6 +25,8 @@ include(
     ":pocket-api",
     ":pocket-shared",
     ":transaction",
-    ":transaction-api",
+    ":transaction:materialization",
+    ":transaction:projection",
+    ":transaction:templates",
     ":transaction-shared",
 )
