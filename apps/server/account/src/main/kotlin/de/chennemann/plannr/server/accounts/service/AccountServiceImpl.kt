@@ -13,6 +13,8 @@ import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +25,7 @@ internal class AccountServiceImpl(
     private val accountRepository: AccountRepository,
     private val pocketService: PocketService,
     private val timeProvider: TimeProvider,
+    private val projectionEventQueue: TransactionProjectionEventQueue? = null,
 ) : AccountService {
     override suspend fun create(command: CreateAccountCommand): Account {
         ensureNameAvailable(name = command.name, institution = command.institution, currentAccountId = null)
@@ -47,6 +50,7 @@ internal class AccountServiceImpl(
                 isDefault = true,
             ),
         )
+        enqueueProjectionChange(created.id)
         return created
     }
 
@@ -62,6 +66,7 @@ internal class AccountServiceImpl(
                 weekendHandling = command.weekendHandling,
             ),
         )
+        enqueueProjectionChange(persisted.id)
         return persisted
     }
 
@@ -69,6 +74,7 @@ internal class AccountServiceImpl(
         val existing = existingAccount(id)
         val updated = accountRepository.save(existing.copy(isArchived = true))
         pocketService.archiveForAccount(updated.id)
+        enqueueProjectionChange(updated.id)
         return updated
     }
 
@@ -76,12 +82,14 @@ internal class AccountServiceImpl(
         val existing = existingAccount(id)
         val updated = accountRepository.save(existing.copy(isArchived = false))
         pocketService.unarchiveForAccount(updated.id)
+        enqueueProjectionChange(updated.id)
         return updated
     }
 
     override suspend fun delete(id: Long) {
         val normalizedId = existingAccount(id).id
         accountRepository.deleteById(normalizedId)
+        enqueueProjectionChange(normalizedId)
     }
 
     override suspend fun list(archived: Boolean?): List<Account> =
@@ -110,6 +118,12 @@ internal class AccountServiceImpl(
                 details = mapOf("name" to name, "institution" to institution),
             )
         }
+    }
+
+    private suspend fun enqueueProjectionChange(id: Long) {
+        projectionEventQueue?.enqueue(
+            TransactionProjectionChangeEvent.AccountChanged(id),
+        )
     }
 
     private companion object {

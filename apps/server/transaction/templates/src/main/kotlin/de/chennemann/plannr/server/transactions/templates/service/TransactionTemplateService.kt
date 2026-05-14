@@ -4,6 +4,8 @@ import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializationOperation
 import de.chennemann.plannr.server.transactions.materialization.service.TransactionMaterializerService
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import de.chennemann.plannr.server.transactions.templates.domain.RecurrencePattern
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplateRepository
@@ -20,6 +22,7 @@ class TransactionTemplateServiceImpl(
     private val transactionTemplateRepository: TransactionTemplateRepository,
     private val transactionMaterializerService: TransactionMaterializerService,
     private val timeProvider: TimeProvider,
+    private val projectionEventQueue: TransactionProjectionEventQueue? = null,
 ) : TransactionTemplateService {
     override suspend fun create(command: TransactionTemplateService.CreateCommand): TransactionTemplate {
         val created = transactionTemplateRepository.save(
@@ -47,6 +50,7 @@ class TransactionTemplateServiceImpl(
             ),
         ).toDomain()
         transactionMaterializerService.materialize(MaterializationOperation.NewTransactionTemplate(created))
+        enqueueProjectionChange(created.id)
         return created
     }
 
@@ -71,17 +75,22 @@ class TransactionTemplateServiceImpl(
             else -> MaterializationOperation.FullRefresh(updated)
         }
         transactionMaterializerService.materialize(operation)
+        enqueueProjectionChange(updated.id)
         return updated
     }
 
     override suspend fun archive(id: Long): TransactionTemplate {
         val existing = existingTransactionTemplate(id)
-        return transactionTemplateRepository.save(existing.copy(isArchived = true))
+        val archived = transactionTemplateRepository.save(existing.copy(isArchived = true))
+        enqueueProjectionChange(archived.id)
+        return archived
     }
 
     override suspend fun unarchive(id: Long): TransactionTemplate {
         val existing = existingTransactionTemplate(id)
-        return transactionTemplateRepository.save(existing.copy(isArchived = false))
+        val unarchived = transactionTemplateRepository.save(existing.copy(isArchived = false))
+        enqueueProjectionChange(unarchived.id)
+        return unarchived
     }
 
     override suspend fun archiveForPocket(pocketId: Long) {
@@ -94,7 +103,10 @@ class TransactionTemplateServiceImpl(
             )
             .toList()
             .map(TransactionTemplateModel::toDomain)
-            .forEach { transactionTemplateRepository.save(it.copy(isArchived = true)) }
+            .forEach {
+                val archived = transactionTemplateRepository.save(it.copy(isArchived = true))
+                enqueueProjectionChange(archived.id)
+            }
     }
 
     override suspend fun unarchiveForPocket(pocketId: Long) {
@@ -107,12 +119,16 @@ class TransactionTemplateServiceImpl(
             )
             .toList()
             .map(TransactionTemplateModel::toDomain)
-            .forEach { transactionTemplateRepository.save(it.copy(isArchived = false)) }
+            .forEach {
+                val unarchived = transactionTemplateRepository.save(it.copy(isArchived = false))
+                enqueueProjectionChange(unarchived.id)
+            }
     }
 
     override suspend fun delete(id: Long) {
         existingTransactionTemplate(id)
         transactionTemplateRepository.deleteById(id)
+        enqueueProjectionChange(id)
     }
 
     override suspend fun list(archived: Boolean?): List<TransactionTemplate> {
@@ -134,6 +150,12 @@ class TransactionTemplateServiceImpl(
                 message = "Transaction template not found",
                 details = mapOf("id" to id),
             )
+
+    private suspend fun enqueueProjectionChange(id: Long) {
+        projectionEventQueue?.enqueue(
+            TransactionProjectionChangeEvent.TransactionTemplateChanged(id),
+        )
+    }
 }
 
 private fun List<*>?.toCsv(): String? =

@@ -11,6 +11,8 @@ import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.domain.save
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
 import de.chennemann.plannr.server.pockets.persistence.toDomain
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
@@ -24,6 +26,7 @@ internal class PocketServiceImpl(
     private val contractService: ContractService,
     private val transactionTemplateService: TransactionTemplateService,
     private val timeProvider: TimeProvider,
+    private val projectionEventQueue: TransactionProjectionEventQueue? = null,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
@@ -41,6 +44,7 @@ internal class PocketServiceImpl(
             ),
         ).toDomain()
         command.contract?.let { contractService.create(created, it) }
+        enqueueProjectionChange(created.id)
         return created
     }
 
@@ -56,16 +60,21 @@ internal class PocketServiceImpl(
                 isDefault = command.isDefault,
             ),
         )
+        enqueueProjectionChange(persisted.id)
         return persisted
     }
 
-    override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): PocketWithContract =
-        contractService.update(existingPocket(pocketId), command)
+    override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): PocketWithContract {
+        val updated = contractService.update(existingPocket(pocketId), command)
+        enqueueProjectionChange(pocketId)
+        return updated
+    }
 
     override suspend fun archive(id: Long): Pocket {
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = true))
         transactionTemplateService.archiveForPocket(updated.id)
+        enqueueProjectionChange(updated.id)
         return updated
     }
 
@@ -73,6 +82,7 @@ internal class PocketServiceImpl(
         val existing = existingPocket(id)
         val updated = pocketRepository.save(existing.copy(isArchived = false))
         transactionTemplateService.unarchiveForPocket(updated.id)
+        enqueueProjectionChange(updated.id)
         return updated
     }
 
@@ -87,6 +97,7 @@ internal class PocketServiceImpl(
     override suspend fun delete(id: Long) {
         val normalizedId = existingPocket(id).id
         pocketRepository.deleteById(normalizedId)
+        enqueueProjectionChange(normalizedId)
     }
 
     override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> =
@@ -118,4 +129,10 @@ internal class PocketServiceImpl(
                 message = "Pocket not found",
                 details = mapOf("id" to id),
             )
+
+    private suspend fun enqueueProjectionChange(id: Long) {
+        projectionEventQueue?.enqueue(
+            TransactionProjectionChangeEvent.PocketChanged(id),
+        )
+    }
 }

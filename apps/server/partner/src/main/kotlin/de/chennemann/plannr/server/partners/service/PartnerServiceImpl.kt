@@ -9,6 +9,8 @@ import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.partners.domain.save
 import de.chennemann.plannr.server.partners.persistence.PartnerModel
 import de.chennemann.plannr.server.partners.persistence.toDomain
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
+import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 internal class PartnerServiceImpl(
     private val partnerRepository: PartnerRepository,
     private val timeProvider: TimeProvider,
+    private val projectionEventQueue: TransactionProjectionEventQueue? = null,
 ) : PartnerService {
     override suspend fun create(command: CreatePartnerCommand): Partner {
         val created = partnerRepository.save(
@@ -29,6 +32,7 @@ internal class PartnerServiceImpl(
                 createdAt = timeProvider(),
             ),
         ).toDomain()
+        enqueueProjectionChange(created.id)
         return created
     }
 
@@ -40,24 +44,28 @@ internal class PartnerServiceImpl(
                 description = command.description,
             ),
         )
+        enqueueProjectionChange(persisted.id)
         return persisted
     }
 
     override suspend fun archive(id: Long): Partner {
         val existing = existingPartner(id)
         val updated = partnerRepository.save(existing.copy(isArchived = true))
+        enqueueProjectionChange(updated.id)
         return updated
     }
 
     override suspend fun unarchive(id: Long): Partner {
         val existing = existingPartner(id)
         val updated = partnerRepository.save(existing.copy(isArchived = false))
+        enqueueProjectionChange(updated.id)
         return updated
     }
 
     override suspend fun delete(id: Long) {
         val normalizedId = existingPartner(id).id
         partnerRepository.deleteById(normalizedId)
+        enqueueProjectionChange(normalizedId)
     }
 
     override suspend fun list(query: String?, archived: Boolean): List<Partner> =
@@ -75,4 +83,10 @@ internal class PartnerServiceImpl(
                 message = "Partner not found",
                 details = mapOf("id" to id),
             )
+
+    private suspend fun enqueueProjectionChange(id: Long) {
+        projectionEventQueue?.enqueue(
+            TransactionProjectionChangeEvent.PartnerChanged(id),
+        )
+    }
 }
