@@ -10,7 +10,8 @@ dependencies {
     implementation(project(":partner-shared"))
     implementation(project(":pocket-api"))
     implementation(project(":pocket-shared"))
-    implementation(project(":transaction-shared"))
+    implementation(project(":transaction-projection-shared"))
+    implementation(project(":transaction-template-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework:spring-web")
 

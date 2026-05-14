@@ -8,7 +8,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":partner-api"))
     implementation(project(":partner-shared"))
-    implementation(project(":transaction-shared"))
+    implementation(project(":transaction-projection-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework:spring-web")
 
