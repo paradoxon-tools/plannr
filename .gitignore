@@ -6,6 +6,8 @@
 !**/src/test/**/build/
 
 **/node_modules/
+apps/mobile/android/
+apps/mobile/dist/
 **/.svelte-kit/
 **/.vite/
 
