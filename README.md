@@ -1,40 +1,28 @@
-# plannr monorepo
+# plannr server
 
-This repository is organized as a lightweight monorepo without shared app tooling at the root.
+This repository contains the Spring Boot backend for plannr.
 
-## Apps
+## App
 
-- `apps/server` – Spring Boot backend, Gradle wrapper, Dockerfile
-- `apps/web` – SvelteKit frontend, npm package manifest, Dockerfile
+- `apps/server` - Spring Boot backend, Gradle wrapper, Dockerfile
 
 Docker Compose service names:
 - `plannr-server`
-- `plannr-web`
 
 ## Principles
 
-- App-specific tooling stays inside the app directory
+- Server tooling stays inside the app directory
 - No root-level `node_modules`
 - No root-level Gradle wrapper or build files
 
 ## Local development
-
-### Backend
 
 ```bash
 cd apps/server
 ./gradlew bootRun
 ```
 
-### Frontend
-
-```bash
-cd apps/web
-npm install
-npm run dev
-```
-
-### Run both with Docker Compose
+### Run with Docker Compose
 
 ```bash
 docker compose up --build
@@ -42,9 +30,8 @@ docker compose up --build
 
 ## Docker publishing
 
-The GitHub Actions workflow publishes both app images to GHCR:
+The GitHub Actions workflow publishes the server image to GHCR:
 
 - `ghcr.io/paradoxon-tools/plannr-server`
-- `ghcr.io/paradoxon-tools/plannr-web`
 
-using `apps/server` and `apps/web` as their respective build contexts.
+using `apps/server` as the build context.
