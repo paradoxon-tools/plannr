@@ -1,0 +1,46 @@
+meta {
+  name: Kfz-Versicherung
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedContractPocketId}}",
+    "destinationPocketId": null,
+    "partnerId": "{{seedPartnerId}}",
+    "title": "Kfz-Versicherung",
+    "description": null,
+    "amount": 55124,
+    "currencyCode": "EUR",
+    "transactionType": "EXPENSE",
+    "firstOccurrenceDate": "2024-12-20",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "YEARLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [20],
+    "monthsOfYear": [12],
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Insurance & Contracts
+  contractName: Kfz-Versicherung
+  partnerName: HUK24
+  transactionType: EXPENSE
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

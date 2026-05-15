@@ -1,0 +1,46 @@
+meta {
+  name: Fitness First - Mitgliedsbeitrag (Linka)
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedContractPocketId}}",
+    "destinationPocketId": null,
+    "partnerId": "{{seedPartnerId}}",
+    "title": "Fitness First",
+    "description": "Mitgliedsbeitrag (Linka)",
+    "amount": 2180,
+    "currencyCode": "EUR",
+    "transactionType": "EXPENSE",
+    "firstOccurrenceDate": "2025-01-07",
+    "finalOccurrenceDate": "2025-05-13",
+    "recurrenceType": "WEEKLY",
+    "skipCount": 1,
+    "daysOfWeek": ["TUESDAY"],
+    "weeksOfMonth": null,
+    "daysOfMonth": null,
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Insurance & Contracts
+  contractName: Fitness First
+  partnerName: Fitness First
+  transactionType: EXPENSE
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

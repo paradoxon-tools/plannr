@@ -1,0 +1,46 @@
+meta {
+  name: Haftpflichtversicherung
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedContractPocketId}}",
+    "destinationPocketId": null,
+    "partnerId": "{{seedPartnerId}}",
+    "title": "Haftpflichtversicherung",
+    "description": null,
+    "amount": 7340,
+    "currencyCode": "EUR",
+    "transactionType": "EXPENSE",
+    "firstOccurrenceDate": "2025-08-05",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "YEARLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [5],
+    "monthsOfYear": [8],
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Insurance & Contracts
+  contractName: Haftpflichtversicherung
+  partnerName: VHV
+  transactionType: EXPENSE
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

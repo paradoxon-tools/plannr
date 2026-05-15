@@ -1,0 +1,46 @@
+meta {
+  name: Reserve Internet
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedReserveSourcePocketId}}",
+    "destinationPocketId": "{{seedContractPocketId}}",
+    "partnerId": null,
+    "title": "Reserve Internet",
+    "description": null,
+    "amount": 2498,
+    "currencyCode": "EUR",
+    "transactionType": "TRANSFER",
+    "firstOccurrenceDate": "2024-11-03",
+    "finalOccurrenceDate": "2025-02-03",
+    "recurrenceType": "MONTHLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [3],
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Rent & Appliances
+  contractName: Internet
+  partnerName: Vodafone
+  transactionType: TRANSFER
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

@@ -1,0 +1,46 @@
+meta {
+  name: Reserve Amazon Prime - Rückstellung
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedReserveSourcePocketId}}",
+    "destinationPocketId": "{{seedContractPocketId}}",
+    "partnerId": null,
+    "title": "Reserve Amazon Prime",
+    "description": "Rückstellung (9)",
+    "amount": 750,
+    "currencyCode": "EUR",
+    "transactionType": "TRANSFER",
+    "firstOccurrenceDate": "2024-01-01",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "MONTHLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [1],
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Insurance & Contracts
+  contractName: Amazon Prime
+  partnerName: Amazon Prime
+  transactionType: TRANSFER
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

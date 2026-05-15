@@ -1,0 +1,49 @@
+meta {
+  name: transaction templates
+  seq: 3
+}
+
+script:pre-request {
+  const baseUrl = bru.getEnvVar("baseUrl") || bru.getVar("baseUrl");
+  const contractAccountName = bru.getRequestVar("contractAccountName");
+  const contractName = bru.getRequestVar("contractName");
+  const partnerName = bru.getRequestVar("partnerName");
+  const reserveSourceAccountName = bru.getRequestVar("reserveSourceAccountName") || "Income Bucket";
+  const reserveSourcePocketName = bru.getRequestVar("reserveSourcePocketName") || "Default";
+  const transactionType = bru.getRequestVar("transactionType");
+  function send(options) {
+    return new Promise((resolve, reject) => {
+      bru.sendRequest(options, (err, res) => {
+        if (err) { reject(err); return; }
+        resolve(res);
+      });
+    });
+  }
+  function responseData(response) { return response.data || response.body || []; }
+  async function findAccountByName(name) {
+    const response = await send({ method: "GET", url: `${baseUrl}/accounts`, headers: { Accept: "application/json" } });
+    const account = responseData(response).find((item) => item.name === name);
+    if (!account) { throw new Error(`No account found with name '${name}'`); }
+    return account;
+  }
+  async function findPocket(accountId, pocketName) {
+    const response = await send({ method: "GET", url: `${baseUrl}/pockets?accountId=${accountId}&archived=false`, headers: { Accept: "application/json" } });
+    const pocket = responseData(response).find((item) => item.name === pocketName);
+    if (!pocket) { throw new Error(`No pocket found with name '${pocketName}' in account ${accountId}`); }
+    return pocket;
+  }
+  const contractAccount = await findAccountByName(contractAccountName);
+  const contractPocket = await findPocket(contractAccount.id, contractName);
+  bru.setVar("seedContractPocketId", contractPocket.id);
+  if (transactionType === "TRANSFER") {
+    const reserveSourceAccount = await findAccountByName(reserveSourceAccountName);
+    const reserveSourcePocket = await findPocket(reserveSourceAccount.id, reserveSourcePocketName);
+    bru.setVar("seedReserveSourcePocketId", reserveSourcePocket.id);
+  }
+  if (partnerName) {
+    const partnersResponse = await send({ method: "GET", url: `${baseUrl}/partners?archived=false`, headers: { Accept: "application/json" } });
+    const partner = responseData(partnersResponse).find((item) => item.name === partnerName);
+    if (!partner) { throw new Error(`No partner found with name '${partnerName}'`); }
+    bru.setVar("seedPartnerId", partner.id);
+  }
+}

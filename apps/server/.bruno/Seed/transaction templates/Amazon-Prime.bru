@@ -1,0 +1,46 @@
+meta {
+  name: Amazon Prime
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedContractPocketId}}",
+    "destinationPocketId": null,
+    "partnerId": "{{seedPartnerId}}",
+    "title": "Amazon Prime",
+    "description": "Amazon Prime",
+    "amount": 8990,
+    "currencyCode": "EUR",
+    "transactionType": "EXPENSE",
+    "firstOccurrenceDate": "2025-01-10",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "YEARLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [10],
+    "monthsOfYear": [1],
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Insurance & Contracts
+  contractName: Amazon Prime
+  partnerName: Amazon Prime
+  transactionType: EXPENSE
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

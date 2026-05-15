@@ -1,0 +1,46 @@
+meta {
+  name: Reserve Internet - Rückstellung
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedReserveSourcePocketId}}",
+    "destinationPocketId": "{{seedContractPocketId}}",
+    "partnerId": null,
+    "title": "Reserve Internet",
+    "description": "Rückstellung (9)",
+    "amount": 6998,
+    "currencyCode": "EUR",
+    "transactionType": "TRANSFER",
+    "firstOccurrenceDate": "2025-03-03",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "MONTHLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [3],
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Rent & Appliances
+  contractName: Internet
+  partnerName: Vodafone
+  transactionType: TRANSFER
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

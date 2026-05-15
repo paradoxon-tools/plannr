@@ -1,0 +1,46 @@
+meta {
+  name: Netflix
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedContractPocketId}}",
+    "destinationPocketId": null,
+    "partnerId": "{{seedPartnerId}}",
+    "title": "Netflix",
+    "description": "Netflix (9)",
+    "amount": 500,
+    "currencyCode": "EUR",
+    "transactionType": "EXPENSE",
+    "firstOccurrenceDate": "2024-11-28",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "MONTHLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [28],
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Insurance & Contracts
+  contractName: Netflix
+  partnerName: Netflix
+  transactionType: EXPENSE
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}

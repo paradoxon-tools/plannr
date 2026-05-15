@@ -1,0 +1,46 @@
+meta {
+  name: Reserve chennemann.de - Rückstellung
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": "{{seedReserveSourcePocketId}}",
+    "destinationPocketId": "{{seedContractPocketId}}",
+    "partnerId": null,
+    "title": "Reserve chennemann.de",
+    "description": "Rückstellung (7)",
+    "amount": 80,
+    "currencyCode": "EUR",
+    "transactionType": "TRANSFER",
+    "firstOccurrenceDate": "2025-10-01",
+    "finalOccurrenceDate": null,
+    "recurrenceType": "MONTHLY",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": [1],
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Insurance & Contracts
+  contractName: chennemann.de
+  partnerName: Strato
+  transactionType: TRANSFER
+  reserveSourceAccountName: Income Bucket
+  reserveSourcePocketName: Default
+}
