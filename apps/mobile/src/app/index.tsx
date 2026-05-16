@@ -1,13 +1,16 @@
-import { Link, useFocusEffect } from 'expo-router';
+import { Link } from 'expo-router';
 import { ChevronRight, RefreshCw, Settings } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { SkeletonBox } from '@/components/Skeleton';
 import { StateBlock } from '@/components/StateBlock';
 import { Account, api } from '@/lib/api';
+import { CACHE_REFRESH_INTERVAL_MS, getCachedData, replaceCachedData } from '@/lib/cache';
 import { getApiBaseUrl } from '@/lib/settings';
+
+const ACCOUNTS_CACHE_KEY = 'accounts';
 
 export default function DashboardScreen() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -15,12 +18,27 @@ export default function DashboardScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const load = useCallback(async (forceRefresh = false) => {
+    const [baseUrl, cachedAccounts] = await Promise.all([
+      getApiBaseUrl(),
+      getCachedData<Account[]>(ACCOUNTS_CACHE_KEY),
+    ]);
+    setApiBaseUrl(baseUrl);
+
+    if (cachedAccounts) {
+      setAccounts(cachedAccounts.data);
+    }
+
+    if (!forceRefresh && cachedAccounts && !cachedAccounts.isStale) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(!cachedAccounts);
     try {
-      const [baseUrl, accountData] = await Promise.all([getApiBaseUrl(), api.listAccounts()]);
-      setApiBaseUrl(baseUrl);
+      setError(null);
+      const accountData = await api.listAccounts();
+      await replaceCachedData(ACCOUNTS_CACHE_KEY, accountData);
       setAccounts(accountData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load accounts');
@@ -29,11 +47,14 @@ export default function DashboardScreen() {
     }
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
+  useEffect(() => {
+    void load();
+    const intervalId = setInterval(() => {
       void load();
-    }, [load]),
-  );
+    }, CACHE_REFRESH_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [load]);
 
   const showSkeleton = loading && accounts.length === 0 && !error;
 
@@ -49,7 +70,7 @@ export default function DashboardScreen() {
           )}
         </View>
         <View style={styles.actions}>
-          <Pressable accessibilityLabel="Refresh accounts" onPress={load} style={styles.iconButton}>
+          <Pressable accessibilityLabel="Refresh accounts" onPress={() => void load(true)} style={styles.iconButton}>
             <RefreshCw size={18} color="#0f172a" />
           </Pressable>
           <Link href="/settings" asChild>
@@ -69,7 +90,7 @@ export default function DashboardScreen() {
             <Text style={styles.summaryLabel}>active accounts</Text>
           </View>
 
-          {error ? <StateBlock title="Server request failed" detail={error} onRetry={load} /> : null}
+          {error ? <StateBlock title="Server request failed" detail={error} onRetry={() => void load(true)} /> : null}
           {!loading && !error && accounts.length === 0 ? (
             <StateBlock title="No accounts found" detail="The server returned an empty account list." />
           ) : null}

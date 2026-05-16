@@ -16,6 +16,14 @@ import {
   centsToMoney,
   colorFromInt,
 } from '@/lib/api';
+import { CACHE_REFRESH_INTERVAL_MS, getCachedData, replaceCachedData } from '@/lib/cache';
+
+type AccountScreenData = {
+  account: Account;
+  contracts: PocketWithContract[];
+  pockets: Pocket[];
+  feed: TransactionFeed;
+};
 
 export default function AccountScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,16 +36,39 @@ export default function AccountScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const load = useCallback(async (forceRefresh = false) => {
+    const cacheKey = `account.${accountId}`;
+    const cachedData = await getCachedData<AccountScreenData>(cacheKey);
+
+    if (cachedData) {
+      setAccount(cachedData.data.account);
+      setContracts(cachedData.data.contracts);
+      setPockets(cachedData.data.pockets);
+      setFeed(cachedData.data.feed);
+      navigation.setOptions({ title: cachedData.data.account.name });
+    }
+
+    if (!forceRefresh && cachedData && !cachedData.isStale) {
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(!cachedData);
     try {
+      setError(null);
       const [accountData, contractData, pocketData, feedData] = await Promise.all([
         api.getAccount(accountId),
         api.listContracts(accountId),
         api.listPockets(accountId),
         api.getAccountFeed(accountId),
       ]);
+      await replaceCachedData<AccountScreenData>(cacheKey, {
+        account: accountData,
+        contracts: contractData,
+        pockets: pocketData,
+        feed: feedData,
+      });
       setAccount(accountData);
       setContracts(contractData);
       setPockets(pocketData);
@@ -52,16 +83,21 @@ export default function AccountScreen() {
 
   useEffect(() => {
     void load();
+    const intervalId = setInterval(() => {
+      void load();
+    }, CACHE_REFRESH_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
   }, [load]);
 
   if (loading && !account) {
     return <AccountSkeleton />;
   }
 
-  if (error || !account) {
+  if (!account) {
     return (
       <Screen>
-        <StateBlock title="Account request failed" detail={error ?? 'Account not found'} onRetry={load} />
+        <StateBlock title="Account request failed" detail={error ?? 'Account not found'} onRetry={() => void load(true)} />
       </Screen>
     );
   }
@@ -74,7 +110,7 @@ export default function AccountScreen() {
             <Text style={styles.eyebrow}>{account.institution}</Text>
             <Text style={styles.title}>{account.name}</Text>
           </View>
-          <Pressable accessibilityLabel="Refresh account" onPress={load} style={styles.iconButton}>
+          <Pressable accessibilityLabel="Refresh account" onPress={() => void load(true)} style={styles.iconButton}>
             <RefreshCw size={18} color="#ffffff" />
           </Pressable>
         </View>
@@ -93,6 +129,8 @@ export default function AccountScreen() {
           </View>
         </View>
       </View>
+
+      {error ? <StateBlock title="Server request failed" detail={error} onRetry={() => void load(true)} /> : null}
 
       <Text style={styles.sectionTitle}>Contracts</Text>
       {contracts.length === 0 ? (

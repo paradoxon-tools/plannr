@@ -16,6 +16,14 @@ import {
   centsToMoney,
   colorFromInt,
 } from '@/lib/api';
+import { CACHE_REFRESH_INTERVAL_MS, getCachedData, replaceCachedData } from '@/lib/cache';
+
+type PocketScreenData = {
+  account: Account;
+  pocket: Pocket;
+  contract: PocketWithContract | null;
+  feed: TransactionFeed;
+};
 
 export default function PocketScreen() {
   const { id, accountId } = useLocalSearchParams<{ id: string; accountId?: string }>();
@@ -29,10 +37,27 @@ export default function PocketScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const load = useCallback(async (forceRefresh = false) => {
+    const cacheKey = `pocket.${pocketId}`;
+    const cachedData = await getCachedData<PocketScreenData>(cacheKey);
+
+    if (cachedData) {
+      setPocket(cachedData.data.pocket);
+      setAccount(cachedData.data.account);
+      setContract(cachedData.data.contract);
+      setFeed(cachedData.data.feed);
+      navigation.setOptions({ title: cachedData.data.pocket.name });
+    }
+
+    if (!forceRefresh && cachedData && !cachedData.isStale) {
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(!cachedData);
     try {
+      setError(null);
       const pocketData = await api.getPocket(pocketId);
       const resolvedAccountId = parsedAccountId ?? pocketData.accountId;
       const [accountData, contracts] = await Promise.all([
@@ -41,6 +66,12 @@ export default function PocketScreen() {
       ]);
       const contractData = contracts.find((item) => item.id === pocketId) ?? null;
       const feedData = contractData ? await api.getContractFeed(pocketId) : await api.getPocketFeed(pocketId);
+      await replaceCachedData<PocketScreenData>(cacheKey, {
+        account: accountData,
+        pocket: pocketData,
+        contract: contractData,
+        feed: feedData,
+      });
       setPocket(pocketData);
       setAccount(accountData);
       setContract(contractData);
@@ -55,6 +86,11 @@ export default function PocketScreen() {
 
   useEffect(() => {
     void load();
+    const intervalId = setInterval(() => {
+      void load();
+    }, CACHE_REFRESH_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
   }, [load]);
 
   const balance = useMemo(
@@ -66,10 +102,10 @@ export default function PocketScreen() {
     return <PocketSkeleton />;
   }
 
-  if (error || !pocket || !account) {
+  if (!pocket || !account) {
     return (
       <Screen>
-        <StateBlock title="Pocket request failed" detail={error ?? 'Pocket not found'} onRetry={load} />
+        <StateBlock title="Pocket request failed" detail={error ?? 'Pocket not found'} onRetry={() => void load(true)} />
       </Screen>
     );
   }
@@ -84,7 +120,7 @@ export default function PocketScreen() {
               <Text style={styles.eyebrow}>{account.name}</Text>
               <Text style={styles.title}>{pocket.name}</Text>
             </View>
-            <Pressable accessibilityLabel="Refresh pocket" onPress={load} style={styles.iconButton}>
+            <Pressable accessibilityLabel="Refresh pocket" onPress={() => void load(true)} style={styles.iconButton}>
               <RefreshCw size={18} color="#ffffff" />
             </Pressable>
           </View>
@@ -92,6 +128,8 @@ export default function PocketScreen() {
           <Text style={styles.balance}>{balance}</Text>
         </View>
       </View>
+
+      {error ? <StateBlock title="Server request failed" detail={error} onRetry={() => void load(true)} /> : null}
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Contract details</Text>
