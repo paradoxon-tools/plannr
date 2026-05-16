@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
+import { SkeletonBox } from '@/components/Skeleton';
 import { StateBlock } from '@/components/StateBlock';
 import {
   Account,
@@ -53,12 +54,8 @@ export default function AccountScreen() {
     void load();
   }, [load]);
 
-  if (loading) {
-    return (
-      <Screen>
-        <StateBlock title="Loading account" loading />
-      </Screen>
-    );
+  if (loading && !account) {
+    return <AccountSkeleton />;
   }
 
   if (error || !account) {
@@ -130,6 +127,63 @@ export default function AccountScreen() {
   );
 }
 
+function AccountSkeleton() {
+  return (
+    <Screen>
+      <View style={styles.headerCard}>
+        <View style={styles.headerTop}>
+          <View style={styles.headerTextSkeleton}>
+            <SkeletonBox width={118} height={15} style={styles.darkSkeleton} />
+            <SkeletonBox width={210} height={31} style={styles.darkSkeleton} />
+          </View>
+          <SkeletonBox width={42} height={42} radius={8} style={styles.blueSkeleton} />
+        </View>
+        <View style={styles.metricRow}>
+          <MetricSkeleton width={52} />
+          <MetricSkeleton width={44} />
+          <MetricSkeleton width={104} />
+        </View>
+      </View>
+
+      <SkeletonBox width={96} height={24} />
+      {Array.from({ length: 3 }).map((_, index) => (
+        <View key={`contract-${index}`} style={styles.card}>
+          <SkeletonBox width={12} height={46} radius={4} />
+          <View style={styles.cardText}>
+            <SkeletonBox width="68%" height={21} />
+            <SkeletonBox width="82%" height={17} />
+            <SkeletonBox width="58%" height={17} />
+          </View>
+          <SkeletonBox width={20} height={20} radius={10} />
+        </View>
+      ))}
+
+      <SkeletonBox width={124} height={24} />
+      {Array.from({ length: 5 }).map((_, index) => (
+        <View key={`transaction-${index}`} style={styles.transactionCard}>
+          <View style={styles.transactionTop}>
+            <View style={styles.transactionText}>
+              <SkeletonBox width="74%" height={20} />
+              <SkeletonBox width="88%" height={17} />
+            </View>
+            <SkeletonBox width={76} height={20} />
+          </View>
+          <SkeletonBox width="45%" height={17} />
+        </View>
+      ))}
+    </Screen>
+  );
+}
+
+function MetricSkeleton({ width }: { width: number }) {
+  return (
+    <View>
+      <SkeletonBox width={width} height={24} style={styles.darkSkeleton} />
+      <SkeletonBox width={62} height={17} style={styles.metricLabelSkeleton} />
+    </View>
+  );
+}
+
 function TransactionRow({
   transaction,
   currencyCode,
@@ -175,6 +229,10 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: 'flex-start',
   },
+  headerTextSkeleton: {
+    gap: 4,
+    flex: 1,
+  },
   eyebrow: {
     color: '#93c5fd',
     fontWeight: '800',
@@ -207,6 +265,16 @@ const styles = StyleSheet.create({
   metricLabel: {
     color: '#cbd5e1',
     fontWeight: '700',
+  },
+  metricLabelSkeleton: {
+    marginTop: 3,
+    backgroundColor: '#334155',
+  },
+  darkSkeleton: {
+    backgroundColor: '#334155',
+  },
+  blueSkeleton: {
+    backgroundColor: '#1d4ed8',
   },
   sectionTitle: {
     color: '#0f172a',

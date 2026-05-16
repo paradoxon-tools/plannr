@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
+import { SkeletonBox } from '@/components/Skeleton';
 import { StateBlock } from '@/components/StateBlock';
 import {
   Account,
@@ -61,12 +62,8 @@ export default function PocketScreen() {
     [account?.currencyCode, feed?.currentBalance],
   );
 
-  if (loading) {
-    return (
-      <Screen>
-        <StateBlock title="Loading pocket" loading />
-      </Screen>
-    );
+  if (loading && !pocket) {
+    return <PocketSkeleton />;
   }
 
   if (error || !pocket || !account) {
@@ -111,6 +108,51 @@ export default function PocketScreen() {
       ) : null}
       {feed?.transactions.map((transaction) => (
         <TransactionRow key={transaction.transactionId} transaction={transaction} currencyCode={account.currencyCode} />
+      ))}
+    </Screen>
+  );
+}
+
+function PocketSkeleton() {
+  return (
+    <Screen>
+      <View style={styles.hero}>
+        <SkeletonBox height={8} radius={0} style={styles.blueSkeleton} />
+        <View style={styles.heroBody}>
+          <View style={styles.heroTop}>
+            <View style={styles.heroText}>
+              <SkeletonBox width={128} height={15} style={styles.darkSkeleton} />
+              <SkeletonBox width={220} height={31} style={styles.titleSkeleton} />
+            </View>
+            <SkeletonBox width={42} height={42} radius={8} style={styles.blueSkeleton} />
+          </View>
+          <SkeletonBox width={118} height={19} style={styles.darkSkeleton} />
+          <SkeletonBox width={142} height={34} style={styles.darkSkeleton} />
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <SkeletonBox width={142} height={22} />
+        {Array.from({ length: 5 }).map((_, index) => (
+          <View key={index} style={styles.detailRow}>
+            <SkeletonBox width={index === 0 ? 92 : 136} height={15} />
+            <SkeletonBox width={index === 0 ? '74%' : '42%'} height={19} />
+          </View>
+        ))}
+      </View>
+
+      <SkeletonBox width={124} height={24} />
+      {Array.from({ length: 5 }).map((_, index) => (
+        <View key={`transaction-${index}`} style={styles.transactionCard}>
+          <View style={styles.transactionTop}>
+            <View style={styles.transactionText}>
+              <SkeletonBox width="74%" height={20} />
+              <SkeletonBox width="82%" height={19} />
+            </View>
+            <SkeletonBox width={76} height={20} />
+          </View>
+          <SkeletonBox width="45%" height={19} />
+        </View>
       ))}
     </Screen>
   );
@@ -184,6 +226,10 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 26,
     fontWeight: '900',
+  },
+  titleSkeleton: {
+    marginTop: 4,
+    backgroundColor: '#334155',
   },
   iconButton: {
     width: 42,
@@ -267,5 +313,11 @@ const styles = StyleSheet.create({
   },
   negative: {
     color: '#be123c',
+  },
+  darkSkeleton: {
+    backgroundColor: '#334155',
+  },
+  blueSkeleton: {
+    backgroundColor: '#2563eb',
   },
 });

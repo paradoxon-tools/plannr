@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
+import { SkeletonBox } from '@/components/Skeleton';
 import { StateBlock } from '@/components/StateBlock';
 import { Account, api } from '@/lib/api';
 import { getApiBaseUrl } from '@/lib/settings';
@@ -34,12 +35,18 @@ export default function DashboardScreen() {
     }, [load]),
   );
 
+  const showSkeleton = loading && accounts.length === 0 && !error;
+
   return (
     <Screen>
       <View style={styles.header}>
         <View>
           <Text style={styles.eyebrow}>Server</Text>
-          <Text style={styles.serverUrl}>{apiBaseUrl || 'Loading...'}</Text>
+          {apiBaseUrl ? (
+            <Text style={styles.serverUrl}>{apiBaseUrl}</Text>
+          ) : (
+            <SkeletonBox width={220} height={19} style={styles.serverUrlSkeleton} />
+          )}
         </View>
         <View style={styles.actions}>
           <Pressable accessibilityLabel="Refresh accounts" onPress={load} style={styles.iconButton}>
@@ -53,30 +60,56 @@ export default function DashboardScreen() {
         </View>
       </View>
 
-      <View style={styles.summary}>
-        <Text style={styles.summaryValue}>{accounts.length}</Text>
-        <Text style={styles.summaryLabel}>active accounts</Text>
-      </View>
+      {showSkeleton ? (
+        <DashboardSkeleton />
+      ) : (
+        <>
+          <View style={styles.summary}>
+            <Text style={styles.summaryValue}>{accounts.length}</Text>
+            <Text style={styles.summaryLabel}>active accounts</Text>
+          </View>
 
-      {loading ? <StateBlock title="Loading accounts" loading /> : null}
-      {error ? <StateBlock title="Server request failed" detail={error} onRetry={load} /> : null}
-      {!loading && !error && accounts.length === 0 ? (
-        <StateBlock title="No accounts found" detail="The server returned an empty account list." />
-      ) : null}
+          {error ? <StateBlock title="Server request failed" detail={error} onRetry={load} /> : null}
+          {!loading && !error && accounts.length === 0 ? (
+            <StateBlock title="No accounts found" detail="The server returned an empty account list." />
+          ) : null}
 
-      {accounts.map((account) => (
-        <Link key={account.id} href={`/account/${account.id}`} asChild>
-          <Pressable style={styles.card}>
-            <View style={styles.cardText}>
-              <Text style={styles.cardTitle}>{account.name}</Text>
-              <Text style={styles.cardMeta}>{account.institution}</Text>
-              <Text style={styles.cardMeta}>{account.currencyCode}</Text>
-            </View>
-            <ChevronRight size={20} color="#64748b" />
-          </Pressable>
-        </Link>
-      ))}
+          {accounts.map((account) => (
+            <Link key={account.id} href={`/account/${account.id}`} asChild>
+              <Pressable style={styles.card}>
+                <View style={styles.cardText}>
+                  <Text style={styles.cardTitle}>{account.name}</Text>
+                  <Text style={styles.cardMeta}>{account.institution}</Text>
+                  <Text style={styles.cardMeta}>{account.currencyCode}</Text>
+                </View>
+                <ChevronRight size={20} color="#64748b" />
+              </Pressable>
+            </Link>
+          ))}
+        </>
+      )}
     </Screen>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <>
+      <View style={styles.summary}>
+        <SkeletonBox width={48} height={41} style={styles.darkSkeleton} />
+        <SkeletonBox width={112} height={17} style={styles.darkSkeleton} />
+      </View>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <View key={index} style={styles.card}>
+          <View style={styles.cardText}>
+            <SkeletonBox width="70%" height={22} />
+            <SkeletonBox width="45%" height={17} />
+            <SkeletonBox width={38} height={17} />
+          </View>
+          <SkeletonBox width={20} height={20} radius={10} />
+        </View>
+      ))}
+    </>
   );
 }
 
@@ -97,6 +130,9 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     fontSize: 16,
     fontWeight: '700',
+  },
+  serverUrlSkeleton: {
+    marginTop: 1,
   },
   actions: {
     flexDirection: 'row',
@@ -125,6 +161,9 @@ const styles = StyleSheet.create({
   summaryLabel: {
     color: '#cbd5e1',
     fontWeight: '700',
+  },
+  darkSkeleton: {
+    backgroundColor: '#334155',
   },
   card: {
     flexDirection: 'row',

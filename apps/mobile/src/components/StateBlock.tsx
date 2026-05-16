@@ -1,17 +1,15 @@
 import { RefreshCw } from 'lucide-react-native';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type StateBlockProps = {
   title: string;
   detail?: string;
-  loading?: boolean;
   onRetry?: () => void;
 };
 
-export function StateBlock({ title, detail, loading, onRetry }: StateBlockProps) {
+export function StateBlock({ title, detail, onRetry }: StateBlockProps) {
   return (
     <View style={styles.card}>
-      {loading ? <ActivityIndicator /> : null}
       <Text style={styles.title}>{title}</Text>
       {detail ? <Text style={styles.detail}>{detail}</Text> : null}
       {onRetry ? (
