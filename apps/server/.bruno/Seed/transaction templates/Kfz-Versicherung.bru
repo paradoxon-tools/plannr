@@ -1,19 +1,17 @@
 meta {
   name: Kfz-Versicherung
   type: http
+  seq: 16
 }
-
 post {
   url: {{baseUrl}}/transactions/templates
   body: json
   auth: none
 }
-
 headers {
   Content-Type: application/json
   Accept: application/json
 }
-
 body:json {
   {
     "sourcePocketId": "{{seedContractPocketId}}",
@@ -35,7 +33,6 @@ body:json {
     "maxRecurrenceCount": null
   }
 }
-
 vars:pre-request {
   contractAccountName: Insurance & Contracts
   contractName: Kfz-Versicherung

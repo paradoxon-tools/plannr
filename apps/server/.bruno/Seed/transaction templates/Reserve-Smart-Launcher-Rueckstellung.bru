@@ -1,19 +1,17 @@
 meta {
   name: Reserve Smart Launcher - Rückstellung
   type: http
+  seq: 46
 }
-
 post {
   url: {{baseUrl}}/transactions/templates
   body: json
   auth: none
 }
-
 headers {
   Content-Type: application/json
   Accept: application/json
 }
-
 body:json {
   {
     "sourcePocketId": "{{seedReserveSourcePocketId}}",
@@ -35,7 +33,6 @@ body:json {
     "maxRecurrenceCount": null
   }
 }
-
 vars:pre-request {
   contractAccountName: Insurance & Contracts
   contractName: Smart Launcher

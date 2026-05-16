@@ -1,19 +1,17 @@
 meta {
-  name: WWK (Linka)
+  name: WWK (Linka) - WWK (7)
   type: http
+  seq: 56
 }
-
 post {
   url: {{baseUrl}}/transactions/templates
   body: json
   auth: none
 }
-
 headers {
   Content-Type: application/json
   Accept: application/json
 }
-
 body:json {
   {
     "sourcePocketId": "{{seedContractPocketId}}",
@@ -35,7 +33,6 @@ body:json {
     "maxRecurrenceCount": null
   }
 }
-
 vars:pre-request {
   contractAccountName: Insurance & Contracts
   contractName: WWK (Linka)

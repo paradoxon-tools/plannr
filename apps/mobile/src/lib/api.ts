@@ -34,6 +34,35 @@ export type PocketWithContract = Pocket & {
   contractInfo: ContractInfo;
 };
 
+export type TransactionFeedReference = {
+  id: number;
+  name: string;
+  color: number | null;
+};
+
+export type TransactionFeedItem = {
+  transactionId: number;
+  transactionTemplateId: number;
+  historyPosition: number;
+  transactionDate: string;
+  type: string;
+  title: string;
+  description: string | null;
+  transactionAmount: number;
+  signedAmount: number;
+  balanceAfter: number;
+  partner: TransactionFeedReference | null;
+  sourcePocket: TransactionFeedReference | null;
+  destinationPocket: TransactionFeedReference | null;
+  transferPocket: TransactionFeedReference | null;
+  isArchived: boolean;
+};
+
+export type TransactionFeed = {
+  currentBalance: number;
+  transactions: TransactionFeedItem[];
+};
+
 async function request<T>(path: string): Promise<T> {
   const baseUrl = await getApiBaseUrl();
   const response = await fetch(`${baseUrl}${path}`);
@@ -52,6 +81,9 @@ export const api = {
   listPockets: (accountId: number) => request<Pocket[]>(`/pockets?accountId=${accountId}`),
   listContracts: (accountId: number) => request<PocketWithContract[]>(`/contracts?accountId=${accountId}`),
   getPocket: (id: number) => request<Pocket>(`/pockets/${id}`),
+  getAccountFeed: (id: number) => request<TransactionFeed>(`/accounts/${id}/feed`),
+  getPocketFeed: (id: number) => request<TransactionFeed>(`/pockets/${id}/feed`),
+  getContractFeed: (id: number) => request<TransactionFeed>(`/contracts/${id}/feed`),
 };
 
 export function centsToMoney(cents: number | null | undefined, currencyCode: string): string {

@@ -1,19 +1,17 @@
 meta {
-  name: Internet
+  name: Internet - Payment 6998 from 2025-03-28
   type: http
+  seq: 14
 }
-
 post {
   url: {{baseUrl}}/transactions/templates
   body: json
   auth: none
 }
-
 headers {
   Content-Type: application/json
   Accept: application/json
 }
-
 body:json {
   {
     "sourcePocketId": "{{seedContractPocketId}}",
@@ -35,7 +33,6 @@ body:json {
     "maxRecurrenceCount": null
   }
 }
-
 vars:pre-request {
   contractAccountName: Rent & Appliances
   contractName: Internet

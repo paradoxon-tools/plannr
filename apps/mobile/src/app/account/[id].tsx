@@ -5,7 +5,16 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { StateBlock } from '@/components/StateBlock';
-import { Account, Pocket, PocketWithContract, api, centsToMoney, colorFromInt } from '@/lib/api';
+import {
+  Account,
+  Pocket,
+  PocketWithContract,
+  TransactionFeed,
+  TransactionFeedItem,
+  api,
+  centsToMoney,
+  colorFromInt,
+} from '@/lib/api';
 
 export default function AccountScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -14,6 +23,7 @@ export default function AccountScreen() {
   const [account, setAccount] = useState<Account | null>(null);
   const [contracts, setContracts] = useState<PocketWithContract[]>([]);
   const [pockets, setPockets] = useState<Pocket[]>([]);
+  const [feed, setFeed] = useState<TransactionFeed | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,14 +31,16 @@ export default function AccountScreen() {
     setLoading(true);
     setError(null);
     try {
-      const [accountData, contractData, pocketData] = await Promise.all([
+      const [accountData, contractData, pocketData, feedData] = await Promise.all([
         api.getAccount(accountId),
         api.listContracts(accountId),
         api.listPockets(accountId),
+        api.getAccountFeed(accountId),
       ]);
       setAccount(accountData);
       setContracts(contractData);
       setPockets(pocketData);
+      setFeed(feedData);
       navigation.setOptions({ title: accountData.name });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load account');
@@ -57,9 +69,6 @@ export default function AccountScreen() {
     );
   }
 
-  const totalKnownBalance = pockets.reduce((sum, pocket) => sum + (pocket.currentBalance ?? 0), 0);
-  const knownBalances = pockets.filter((pocket) => typeof pocket.currentBalance === 'number').length;
-
   return (
     <Screen>
       <View style={styles.headerCard}>
@@ -82,8 +91,8 @@ export default function AccountScreen() {
             <Text style={styles.metricLabel}>pockets</Text>
           </View>
           <View>
-            <Text style={styles.metric}>{knownBalances ? centsToMoney(totalKnownBalance, account.currencyCode) : '-'}</Text>
-            <Text style={styles.metricLabel}>known balance</Text>
+            <Text style={styles.metric}>{centsToMoney(feed?.currentBalance, account.currencyCode)}</Text>
+            <Text style={styles.metricLabel}>balance</Text>
           </View>
         </View>
       </View>
@@ -109,7 +118,47 @@ export default function AccountScreen() {
           </Pressable>
         </Link>
       ))}
+
+      <Text style={styles.sectionTitle}>Transactions</Text>
+      {feed?.transactions.length === 0 ? (
+        <StateBlock title="No transactions" detail="The feed does not contain transactions for this account yet." />
+      ) : null}
+      {feed?.transactions.map((transaction) => (
+        <TransactionRow key={transaction.transactionId} transaction={transaction} currencyCode={account.currencyCode} />
+      ))}
     </Screen>
+  );
+}
+
+function TransactionRow({
+  transaction,
+  currencyCode,
+}: {
+  transaction: TransactionFeedItem;
+  currencyCode: string;
+}) {
+  const counterparty =
+    transaction.partner?.name ??
+    transaction.destinationPocket?.name ??
+    transaction.sourcePocket?.name ??
+    transaction.transferPocket?.name ??
+    transaction.type;
+
+  return (
+    <View style={styles.transactionCard}>
+      <View style={styles.transactionTop}>
+        <View style={styles.transactionText}>
+          <Text style={styles.transactionTitle}>{transaction.title}</Text>
+          <Text style={styles.cardMeta}>
+            {transaction.transactionDate} · {counterparty}
+          </Text>
+        </View>
+        <Text style={[styles.transactionAmount, transaction.signedAmount < 0 ? styles.negative : styles.positive]}>
+          {centsToMoney(transaction.signedAmount, currencyCode)}
+        </Text>
+      </View>
+      <Text style={styles.cardMeta}>Balance: {centsToMoney(transaction.balanceAfter, currencyCode)}</Text>
+    </View>
   );
 }
 
@@ -190,5 +239,39 @@ const styles = StyleSheet.create({
   },
   cardMeta: {
     color: '#475569',
+  },
+  transactionCard: {
+    gap: 8,
+    padding: 14,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#cbd5e1',
+  },
+  transactionTop: {
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  transactionText: {
+    flex: 1,
+    gap: 4,
+  },
+  transactionTitle: {
+    color: '#0f172a',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: '900',
+    textAlign: 'right',
+  },
+  positive: {
+    color: '#047857',
+  },
+  negative: {
+    color: '#be123c',
   },
 });

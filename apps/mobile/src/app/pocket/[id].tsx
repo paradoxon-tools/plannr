@@ -5,7 +5,16 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { StateBlock } from '@/components/StateBlock';
-import { Account, Pocket, PocketWithContract, api, centsToMoney, colorFromInt } from '@/lib/api';
+import {
+  Account,
+  Pocket,
+  PocketWithContract,
+  TransactionFeed,
+  TransactionFeedItem,
+  api,
+  centsToMoney,
+  colorFromInt,
+} from '@/lib/api';
 
 export default function PocketScreen() {
   const { id, accountId } = useLocalSearchParams<{ id: string; accountId?: string }>();
@@ -15,6 +24,7 @@ export default function PocketScreen() {
   const [account, setAccount] = useState<Account | null>(null);
   const [pocket, setPocket] = useState<Pocket | null>(null);
   const [contract, setContract] = useState<PocketWithContract | null>(null);
+  const [feed, setFeed] = useState<TransactionFeed | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,9 +39,11 @@ export default function PocketScreen() {
         api.listContracts(resolvedAccountId),
       ]);
       const contractData = contracts.find((item) => item.id === pocketId) ?? null;
+      const feedData = contractData ? await api.getContractFeed(pocketId) : await api.getPocketFeed(pocketId);
       setPocket(pocketData);
       setAccount(accountData);
       setContract(contractData);
+      setFeed(feedData);
       navigation.setOptions({ title: pocketData.name });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load pocket');
@@ -45,8 +57,8 @@ export default function PocketScreen() {
   }, [load]);
 
   const balance = useMemo(
-    () => centsToMoney(pocket?.currentBalance, account?.currencyCode ?? 'EUR'),
-    [account?.currencyCode, pocket?.currentBalance],
+    () => centsToMoney(feed?.currentBalance, account?.currencyCode ?? 'EUR'),
+    [account?.currencyCode, feed?.currentBalance],
   );
 
   if (loading) {
@@ -93,12 +105,13 @@ export default function PocketScreen() {
         <Detail label="Last cancellation date" value={contract?.contractInfo.lastCancellationDate ?? 'None'} />
       </View>
 
-      {typeof pocket.currentBalance !== 'number' ? (
-        <StateBlock
-          title="Balance is not available yet"
-          detail="The current server DTO for /pockets and /contracts does not include currentBalance. The screen is ready to display it when the API exposes that field."
-        />
+      <Text style={styles.sectionTitle}>Transactions</Text>
+      {feed?.transactions.length === 0 ? (
+        <StateBlock title="No transactions" detail="The feed does not contain transactions for this entity yet." />
       ) : null}
+      {feed?.transactions.map((transaction) => (
+        <TransactionRow key={transaction.transactionId} transaction={transaction} currencyCode={account.currencyCode} />
+      ))}
     </Screen>
   );
 }
@@ -108,6 +121,33 @@ function Detail({ label, value }: { label: string; value: string }) {
     <View style={styles.detailRow}>
       <Text style={styles.detailLabel}>{label}</Text>
       <Text style={styles.detailValue}>{value}</Text>
+    </View>
+  );
+}
+
+function TransactionRow({
+  transaction,
+  currencyCode,
+}: {
+  transaction: TransactionFeedItem;
+  currencyCode: string;
+}) {
+  const counterparty = transaction.partner?.name ?? transaction.transferPocket?.name ?? transaction.type;
+
+  return (
+    <View style={styles.transactionCard}>
+      <View style={styles.transactionTop}>
+        <View style={styles.transactionText}>
+          <Text style={styles.transactionTitle}>{transaction.title}</Text>
+          <Text style={styles.detailValue}>
+            {transaction.transactionDate} · {counterparty}
+          </Text>
+        </View>
+        <Text style={[styles.transactionAmount, transaction.signedAmount < 0 ? styles.negative : styles.positive]}>
+          {centsToMoney(transaction.signedAmount, currencyCode)}
+        </Text>
+      </View>
+      <Text style={styles.detailValue}>Balance: {centsToMoney(transaction.balanceAfter, currencyCode)}</Text>
     </View>
   );
 }
@@ -175,6 +215,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
   },
+  sectionTitle: {
+    color: '#0f172a',
+    fontSize: 20,
+    fontWeight: '900',
+  },
   detailRow: {
     gap: 3,
   },
@@ -188,5 +233,39 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     fontSize: 16,
     fontWeight: '700',
+  },
+  transactionCard: {
+    gap: 8,
+    padding: 14,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#cbd5e1',
+  },
+  transactionTop: {
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  transactionText: {
+    flex: 1,
+    gap: 4,
+  },
+  transactionTitle: {
+    color: '#0f172a',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: '900',
+    textAlign: 'right',
+  },
+  positive: {
+    color: '#047857',
+  },
+  negative: {
+    color: '#be123c',
   },
 });

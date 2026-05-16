@@ -1,19 +1,17 @@
 meta {
   name: Reserve Internet
   type: http
+  seq: 37
 }
-
 post {
   url: {{baseUrl}}/transactions/templates
   body: json
   auth: none
 }
-
 headers {
   Content-Type: application/json
   Accept: application/json
 }
-
 body:json {
   {
     "sourcePocketId": "{{seedReserveSourcePocketId}}",
@@ -35,7 +33,6 @@ body:json {
     "maxRecurrenceCount": null
   }
 }
-
 vars:pre-request {
   contractAccountName: Rent & Appliances
   contractName: Internet

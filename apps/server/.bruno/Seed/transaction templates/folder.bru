@@ -2,7 +2,6 @@ meta {
   name: transaction templates
   seq: 3
 }
-
 script:pre-request {
   const baseUrl = bru.getEnvVar("baseUrl") || bru.getVar("baseUrl");
   const contractAccountName = bru.getRequestVar("contractAccountName");
