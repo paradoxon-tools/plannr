@@ -1,0 +1,44 @@
+meta {
+  name: Dericon GmbH - Gehalt (1)
+  type: http
+  seq: 58
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "sourcePocketId": null,
+    "destinationPocketId": {{seedContractPocketId}},
+    "partnerId": "{{seedPartnerId}}",
+    "title": "Gehalt",
+    "description": "Dericon GmbH",
+    "amount": 412247,
+    "currencyCode": "EUR",
+    "transactionType": "INCOME",
+    "firstOccurrenceDate": "2025-12-22",
+    "finalOccurrenceDate": "2025-12-22",
+    "recurrenceType": "NONE",
+    "skipCount": 0,
+    "daysOfWeek": null,
+    "weeksOfMonth": null,
+    "daysOfMonth": null,
+    "monthsOfYear": null,
+    "maxRecurrenceCount": null
+  }
+}
+
+vars:pre-request {
+  contractAccountName: Income Bucket
+  partnerName: Dericon GmbH
+  transactionType: INCOME
+}

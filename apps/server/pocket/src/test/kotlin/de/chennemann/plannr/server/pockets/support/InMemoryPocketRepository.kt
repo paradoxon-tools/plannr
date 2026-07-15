@@ -47,6 +47,11 @@ class InMemoryPocketRepository : PocketRepository {
             .sortedWith(compareBy<PocketModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
             .asFlow()
 
+    override suspend fun findDefaultByAccountId(accountId: Long): PocketModel? =
+        pockets.values
+            .filter { it.accountId == accountId && it.isDefault }
+            .minWithOrNull(compareBy<PocketModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
+
     override suspend fun count(): Long = pockets.size.toLong()
 
     override suspend fun deleteById(id: Long) { pockets.remove(id) }

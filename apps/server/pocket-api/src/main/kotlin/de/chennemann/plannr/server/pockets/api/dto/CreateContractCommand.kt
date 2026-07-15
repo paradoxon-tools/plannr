@@ -5,4 +5,5 @@ data class CreateContractCommand(
     val signingDate: String?,
     val expirationDate: String?,
     val lastCancellationDate: String?,
+    val useDefaultPocket: Boolean = false,
 )

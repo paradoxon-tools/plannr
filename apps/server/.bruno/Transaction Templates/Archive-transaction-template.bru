@@ -1,0 +1,18 @@
+meta {
+  name: Archive transaction template
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/:transactionTemplateId/archive
+  body: none
+  auth: none
+}
+
+params:path {
+  transactionTemplateId: 1
+}
+
+headers {
+  Accept: application/json
+}

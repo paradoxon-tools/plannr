@@ -30,22 +30,29 @@ internal class PocketServiceImpl(
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
-        val created = pocketRepository.save(
-            PocketModel(
-                id = null,
-                accountId = accountId,
-                name = command.name,
-                description = command.description,
-                color = command.color,
-                isDefault = command.isDefault,
-                isContractPocket = command.contract != null,
-                isArchived = false,
-                createdAt = timeProvider(),
-            ),
-        ).toDomain()
-        command.contract?.let { contractService.create(created, it) }
-        enqueueProjectionChange(created.id)
-        return created
+        val pocket = if (command.contract?.useDefaultPocket == true) {
+            defaultPocket(accountId).let { defaultPocket ->
+                if (defaultPocket.isContractPocket) defaultPocket
+                else pocketRepository.save(defaultPocket.copy(isContractPocket = true))
+            }
+        } else {
+            pocketRepository.save(
+                PocketModel(
+                    id = null,
+                    accountId = accountId,
+                    name = command.name,
+                    description = command.description,
+                    color = command.color,
+                    isDefault = command.isDefault,
+                    isContractPocket = command.contract != null,
+                    isArchived = false,
+                    createdAt = timeProvider(),
+                ),
+            ).toDomain()
+        }
+        command.contract?.let { contractService.create(pocket, it) }
+        enqueueProjectionChange(pocket.id)
+        return pocket
     }
 
     override suspend fun update(command: UpdatePocketCommand): Pocket {
@@ -128,6 +135,14 @@ internal class PocketServiceImpl(
                 code = "not_found",
                 message = "Pocket not found",
                 details = mapOf("id" to id),
+            )
+
+    private suspend fun defaultPocket(accountId: Long): Pocket =
+        pocketRepository.findDefaultByAccountId(accountId)?.toDomain()
+            ?: throw NotFoundException(
+                code = "not_found",
+                message = "Default pocket not found",
+                details = mapOf("accountId" to accountId),
             )
 
     private suspend fun enqueueProjectionChange(id: Long) {

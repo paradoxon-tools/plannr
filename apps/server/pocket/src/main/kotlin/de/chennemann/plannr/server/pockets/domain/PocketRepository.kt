@@ -13,6 +13,18 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
         """
         SELECT id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at
         FROM pockets
+        WHERE account_id = :accountId
+          AND is_default = TRUE
+        ORDER BY created_at ASC, id ASC
+        LIMIT 1
+        """,
+    )
+    suspend fun findDefaultByAccountId(accountId: Long): PocketModel?
+
+    @Query(
+        """
+        SELECT id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at
+        FROM pockets
         WHERE (:accountId IS NULL OR account_id = :accountId)
           AND (:archived IS NULL OR is_archived = :archived)
         ORDER BY created_at ASC, id ASC

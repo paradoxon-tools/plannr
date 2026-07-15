@@ -1,0 +1,18 @@
+meta {
+  name: Get transaction template
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/transactions/templates/:transactionTemplateId
+  body: none
+  auth: none
+}
+
+params:path {
+  transactionTemplateId: 1
+}
+
+headers {
+  Accept: application/json
+}

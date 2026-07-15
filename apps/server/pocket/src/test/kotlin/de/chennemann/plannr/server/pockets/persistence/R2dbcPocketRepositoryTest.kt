@@ -68,6 +68,19 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
         assertEquals(listOf(1L), filtered.map { it.id })
     }
 
+    @Test
+    fun `finds default pocket for account`() = runBlocking {
+        insertPocket(PocketFixtures.pocket(id = 1L, accountId = 1L, isDefault = false).toModel())
+        insertPocket(PocketFixtures.pocket(id = 2L, accountId = 1L, name = "Default", isDefault = true).toModel())
+        insertPocket(PocketFixtures.pocket(id = 3L, accountId = 2L, name = "Other default", isDefault = true).toModel())
+
+        val defaultPocket = pocketRepository.findDefaultByAccountId(1L)?.toDomain()
+
+        assertEquals(2L, defaultPocket?.id)
+        assertEquals("Default", defaultPocket?.name)
+        assertNull(pocketRepository.findDefaultByAccountId(999L))
+    }
+
     private suspend fun insertAccount(id: Long, name: String) {
         databaseClient.sql(
             """

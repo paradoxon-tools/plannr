@@ -1,0 +1,18 @@
+meta {
+  name: List transaction templates
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/transactions/templates
+  body: none
+  auth: none
+}
+
+params:query {
+  archived: false
+}
+
+headers {
+  Accept: application/json
+}

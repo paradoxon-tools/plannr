@@ -18,8 +18,8 @@ server:
   port: 9000
 plannr:
   database:
-    host: ${PLANNR_DB_HOST:localhost}
-    port: ${PLANNR_DB_PORT:15432}
+    host: ${PLANNR_DB_HOST:192.168.1.202}
+    port: ${PLANNR_DB_PORT:5432}
     name: ${PLANNR_DB_NAME:plannr}
     username: ${PLANNR_DB_USERNAME:plannr}
     password: ${PLANNR_DB_PASSWORD:plannr}

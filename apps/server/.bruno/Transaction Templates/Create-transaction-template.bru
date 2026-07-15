@@ -1,16 +1,12 @@
 meta {
-  name: Update recurring transaction
+  name: Create transaction template
   type: http
 }
 
-put {
-  url: {{baseUrl}}/transactions/recurring/:recurringTransactionId
+post {
+  url: {{baseUrl}}/transactions/templates
   body: json
   auth: none
-}
-
-params:path {
-  recurringTransactionId: recurring-transaction-id
 }
 
 headers {
@@ -20,13 +16,12 @@ headers {
 
 body:json {
   {
-    "updateMode": "overwrite",
-    "sourcePocketId": "pocket-id",
+    "sourcePocketId": 1,
     "destinationPocketId": null,
-    "partnerId": "partner-id",
+    "partnerId": 1,
     "title": "Monthly subscription",
-    "description": "Updated recurring expense",
-    "amount": 1099,
+    "description": "Sample recurring expense",
+    "amount": 999,
     "currencyCode": "EUR",
     "transactionType": "EXPENSE",
     "firstOccurrenceDate": "2026-04-15",

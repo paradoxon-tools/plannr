@@ -1,0 +1,18 @@
+meta {
+  name: Delete transaction template
+  type: http
+}
+
+delete {
+  url: {{baseUrl}}/transactions/templates/:transactionTemplateId
+  body: none
+  auth: none
+}
+
+params:path {
+  transactionTemplateId: 1
+}
+
+headers {
+  Accept: application/json
+}

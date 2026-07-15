@@ -1,0 +1,18 @@
+meta {
+  name: Unarchive transaction template
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/:transactionTemplateId/unarchive
+  body: none
+  auth: none
+}
+
+params:path {
+  transactionTemplateId: 1
+}
+
+headers {
+  Accept: application/json
+}
