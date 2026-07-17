@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.accounts.service
 
-import de.chennemann.plannr.server.accounts.persistence.toDomain
+import de.chennemann.plannr.server.accounts.persistence.toDTO
 import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
@@ -35,7 +35,7 @@ class UpdateAccountTest {
         assertEquals("EUR", updated.currencyCode)
         assertEquals("NO_SHIFT", updated.weekendHandling)
         assertEquals(AccountFixtures.DEFAULT_CREATED_AT, updated.createdAt)
-        assertEquals(updated, accountRepository.findById(AccountFixtures.DEFAULT_ID)?.toDomain())
+        assertEquals(updated, accountRepository.findById(AccountFixtures.DEFAULT_ID)?.toDTO())
     }
 
     @Test
@@ -92,7 +92,7 @@ class UpdateAccountTest {
 
         assertEquals("conflict", exception.code)
         assertEquals(mapOf("name" to "Main Account", "institution" to "Demo Bank"), exception.details)
-        assertEquals("Savings", accountRepository.findById(2L)?.toDomain()?.name)
+        assertEquals("Savings", accountRepository.findById(2L)?.toDTO()?.name)
     }
 
     @Test

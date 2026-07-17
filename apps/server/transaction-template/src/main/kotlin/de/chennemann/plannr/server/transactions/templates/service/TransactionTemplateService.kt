@@ -11,7 +11,7 @@ import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemp
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplateRepository
 import de.chennemann.plannr.server.transactions.templates.domain.save
 import de.chennemann.plannr.server.transactions.templates.persistence.TransactionTemplateModel
-import de.chennemann.plannr.server.transactions.templates.persistence.toDomain
+import de.chennemann.plannr.server.transactions.templates.persistence.toDTO
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -48,7 +48,7 @@ class TransactionTemplateServiceImpl(
                 isArchived = false,
                 createdAt = timeProvider(),
             ),
-        ).toDomain()
+        ).toDTO()
         transactionMaterializerService.materialize(MaterializationOperation.NewTransactionTemplate(created))
         enqueueProjectionChange(created.id)
         return created
@@ -102,7 +102,7 @@ class TransactionTemplateServiceImpl(
                 destinationIsArchived = false,
             )
             .toList()
-            .map(TransactionTemplateModel::toDomain)
+            .map(TransactionTemplateModel::toDTO)
             .forEach {
                 val archived = transactionTemplateRepository.save(it.copy(isArchived = true))
                 enqueueProjectionChange(archived.id)
@@ -118,7 +118,7 @@ class TransactionTemplateServiceImpl(
                 destinationIsArchived = true,
             )
             .toList()
-            .map(TransactionTemplateModel::toDomain)
+            .map(TransactionTemplateModel::toDTO)
             .forEach {
                 val unarchived = transactionTemplateRepository.save(it.copy(isArchived = false))
                 enqueueProjectionChange(unarchived.id)
@@ -137,11 +137,11 @@ class TransactionTemplateServiceImpl(
         } else {
             transactionTemplateRepository.findAllByIsArchivedOrderByCreatedAtAscIdAsc(archived).toList()
         }
-        return models.map(TransactionTemplateModel::toDomain)
+        return models.map(TransactionTemplateModel::toDTO)
     }
 
     override suspend fun getById(id: Long): TransactionTemplate? =
-        transactionTemplateRepository.findById(id)?.toDomain()
+        transactionTemplateRepository.findById(id)?.toDTO()
 
     private suspend fun existingTransactionTemplate(id: Long): TransactionTemplate =
         getById(id)

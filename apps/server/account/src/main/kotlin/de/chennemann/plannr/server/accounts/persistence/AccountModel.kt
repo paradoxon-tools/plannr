@@ -21,7 +21,7 @@ data class AccountModel(
     val createdAt: Long,
 )
 
-fun AccountModel.toDomain(): Account =
+fun AccountModel.toDTO(): Account =
     Account(
         id = requireNotNull(id) { "AccountModel.id must not be null when mapping to domain" },
         name = name,

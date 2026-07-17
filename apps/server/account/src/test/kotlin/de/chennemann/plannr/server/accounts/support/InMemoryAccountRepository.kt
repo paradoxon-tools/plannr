@@ -3,11 +3,10 @@ package de.chennemann.plannr.server.accounts.support
 import de.chennemann.plannr.server.accounts.api.dto.Account
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
-import de.chennemann.plannr.server.accounts.persistence.toDomain
+import de.chennemann.plannr.server.accounts.persistence.toDTO
 import de.chennemann.plannr.server.accounts.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 
 class InMemoryAccountRepository : AccountRepository {
@@ -73,5 +72,5 @@ class InMemoryAccountRepository : AccountRepository {
         accounts.clear()
     }
 
-    suspend fun save(account: Account): Account = save(account.toModel()).toDomain()
+    suspend fun save(account: Account): Account = save(account.toModel()).toDTO()
 }

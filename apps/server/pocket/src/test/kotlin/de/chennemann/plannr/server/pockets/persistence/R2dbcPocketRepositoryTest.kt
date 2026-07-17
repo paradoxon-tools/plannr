@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.pockets.persistence
 
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
-import de.chennemann.plannr.server.pockets.persistence.toDomain
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.flow.toList
@@ -32,7 +31,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
 
         val saved = pocketRepository.save(pocket.toModel().copy(id = null))
 
-        assertEquals(pocket.copy(id = saved.toDomain().id), pocketRepository.findById(saved.toDomain().id)?.toDomain())
+        assertEquals(pocket.copy(id = saved.toDTO().id), pocketRepository.findById(saved.toDTO().id)?.toDTO())
         assertNull(pocketRepository.findById(999L))
     }
 
@@ -52,7 +51,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
 
         pocketRepository.save(updated.toModel())
 
-        assertEquals(updated, pocketRepository.findById(PocketFixtures.DEFAULT_ID)?.toDomain())
+        assertEquals(updated, pocketRepository.findById(PocketFixtures.DEFAULT_ID)?.toDTO())
     }
 
     @Test
@@ -74,7 +73,7 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
         insertPocket(PocketFixtures.pocket(id = 2L, accountId = 1L, name = "Default", isDefault = true).toModel())
         insertPocket(PocketFixtures.pocket(id = 3L, accountId = 2L, name = "Other default", isDefault = true).toModel())
 
-        val defaultPocket = pocketRepository.findDefaultByAccountId(1L)?.toDomain()
+        val defaultPocket = pocketRepository.findDefaultByAccountId(1L)?.toDTO()
 
         assertEquals(2L, defaultPocket?.id)
         assertEquals("Default", defaultPocket?.name)

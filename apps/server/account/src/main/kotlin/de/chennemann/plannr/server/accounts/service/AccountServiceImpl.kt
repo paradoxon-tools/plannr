@@ -6,7 +6,7 @@ import de.chennemann.plannr.server.accounts.api.dto.UpdateAccountCommand
 import de.chennemann.plannr.server.accounts.domain.AccountRepository
 import de.chennemann.plannr.server.accounts.domain.save
 import de.chennemann.plannr.server.accounts.persistence.AccountModel
-import de.chennemann.plannr.server.accounts.persistence.toDomain
+import de.chennemann.plannr.server.accounts.persistence.toDTO
 import de.chennemann.plannr.server.common.domain.normalizeCurrency
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
@@ -40,7 +40,7 @@ internal class AccountServiceImpl(
                 isArchived = false,
                 createdAt = timeProvider(),
             ),
-        ).toDomain()
+        ).toDTO()
         pocketService.create(
             CreatePocketCommand(
                 accountId = created.id,
@@ -95,14 +95,14 @@ internal class AccountServiceImpl(
     override suspend fun list(archived: Boolean?): List<Account> =
         accountRepository.findAllByOrderByCreatedAtAscIdAsc()
             .toList()
-            .map(AccountModel::toDomain)
+            .map(AccountModel::toDTO)
             .filter { archived == null || it.isArchived == archived }
 
     override suspend fun getById(id: Long): Account? =
-        accountRepository.findById(id)?.toDomain()
+        accountRepository.findById(id)?.toDTO()
 
     private suspend fun existingAccount(id: Long): Account =
-        accountRepository.findById(id)?.toDomain()
+        accountRepository.findById(id)?.toDTO()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Account not found",
@@ -110,7 +110,7 @@ internal class AccountServiceImpl(
             )
 
     private suspend fun ensureNameAvailable(name: String, institution: String, currentAccountId: Long?) {
-        val existing = accountRepository.findByNameAndInstitution(name, institution)?.toDomain()
+        val existing = accountRepository.findByNameAndInstitution(name, institution)?.toDTO()
         if (existing != null && existing.id != currentAccountId) {
             throw ConflictException(
                 code = "conflict",

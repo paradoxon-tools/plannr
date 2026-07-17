@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.pockets.domain
 
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
-import de.chennemann.plannr.server.pockets.persistence.toDomain
+import de.chennemann.plannr.server.pockets.persistence.toDTO
 import de.chennemann.plannr.server.pockets.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
@@ -34,4 +34,4 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
 }
 
 internal suspend fun PocketRepository.save(pocket: Pocket): Pocket =
-    save(pocket.toModel()).toDomain()
+    save(pocket.toModel()).toDTO()

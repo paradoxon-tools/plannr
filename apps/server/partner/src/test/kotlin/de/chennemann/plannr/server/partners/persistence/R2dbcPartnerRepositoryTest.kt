@@ -1,7 +1,6 @@
 package de.chennemann.plannr.server.partners.persistence
 
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
-import de.chennemann.plannr.server.partners.persistence.toDomain
 import de.chennemann.plannr.server.partners.support.PartnerFixtures
 import de.chennemann.plannr.server.support.ApiIntegrationTest
 import kotlinx.coroutines.flow.toList
@@ -31,7 +30,7 @@ class R2dbcPartnerRepositoryTest : ApiIntegrationTest() {
 
         val saved = partnerRepository.save(partner.toModel().copy(id = null))
 
-        assertEquals(partner.copy(id = saved.toDomain().id), partnerRepository.findById(saved.toDomain().id)?.toDomain())
+        assertEquals(partner.copy(id = saved.toDTO().id), partnerRepository.findById(saved.toDTO().id)?.toDTO())
         assertNull(partnerRepository.findById(999L))
     }
 
@@ -43,7 +42,7 @@ class R2dbcPartnerRepositoryTest : ApiIntegrationTest() {
 
         partnerRepository.save(updated.toModel())
 
-        assertEquals(updated, partnerRepository.findById(PartnerFixtures.DEFAULT_ID)?.toDomain())
+        assertEquals(updated, partnerRepository.findById(PartnerFixtures.DEFAULT_ID)?.toDTO())
     }
 
     @Test

@@ -23,16 +23,16 @@ class CoroutineAccountRepositoryTest : ApiIntegrationTest() {
     fun `saves and finds account by id`() = runBlocking {
         val account = AccountFixtures.account()
 
-        val saved = accountRepository.save(account.toModel().copy(id = null)).toDomain()
+        val saved = accountRepository.save(account.toModel().copy(id = null)).toDTO()
 
-        assertEquals(account.copy(id = saved.id), accountRepository.findById(saved.id)?.toDomain())
+        assertEquals(account.copy(id = saved.id), accountRepository.findById(saved.id)?.toDTO())
         assertNull(accountRepository.findById(999L))
     }
 
     @Test
     fun `updates and finds account by id`() = runBlocking {
         val original = AccountFixtures.account()
-        val saved = accountRepository.save(original.toModel().copy(id = null)).toDomain()
+        val saved = accountRepository.save(original.toModel().copy(id = null)).toDTO()
         val updated = AccountFixtures.account(
             id = saved.id,
             name = "Updated",
@@ -42,19 +42,19 @@ class CoroutineAccountRepositoryTest : ApiIntegrationTest() {
 
         accountRepository.save(updated.toModel())
 
-        assertEquals(updated, accountRepository.findById(saved.id)?.toDomain())
+        assertEquals(updated, accountRepository.findById(saved.id)?.toDTO())
     }
 
     @Test
     fun `finds account by name and institution`() = runBlocking {
         val account = accountRepository.save(
             AccountFixtures.account(name = "Primary Account", institution = "Demo Bank").toModel().copy(id = null),
-        ).toDomain()
+        ).toDTO()
         accountRepository.save(
             AccountFixtures.account(name = "Primary Account", institution = "Other Bank").toModel().copy(id = null),
         )
 
-        assertEquals(account, accountRepository.findByNameAndInstitution("Primary Account", "Demo Bank")?.toDomain())
+        assertEquals(account, accountRepository.findByNameAndInstitution("Primary Account", "Demo Bank")?.toDTO())
         assertNull(accountRepository.findByNameAndInstitution("Missing Account", "Demo Bank"))
         assertNull(accountRepository.findByNameAndInstitution("Primary Account", "Missing Bank"))
     }

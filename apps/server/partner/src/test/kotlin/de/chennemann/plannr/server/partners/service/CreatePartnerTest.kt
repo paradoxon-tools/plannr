@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.partners.service
 
-import de.chennemann.plannr.server.partners.persistence.toDomain
+import de.chennemann.plannr.server.partners.persistence.toDTO
 import de.chennemann.plannr.server.partners.support.InMemoryPartnerRepository
 import de.chennemann.plannr.server.partners.support.PartnerFixtures
 import kotlinx.coroutines.test.runTest
@@ -18,6 +18,6 @@ class CreatePartnerTest {
 
         val created = partnerService.create(PartnerFixtures.createPartnerCommand())
 
-        assertEquals(created, repository.findById(created.id)?.toDomain())
+        assertEquals(created, repository.findById(created.id)?.toDTO())
     }
 }

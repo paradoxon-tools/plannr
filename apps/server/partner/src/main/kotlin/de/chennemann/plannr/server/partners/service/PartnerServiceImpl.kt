@@ -8,7 +8,7 @@ import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.domain.PartnerRepository
 import de.chennemann.plannr.server.partners.domain.save
 import de.chennemann.plannr.server.partners.persistence.PartnerModel
-import de.chennemann.plannr.server.partners.persistence.toDomain
+import de.chennemann.plannr.server.partners.persistence.toDTO
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import kotlinx.coroutines.flow.toList
@@ -31,7 +31,7 @@ internal class PartnerServiceImpl(
                 isArchived = false,
                 createdAt = timeProvider(),
             ),
-        ).toDomain()
+        ).toDTO()
         enqueueProjectionChange(created.id)
         return created
     }
@@ -71,13 +71,13 @@ internal class PartnerServiceImpl(
     override suspend fun list(query: String?, archived: Boolean): List<Partner> =
         partnerRepository.findAllByQueryAndArchived(query?.trim()?.takeIf { it.isNotBlank() }, archived)
             .toList()
-            .map { it.toDomain() }
+            .map { it.toDTO() }
 
     override suspend fun getById(id: Long): Partner? =
-        partnerRepository.findById(id)?.toDomain()
+        partnerRepository.findById(id)?.toDTO()
 
     private suspend fun existingPartner(id: Long): Partner =
-        partnerRepository.findById(id)?.toDomain()
+        partnerRepository.findById(id)?.toDTO()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Partner not found",

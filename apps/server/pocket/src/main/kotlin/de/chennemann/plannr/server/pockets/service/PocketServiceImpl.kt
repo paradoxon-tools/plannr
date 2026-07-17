@@ -10,7 +10,7 @@ import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.domain.save
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
-import de.chennemann.plannr.server.pockets.persistence.toDomain
+import de.chennemann.plannr.server.pockets.persistence.toDTO
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
@@ -48,7 +48,7 @@ internal class PocketServiceImpl(
                     isArchived = false,
                     createdAt = timeProvider(),
                 ),
-            ).toDomain()
+            ).toDTO()
         }
         command.contract?.let { contractService.create(pocket, it) }
         enqueueProjectionChange(pocket.id)
@@ -113,10 +113,10 @@ internal class PocketServiceImpl(
             archived = archived,
         )
             .toList()
-            .map { it.toDomain() }
+            .map { it.toDTO() }
 
     override suspend fun getById(id: Long): Pocket? =
-        pocketRepository.findById(id)?.toDomain()
+        pocketRepository.findById(id)?.toDTO()
 
     private suspend fun existingAccountId(accountId: Long): Long {
         if (!accountLookup.exists(accountId)) {
@@ -130,7 +130,7 @@ internal class PocketServiceImpl(
     }
 
     private suspend fun existingPocket(id: Long): Pocket =
-        pocketRepository.findById(id)?.toDomain()
+        pocketRepository.findById(id)?.toDTO()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Pocket not found",
@@ -138,7 +138,7 @@ internal class PocketServiceImpl(
             )
 
     private suspend fun defaultPocket(accountId: Long): Pocket =
-        pocketRepository.findDefaultByAccountId(accountId)?.toDomain()
+        pocketRepository.findDefaultByAccountId(accountId)?.toDTO()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Default pocket not found",

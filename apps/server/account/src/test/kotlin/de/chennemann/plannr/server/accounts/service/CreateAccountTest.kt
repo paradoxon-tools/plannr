@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.accounts.service
 
-import de.chennemann.plannr.server.accounts.persistence.toDomain
+import de.chennemann.plannr.server.accounts.persistence.toDTO
 import de.chennemann.plannr.server.accounts.persistence.toModel
 import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
@@ -21,7 +21,7 @@ class CreateAccountTest {
         val created = accountService.create(AccountFixtures.createAccountCommand())
 
         assertEquals(AccountFixtures.DEFAULT_CURRENCY_CODE, created.currencyCode)
-        assertEquals(created, accountRepository.findById(created.id)?.toDomain())
+        assertEquals(created, accountRepository.findById(created.id)?.toDTO())
     }
 
     @Test

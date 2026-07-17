@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.api.dto.CreateContractCommand
-import de.chennemann.plannr.server.pockets.persistence.toDomain
+import de.chennemann.plannr.server.pockets.persistence.toDTO
 import de.chennemann.plannr.server.pockets.support.InMemoryPocketRepository
 import de.chennemann.plannr.server.pockets.support.PocketFixtures
 import kotlinx.coroutines.test.runTest
@@ -27,7 +27,7 @@ class CreatePocketTest {
 
         assertEquals(PocketFixtures.DEFAULT_ACCOUNT_ID, created.accountId)
         assertEquals(false, created.isContractPocket)
-        assertEquals(created, pocketRepository.findById(created.id)?.toDomain())
+        assertEquals(created, pocketRepository.findById(created.id)?.toDTO())
     }
 
     @Test

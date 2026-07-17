@@ -17,7 +17,7 @@ data class PartnerModel(
     val createdAt: Long,
 )
 
-internal fun PartnerModel.toDomain(): Partner =
+internal fun PartnerModel.toDTO(): Partner =
     Partner(
         id = requireNotNull(id) { "PartnerModel.id must not be null when mapping to domain" },
         name = name,

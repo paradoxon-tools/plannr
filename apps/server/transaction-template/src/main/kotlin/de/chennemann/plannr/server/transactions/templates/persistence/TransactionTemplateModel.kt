@@ -47,7 +47,7 @@ data class TransactionTemplateModel(
     val createdAt: Long,
 )
 
-fun TransactionTemplateModel.toDomain(): TransactionTemplate =
+fun TransactionTemplateModel.toDTO(): TransactionTemplate =
     TransactionTemplate(
         id = requireNotNull(id) { "TransactionTemplateModel.id must not be null when mapping to domain" },
         sourcePocketId = sourcePocketId,

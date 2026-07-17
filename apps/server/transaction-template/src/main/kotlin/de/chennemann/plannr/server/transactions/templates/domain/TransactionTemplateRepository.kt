@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.transactions.templates.domain
 
 import de.chennemann.plannr.server.transactions.templates.persistence.TransactionTemplateModel
-import de.chennemann.plannr.server.transactions.templates.persistence.toDomain
+import de.chennemann.plannr.server.transactions.templates.persistence.toDTO
 import de.chennemann.plannr.server.transactions.templates.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
@@ -17,4 +17,4 @@ interface TransactionTemplateRepository : CoroutineCrudRepository<TransactionTem
 }
 
 suspend fun TransactionTemplateRepository.save(transactionTemplate: TransactionTemplate): TransactionTemplate =
-    save(transactionTemplate.toModel()).toDomain()
+    save(transactionTemplate.toModel()).toDTO()
