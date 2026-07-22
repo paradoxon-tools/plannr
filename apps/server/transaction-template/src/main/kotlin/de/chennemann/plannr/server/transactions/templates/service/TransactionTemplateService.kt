@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.transactions.templates.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializationOperation
 import de.chennemann.plannr.server.transactions.materialization.service.TransactionMaterializerService
@@ -52,6 +53,17 @@ class TransactionTemplateServiceImpl(
         transactionMaterializerService.materialize(MaterializationOperation.NewTransactionTemplate(created))
         enqueueProjectionChange(created.id)
         return created
+    }
+
+    override suspend fun createBatch(commands: List<TransactionTemplateService.CreateCommand>): List<TransactionTemplate> {
+        if (commands.isEmpty()) {
+            throw ValidationException(
+                code = "validation_error",
+                message = "At least one transaction template is required",
+                details = mapOf("field" to "templates"),
+            )
+        }
+        return commands.map { create(it) }
     }
 
     override suspend fun update(command: TransactionTemplateService.UpdateCommand): TransactionTemplate {

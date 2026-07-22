@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/pockets
+  url: {{baseUrl}}/contracts
   body: json
   auth: none
 }
@@ -18,20 +18,20 @@ headers {
 body:json {
   {
     "accountId": "{{seedAccountId}}",
-    "name": "Duolingo",
-    "description": null,
-    "color": 2733171,
-    "isDefault": false,
-    "contract": {
-      "partnerId": "{{seedPartnerId}}",
-      "signingDate": null,
-      "expirationDate": null,
-      "lastCancellationDate": null
-    }
+    "name": "Dericon GmbH",
+    "pocket": {
+      "description": null,
+      "color": 2733171,
+      "useDefaultPocket": false
+    },
+    "partnerId": "{{seedPartnerId}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
   }
 }
 
 vars:pre-request {
-  accountName: Insurance & Contracts
-  partnerName: Duolingo
+  accountName: Income Bucket
+  partnerName: Dericon GmbH
 }

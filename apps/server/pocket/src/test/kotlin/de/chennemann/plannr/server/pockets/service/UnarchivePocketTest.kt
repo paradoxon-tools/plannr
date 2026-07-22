@@ -24,7 +24,7 @@ class UnarchivePocketTest {
 
     @Test
     fun `fails for unknown pocket`() = runTest {
-        val pocketService = pocketService(InMemoryPocketRepository(), RecordingContractService())
+        val pocketService = pocketService(InMemoryPocketRepository())
 
         assertFailsWith<NotFoundException> {
             pocketService.unarchive(PocketFixtures.DEFAULT_ID)

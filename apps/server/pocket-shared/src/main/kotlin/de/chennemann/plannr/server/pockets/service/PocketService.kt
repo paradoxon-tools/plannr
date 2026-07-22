@@ -2,14 +2,12 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
-import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 
 interface PocketService {
     suspend fun create(command: CreatePocketCommand): Pocket
+    suspend fun createForContract(command: CreatePocketForContractCommand): Pocket
     suspend fun update(command: UpdatePocketCommand): Pocket
-    suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): PocketWithContract
     suspend fun archive(id: Long): Pocket
     suspend fun unarchive(id: Long): Pocket
     suspend fun archiveForAccount(accountId: Long)

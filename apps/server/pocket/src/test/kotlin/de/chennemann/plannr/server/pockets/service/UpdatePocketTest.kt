@@ -17,7 +17,6 @@ class UpdatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, 2L) },
-            contractService = NoOpContractService,
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -46,7 +45,6 @@ class UpdatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = InMemoryPocketRepository(),
             accountLookup = PocketAccountLookup { true },
-            contractService = NoOpContractService,
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -63,7 +61,6 @@ class UpdatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountLookup = PocketAccountLookup { false },
-            contractService = NoOpContractService,
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )

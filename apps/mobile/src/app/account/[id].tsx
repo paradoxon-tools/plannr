@@ -8,8 +8,8 @@ import { SkeletonBox } from '@/components/Skeleton';
 import { StateBlock } from '@/components/StateBlock';
 import {
   Account,
+  Contract,
   Pocket,
-  PocketWithContract,
   TransactionFeed,
   TransactionFeedItem,
   api,
@@ -20,7 +20,7 @@ import { CACHE_REFRESH_INTERVAL_MS, getCachedData, replaceCachedData } from '@/l
 
 type AccountScreenData = {
   account: Account;
-  contracts: PocketWithContract[];
+  contracts: Contract[];
   pockets: Pocket[];
   feed: TransactionFeed;
 };
@@ -30,14 +30,14 @@ export default function AccountScreen() {
   const navigation = useNavigation();
   const accountId = Number(id);
   const [account, setAccount] = useState<Account | null>(null);
-  const [contracts, setContracts] = useState<PocketWithContract[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [pockets, setPockets] = useState<Pocket[]>([]);
   const [feed, setFeed] = useState<TransactionFeed | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (forceRefresh = false) => {
-    const cacheKey = `account.${accountId}`;
+    const cacheKey = `account.v3.${accountId}`;
     const cachedData = await getCachedData<AccountScreenData>(cacheKey);
 
     if (cachedData) {
@@ -134,25 +134,32 @@ export default function AccountScreen() {
 
       <Text style={styles.sectionTitle}>Contracts</Text>
       {contracts.length === 0 ? (
-        <StateBlock title="No contracts" detail="The server returned no contract pockets for this account." />
+        <StateBlock title="No contracts" detail="The server returned no contracts for this account." />
       ) : null}
-      {contracts.map((contract) => (
-        <Link key={contract.id} href={`/pocket/${contract.id}?accountId=${account.id}`} asChild>
-          <Pressable style={styles.card}>
-            <View style={[styles.swatch, { backgroundColor: colorFromInt(contract.color) }]} />
-            <View style={styles.cardText}>
-              <Text style={styles.cardTitle}>{contract.name}</Text>
-              <Text style={styles.cardMeta}>
-                Balance: {centsToMoney(contract.currentBalance, account.currencyCode)}
-              </Text>
-              <Text style={styles.cardMeta}>
-                Ends: {contract.contractInfo.expirationDate ?? 'No expiration date'}
-              </Text>
-            </View>
-            <ChevronRight size={20} color="#64748b" />
-          </Pressable>
-        </Link>
-      ))}
+      {contracts.map((contract) => {
+        const pocket = pockets.find((item) => item.id === contract.pocketId);
+        if (!pocket) {
+          return null;
+        }
+
+        return (
+          <Link key={contract.id} href={`/pocket/${contract.pocketId}?accountId=${account.id}`} asChild>
+            <Pressable style={styles.card}>
+              <View style={[styles.swatch, { backgroundColor: colorFromInt(pocket.color) }]} />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>{pocket.name}</Text>
+                <Text style={styles.cardMeta}>
+                  Balance: {centsToMoney(pocket.currentBalance, account.currencyCode)}
+                </Text>
+                <Text style={styles.cardMeta}>
+                  Ends: {contract.expirationDate ?? 'No expiration date'}
+                </Text>
+              </View>
+              <ChevronRight size={20} color="#64748b" />
+            </Pressable>
+          </Link>
+        );
+      })}
 
       <Text style={styles.sectionTitle}>Transactions</Text>
       {feed?.transactions.length === 0 ? (

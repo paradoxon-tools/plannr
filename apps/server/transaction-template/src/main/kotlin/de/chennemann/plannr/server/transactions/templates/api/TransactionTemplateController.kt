@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.transactions.templates.api
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateRequest
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplatesRequest
 import de.chennemann.plannr.server.transactions.templates.api.dto.TransactionTemplateResponse
 import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateRequest
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
@@ -13,6 +14,10 @@ class TransactionTemplateController(
 ) : TransactionTemplateApi {
     override suspend fun create(request: CreateTransactionTemplateRequest): TransactionTemplateResponse =
         transactionTemplateService.create(request.toCreateCommand()).toResponse()
+
+    override suspend fun createBatch(request: CreateTransactionTemplatesRequest): List<TransactionTemplateResponse> =
+        transactionTemplateService.createBatch(request.templates.map(CreateTransactionTemplateRequest::toCreateCommand))
+            .map { it.toResponse() }
 
     override suspend fun update(id: Long, request: UpdateTransactionTemplateRequest): TransactionTemplateResponse =
         transactionTemplateService.update(request.toUpdateCommand(id)).toResponse()

@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/pockets
+  url: {{baseUrl}}/contracts
   body: json
   auth: none
 }
@@ -19,15 +19,15 @@ body:json {
   {
     "accountId": "{{seedAccountId}}",
     "name": "chennemann.de",
-    "description": null,
-    "color": 3457023,
-    "isDefault": false,
-    "contract": {
-      "partnerId": "{{seedPartnerId}}",
-      "signingDate": null,
-      "expirationDate": null,
-      "lastCancellationDate": null
-    }
+    "pocket": {
+      "description": null,
+      "color": 3457023,
+      "useDefaultPocket": false
+    },
+    "partnerId": "{{seedPartnerId}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
   }
 }
 

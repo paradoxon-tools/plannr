@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.transactions.templates.api
 
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateRequest
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplatesRequest
 import de.chennemann.plannr.server.transactions.templates.api.dto.TransactionTemplateResponse
 import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateRequest
 import org.springframework.http.HttpStatus
@@ -19,6 +20,10 @@ interface TransactionTemplateApi {
     @PostExchange
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun create(@RequestBody request: CreateTransactionTemplateRequest): TransactionTemplateResponse
+
+    @PostExchange("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    suspend fun createBatch(@RequestBody request: CreateTransactionTemplatesRequest): List<TransactionTemplateResponse>
 
     @PutExchange("/{id}")
     suspend fun update(@PathVariable id: Long, @RequestBody request: UpdateTransactionTemplateRequest): TransactionTemplateResponse

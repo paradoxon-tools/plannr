@@ -1,9 +1,5 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
-import de.chennemann.plannr.server.partners.api.dto.Partner
-import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
-import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketAccountLookup
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
@@ -17,18 +13,6 @@ class PocketTestApplication {
     @Bean
     fun pocketAccountLookup(): PocketAccountLookup =
         PocketAccountLookup { true }
-
-    @Bean
-    fun partnerService(): PartnerService =
-        object : PartnerService {
-            override suspend fun create(command: CreatePartnerCommand): Partner = throw UnsupportedOperationException("Not used")
-            override suspend fun update(command: UpdatePartnerCommand): Partner = throw UnsupportedOperationException("Not used")
-            override suspend fun archive(id: Long): Partner = throw UnsupportedOperationException("Not used")
-            override suspend fun unarchive(id: Long): Partner = throw UnsupportedOperationException("Not used")
-            override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")
-            override suspend fun list(query: String?, archived: Boolean): List<Partner> = emptyList()
-            override suspend fun getById(id: Long): Partner? = null
-        }
 
     @Bean
     fun transactionTemplateService(): TransactionTemplateService =

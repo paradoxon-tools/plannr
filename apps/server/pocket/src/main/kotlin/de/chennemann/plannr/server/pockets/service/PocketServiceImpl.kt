@@ -4,8 +4,6 @@ import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
-import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.domain.save
@@ -23,36 +21,41 @@ import org.springframework.transaction.annotation.Transactional
 internal class PocketServiceImpl(
     private val pocketRepository: PocketRepository,
     private val accountLookup: PocketAccountLookup,
-    private val contractService: ContractService,
     private val transactionTemplateService: TransactionTemplateService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
-        val pocket = if (command.contract?.useDefaultPocket == true) {
+        val pocket = createPocket(
+            accountId = accountId,
+            name = command.name,
+            description = command.description,
+            color = command.color,
+            isDefault = command.isDefault,
+            isContractPocket = false,
+        )
+        enqueueProjectionChange(pocket.id)
+        return pocket
+    }
+
+    override suspend fun createForContract(command: CreatePocketForContractCommand): Pocket {
+        val accountId = existingAccountId(command.accountId)
+        return if (command.useDefaultPocket) {
             defaultPocket(accountId).let { defaultPocket ->
                 if (defaultPocket.isContractPocket) defaultPocket
                 else pocketRepository.save(defaultPocket.copy(isContractPocket = true))
             }
         } else {
-            pocketRepository.save(
-                PocketModel(
-                    id = null,
-                    accountId = accountId,
-                    name = command.name,
-                    description = command.description,
-                    color = command.color,
-                    isDefault = command.isDefault,
-                    isContractPocket = command.contract != null,
-                    isArchived = false,
-                    createdAt = timeProvider(),
-                ),
-            ).toDTO()
+            createPocket(
+                accountId = accountId,
+                name = command.name,
+                description = command.description,
+                color = command.color,
+                isDefault = false,
+                isContractPocket = true,
+            )
         }
-        command.contract?.let { contractService.create(pocket, it) }
-        enqueueProjectionChange(pocket.id)
-        return pocket
     }
 
     override suspend fun update(command: UpdatePocketCommand): Pocket {
@@ -69,12 +72,6 @@ internal class PocketServiceImpl(
         )
         enqueueProjectionChange(persisted.id)
         return persisted
-    }
-
-    override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): PocketWithContract {
-        val updated = contractService.update(existingPocket(pocketId), command)
-        enqueueProjectionChange(pocketId)
-        return updated
     }
 
     override suspend fun archive(id: Long): Pocket {
@@ -117,6 +114,28 @@ internal class PocketServiceImpl(
 
     override suspend fun getById(id: Long): Pocket? =
         pocketRepository.findById(id)?.toDTO()
+
+    private suspend fun createPocket(
+        accountId: Long,
+        name: String,
+        description: String?,
+        color: Int,
+        isDefault: Boolean,
+        isContractPocket: Boolean,
+    ): Pocket =
+        pocketRepository.save(
+            PocketModel(
+                id = null,
+                accountId = accountId,
+                name = name,
+                description = description,
+                color = color,
+                isDefault = isDefault,
+                isContractPocket = isContractPocket,
+                isArchived = false,
+                createdAt = timeProvider(),
+            ),
+        ).toDTO()
 
     private suspend fun existingAccountId(accountId: Long): Long {
         if (!accountLookup.exists(accountId)) {

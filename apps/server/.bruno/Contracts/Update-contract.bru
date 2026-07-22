@@ -4,13 +4,13 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/pockets/:pocketId/contract
+  url: {{baseUrl}}/contracts/:contractId
   body: json
   auth: none
 }
 
 params:path {
-  pocketId: pocket-id
+  contractId: contract-id
 }
 
 headers {

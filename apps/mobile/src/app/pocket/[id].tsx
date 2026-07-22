@@ -8,8 +8,8 @@ import { SkeletonBox } from '@/components/Skeleton';
 import { StateBlock } from '@/components/StateBlock';
 import {
   Account,
+  Contract,
   Pocket,
-  PocketWithContract,
   TransactionFeed,
   TransactionFeedItem,
   api,
@@ -21,7 +21,7 @@ import { CACHE_REFRESH_INTERVAL_MS, getCachedData, replaceCachedData } from '@/l
 type PocketScreenData = {
   account: Account;
   pocket: Pocket;
-  contract: PocketWithContract | null;
+  contract: Contract | null;
   feed: TransactionFeed;
 };
 
@@ -32,13 +32,13 @@ export default function PocketScreen() {
   const parsedAccountId = accountId ? Number(accountId) : undefined;
   const [account, setAccount] = useState<Account | null>(null);
   const [pocket, setPocket] = useState<Pocket | null>(null);
-  const [contract, setContract] = useState<PocketWithContract | null>(null);
+  const [contract, setContract] = useState<Contract | null>(null);
   const [feed, setFeed] = useState<TransactionFeed | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (forceRefresh = false) => {
-    const cacheKey = `pocket.${pocketId}`;
+    const cacheKey = `pocket.v3.${pocketId}`;
     const cachedData = await getCachedData<PocketScreenData>(cacheKey);
 
     if (cachedData) {
@@ -134,10 +134,10 @@ export default function PocketScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Contract details</Text>
         <Detail label="Description" value={pocket.description ?? 'None'} />
-        <Detail label="Partner ID" value={contract?.contractInfo.partnerId?.toString() ?? 'None'} />
-        <Detail label="Signing date" value={contract?.contractInfo.signingDate ?? 'None'} />
-        <Detail label="Expiration date" value={contract?.contractInfo.expirationDate ?? 'None'} />
-        <Detail label="Last cancellation date" value={contract?.contractInfo.lastCancellationDate ?? 'None'} />
+        <Detail label="Partner ID" value={contract?.partnerId?.toString() ?? 'None'} />
+        <Detail label="Signing date" value={contract?.signingDate ?? 'None'} />
+        <Detail label="Expiration date" value={contract?.expirationDate ?? 'None'} />
+        <Detail label="Last cancellation date" value={contract?.lastCancellationDate ?? 'None'} />
       </View>
 
       <Text style={styles.sectionTitle}>Transactions</Text>

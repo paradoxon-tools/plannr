@@ -1,0 +1,204 @@
+meta {
+  name: Fitness First
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+    {
+      "sourcePocketId": "{{incomeBucketPocketId}}",
+      "destinationPocketId": "{{contractPocketId}}",
+      "partnerId": "{{partnerId}}",
+      "title": "Rückstellung",
+      "description": "",
+      "amount": 10414,
+      "currencyCode": "EUR",
+      "transactionType": "TRANSFER",
+      "firstOccurrenceDate": "2024-11-01",
+      "finalOccurrenceDate": null,
+      "recurrenceType": "MONTHLY",
+      "skipCount": 0,
+      "daysOfWeek": null,
+      "weeksOfMonth": null,
+      "daysOfMonth": [
+        1
+      ],
+      "monthsOfYear": null,
+      "maxRecurrenceCount": null
+    },
+    {
+      "sourcePocketId": "{{incomeBucketPocketId}}",
+      "destinationPocketId": "{{contractPocketId}}",
+      "partnerId": "{{partnerId}}",
+      "title": "Rückstellung (Übertrag)",
+      "description": "",
+      "amount": 20828,
+      "currencyCode": "EUR",
+      "transactionType": "TRANSFER",
+      "firstOccurrenceDate": "2024-11-01",
+      "finalOccurrenceDate": "2024-11-01",
+      "recurrenceType": "NONE",
+      "skipCount": 0,
+      "daysOfWeek": null,
+      "weeksOfMonth": null,
+      "daysOfMonth": [
+        1
+      ],
+      "monthsOfYear": null,
+      "maxRecurrenceCount": null
+    },
+    {
+      "sourcePocketId": "{{contractPocketId}}",
+      "destinationPocketId": null,
+      "partnerId": "{{partnerId}}",
+      "title": "Mitgliedspauschale (Linka)",
+      "description": "",
+      "amount": 2900,
+      "currencyCode": "EUR",
+      "transactionType": "EXPENSE",
+      "firstOccurrenceDate": "2025-03-04",
+      "finalOccurrenceDate": null,
+      "recurrenceType": "MONTHLY",
+      "skipCount": 5,
+      "daysOfWeek": [
+        "TUESDAY"
+      ],
+      "weeksOfMonth": [
+        1
+      ],
+      "daysOfMonth": null,
+      "monthsOfYear": [
+        3,
+        9
+      ],
+      "maxRecurrenceCount": null
+    },
+    {
+      "sourcePocketId": "{{contractPocketId}}",
+      "destinationPocketId": null,
+      "partnerId": "{{partnerId}}",
+      "title": "Mitgliedsbeitrag (Linka)",
+      "description": "",
+      "amount": 2180,
+      "currencyCode": "EUR",
+      "transactionType": "EXPENSE",
+      "firstOccurrenceDate": "2025-01-07",
+      "finalOccurrenceDate": null,
+      "recurrenceType": "WEEKLY",
+      "skipCount": 1,
+      "daysOfWeek": [
+        "TUESDAY"
+      ],
+      "weeksOfMonth": null,
+      "daysOfMonth": null,
+      "monthsOfYear": null,
+      "maxRecurrenceCount": null
+    },
+    {
+      "sourcePocketId": "{{contractPocketId}}",
+      "destinationPocketId": null,
+      "partnerId": "{{partnerId}}",
+      "title": "Mitgliedsbeitrag (Linka)",
+      "description": "",
+      "amount": 1090,
+      "currencyCode": "EUR",
+      "transactionType": "EXPENSE",
+      "firstOccurrenceDate": "2024-11-12",
+      "finalOccurrenceDate": "2024-12-27",
+      "recurrenceType": "WEEKLY",
+      "skipCount": 1,
+      "daysOfWeek": [
+        "TUESDAY"
+      ],
+      "weeksOfMonth": null,
+      "daysOfMonth": null,
+      "monthsOfYear": null,
+      "maxRecurrenceCount": null
+    },
+    {
+      "sourcePocketId": "{{contractPocketId}}",
+      "destinationPocketId": null,
+      "partnerId": "{{partnerId}}",
+      "title": "Mitgliedspauschale (Cryzsh)",
+      "description": "",
+      "amount": 2900,
+      "currencyCode": "EUR",
+      "transactionType": "EXPENSE",
+      "firstOccurrenceDate": "2025-03-04",
+      "finalOccurrenceDate": null,
+      "recurrenceType": "MONTHLY",
+      "skipCount": 5,
+      "daysOfWeek": [
+        "TUESDAY"
+      ],
+      "weeksOfMonth": [
+        1
+      ],
+      "daysOfMonth": null,
+      "monthsOfYear": [
+        3,
+        9
+      ],
+      "maxRecurrenceCount": null
+    },
+    {
+      "sourcePocketId": "{{contractPocketId}}",
+      "destinationPocketId": null,
+      "partnerId": "{{partnerId}}",
+      "title": "Mitgliedsbeitrag (Cryzsh)",
+      "description": "",
+      "amount": 2180,
+      "currencyCode": "EUR",
+      "transactionType": "EXPENSE",
+      "firstOccurrenceDate": "2025-03-04",
+      "finalOccurrenceDate": null,
+      "recurrenceType": "WEEKLY",
+      "skipCount": 1,
+      "daysOfWeek": [
+        "TUESDAY"
+      ],
+      "weeksOfMonth": null,
+      "daysOfMonth": null,
+      "monthsOfYear": null,
+      "maxRecurrenceCount": null
+    },
+    {
+      "sourcePocketId": "{{contractPocketId}}",
+      "destinationPocketId": null,
+      "partnerId": "{{partnerId}}",
+      "title": "Mitgliedsbeitrag (Cryzsh)",
+      "description": "",
+      "amount": 2336,
+      "currencyCode": "EUR",
+      "transactionType": "EXPENSE",
+      "firstOccurrenceDate": "2025-02-18",
+      "finalOccurrenceDate": "2025-02-18",
+      "recurrenceType": "NONE",
+      "skipCount": 0,
+      "daysOfWeek": null,
+      "weeksOfMonth": null,
+      "daysOfMonth": null,
+      "monthsOfYear": null,
+      "maxRecurrenceCount": null
+    }
+    ]
+  }
+}
+
+vars:pre-request {
+  contractName: Fitness First
+  partnerName: Fitness First
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

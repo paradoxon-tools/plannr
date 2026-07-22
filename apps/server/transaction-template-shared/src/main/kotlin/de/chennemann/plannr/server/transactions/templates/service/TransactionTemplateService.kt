@@ -4,6 +4,13 @@ import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemp
 
 interface TransactionTemplateService {
     suspend fun create(command: CreateCommand): TransactionTemplate
+    suspend fun createBatch(commands: List<CreateCommand>): List<TransactionTemplate> {
+        val created = mutableListOf<TransactionTemplate>()
+        for (command in commands) {
+            created += create(command)
+        }
+        return created
+    }
     suspend fun update(command: UpdateCommand): TransactionTemplate
     suspend fun archive(id: Long): TransactionTemplate
     suspend fun unarchive(id: Long): TransactionTemplate

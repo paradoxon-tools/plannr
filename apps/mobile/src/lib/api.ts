@@ -23,15 +23,13 @@ export type Pocket = {
   currentBalance?: number | null;
 };
 
-export type ContractInfo = {
+export type Contract = {
+  id: number;
+  pocketId: number;
   partnerId: number | null;
   signingDate: string | null;
   expirationDate: string | null;
   lastCancellationDate: string | null;
-};
-
-export type PocketWithContract = Pocket & {
-  contractInfo: ContractInfo;
 };
 
 export type TransactionFeedReference = {
@@ -79,7 +77,7 @@ export const api = {
   listAccounts: () => request<Account[]>('/accounts'),
   getAccount: (id: number) => request<Account>(`/accounts/${id}`),
   listPockets: (accountId: number) => request<Pocket[]>(`/pockets?accountId=${accountId}`),
-  listContracts: (accountId: number) => request<PocketWithContract[]>(`/contracts?accountId=${accountId}`),
+  listContracts: (accountId: number) => request<Contract[]>(`/contracts?accountId=${accountId}`),
   getPocket: (id: number) => request<Pocket>(`/pockets/${id}`),
   getAccountFeed: (id: number) => request<TransactionFeed>(`/accounts/${id}/feed`),
   getPocketFeed: (id: number) => request<TransactionFeed>(`/pockets/${id}/feed`),

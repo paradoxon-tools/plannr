@@ -5,9 +5,8 @@ import de.chennemann.plannr.server.accounts.support.AccountFixtures
 import de.chennemann.plannr.server.accounts.support.InMemoryAccountRepository
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import de.chennemann.plannr.server.pockets.api.dto.PocketWithContract
-import de.chennemann.plannr.server.pockets.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
+import de.chennemann.plannr.server.pockets.service.CreatePocketForContractCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 
 internal fun accountService(
@@ -34,13 +33,13 @@ internal class RecordingPocketService : PocketService {
             description = command.description,
             color = command.color,
             isDefault = command.isDefault,
-            isContractPocket = command.contract != null,
+            isContractPocket = false,
             isArchived = false,
             createdAt = AccountFixtures.DEFAULT_CREATED_AT,
         )
     }
+    override suspend fun createForContract(command: CreatePocketForContractCommand): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
-    override suspend fun updateContract(pocketId: Long, command: UpdateContractCommand): PocketWithContract = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")

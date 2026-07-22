@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/pockets
+  url: {{baseUrl}}/contracts
   body: json
   auth: none
 }
@@ -19,15 +19,15 @@ body:json {
   {
     "accountId": "{{seedAccountId}}",
     "name": "Fitness First",
-    "description": null,
-    "color": 8017481,
-    "isDefault": false,
-    "contract": {
-      "partnerId": "{{seedPartnerId}}",
-      "signingDate": null,
-      "expirationDate": null,
-      "lastCancellationDate": null
-    }
+    "pocket": {
+      "description": null,
+      "color": 8017481,
+      "useDefaultPocket": false
+    },
+    "partnerId": "{{seedPartnerId}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
   }
 }
 
