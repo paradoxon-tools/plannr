@@ -31,7 +31,7 @@ class UpcomingTransactionServiceTest {
     }
 
     @Test
-    fun `upcoming API paginates from the cached expansion into dynamically calculated expansions`() = runTest {
+    fun `upcoming API calculates occurrences after the supplied date`() = runTest {
         val template = weeklyTemplate(id = 1L)
         val calculator = UpcomingOccurrenceCalculator()
         val localDateProvider = LocalDateProviderFixture("2026-07-19")
@@ -44,17 +44,39 @@ class UpcomingTransactionServiceTest {
             localDateProvider = localDateProvider,
         )
 
-        val firstPage = service.forPocket(pocketId = 10L, cursor = null, limit = 2)
+        val firstPage = service.forPocket(pocketId = 10L, after = null, count = 2)
         val secondPage = service.forPocket(
             pocketId = 10L,
-            cursor = assertNotNull(firstPage.nextCursor),
-            limit = 2,
+            after = LocalDate.parse(assertNotNull(firstPage.transactions.lastOrNull()).occurrenceDate),
+            count = 2,
         )
 
         assertEquals(listOf("2026-07-20", "2026-07-22"), firstPage.transactions.map { it.occurrenceDate })
         assertTrue(firstPage.hasMore)
         assertEquals(listOf("2026-07-27", "2026-07-29"), secondPage.transactions.map { it.occurrenceDate })
         assertTrue(secondPage.hasMore)
+    }
+
+    @Test
+    fun `upcoming API does not split transactions sharing the final occurrence date`() = runTest {
+        val calculator = UpcomingOccurrenceCalculator()
+        val localDateProvider = LocalDateProviderFixture("2026-07-19")
+        val cache = InMemoryUpcomingTransactionCache(localDateProvider, calculator)
+        val service = UpcomingTransactionService(
+            transactionTemplateService = StubTransactionTemplateService(
+                listOf(weeklyTemplate(id = 1L), weeklyTemplate(id = 2L)),
+            ),
+            pocketService = UnusedPocketService,
+            upcomingTransactionCache = cache,
+            upcomingOccurrenceCalculator = calculator,
+            localDateProvider = localDateProvider,
+        )
+
+        val page = service.forPocket(pocketId = 10L, after = null, count = 1)
+
+        assertEquals(listOf(1L, 2L), page.transactions.map { it.transactionTemplateId })
+        assertEquals(listOf("2026-07-20", "2026-07-20"), page.transactions.map { it.occurrenceDate })
+        assertTrue(page.hasMore)
     }
 
     private fun weeklyTemplate(id: Long) = TransactionTemplate(

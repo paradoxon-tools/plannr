@@ -1,9 +1,8 @@
 package de.chennemann.plannr.server.transactions.materialization.api.dto
 
 data class UpcomingTransactionsResponse(
-    val asOfDate: String,
+    val afterDate: String,
     val transactions: List<UpcomingTransactionItem>,
-    val nextCursor: String?,
     val hasMore: Boolean,
 )
 

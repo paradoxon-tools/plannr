@@ -77,9 +77,8 @@ export type UpcomingTransactionItem = {
 };
 
 export type UpcomingTransactions = {
-  asOfDate: string;
+  afterDate: string;
   transactions: UpcomingTransactionItem[];
-  nextCursor: string | null;
   hasMore: boolean;
 };
 
@@ -107,16 +106,24 @@ export const api = {
     request<TransactionFeed>(`/pockets/${id}/feed${cursorQuery(cursor)}`),
   getContractFeed: (id: number, cursor?: string) =>
     request<TransactionFeed>(`/contracts/${id}/feed${cursorQuery(cursor)}`),
-  getUpcomingAccountTransactions: (id: number, cursor?: string) =>
-    request<UpcomingTransactions>(`/accounts/${id}/upcoming-transactions${cursorQuery(cursor)}`),
-  getUpcomingPocketTransactions: (id: number, cursor?: string) =>
-    request<UpcomingTransactions>(`/pockets/${id}/upcoming-transactions${cursorQuery(cursor)}`),
-  getUpcomingContractTransactions: (id: number, cursor?: string) =>
-    request<UpcomingTransactions>(`/contracts/${id}/upcoming-transactions${cursorQuery(cursor)}`),
+  getUpcomingAccountTransactions: (id: number, after?: string, count = 50) =>
+    request<UpcomingTransactions>(`/accounts/${id}/upcoming-transactions${upcomingQuery(after, count)}`),
+  getUpcomingPocketTransactions: (id: number, after?: string, count = 50) =>
+    request<UpcomingTransactions>(`/pockets/${id}/upcoming-transactions${upcomingQuery(after, count)}`),
+  getUpcomingContractTransactions: (id: number, after?: string, count = 50) =>
+    request<UpcomingTransactions>(`/contracts/${id}/upcoming-transactions${upcomingQuery(after, count)}`),
 };
 
 function cursorQuery(cursor?: string): string {
   return cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+}
+
+function upcomingQuery(after: string | undefined, count: number): string {
+  const parameters = [`count=${count}`];
+  if (after) {
+    parameters.unshift(`after=${encodeURIComponent(after)}`);
+  }
+  return `?${parameters.join('&')}`;
 }
 
 export function centsToMoney(cents: number | null | undefined, currencyCode: string): string {

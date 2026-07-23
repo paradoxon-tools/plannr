@@ -7,9 +7,7 @@ import de.chennemann.plannr.server.transactions.materialization.api.dto.Upcoming
 import de.chennemann.plannr.server.transactions.materialization.api.dto.UpcomingTransactionsResponse
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
-import java.nio.charset.StandardCharsets
 import java.time.LocalDate
-import java.util.Base64
 import java.util.PriorityQueue
 import org.springframework.stereotype.Service
 
@@ -23,148 +21,95 @@ class UpcomingTransactionService(
 ) {
     suspend fun forAccount(
         accountId: Long,
-        cursor: String?,
-        limit: Int,
+        after: LocalDate?,
+        count: Int,
     ): UpcomingTransactionsResponse {
         val pocketIds = pocketService.list(accountId = accountId, archived = null).mapTo(mutableSetOf()) { it.id }
         return upcomingTransactions(
-            cursor = cursor,
-            limit = limit,
+            after = after,
+            count = count,
             templateFilter = { it.sourcePocketId in pocketIds || it.destinationPocketId in pocketIds },
         )
     }
 
     suspend fun forPocket(
         pocketId: Long,
-        cursor: String?,
-        limit: Int,
+        after: LocalDate?,
+        count: Int,
     ): UpcomingTransactionsResponse =
         upcomingTransactions(
-            cursor = cursor,
-            limit = limit,
+            after = after,
+            count = count,
             templateFilter = { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId },
         )
 
     private suspend fun upcomingTransactions(
-        cursor: String?,
-        limit: Int,
+        after: LocalDate?,
+        count: Int,
         templateFilter: (TransactionTemplate) -> Boolean,
     ): UpcomingTransactionsResponse {
-        validateLimit(limit)
-        val decodedCursor = cursor?.let(::decodeCursor)
-        val asOfDate = decodedCursor?.asOfDate ?: localDateProvider()
+        validateCount(count)
+        val afterDate = after ?: localDateProvider()
         val templates = transactionTemplateService.list(archived = false).filter(templateFilter)
-        val queue = PriorityQueue<TemplateOccurrenceStream>(compareBy(TemplateOccurrenceStream::currentKey))
+        val queue = PriorityQueue<TemplateOccurrenceStream>(
+            compareBy(TemplateOccurrenceStream::currentDate)
+                .thenBy(TemplateOccurrenceStream::templateId),
+        )
 
         templates.forEach { template ->
-            initialStream(template, asOfDate, decodedCursor)?.let(queue::add)
+            initialStream(template, afterDate)?.let(queue::add)
         }
 
-        val pageWithLookahead = mutableListOf<UpcomingTransactionItem>()
-        while (queue.isNotEmpty() && pageWithLookahead.size < limit + 1) {
+        val transactions = mutableListOf<UpcomingTransactionItem>()
+        var lastReturnedDate: LocalDate? = null
+        while (
+            queue.isNotEmpty() &&
+            (
+                transactions.size < count ||
+                    queue.peek().currentDate() == lastReturnedDate
+                )
+        ) {
             val stream = queue.remove()
-            pageWithLookahead += stream.currentItem()
+            lastReturnedDate = stream.currentDate()
+            transactions += stream.currentItem()
             if (stream.advance()) {
                 queue += stream
             }
         }
 
-        val hasMore = pageWithLookahead.size > limit
-        val page = pageWithLookahead.take(limit)
-        val nextCursor = if (hasMore) {
-            page.lastOrNull()?.let { encodeCursor(asOfDate, LocalDate.parse(it.occurrenceDate), it.transactionTemplateId) }
-        } else {
-            null
-        }
         return UpcomingTransactionsResponse(
-            asOfDate = asOfDate.toString(),
-            transactions = page,
-            nextCursor = nextCursor,
-            hasMore = hasMore,
+            afterDate = afterDate.toString(),
+            transactions = transactions,
+            hasMore = queue.isNotEmpty(),
         )
     }
 
     private suspend fun initialStream(
         transactionTemplate: TransactionTemplate,
-        asOfDate: LocalDate,
-        cursor: UpcomingCursor?,
+        afterDate: LocalDate,
     ): TemplateOccurrenceStream? {
-        val cursorKey = cursor?.let { OccurrenceKey(it.occurrenceDate, it.transactionTemplateId) }
-        val cachedDates = if (asOfDate == localDateProvider()) {
+        val cachedDates = if (afterDate == localDateProvider()) {
             upcomingTransactionCache.getOrRefresh(transactionTemplate).map(LocalDate::parse)
         } else {
             emptyList()
         }
-        val remainingCachedDates = cachedDates.filter {
-            cursorKey == null || OccurrenceKey(it, transactionTemplate.id) > cursorKey
-        }
-        val initialDates = remainingCachedDates.ifEmpty {
-            val afterExclusive = when {
-                cursor == null -> asOfDate
-                transactionTemplate.id > cursor.transactionTemplateId -> cursor.occurrenceDate.minusDays(1)
-                else -> cursor.occurrenceDate
-            }
+        val initialDates = cachedDates.filter { it.isAfter(afterDate) }.ifEmpty {
             upcomingOccurrenceCalculator
-                .nextExpansionAfter(transactionTemplate, afterExclusive)
-                .filter { cursorKey == null || OccurrenceKey(it, transactionTemplate.id) > cursorKey }
+                .nextExpansionAfter(transactionTemplate, afterDate)
         }
         return initialDates
             .takeIf(List<LocalDate>::isNotEmpty)
             ?.let { TemplateOccurrenceStream(transactionTemplate, it, upcomingOccurrenceCalculator) }
     }
 
-    private fun validateLimit(limit: Int) {
-        if (limit !in 1..MAX_PAGE_SIZE) {
+    private fun validateCount(count: Int) {
+        if (count !in 1..MAX_PAGE_SIZE) {
             throw ValidationException(
                 code = "validation_error",
-                message = "Upcoming transaction page size must be between 1 and $MAX_PAGE_SIZE",
-                details = mapOf("field" to "limit"),
+                message = "Upcoming transaction count must be between 1 and $MAX_PAGE_SIZE",
+                details = mapOf("field" to "count"),
             )
         }
-    }
-
-    private fun decodeCursor(encoded: String): UpcomingCursor =
-        try {
-            val decoded = String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8)
-            val parts = decoded.split('|')
-            require(parts.size == 3)
-            UpcomingCursor(
-                asOfDate = LocalDate.parse(parts[0]),
-                occurrenceDate = LocalDate.parse(parts[1]),
-                transactionTemplateId = parts[2].toLong(),
-            ).also {
-                require(it.transactionTemplateId > 0)
-                require(it.occurrenceDate.isAfter(it.asOfDate))
-            }
-        } catch (exception: Exception) {
-            throw ValidationException(
-                code = "validation_error",
-                message = "Upcoming transaction cursor is invalid",
-                details = mapOf("field" to "cursor"),
-            )
-        }
-
-    private fun encodeCursor(
-        asOfDate: LocalDate,
-        occurrenceDate: LocalDate,
-        transactionTemplateId: Long,
-    ): String =
-        Base64.getUrlEncoder()
-            .withoutPadding()
-            .encodeToString("$asOfDate|$occurrenceDate|$transactionTemplateId".toByteArray(StandardCharsets.UTF_8))
-
-    private data class UpcomingCursor(
-        val asOfDate: LocalDate,
-        val occurrenceDate: LocalDate,
-        val transactionTemplateId: Long,
-    )
-
-    private data class OccurrenceKey(
-        val occurrenceDate: LocalDate,
-        val transactionTemplateId: Long,
-    ) : Comparable<OccurrenceKey> {
-        override fun compareTo(other: OccurrenceKey): Int =
-            compareValuesBy(this, other, OccurrenceKey::occurrenceDate, OccurrenceKey::transactionTemplateId)
     }
 
     private class TemplateOccurrenceStream(
@@ -175,8 +120,9 @@ class UpcomingTransactionService(
         private var expansion = initialExpansion
         private var index = 0
 
-        fun currentKey(): OccurrenceKey =
-            OccurrenceKey(expansion[index], transactionTemplate.id)
+        fun currentDate(): LocalDate = expansion[index]
+
+        fun templateId(): Long = transactionTemplate.id
 
         fun currentItem(): UpcomingTransactionItem =
             UpcomingTransactionItem(
