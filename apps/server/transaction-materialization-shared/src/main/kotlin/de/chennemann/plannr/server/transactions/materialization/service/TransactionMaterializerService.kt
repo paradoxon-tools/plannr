@@ -6,6 +6,12 @@ interface TransactionMaterializerService {
     suspend fun materialize(operation: MaterializationOperation): List<MaterializedTransaction>
 }
 
+interface UpcomingTransactionCache {
+    suspend fun getOrRefresh(transactionTemplate: TransactionTemplate): List<String>
+    suspend fun refresh(transactionTemplate: TransactionTemplate)
+    fun invalidate(transactionTemplateId: Long)
+}
+
 sealed interface MaterializationOperation {
     val transactionTemplate: TransactionTemplate
 

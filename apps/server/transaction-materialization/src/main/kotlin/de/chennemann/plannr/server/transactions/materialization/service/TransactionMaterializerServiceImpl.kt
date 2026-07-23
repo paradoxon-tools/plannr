@@ -75,7 +75,7 @@ class TransactionMaterializerServiceImpl(
             .map(LocalDate::toString)
 
     private fun materializationHorizon(transactionTemplate: TransactionTemplate): LocalDate {
-        val horizon = localDateProvider().plusYears(MATERIALIZATION_YEARS)
+        val horizon = localDateProvider()
         val explicitEnd = transactionTemplate.recurrencePattern.finalOccurrenceDate?.let(LocalDate::parse)
         return listOfNotNull(explicitEnd, horizon).minOrNull() ?: horizon
     }
@@ -96,7 +96,4 @@ class TransactionMaterializerServiceImpl(
             createdAt = timeProvider(),
         )
 
-    private companion object {
-        const val MATERIALIZATION_YEARS = 5L
-    }
 }

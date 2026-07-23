@@ -5,6 +5,7 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializationOperation
 import de.chennemann.plannr.server.transactions.materialization.service.TransactionMaterializerService
+import de.chennemann.plannr.server.transactions.materialization.service.UpcomingTransactionCache
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import de.chennemann.plannr.server.transactions.templates.domain.RecurrencePattern
@@ -24,6 +25,7 @@ class TransactionTemplateServiceImpl(
     private val transactionMaterializerService: TransactionMaterializerService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
+    private val upcomingTransactionCache: UpcomingTransactionCache? = null,
 ) : TransactionTemplateService {
     override suspend fun create(command: TransactionTemplateService.CreateCommand): TransactionTemplate {
         val created = transactionTemplateRepository.save(
@@ -51,6 +53,7 @@ class TransactionTemplateServiceImpl(
             ),
         ).toDTO()
         transactionMaterializerService.materialize(MaterializationOperation.NewTransactionTemplate(created))
+        upcomingTransactionCache?.refresh(created)
         enqueueProjectionChange(created.id)
         return created
     }
@@ -87,6 +90,7 @@ class TransactionTemplateServiceImpl(
             else -> MaterializationOperation.FullRefresh(updated)
         }
         transactionMaterializerService.materialize(operation)
+        upcomingTransactionCache?.refresh(updated)
         enqueueProjectionChange(updated.id)
         return updated
     }
@@ -94,6 +98,7 @@ class TransactionTemplateServiceImpl(
     override suspend fun archive(id: Long): TransactionTemplate {
         val existing = existingTransactionTemplate(id)
         val archived = transactionTemplateRepository.save(existing.copy(isArchived = true))
+        upcomingTransactionCache?.invalidate(archived.id)
         enqueueProjectionChange(archived.id)
         return archived
     }
@@ -101,6 +106,7 @@ class TransactionTemplateServiceImpl(
     override suspend fun unarchive(id: Long): TransactionTemplate {
         val existing = existingTransactionTemplate(id)
         val unarchived = transactionTemplateRepository.save(existing.copy(isArchived = false))
+        upcomingTransactionCache?.refresh(unarchived)
         enqueueProjectionChange(unarchived.id)
         return unarchived
     }
@@ -117,6 +123,7 @@ class TransactionTemplateServiceImpl(
             .map(TransactionTemplateModel::toDTO)
             .forEach {
                 val archived = transactionTemplateRepository.save(it.copy(isArchived = true))
+                upcomingTransactionCache?.invalidate(archived.id)
                 enqueueProjectionChange(archived.id)
             }
     }
@@ -133,6 +140,7 @@ class TransactionTemplateServiceImpl(
             .map(TransactionTemplateModel::toDTO)
             .forEach {
                 val unarchived = transactionTemplateRepository.save(it.copy(isArchived = false))
+                upcomingTransactionCache?.refresh(unarchived)
                 enqueueProjectionChange(unarchived.id)
             }
     }
@@ -140,6 +148,7 @@ class TransactionTemplateServiceImpl(
     override suspend fun delete(id: Long) {
         existingTransactionTemplate(id)
         transactionTemplateRepository.deleteById(id)
+        upcomingTransactionCache?.invalidate(id)
         enqueueProjectionChange(id)
     }
 

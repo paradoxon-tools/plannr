@@ -1,14 +1,18 @@
 package de.chennemann.plannr.server.transactions.projection.api
 
+import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.transactions.projection.api.dto.TransactionFeedItem
 import de.chennemann.plannr.server.transactions.projection.api.dto.TransactionFeedReference
 import de.chennemann.plannr.server.transactions.projection.api.dto.TransactionFeedResponse
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOneOrNull
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -16,28 +20,53 @@ class TransactionFeedController(
     private val databaseClient: DatabaseClient,
 ) {
     @GetMapping("/accounts/{id}/feed")
-    suspend fun getAccountFeed(@PathVariable id: Long): TransactionFeedResponse =
-        feedFor(id, ACCOUNT_FEED_SQL, ACCOUNT_BALANCE_SQL)
+    suspend fun getAccountFeed(
+        @PathVariable id: Long,
+        @RequestParam(required = false) cursor: String?,
+        @RequestParam(defaultValue = "50") limit: Int,
+    ): TransactionFeedResponse =
+        feedFor(id, ACCOUNT_FEED_SQL, ACCOUNT_BALANCE_SQL, cursor, limit)
 
     @GetMapping("/pockets/{id}/feed")
-    suspend fun getPocketFeed(@PathVariable id: Long): TransactionFeedResponse =
-        feedFor(id, POCKET_FEED_SQL, POCKET_BALANCE_SQL)
+    suspend fun getPocketFeed(
+        @PathVariable id: Long,
+        @RequestParam(required = false) cursor: String?,
+        @RequestParam(defaultValue = "50") limit: Int,
+    ): TransactionFeedResponse =
+        feedFor(id, POCKET_FEED_SQL, POCKET_BALANCE_SQL, cursor, limit)
 
     @GetMapping("/contracts/{id}/feed")
-    suspend fun getContractFeed(@PathVariable id: Long): TransactionFeedResponse =
-        feedFor(id, CONTRACT_FEED_SQL, CONTRACT_BALANCE_SQL)
+    suspend fun getContractFeed(
+        @PathVariable id: Long,
+        @RequestParam(required = false) cursor: String?,
+        @RequestParam(defaultValue = "50") limit: Int,
+    ): TransactionFeedResponse =
+        feedFor(id, CONTRACT_FEED_SQL, CONTRACT_BALANCE_SQL, cursor, limit)
 
     private suspend fun feedFor(
         entityId: Long,
         feedSql: String,
         balanceSql: String,
+        cursor: String?,
+        limit: Int,
     ): TransactionFeedResponse {
-        val transactions = databaseClient.sql(feedSql)
+        validateLimit(limit)
+        val beforeHistoryPosition = cursor?.let(::decodeCursor)
+        var query = databaseClient.sql(feedSql)
             .bind("id", entityId)
+            .bind("limit", limit + 1)
+        query = if (beforeHistoryPosition == null) {
+            query.bindNull("before_history_position", java.lang.Long::class.java)
+        } else {
+            query.bind("before_history_position", beforeHistoryPosition)
+        }
+        val transactionsWithLookahead = query
             .map { row, _ -> row.toTransactionFeedItem() }
             .all()
             .asFlow()
             .toList()
+        val hasMore = transactionsWithLookahead.size > limit
+        val transactions = transactionsWithLookahead.take(limit)
         val currentBalance = databaseClient.sql(balanceSql)
             .bind("id", entityId)
             .map { row, _ -> row.get("current_balance", java.lang.Long::class.java)?.toLong() ?: 0L }
@@ -46,8 +75,37 @@ class TransactionFeedController(
         return TransactionFeedResponse(
             currentBalance = currentBalance,
             transactions = transactions,
+            nextCursor = if (hasMore) transactions.lastOrNull()?.historyPosition?.let(::encodeCursor) else null,
+            hasMore = hasMore,
         )
     }
+
+    private fun validateLimit(limit: Int) {
+        if (limit !in 1..MAX_PAGE_SIZE) {
+            throw ValidationException(
+                code = "validation_error",
+                message = "Transaction feed page size must be between 1 and $MAX_PAGE_SIZE",
+                details = mapOf("field" to "limit"),
+            )
+        }
+    }
+
+    private fun decodeCursor(cursor: String): Long =
+        try {
+            val decoded = String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8)
+            decoded.toLong().also { require(it > 0) }
+        } catch (exception: Exception) {
+            throw ValidationException(
+                code = "validation_error",
+                message = "Transaction feed cursor is invalid",
+                details = mapOf("field" to "cursor"),
+            )
+        }
+
+    private fun encodeCursor(historyPosition: Long): String =
+        Base64.getUrlEncoder()
+            .withoutPadding()
+            .encodeToString(historyPosition.toString().toByteArray(StandardCharsets.UTF_8))
 
     private fun io.r2dbc.spi.Row.toTransactionFeedItem(): TransactionFeedItem =
         TransactionFeedItem(
@@ -143,21 +201,27 @@ class TransactionFeedController(
             SELECT $ACCOUNT_FEED_COLUMNS
             FROM account_transaction_feed
             WHERE account_id = :id
+              AND (:before_history_position IS NULL OR history_position < :before_history_position)
             ORDER BY history_position DESC
+            LIMIT :limit
         """
 
         const val POCKET_FEED_SQL = """
             SELECT $POCKET_FEED_COLUMNS
             FROM pocket_transaction_feed
             WHERE pocket_id = :id
+              AND (:before_history_position IS NULL OR history_position < :before_history_position)
             ORDER BY history_position DESC
+            LIMIT :limit
         """
 
         const val CONTRACT_FEED_SQL = """
             SELECT $POCKET_FEED_COLUMNS
             FROM contract_transaction_feed
             WHERE contract_id = :id
+              AND (:before_history_position IS NULL OR history_position < :before_history_position)
             ORDER BY history_position DESC
+            LIMIT :limit
         """
 
         const val ACCOUNT_BALANCE_SQL = """
@@ -183,5 +247,7 @@ class TransactionFeedController(
             ORDER BY history_position DESC
             LIMIT 1
         """
+
+        const val MAX_PAGE_SIZE = 100
     }
 }

@@ -3,6 +3,8 @@ package de.chennemann.plannr.server.transactions.projection.api.dto
 data class TransactionFeedResponse(
     val currentBalance: Long,
     val transactions: List<TransactionFeedItem>,
+    val nextCursor: String?,
+    val hasMore: Boolean,
 )
 
 data class TransactionFeedItem(
