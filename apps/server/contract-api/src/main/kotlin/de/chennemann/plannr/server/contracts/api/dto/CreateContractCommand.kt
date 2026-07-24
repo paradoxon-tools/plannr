@@ -9,9 +9,3 @@ data class CreateContractCommand(
     val expirationDate: String?,
     val lastCancellationDate: String?,
 )
-
-data class CreateContractPocketCommand(
-    val description: String?,
-    val color: Int,
-    val useDefaultPocket: Boolean = false,
-)

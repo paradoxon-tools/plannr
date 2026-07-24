@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 import org.springframework.stereotype.Component
 
 @Component
-class InMemoryUpcomingTransactionCache(
+internal class InMemoryUpcomingTransactionCache(
     private val localDateProvider: LocalDateProvider,
     private val upcomingOccurrenceCalculator: UpcomingOccurrenceCalculator,
 ) : UpcomingTransactionCache {

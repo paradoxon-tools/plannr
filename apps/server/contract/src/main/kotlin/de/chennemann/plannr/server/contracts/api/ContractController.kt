@@ -14,8 +14,8 @@ class ContractController(
     override suspend fun create(command: CreateContractCommand): Contract =
         contractService.create(command)
 
-    override suspend fun update(id: Long, command: UpdateContractCommand): Contract =
-        contractService.update(id, command)
+    override suspend fun update(command: UpdateContractCommand): Contract =
+        contractService.update(command)
 
     override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> =
         contractService.list(accountId, archived)

@@ -4,13 +4,9 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/contracts/:contractId
+  url: {{baseUrl}}/contracts
   body: json
   auth: none
-}
-
-params:path {
-  contractId: contract-id
 }
 
 headers {
@@ -20,6 +16,7 @@ headers {
 
 body:json {
   {
+    "id": "contract-id",
     "partnerId": "partner-id",
     "signingDate": "2026-01-01",
     "expirationDate": null,

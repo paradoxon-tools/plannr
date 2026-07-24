@@ -3,9 +3,6 @@ package de.chennemann.plannr.server.contracts.service
 import de.chennemann.plannr.server.common.error.ConflictException
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
-import de.chennemann.plannr.server.contracts.support.ContractTestPartners
-import de.chennemann.plannr.server.contracts.support.FakePartnerService
-import de.chennemann.plannr.server.contracts.support.FakePocketService
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import kotlinx.coroutines.test.runTest

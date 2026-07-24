@@ -19,11 +19,8 @@ interface ContractApi {
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun create(@RequestBody command: CreateContractCommand): Contract
 
-    @PutExchange("/{id}")
-    suspend fun update(
-        @PathVariable id: Long,
-        @RequestBody command: UpdateContractCommand,
-    ): Contract
+    @PutExchange
+    suspend fun update(@RequestBody command: UpdateContractCommand): Contract
 
     @GetExchange
     suspend fun list(

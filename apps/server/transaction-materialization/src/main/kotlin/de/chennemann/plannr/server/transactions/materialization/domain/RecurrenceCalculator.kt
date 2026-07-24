@@ -19,7 +19,7 @@ private data class MaterializationRecurrencePattern(
     val monthsOfYear: List<Int>?,
 )
 
-class RecurrenceCalculator {
+internal class RecurrenceCalculator {
     fun occurrences(
         pattern: RecurrencePattern,
         limit: Int? = null,

@@ -9,12 +9,12 @@ import de.chennemann.plannr.server.transactions.materialization.persistence.toDo
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
 import java.time.LocalDate
 import kotlinx.coroutines.flow.toList
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-@Service
+@Component
 @Transactional
-class TransactionMaterializerServiceImpl(
+internal class TransactionMaterializerServiceImpl(
     private val materializedTransactionRepository: MaterializedTransactionRepository,
     private val localDateProvider: LocalDateProvider,
     private val timeProvider: TimeProvider,

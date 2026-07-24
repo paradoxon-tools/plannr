@@ -15,10 +15,10 @@ import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import kotlinx.coroutines.flow.toList
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-@Service
+@Component
 @Transactional
 internal class ContractServiceImpl(
     private val contractRepository: ContractRepository,
@@ -54,8 +54,8 @@ internal class ContractServiceImpl(
         return existingContract(pocket.id)
     }
 
-    override suspend fun update(id: Long, command: UpdateContractCommand): Contract {
-        val existing = existingContract(id)
+    override suspend fun update(command: UpdateContractCommand): Contract {
+        val existing = existingContract(command.id)
         val partnerId = resolvePartnerId(command.partnerId)
         contractRepository.upsert(
             ContractModel(

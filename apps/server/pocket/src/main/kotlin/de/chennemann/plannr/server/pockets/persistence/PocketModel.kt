@@ -24,7 +24,7 @@ data class PocketModel(
     val createdAt: Long,
 )
 
-internal fun PocketModel.toDTO(): Pocket =
+fun PocketModel.toDTO(): Pocket =
     Pocket(
         id = requireNotNull(id) { "PocketModel.id must not be null when mapping to domain" },
         accountId = accountId,
@@ -37,7 +37,7 @@ internal fun PocketModel.toDTO(): Pocket =
         createdAt = createdAt,
     )
 
-internal fun Pocket.toModel(): PocketModel =
+fun Pocket.toModel(): PocketModel =
     PocketModel(
         id = id,
         accountId = accountId,

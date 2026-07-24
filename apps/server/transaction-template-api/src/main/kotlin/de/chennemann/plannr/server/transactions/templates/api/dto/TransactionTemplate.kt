@@ -1,6 +1,6 @@
 package de.chennemann.plannr.server.transactions.templates.api.dto
 
-data class TransactionTemplateResponse(
+data class TransactionTemplate(
     val id: Long,
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,
@@ -21,7 +21,4 @@ data class TransactionTemplateResponse(
     val previousVersionId: Long?,
     val isArchived: Boolean,
     val createdAt: Long,
-) {
-    val archived: Boolean
-        get() = isArchived
-}
+)

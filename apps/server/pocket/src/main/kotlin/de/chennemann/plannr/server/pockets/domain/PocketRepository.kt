@@ -33,5 +33,5 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
     fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketModel>
 }
 
-internal suspend fun PocketRepository.save(pocket: Pocket): Pocket =
+suspend fun PocketRepository.save(pocket: Pocket): Pocket =
     save(pocket.toModel()).toDTO()

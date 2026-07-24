@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-class DailyTransactionMaterializationJob(
+internal class DailyTransactionMaterializationJob(
     private val transactionTemplateService: TransactionTemplateService,
     private val transactionMaterializerService: TransactionMaterializerService,
     private val upcomingTransactionCache: UpcomingTransactionCache,

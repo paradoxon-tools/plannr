@@ -2,11 +2,11 @@ package de.chennemann.plannr.server.transactions.projection.service
 
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.r2dbc.core.DatabaseClient
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-@Service
-class TransactionProjectionRebuilder(
+@Component
+internal class TransactionProjectionRebuilder(
     private val databaseClient: DatabaseClient,
 ) {
     @Transactional

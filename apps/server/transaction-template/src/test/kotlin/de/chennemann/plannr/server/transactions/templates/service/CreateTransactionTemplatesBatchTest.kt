@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.transactions.materialization.service.Material
 import de.chennemann.plannr.server.transactions.materialization.service.TransactionMaterializerService
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplateRepository
 import de.chennemann.plannr.server.transactions.templates.persistence.TransactionTemplateModel
 import kotlinx.coroutines.flow.Flow
@@ -84,7 +85,7 @@ class CreateTransactionTemplatesBatchTest {
         recurrenceType: String,
         daysOfMonth: List<Int>,
         monthsOfYear: List<Int>? = null,
-    ) = TransactionTemplateService.CreateCommand(
+    ) = CreateTransactionTemplateCommand(
         sourcePocketId = 1L,
         destinationPocketId = null,
         partnerId = 2L,

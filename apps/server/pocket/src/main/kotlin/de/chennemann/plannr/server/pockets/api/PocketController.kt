@@ -1,10 +1,10 @@
 package de.chennemann.plannr.server.pockets.api
 
+import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
-import de.chennemann.plannr.server.common.error.NotFoundException
 import org.springframework.web.bind.annotation.RestController
 
 @RestController

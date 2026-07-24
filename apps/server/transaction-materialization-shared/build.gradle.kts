@@ -3,5 +3,6 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":transaction-materialization-api"))
     implementation(project(":transaction-template-shared"))
 }

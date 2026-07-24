@@ -1,4 +1,4 @@
-package de.chennemann.plannr.server.contracts.support
+package de.chennemann.plannr.server.contracts.service
 
 import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.api.dto.Partner

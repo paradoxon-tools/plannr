@@ -1,14 +1,14 @@
 package de.chennemann.plannr.server.transactions.projection.service
 
 import de.chennemann.plannr.server.common.time.TimeProvider
-import de.chennemann.plannr.server.transactions.projection.persistence.TransactionProjectionEventRepository
+import de.chennemann.plannr.server.transactions.projection.domain.TransactionProjectionEventRepository
 import de.chennemann.plannr.server.transactions.projection.persistence.TransactionProjectionEventRow
 import kotlinx.coroutines.flow.toList
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-class TransactionProjectionEvaluationJob(
+internal class TransactionProjectionEvaluationJob(
     private val eventRepository: TransactionProjectionEventRepository,
     private val projectionRebuilder: TransactionProjectionRebuilder,
     private val timeProvider: TimeProvider,

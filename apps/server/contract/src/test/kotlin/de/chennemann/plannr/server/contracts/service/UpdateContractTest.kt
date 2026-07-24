@@ -2,9 +2,6 @@ package de.chennemann.plannr.server.contracts.service
 
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.contracts.support.ContractFixtures
-import de.chennemann.plannr.server.contracts.support.ContractTestPartners
-import de.chennemann.plannr.server.contracts.support.FakePartnerService
-import de.chennemann.plannr.server.contracts.support.FakePocketService
 import de.chennemann.plannr.server.contracts.support.InMemoryContractRepository
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import kotlinx.coroutines.test.runTest
@@ -30,7 +27,6 @@ class UpdateContractTest {
         )
 
         val updated = service.update(
-            ContractFixtures.DEFAULT_POCKET_ID,
             ContractFixtures.updateContractCommand(
                 partnerId = 2L,
                 signingDate = "2024-02-01",
@@ -56,7 +52,7 @@ class UpdateContractTest {
         )
 
         assertFailsWith<NotFoundException> {
-            service.update(ContractFixtures.DEFAULT_POCKET_ID, ContractFixtures.updateContractCommand())
+            service.update(ContractFixtures.updateContractCommand())
         }
     }
 

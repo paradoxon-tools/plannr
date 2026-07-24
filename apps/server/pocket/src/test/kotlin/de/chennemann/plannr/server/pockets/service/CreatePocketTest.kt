@@ -16,7 +16,7 @@ class CreatePocketTest {
         val pocketRepository = InMemoryPocketRepository()
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
-            accountLookup = PocketAccountLookup { true },
+            accountService = StubAccountService(),
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -79,7 +79,7 @@ class CreatePocketTest {
     fun `fails when account does not exist`() = runTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = InMemoryPocketRepository(),
-            accountLookup = PocketAccountLookup { false },
+            accountService = StubAccountService { false },
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )

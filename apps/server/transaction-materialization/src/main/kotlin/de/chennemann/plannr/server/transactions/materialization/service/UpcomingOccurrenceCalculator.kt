@@ -9,7 +9,7 @@ import java.time.YearMonth
 import org.springframework.stereotype.Component
 
 @Component
-class UpcomingOccurrenceCalculator(
+internal class UpcomingOccurrenceCalculator(
     private val recurrenceCalculator: RecurrenceCalculator = RecurrenceCalculator(),
 ) {
     fun nextExpansionAfter(

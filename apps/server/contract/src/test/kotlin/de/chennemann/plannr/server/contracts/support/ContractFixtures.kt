@@ -49,12 +49,14 @@ object ContractFixtures {
         )
 
     fun updateContractCommand(
+        id: Long = DEFAULT_POCKET_ID,
         partnerId: Long? = DEFAULT_PARTNER_ID,
         signingDate: String? = DEFAULT_SIGNING_DATE,
         expirationDate: String? = DEFAULT_EXPIRATION_DATE,
         lastCancellationDate: String? = null,
     ): UpdateContractCommand =
         UpdateContractCommand(
+            id = id,
             partnerId = partnerId,
             signingDate = signingDate,
             expirationDate = expirationDate,

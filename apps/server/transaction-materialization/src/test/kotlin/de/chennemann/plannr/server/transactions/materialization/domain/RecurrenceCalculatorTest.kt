@@ -1,7 +1,6 @@
-package de.chennemann.plannr.server.recurrence.domain
+package de.chennemann.plannr.server.transactions.materialization.domain
 
 import de.chennemann.plannr.server.common.domain.RecurrenceType
-import de.chennemann.plannr.server.transactions.materialization.domain.RecurrenceCalculator
 import de.chennemann.plannr.server.transactions.templates.domain.RecurrencePattern
 import java.time.DayOfWeek
 import java.time.LocalDate

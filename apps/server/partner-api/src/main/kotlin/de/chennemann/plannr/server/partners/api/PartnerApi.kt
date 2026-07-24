@@ -18,34 +18,27 @@ import org.springframework.web.service.annotation.PutExchange
 interface PartnerApi {
     @PostExchange
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun create(
-        @RequestBody command: CreatePartnerCommand,
-    ): Partner
+    suspend fun create(@RequestBody command: CreatePartnerCommand): Partner
 
     @PutExchange
-    suspend fun update(
-        @RequestBody command: UpdatePartnerCommand,
-    ): Partner
+    suspend fun update(@RequestBody command: UpdatePartnerCommand): Partner
 
     @PostExchange("/{id}/archive")
-    suspend fun archive(
-        @PathVariable id: Long,
-    ): Partner
+    suspend fun archive(@PathVariable id: Long): Partner
 
     @PostExchange("/{id}/unarchive")
-    suspend fun unarchive(
-        @PathVariable id: Long,
-    ): Partner
+    suspend fun unarchive(@PathVariable id: Long): Partner
 
     @DeleteExchange("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun delete(
-        @PathVariable id: Long,
-    )
+    suspend fun delete(@PathVariable id: Long)
 
     @GetExchange
     suspend fun list(
         @RequestParam(required = false) query: String?,
         @RequestParam(defaultValue = "false") archived: Boolean,
     ): List<Partner>
+
+    @GetExchange("/{id}")
+    suspend fun getById(@PathVariable id: Long): Partner
 }

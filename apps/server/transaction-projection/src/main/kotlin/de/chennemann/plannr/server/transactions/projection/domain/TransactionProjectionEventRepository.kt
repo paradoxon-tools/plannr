@@ -1,5 +1,6 @@
-package de.chennemann.plannr.server.transactions.projection.persistence
+package de.chennemann.plannr.server.transactions.projection.domain
 
+import de.chennemann.plannr.server.transactions.projection.persistence.TransactionProjectionEventRow
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Modifying
 import org.springframework.data.r2dbc.repository.Query

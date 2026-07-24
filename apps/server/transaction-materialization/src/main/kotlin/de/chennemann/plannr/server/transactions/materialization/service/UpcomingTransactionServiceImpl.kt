@@ -9,17 +9,17 @@ import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemp
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import java.time.LocalDate
 import java.util.PriorityQueue
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
-class UpcomingTransactionService(
+@Component
+internal class UpcomingTransactionServiceImpl(
     private val transactionTemplateService: TransactionTemplateService,
     private val pocketService: PocketService,
     private val upcomingTransactionCache: UpcomingTransactionCache,
     private val upcomingOccurrenceCalculator: UpcomingOccurrenceCalculator,
     private val localDateProvider: LocalDateProvider,
-) {
-    suspend fun forAccount(
+) : UpcomingTransactionService {
+    override suspend fun getForAccount(
         accountId: Long,
         after: LocalDate?,
         count: Int,
@@ -32,7 +32,7 @@ class UpcomingTransactionService(
         )
     }
 
-    suspend fun forPocket(
+    override suspend fun getForPocket(
         pocketId: Long,
         after: LocalDate?,
         count: Int,

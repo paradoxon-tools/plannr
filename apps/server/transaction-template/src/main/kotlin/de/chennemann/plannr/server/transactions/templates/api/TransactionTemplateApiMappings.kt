@@ -1,45 +1,30 @@
 package de.chennemann.plannr.server.transactions.templates.api
 
-import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateRequest
-import de.chennemann.plannr.server.transactions.templates.api.dto.TransactionTemplateResponse
-import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateRequest
-import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
-import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
+import de.chennemann.plannr.server.transactions.templates.api.dto.TransactionTemplate
+import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate as DomainTransactionTemplate
 
-fun CreateTransactionTemplateRequest.toCreateCommand() = TransactionTemplateService.CreateCommand(
-    sourcePocketId, destinationPocketId, partnerId, title, description, amount, currencyCode,
-    transactionType, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount, daysOfWeek,
-    weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
-)
-
-fun UpdateTransactionTemplateRequest.toUpdateCommand(id: Long) = TransactionTemplateService.UpdateCommand(
-    id, sourcePocketId, destinationPocketId, partnerId, title,
-    description, amount, currencyCode, transactionType, firstOccurrenceDate, finalOccurrenceDate,
-    recurrenceType, skipCount, daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
-)
-
-fun TransactionTemplate.toResponse() = recurrencePattern.let { pattern ->
-    TransactionTemplateResponse(
-        id,
-        sourcePocketId,
-        destinationPocketId,
-        partnerId,
-        title,
-        description,
-        amount,
-        currencyCode,
-        transactionType,
-        pattern.firstOccurrenceDate,
-        pattern.finalOccurrenceDate,
-        pattern.recurrenceType,
-        pattern.skipCount,
-        pattern.daysOfWeek,
-        pattern.weeksOfMonth,
-        pattern.daysOfMonth,
-        pattern.monthsOfYear,
-        previousVersionId,
-        isArchived,
-        createdAt,
+fun DomainTransactionTemplate.toDTO() = recurrencePattern.let { pattern ->
+    TransactionTemplate(
+        id = id,
+        sourcePocketId = sourcePocketId,
+        destinationPocketId = destinationPocketId,
+        partnerId = partnerId,
+        title = title,
+        description = description,
+        amount = amount,
+        currencyCode = currencyCode,
+        transactionType = transactionType,
+        firstOccurrenceDate = pattern.firstOccurrenceDate,
+        finalOccurrenceDate = pattern.finalOccurrenceDate,
+        recurrenceType = pattern.recurrenceType,
+        skipCount = pattern.skipCount,
+        daysOfWeek = pattern.daysOfWeek,
+        weeksOfMonth = pattern.weeksOfMonth,
+        daysOfMonth = pattern.daysOfMonth,
+        monthsOfYear = pattern.monthsOfYear,
+        previousVersionId = previousVersionId,
+        isArchived = isArchived,
+        createdAt = createdAt,
     )
 }
 

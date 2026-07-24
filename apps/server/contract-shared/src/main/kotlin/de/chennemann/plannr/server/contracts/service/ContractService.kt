@@ -6,7 +6,7 @@ import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
 
 interface ContractService {
     suspend fun create(command: CreateContractCommand): Contract
-    suspend fun update(id: Long, command: UpdateContractCommand): Contract
+    suspend fun update(command: UpdateContractCommand): Contract
     suspend fun list(accountId: Long? = null, archived: Boolean = false): List<Contract>
     suspend fun getById(id: Long): Contract?
 }

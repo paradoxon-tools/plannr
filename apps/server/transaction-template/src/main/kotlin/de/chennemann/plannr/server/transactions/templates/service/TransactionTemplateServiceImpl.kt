@@ -3,6 +3,8 @@ package de.chennemann.plannr.server.transactions.templates.service
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializationOperation
 import de.chennemann.plannr.server.transactions.materialization.service.TransactionMaterializerService
 import de.chennemann.plannr.server.transactions.materialization.service.UpcomingTransactionCache
@@ -15,19 +17,19 @@ import de.chennemann.plannr.server.transactions.templates.domain.save
 import de.chennemann.plannr.server.transactions.templates.persistence.TransactionTemplateModel
 import de.chennemann.plannr.server.transactions.templates.persistence.toDTO
 import kotlinx.coroutines.flow.toList
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-@Service
+@Component
 @Transactional
-class TransactionTemplateServiceImpl(
+internal class TransactionTemplateServiceImpl(
     private val transactionTemplateRepository: TransactionTemplateRepository,
     private val transactionMaterializerService: TransactionMaterializerService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
     private val upcomingTransactionCache: UpcomingTransactionCache? = null,
 ) : TransactionTemplateService {
-    override suspend fun create(command: TransactionTemplateService.CreateCommand): TransactionTemplate {
+    override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate {
         val created = transactionTemplateRepository.save(
             TransactionTemplateModel(
                 id = null,
@@ -58,7 +60,7 @@ class TransactionTemplateServiceImpl(
         return created
     }
 
-    override suspend fun createBatch(commands: List<TransactionTemplateService.CreateCommand>): List<TransactionTemplate> {
+    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>): List<TransactionTemplate> {
         if (commands.isEmpty()) {
             throw ValidationException(
                 code = "validation_error",
@@ -69,7 +71,7 @@ class TransactionTemplateServiceImpl(
         return commands.map { create(it) }
     }
 
-    override suspend fun update(command: TransactionTemplateService.UpdateCommand): TransactionTemplate {
+    override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate {
         val existing = existingTransactionTemplate(command.id)
         val updated = transactionTemplateRepository.save(
             existing.copy(
@@ -182,7 +184,7 @@ class TransactionTemplateServiceImpl(
 private fun List<*>?.toCsv(): String? =
     this?.joinToString(",")?.takeIf { it.isNotBlank() }
 
-private fun TransactionTemplateService.UpdateCommand.toRecurrencePattern(): RecurrencePattern =
+private fun UpdateTransactionTemplateCommand.toRecurrencePattern(): RecurrencePattern =
     RecurrencePattern(
         firstOccurrenceDate = firstOccurrenceDate,
         finalOccurrenceDate = finalOccurrenceDate,

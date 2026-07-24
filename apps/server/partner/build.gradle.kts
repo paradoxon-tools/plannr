@@ -9,12 +9,13 @@ dependencies {
     implementation(project(":partner-api"))
     implementation(project(":partner-shared"))
     implementation(project(":transaction-projection-shared"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.springframework:spring-web")
 
     runtimeOnly("org.postgresql:r2dbc-postgresql")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("org.flywaydb:flyway-database-postgresql")

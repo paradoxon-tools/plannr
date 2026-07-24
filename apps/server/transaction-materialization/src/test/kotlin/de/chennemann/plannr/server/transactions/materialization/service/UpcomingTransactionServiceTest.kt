@@ -1,5 +1,7 @@
 package de.chennemann.plannr.server.transactions.materialization.service
 
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
@@ -36,7 +38,7 @@ class UpcomingTransactionServiceTest {
         val calculator = UpcomingOccurrenceCalculator()
         val localDateProvider = LocalDateProviderFixture("2026-07-19")
         val cache = InMemoryUpcomingTransactionCache(localDateProvider, calculator)
-        val service = UpcomingTransactionService(
+        val service = UpcomingTransactionServiceImpl(
             transactionTemplateService = StubTransactionTemplateService(listOf(template)),
             pocketService = UnusedPocketService,
             upcomingTransactionCache = cache,
@@ -44,8 +46,8 @@ class UpcomingTransactionServiceTest {
             localDateProvider = localDateProvider,
         )
 
-        val firstPage = service.forPocket(pocketId = 10L, after = null, count = 2)
-        val secondPage = service.forPocket(
+        val firstPage = service.getForPocket(pocketId = 10L, after = null, count = 2)
+        val secondPage = service.getForPocket(
             pocketId = 10L,
             after = LocalDate.parse(assertNotNull(firstPage.transactions.lastOrNull()).occurrenceDate),
             count = 2,
@@ -62,7 +64,7 @@ class UpcomingTransactionServiceTest {
         val calculator = UpcomingOccurrenceCalculator()
         val localDateProvider = LocalDateProviderFixture("2026-07-19")
         val cache = InMemoryUpcomingTransactionCache(localDateProvider, calculator)
-        val service = UpcomingTransactionService(
+        val service = UpcomingTransactionServiceImpl(
             transactionTemplateService = StubTransactionTemplateService(
                 listOf(weeklyTemplate(id = 1L), weeklyTemplate(id = 2L)),
             ),
@@ -72,7 +74,7 @@ class UpcomingTransactionServiceTest {
             localDateProvider = localDateProvider,
         )
 
-        val page = service.forPocket(pocketId = 10L, after = null, count = 1)
+        val page = service.getForPocket(pocketId = 10L, after = null, count = 1)
 
         assertEquals(listOf(1L, 2L), page.transactions.map { it.transactionTemplateId })
         assertEquals(listOf("2026-07-20", "2026-07-20"), page.transactions.map { it.occurrenceDate })
@@ -121,10 +123,13 @@ private class StubTransactionTemplateService(
 
     override suspend fun getById(id: Long): TransactionTemplate? = templates.find { it.id == id }
 
-    override suspend fun create(command: TransactionTemplateService.CreateCommand): TransactionTemplate =
+    override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate =
         unsupported()
 
-    override suspend fun update(command: TransactionTemplateService.UpdateCommand): TransactionTemplate =
+    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>): List<TransactionTemplate> =
+        unsupported()
+
+    override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate =
         unsupported()
 
     override suspend fun archive(id: Long): TransactionTemplate = unsupported()

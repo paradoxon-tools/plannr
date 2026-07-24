@@ -1,5 +1,6 @@
 package de.chennemann.plannr.server.pockets.service
 
+import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
@@ -13,6 +14,7 @@ import de.chennemann.plannr.server.transactions.projection.service.TransactionPr
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import kotlinx.coroutines.flow.toList
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,21 +22,23 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 internal class PocketServiceImpl(
     private val pocketRepository: PocketRepository,
-    private val accountLookup: PocketAccountLookup,
+    @param:Lazy
+    private val accountService: AccountService,
     private val transactionTemplateService: TransactionTemplateService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
 ) : PocketService {
     override suspend fun create(command: CreatePocketCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
-        val pocket = createPocket(
-            accountId = accountId,
-            name = command.name,
-            description = command.description,
-            color = command.color,
-            isDefault = command.isDefault,
-            isContractPocket = false,
-        )
+        val pocket =
+            createPocket(
+                accountId = accountId,
+                name = command.name,
+                description = command.description,
+                color = command.color,
+                isDefault = command.isDefault,
+                isContractPocket = false,
+            )
         enqueueProjectionChange(pocket.id)
         return pocket
     }
@@ -43,8 +47,11 @@ internal class PocketServiceImpl(
         val accountId = existingAccountId(command.accountId)
         return if (command.useDefaultPocket) {
             defaultPocket(accountId).let { defaultPocket ->
-                if (defaultPocket.isContractPocket) defaultPocket
-                else pocketRepository.save(defaultPocket.copy(isContractPocket = true))
+                if (defaultPocket.isContractPocket) {
+                    defaultPocket
+                } else {
+                    pocketRepository.save(defaultPocket.copy(isContractPocket = true))
+                }
             }
         } else {
             createPocket(
@@ -61,15 +68,16 @@ internal class PocketServiceImpl(
     override suspend fun update(command: UpdatePocketCommand): Pocket {
         val existing = existingPocket(command.id)
         val accountId = existingAccountId(command.accountId)
-        val persisted = pocketRepository.save(
-            existing.copy(
-                accountId = accountId,
-                name = command.name,
-                description = command.description,
-                color = command.color,
-                isDefault = command.isDefault,
-            ),
-        )
+        val persisted =
+            pocketRepository.save(
+                existing.copy(
+                    accountId = accountId,
+                    name = command.name,
+                    description = command.description,
+                    color = command.color,
+                    isDefault = command.isDefault,
+                ),
+            )
         enqueueProjectionChange(persisted.id)
         return persisted
     }
@@ -104,16 +112,18 @@ internal class PocketServiceImpl(
         enqueueProjectionChange(normalizedId)
     }
 
-    override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> =
-        pocketRepository.findAllByAccountIdAndArchived(
-            accountId = accountId,
-            archived = archived,
-        )
-            .toList()
+    override suspend fun list(
+        accountId: Long?,
+        archived: Boolean?,
+    ): List<Pocket> =
+        pocketRepository
+            .findAllByAccountIdAndArchived(
+                accountId = accountId,
+                archived = archived,
+            ).toList()
             .map { it.toDTO() }
 
-    override suspend fun getById(id: Long): Pocket? =
-        pocketRepository.findById(id)?.toDTO()
+    override suspend fun getById(id: Long): Pocket? = pocketRepository.findById(id)?.toDTO()
 
     private suspend fun createPocket(
         accountId: Long,
@@ -123,22 +133,23 @@ internal class PocketServiceImpl(
         isDefault: Boolean,
         isContractPocket: Boolean,
     ): Pocket =
-        pocketRepository.save(
-            PocketModel(
-                id = null,
-                accountId = accountId,
-                name = name,
-                description = description,
-                color = color,
-                isDefault = isDefault,
-                isContractPocket = isContractPocket,
-                isArchived = false,
-                createdAt = timeProvider(),
-            ),
-        ).toDTO()
+        pocketRepository
+            .save(
+                PocketModel(
+                    id = null,
+                    accountId = accountId,
+                    name = name,
+                    description = description,
+                    color = color,
+                    isDefault = isDefault,
+                    isContractPocket = isContractPocket,
+                    isArchived = false,
+                    createdAt = timeProvider(),
+                ),
+            ).toDTO()
 
     private suspend fun existingAccountId(accountId: Long): Long {
-        if (!accountLookup.exists(accountId)) {
+        if (accountService.getById(accountId) == null) {
             throw NotFoundException(
                 code = "not_found",
                 message = "Account not found",

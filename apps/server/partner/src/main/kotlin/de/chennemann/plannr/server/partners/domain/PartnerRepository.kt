@@ -21,5 +21,5 @@ interface PartnerRepository : CoroutineCrudRepository<PartnerModel, Long> {
     fun findAllByQueryAndArchived(query: String?, archived: Boolean): Flow<PartnerModel>
 }
 
-internal suspend fun PartnerRepository.save(partner: Partner): Partner =
+suspend fun PartnerRepository.save(partner: Partner): Partner =
     save(partner.toModel()).toDTO()

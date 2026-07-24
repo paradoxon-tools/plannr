@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.support
 
-import de.chennemann.plannr.server.contracts.support.FakePartnerService
-import de.chennemann.plannr.server.contracts.support.FakePocketService
+import de.chennemann.plannr.server.contracts.service.FakePartnerService
+import de.chennemann.plannr.server.contracts.service.FakePocketService
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketService
 import org.springframework.boot.autoconfigure.SpringBootApplication

@@ -16,7 +16,7 @@ class UpdatePocketTest {
         pocketRepository.save(PocketFixtures.pocket(isContractPocket = true).toModel())
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
-            accountLookup = PocketAccountLookup { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, 2L) },
+            accountService = StubAccountService { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, 2L) },
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -44,7 +44,7 @@ class UpdatePocketTest {
     fun `fails when pocket does not exist`() = runTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = InMemoryPocketRepository(),
-            accountLookup = PocketAccountLookup { true },
+            accountService = StubAccountService(),
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -60,7 +60,7 @@ class UpdatePocketTest {
         pocketRepository.save(PocketFixtures.pocket().toModel())
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
-            accountLookup = PocketAccountLookup { false },
+            accountService = StubAccountService { false },
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )

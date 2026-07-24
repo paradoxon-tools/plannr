@@ -16,6 +16,7 @@ import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import kotlinx.coroutines.flow.toList
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 internal class AccountServiceImpl(
     private val accountRepository: AccountRepository,
+    @param:Lazy
     private val pocketService: PocketService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
@@ -30,17 +32,19 @@ internal class AccountServiceImpl(
     override suspend fun create(command: CreateAccountCommand): Account {
         ensureNameAvailable(name = command.name, institution = command.institution, currentAccountId = null)
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val created = accountRepository.save(
-            AccountModel(
-                id = null,
-                name = command.name,
-                institution = command.institution,
-                currencyCode = currencyCode,
-                weekendHandling = command.weekendHandling,
-                isArchived = false,
-                createdAt = timeProvider(),
-            ),
-        ).toDTO()
+        val created =
+            accountRepository
+                .save(
+                    AccountModel(
+                        id = null,
+                        name = command.name,
+                        institution = command.institution,
+                        currencyCode = currencyCode,
+                        weekendHandling = command.weekendHandling,
+                        isArchived = false,
+                        createdAt = timeProvider(),
+                    ),
+                ).toDTO()
         pocketService.create(
             CreatePocketCommand(
                 accountId = created.id,
@@ -58,14 +62,15 @@ internal class AccountServiceImpl(
         val existing = existingAccount(command.id)
         ensureNameAvailable(name = command.name, institution = command.institution, currentAccountId = existing.id)
         val currencyCode = normalizeCurrency(command.currencyCode)
-        val persisted = accountRepository.save(
-            existing.copy(
-                name = command.name,
-                institution = command.institution,
-                currencyCode = currencyCode,
-                weekendHandling = command.weekendHandling,
-            ),
-        )
+        val persisted =
+            accountRepository.save(
+                existing.copy(
+                    name = command.name,
+                    institution = command.institution,
+                    currencyCode = currencyCode,
+                    weekendHandling = command.weekendHandling,
+                ),
+            )
         enqueueProjectionChange(persisted.id)
         return persisted
     }
@@ -93,13 +98,13 @@ internal class AccountServiceImpl(
     }
 
     override suspend fun list(archived: Boolean?): List<Account> =
-        accountRepository.findAllByOrderByCreatedAtAscIdAsc()
+        accountRepository
+            .findAllByOrderByCreatedAtAscIdAsc()
             .toList()
             .map(AccountModel::toDTO)
             .filter { archived == null || it.isArchived == archived }
 
-    override suspend fun getById(id: Long): Account? =
-        accountRepository.findById(id)?.toDTO()
+    override suspend fun getById(id: Long): Account? = accountRepository.findById(id)?.toDTO()
 
     private suspend fun existingAccount(id: Long): Account =
         accountRepository.findById(id)?.toDTO()
@@ -109,7 +114,11 @@ internal class AccountServiceImpl(
                 details = mapOf("id" to id),
             )
 
-    private suspend fun ensureNameAvailable(name: String, institution: String, currentAccountId: Long?) {
+    private suspend fun ensureNameAvailable(
+        name: String,
+        institution: String,
+        currentAccountId: Long?,
+    ) {
         val existing = accountRepository.findByNameAndInstitution(name, institution)?.toDTO()
         if (existing != null && existing.id != currentAccountId) {
             throw ConflictException(
