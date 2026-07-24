@@ -17,9 +17,10 @@ class CreateContractTest {
         val repository = InMemoryContractRepository { pockets.pockets.values }
         val service = contractService(repository, pockets)
 
-        val created = service.create(ContractFixtures.createContractCommand())
+        val created = service.create(ContractFixtures.createContractCommand(financialProfileId = null))
 
         assertEquals(created.id, created.pocketId)
+        assertEquals(ContractFixtures.DEFAULT_FINANCIAL_PROFILE_ID, created.financialProfileId)
         assertEquals(ContractFixtures.DEFAULT_PARTNER_ID, created.partnerId)
         assertEquals(created.id, repository.findById(created.id)?.pocketId)
         assertEquals(1, pockets.contractCreateCommands.size)
@@ -68,8 +69,10 @@ class CreateContractTest {
     ): ContractServiceImpl =
         ContractServiceImpl(
             contractRepository = repository,
+            financialProfileService = FakeFinancialProfileService(),
             partnerService = FakePartnerService(partners),
             pocketService = pockets,
+            transactionTemplateService = FakeTransactionTemplateService(),
         )
 
     private fun contractPocket(isDefault: Boolean = false): Pocket =

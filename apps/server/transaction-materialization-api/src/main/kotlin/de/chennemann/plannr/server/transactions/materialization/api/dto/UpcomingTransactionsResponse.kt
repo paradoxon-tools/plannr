@@ -11,6 +11,7 @@ data class UpcomingTransactionItem(
     val occurrenceDate: String,
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,
+    val financialProfileId: Long,
     val partnerId: Long?,
     val type: String,
     val title: String,

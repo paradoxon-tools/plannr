@@ -1,0 +1,24 @@
+meta {
+  name: Create financial profile
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/financial-profiles
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Household",
+    "description": "Shared household expenses",
+    "kind": "GROUP"
+  }
+}

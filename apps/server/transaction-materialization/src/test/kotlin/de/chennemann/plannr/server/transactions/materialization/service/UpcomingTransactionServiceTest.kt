@@ -77,6 +77,7 @@ class UpcomingTransactionServiceTest {
         val page = service.getForPocket(pocketId = 10L, after = null, count = 1)
 
         assertEquals(listOf(1L, 2L), page.transactions.map { it.transactionTemplateId })
+        assertEquals(listOf(1L, 1L), page.transactions.map { it.financialProfileId })
         assertEquals(listOf("2026-07-20", "2026-07-20"), page.transactions.map { it.occurrenceDate })
         assertTrue(page.hasMore)
     }
@@ -85,6 +86,7 @@ class UpcomingTransactionServiceTest {
         id = id,
         sourcePocketId = 10L,
         destinationPocketId = null,
+        financialProfileId = 1L,
         partnerId = null,
         title = "Weekly",
         description = null,
@@ -139,6 +141,8 @@ private class StubTransactionTemplateService(
     override suspend fun archiveForPocket(pocketId: Long) = unsupported<Unit>()
 
     override suspend fun unarchiveForPocket(pocketId: Long) = unsupported<Unit>()
+
+    override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) = unsupported<Unit>()
 
     override suspend fun delete(id: Long) = unsupported<Unit>()
 

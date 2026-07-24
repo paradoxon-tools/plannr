@@ -23,6 +23,10 @@ sealed interface TransactionProjectionChangeEvent {
         override val aggregateId: Long,
     ) : TransactionProjectionChangeEvent
 
+    data class FinancialProfileChanged(
+        override val aggregateId: Long,
+    ) : TransactionProjectionChangeEvent
+
     data class TransactionTemplateChanged(
         override val aggregateId: Long,
     ) : TransactionProjectionChangeEvent
@@ -35,5 +39,6 @@ val TransactionProjectionChangeEvent.eventType: String
         is TransactionProjectionChangeEvent.PocketChanged -> "POCKET_CHANGED"
         is TransactionProjectionChangeEvent.ContractChanged -> "CONTRACT_CHANGED"
         is TransactionProjectionChangeEvent.PartnerChanged -> "PARTNER_CHANGED"
+        is TransactionProjectionChangeEvent.FinancialProfileChanged -> "FINANCIAL_PROFILE_CHANGED"
         is TransactionProjectionChangeEvent.TransactionTemplateChanged -> "TRANSACTION_TEMPLATE_CHANGED"
     }

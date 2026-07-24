@@ -9,11 +9,13 @@ object ContractFixtures {
     const val DEFAULT_ACCOUNT_ID = 1L
     const val DEFAULT_POCKET_ID = 1L
     const val DEFAULT_PARTNER_ID = 1L
+    const val DEFAULT_FINANCIAL_PROFILE_ID = 1L
     const val DEFAULT_SIGNING_DATE = "2024-01-01"
     const val DEFAULT_EXPIRATION_DATE = "2024-12-31"
 
     fun contractModel(
         pocketId: Long = DEFAULT_POCKET_ID,
+        financialProfileId: Long = DEFAULT_FINANCIAL_PROFILE_ID,
         partnerId: Long? = DEFAULT_PARTNER_ID,
         signingDate: String? = DEFAULT_SIGNING_DATE,
         expirationDate: String? = DEFAULT_EXPIRATION_DATE,
@@ -21,6 +23,7 @@ object ContractFixtures {
     ): ContractModel =
         ContractModel(
             pocketId = pocketId,
+            financialProfileId = financialProfileId,
             partnerId = partnerId,
             signingDate = signingDate,
             expirationDate = expirationDate,
@@ -28,6 +31,7 @@ object ContractFixtures {
         )
 
     fun createContractCommand(
+        financialProfileId: Long? = DEFAULT_FINANCIAL_PROFILE_ID,
         partnerId: Long? = DEFAULT_PARTNER_ID,
         signingDate: String? = DEFAULT_SIGNING_DATE,
         expirationDate: String? = DEFAULT_EXPIRATION_DATE,
@@ -42,6 +46,7 @@ object ContractFixtures {
                 color = 123456,
                 useDefaultPocket = useDefaultPocket,
             ),
+            financialProfileId = financialProfileId,
             partnerId = partnerId,
             signingDate = signingDate,
             expirationDate = expirationDate,
@@ -50,6 +55,7 @@ object ContractFixtures {
 
     fun updateContractCommand(
         id: Long = DEFAULT_POCKET_ID,
+        financialProfileId: Long = DEFAULT_FINANCIAL_PROFILE_ID,
         partnerId: Long? = DEFAULT_PARTNER_ID,
         signingDate: String? = DEFAULT_SIGNING_DATE,
         expirationDate: String? = DEFAULT_EXPIRATION_DATE,
@@ -57,6 +63,7 @@ object ContractFixtures {
     ): UpdateContractCommand =
         UpdateContractCommand(
             id = id,
+            financialProfileId = financialProfileId,
             partnerId = partnerId,
             signingDate = signingDate,
             expirationDate = expirationDate,

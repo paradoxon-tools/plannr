@@ -20,6 +20,7 @@ internal object NoOpTransactionTemplateService : TransactionTemplateService {
     override suspend fun unarchive(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun archiveForPocket(pocketId: Long) = Unit
     override suspend fun unarchiveForPocket(pocketId: Long) = Unit
+    override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) = Unit
     override suspend fun delete(id: Long) = Unit
     override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
     override suspend fun getById(id: Long) = null

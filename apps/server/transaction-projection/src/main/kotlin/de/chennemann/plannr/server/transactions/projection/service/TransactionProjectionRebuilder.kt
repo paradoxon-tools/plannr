@@ -33,6 +33,9 @@ internal class TransactionProjectionRebuilder(
                 transaction_amount,
                 signed_amount,
                 balance_after,
+                financial_profile_id,
+                financial_profile_name,
+                financial_profile_kind,
                 partner_id,
                 partner_name,
                 source_pocket_id,
@@ -54,6 +57,9 @@ internal class TransactionProjectionRebuilder(
                     description,
                     transaction_amount,
                     SUM(signed_amount) AS signed_amount,
+                    financial_profile_id,
+                    financial_profile_name,
+                    financial_profile_kind,
                     partner_id,
                     partner_name,
                     source_pocket_id,
@@ -75,6 +81,9 @@ internal class TransactionProjectionRebuilder(
                         m.description,
                         m.amount AS transaction_amount,
                         -m.amount AS signed_amount,
+                        m.financial_profile_id,
+                        financial_profile.name AS financial_profile_name,
+                        financial_profile.kind AS financial_profile_kind,
                         m.partner_id,
                         partner.name AS partner_name,
                         sp.id AS source_pocket_id,
@@ -89,6 +98,7 @@ internal class TransactionProjectionRebuilder(
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     JOIN pockets sp ON sp.id = m.source_pocket_id
                     LEFT JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('EXPENSE', 'TRANSFER')
                     UNION ALL
@@ -102,6 +112,9 @@ internal class TransactionProjectionRebuilder(
                         m.description,
                         m.amount AS transaction_amount,
                         m.amount AS signed_amount,
+                        m.financial_profile_id,
+                        financial_profile.name AS financial_profile_name,
+                        financial_profile.kind AS financial_profile_kind,
                         m.partner_id,
                         partner.name AS partner_name,
                         sp.id AS source_pocket_id,
@@ -116,6 +129,7 @@ internal class TransactionProjectionRebuilder(
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     LEFT JOIN pockets sp ON sp.id = m.source_pocket_id
                     JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('INCOME', 'TRANSFER')
                 ) scoped
@@ -128,6 +142,9 @@ internal class TransactionProjectionRebuilder(
                     title,
                     description,
                     transaction_amount,
+                    financial_profile_id,
+                    financial_profile_name,
+                    financial_profile_kind,
                     partner_id,
                     partner_name,
                     source_pocket_id,
@@ -165,6 +182,9 @@ internal class TransactionProjectionRebuilder(
                 transaction_amount,
                 signed_amount,
                 balance_after,
+                financial_profile_id,
+                financial_profile_name,
+                financial_profile_kind,
                 partner_id,
                 partner_name,
                 source_pocket_id,
@@ -191,6 +211,9 @@ internal class TransactionProjectionRebuilder(
                 transaction_amount,
                 signed_amount,
                 balance_after,
+                financial_profile_id,
+                financial_profile_name,
+                financial_profile_kind,
                 partner_id,
                 partner_name,
                 transfer_pocket_id,
@@ -210,6 +233,9 @@ internal class TransactionProjectionRebuilder(
                     description,
                     transaction_amount,
                     SUM(signed_amount) AS signed_amount,
+                    financial_profile_id,
+                    financial_profile_name,
+                    financial_profile_kind,
                     partner_id,
                     partner_name,
                     transfer_pocket_id,
@@ -229,6 +255,9 @@ internal class TransactionProjectionRebuilder(
                         m.description,
                         m.amount AS transaction_amount,
                         -m.amount AS signed_amount,
+                        m.financial_profile_id,
+                        financial_profile.name AS financial_profile_name,
+                        financial_profile.kind AS financial_profile_kind,
                         m.partner_id,
                         partner.name AS partner_name,
                         dp.id AS transfer_pocket_id,
@@ -240,6 +269,7 @@ internal class TransactionProjectionRebuilder(
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     JOIN pockets sp ON sp.id = m.source_pocket_id
                     LEFT JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('EXPENSE', 'TRANSFER')
                     UNION ALL
@@ -254,6 +284,9 @@ internal class TransactionProjectionRebuilder(
                         m.description,
                         m.amount AS transaction_amount,
                         m.amount AS signed_amount,
+                        m.financial_profile_id,
+                        financial_profile.name AS financial_profile_name,
+                        financial_profile.kind AS financial_profile_kind,
                         m.partner_id,
                         partner.name AS partner_name,
                         sp.id AS transfer_pocket_id,
@@ -265,6 +298,7 @@ internal class TransactionProjectionRebuilder(
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     LEFT JOIN pockets sp ON sp.id = m.source_pocket_id
                     JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('INCOME', 'TRANSFER')
                 ) scoped
@@ -278,6 +312,9 @@ internal class TransactionProjectionRebuilder(
                     title,
                     description,
                     transaction_amount,
+                    financial_profile_id,
+                    financial_profile_name,
+                    financial_profile_kind,
                     partner_id,
                     partner_name,
                     transfer_pocket_id,
@@ -313,6 +350,9 @@ internal class TransactionProjectionRebuilder(
                 transaction_amount,
                 signed_amount,
                 balance_after,
+                financial_profile_id,
+                financial_profile_name,
+                financial_profile_kind,
                 partner_id,
                 partner_name,
                 transfer_pocket_id,
@@ -336,6 +376,9 @@ internal class TransactionProjectionRebuilder(
                 transaction_amount,
                 signed_amount,
                 balance_after,
+                financial_profile_id,
+                financial_profile_name,
+                financial_profile_kind,
                 partner_id,
                 partner_name,
                 transfer_pocket_id,
@@ -363,6 +406,9 @@ internal class TransactionProjectionRebuilder(
                     ORDER BY ptf.transaction_date ASC, materialized.created_at ASC, ptf.transaction_id ASC
                     ROWS UNBOUNDED PRECEDING
                 ) AS balance_after,
+                ptf.financial_profile_id,
+                ptf.financial_profile_name,
+                ptf.financial_profile_kind,
                 ptf.partner_id,
                 ptf.partner_name,
                 ptf.transfer_pocket_id,

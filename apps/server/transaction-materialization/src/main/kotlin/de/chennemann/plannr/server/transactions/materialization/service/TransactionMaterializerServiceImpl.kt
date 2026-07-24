@@ -87,6 +87,7 @@ internal class TransactionMaterializerServiceImpl(
             transactionDate = transactionDate,
             sourcePocketId = sourcePocketId,
             destinationPocketId = destinationPocketId,
+            financialProfileId = financialProfileId,
             partnerId = partnerId,
             title = title,
             description = description,

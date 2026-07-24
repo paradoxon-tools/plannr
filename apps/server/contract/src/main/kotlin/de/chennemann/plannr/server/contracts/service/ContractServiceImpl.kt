@@ -9,12 +9,15 @@ import de.chennemann.plannr.server.contracts.domain.ContractRepository
 import de.chennemann.plannr.server.contracts.domain.upsert
 import de.chennemann.plannr.server.contracts.persistence.ContractModel
 import de.chennemann.plannr.server.contracts.persistence.toDTO
+import de.chennemann.plannr.server.financialprofiles.service.FinancialProfileService
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.CreatePocketForContractCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
+import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import kotlinx.coroutines.flow.toList
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,11 +25,15 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 internal class ContractServiceImpl(
     private val contractRepository: ContractRepository,
+    private val financialProfileService: FinancialProfileService,
     private val partnerService: PartnerService,
     private val pocketService: PocketService,
+    @param:Lazy
+    private val transactionTemplateService: TransactionTemplateService,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
 ) : ContractService {
     override suspend fun create(command: CreateContractCommand): Contract {
+        val financialProfileId = financialProfileService.resolveForAssignment(command.financialProfileId).id
         val partnerId = resolvePartnerId(command.partnerId)
         val pocket = pocketService.createForContract(
             CreatePocketForContractCommand(
@@ -44,28 +51,33 @@ internal class ContractServiceImpl(
         contractRepository.upsert(
             ContractModel(
                 pocketId = pocket.id,
+                financialProfileId = financialProfileId,
                 partnerId = partnerId,
                 signingDate = command.signingDate,
                 expirationDate = command.expirationDate,
                 lastCancellationDate = command.lastCancellationDate,
             ),
         )
+        transactionTemplateService.refreshFinancialProfilesForPocket(pocket.id)
         enqueueProjectionChange(pocket.id)
         return existingContract(pocket.id)
     }
 
     override suspend fun update(command: UpdateContractCommand): Contract {
         val existing = existingContract(command.id)
+        val financialProfileId = financialProfileService.resolveForAssignment(command.financialProfileId).id
         val partnerId = resolvePartnerId(command.partnerId)
         contractRepository.upsert(
             ContractModel(
                 pocketId = existing.id,
+                financialProfileId = financialProfileId,
                 partnerId = partnerId,
                 signingDate = command.signingDate,
                 expirationDate = command.expirationDate,
                 lastCancellationDate = command.lastCancellationDate,
             ),
         )
+        transactionTemplateService.refreshFinancialProfilesForPocket(existing.id)
         enqueueProjectionChange(existing.id)
         return existingContract(existing.id)
     }
