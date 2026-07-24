@@ -15,8 +15,10 @@ class UpdateContractTest {
         val pockets = FakePocketService(listOf(contractPocket()))
         val repository = InMemoryContractRepository { pockets.pockets.values }
         repository.save(ContractFixtures.contractModel())
+        val transactionTemplates = FakeTransactionTemplateService()
         val service = ContractServiceImpl(
             contractRepository = repository,
+            financialProfileService = FakeFinancialProfileService(),
             partnerService = FakePartnerService(
                 listOf(
                     ContractTestPartners.partner(),
@@ -24,6 +26,7 @@ class UpdateContractTest {
                 ),
             ),
             pocketService = pockets,
+            transactionTemplateService = transactionTemplates,
         )
 
         val updated = service.update(
@@ -36,9 +39,11 @@ class UpdateContractTest {
 
         assertEquals(ContractFixtures.DEFAULT_POCKET_ID, updated.id)
         assertEquals(ContractFixtures.DEFAULT_POCKET_ID, updated.pocketId)
+        assertEquals(ContractFixtures.DEFAULT_FINANCIAL_PROFILE_ID, updated.financialProfileId)
         assertEquals(2L, updated.partnerId)
         assertEquals("2024-02-01", updated.signingDate)
         assertEquals(null, updated.expirationDate)
+        assertEquals(listOf(ContractFixtures.DEFAULT_POCKET_ID), transactionTemplates.refreshedPocketIds)
     }
 
     @Test
@@ -47,8 +52,10 @@ class UpdateContractTest {
         val repository = InMemoryContractRepository { pockets.pockets.values }
         val service = ContractServiceImpl(
             contractRepository = repository,
+            financialProfileService = FakeFinancialProfileService(),
             partnerService = FakePartnerService(emptyList()),
             pocketService = pockets,
+            transactionTemplateService = FakeTransactionTemplateService(),
         )
 
         assertFailsWith<NotFoundException> {

@@ -130,6 +130,7 @@ internal class UpcomingTransactionServiceImpl(
                 occurrenceDate = expansion[index].toString(),
                 sourcePocketId = transactionTemplate.sourcePocketId,
                 destinationPocketId = transactionTemplate.destinationPocketId,
+                financialProfileId = transactionTemplate.financialProfileId,
                 partnerId = transactionTemplate.partnerId,
                 type = transactionTemplate.transactionType,
                 title = transactionTemplate.title,

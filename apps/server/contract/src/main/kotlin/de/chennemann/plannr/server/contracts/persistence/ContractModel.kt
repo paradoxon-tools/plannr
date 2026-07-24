@@ -9,6 +9,8 @@ data class ContractModel(
     @Id
     @Column("pocket_id")
     val pocketId: Long,
+    @Column("financial_profile_id")
+    val financialProfileId: Long,
     @Column("partner_id")
     val partnerId: Long?,
     @Column("signing_date")

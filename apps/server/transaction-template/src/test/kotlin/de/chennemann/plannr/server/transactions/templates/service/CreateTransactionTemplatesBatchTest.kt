@@ -1,6 +1,14 @@
 package de.chennemann.plannr.server.transactions.templates.service
 
 import de.chennemann.plannr.server.common.error.ValidationException
+import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
+import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
+import de.chennemann.plannr.server.contracts.service.ContractService
+import de.chennemann.plannr.server.financialprofiles.api.dto.CreateFinancialProfileCommand
+import de.chennemann.plannr.server.financialprofiles.api.dto.FinancialProfile
+import de.chennemann.plannr.server.financialprofiles.api.dto.UpdateFinancialProfileCommand
+import de.chennemann.plannr.server.financialprofiles.service.FinancialProfileService
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializationOperation
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializedTransaction
 import de.chennemann.plannr.server.transactions.materialization.service.TransactionMaterializerService
@@ -17,6 +25,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 
 class CreateTransactionTemplatesBatchTest {
     @Test
@@ -27,6 +36,8 @@ class CreateTransactionTemplatesBatchTest {
         val service = TransactionTemplateServiceImpl(
             transactionTemplateRepository = repository,
             transactionMaterializerService = materializer,
+            financialProfileService = FakeFinancialProfileService(),
+            contractService = FakeContractService(),
             timeProvider = { CREATED_AT },
             projectionEventQueue = projectionQueue,
         )
@@ -50,6 +61,7 @@ class CreateTransactionTemplatesBatchTest {
         )
 
         assertEquals(listOf(799L, 2500L), created.map { it.amount })
+        assertEquals(listOf(1L, 1L), created.map { it.financialProfileId })
         assertEquals(listOf("MONTHLY", "YEARLY"), created.map { it.recurrencePattern.recurrenceType })
         assertEquals(listOf(1L, 2L), materializer.operations.map { it.transactionTemplate.id })
         assertEquals(
@@ -68,6 +80,8 @@ class CreateTransactionTemplatesBatchTest {
         val service = TransactionTemplateServiceImpl(
             transactionTemplateRepository = repository,
             transactionMaterializerService = RecordingTransactionMaterializerService(),
+            financialProfileService = FakeFinancialProfileService(),
+            contractService = FakeContractService(),
             timeProvider = { CREATED_AT },
         )
 
@@ -79,6 +93,52 @@ class CreateTransactionTemplatesBatchTest {
         assertEquals(0L, repository.count())
     }
 
+    @Test
+    fun `inherits and refreshes profile from linked contract`() = runTest {
+        val repository = InMemoryTransactionTemplateRepository()
+        val materializer = RecordingTransactionMaterializerService()
+        val contracts = mutableMapOf(
+            1L to contract(financialProfileId = 7L),
+        )
+        val service = TransactionTemplateServiceImpl(
+            transactionTemplateRepository = repository,
+            transactionMaterializerService = materializer,
+            financialProfileService = FakeFinancialProfileService(),
+            contractService = FakeContractService(contracts),
+            timeProvider = { CREATED_AT },
+        )
+
+        val created = service.create(
+            createCommand(
+                amount = 799,
+                firstOccurrenceDate = "2025-01-15",
+                recurrenceType = "MONTHLY",
+                daysOfMonth = listOf(15),
+            ),
+        )
+
+        assertEquals(7L, created.financialProfileId)
+
+        contracts[1L] = contract(financialProfileId = 8L)
+        service.refreshFinancialProfilesForPocket(1L)
+
+        assertEquals(8L, service.getById(created.id)?.financialProfileId)
+        assertEquals(2, materializer.operations.size)
+        assertIs<MaterializationOperation.FullRefresh>(materializer.operations.last())
+        assertEquals(8L, materializer.operations.last().transactionTemplate.financialProfileId)
+    }
+
+    private fun contract(financialProfileId: Long) =
+        Contract(
+            id = 1L,
+            pocketId = 1L,
+            financialProfileId = financialProfileId,
+            partnerId = null,
+            signingDate = null,
+            expirationDate = null,
+            lastCancellationDate = null,
+        )
+
     private fun createCommand(
         amount: Long,
         firstOccurrenceDate: String,
@@ -88,6 +148,7 @@ class CreateTransactionTemplatesBatchTest {
     ) = CreateTransactionTemplateCommand(
         sourcePocketId = 1L,
         destinationPocketId = null,
+        financialProfileId = null,
         partnerId = 2L,
         title = "Subscription",
         description = null,
@@ -108,6 +169,42 @@ class CreateTransactionTemplatesBatchTest {
     private companion object {
         const val CREATED_AT = 1_721_000_000_000L
     }
+}
+
+private class FakeFinancialProfileService : FinancialProfileService {
+    private val default = FinancialProfile(
+        id = 1L,
+        name = "Household",
+        description = null,
+        kind = "GROUP",
+        isDefault = true,
+        isFallback = true,
+        isArchived = false,
+        createdAt = 1L,
+    )
+
+    override suspend fun resolveForAssignment(id: Long?): FinancialProfile = default.copy(id = id ?: default.id)
+    override suspend fun getById(id: Long): FinancialProfile? = default.takeIf { it.id == id }
+    override suspend fun create(command: CreateFinancialProfileCommand): FinancialProfile = unsupported()
+    override suspend fun update(command: UpdateFinancialProfileCommand): FinancialProfile = unsupported()
+    override suspend fun makeDefault(id: Long): FinancialProfile = unsupported()
+    override suspend fun archive(id: Long): FinancialProfile = unsupported()
+    override suspend fun unarchive(id: Long): FinancialProfile = unsupported()
+    override suspend fun delete(id: Long) = unsupported<Unit>()
+    override suspend fun list(query: String?, archived: Boolean): List<FinancialProfile> = listOf(default)
+
+    private fun <T> unsupported(): T = throw UnsupportedOperationException("Not used")
+}
+
+private class FakeContractService(
+    private val contracts: Map<Long, Contract> = emptyMap(),
+) : ContractService {
+    override suspend fun getById(id: Long): Contract? = contracts[id]
+    override suspend fun create(command: CreateContractCommand): Contract = unsupported()
+    override suspend fun update(command: UpdateContractCommand): Contract = unsupported()
+    override suspend fun list(accountId: Long?, archived: Boolean): List<Contract> = contracts.values.toList()
+
+    private fun <T> unsupported(): T = throw UnsupportedOperationException("Not used")
 }
 
 private class RecordingTransactionMaterializerService : TransactionMaterializerService {
@@ -161,6 +258,12 @@ private class InMemoryTransactionTemplateRepository : TransactionTemplateReposit
     override fun findAllByIsArchivedOrderByCreatedAtAscIdAsc(isArchived: Boolean): Flow<TransactionTemplateModel> =
         templates.values
             .filter { it.isArchived == isArchived }
+            .sortedWith(compareBy<TransactionTemplateModel> { it.createdAt }.thenBy { it.id })
+            .asFlow()
+
+    override fun findAllByPocketId(pocketId: Long): Flow<TransactionTemplateModel> =
+        templates.values
+            .filter { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
             .sortedWith(compareBy<TransactionTemplateModel> { it.createdAt }.thenBy { it.id })
             .asFlow()
 

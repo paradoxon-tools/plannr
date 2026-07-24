@@ -11,10 +11,25 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, Long> {
     @Modifying
     @Query(
         """
-        INSERT INTO contracts (pocket_id, partner_id, signing_date, expiration_date, last_cancellation_date)
-        VALUES (:pocketId, :partnerId, :signingDate, :expirationDate, :lastCancellationDate)
+        INSERT INTO contracts (
+            pocket_id,
+            financial_profile_id,
+            partner_id,
+            signing_date,
+            expiration_date,
+            last_cancellation_date
+        )
+        VALUES (
+            :pocketId,
+            :financialProfileId,
+            :partnerId,
+            :signingDate,
+            :expirationDate,
+            :lastCancellationDate
+        )
         ON CONFLICT (pocket_id) DO UPDATE
-        SET partner_id = EXCLUDED.partner_id,
+        SET financial_profile_id = EXCLUDED.financial_profile_id,
+            partner_id = EXCLUDED.partner_id,
             signing_date = EXCLUDED.signing_date,
             expiration_date = EXCLUDED.expiration_date,
             last_cancellation_date = EXCLUDED.last_cancellation_date
@@ -22,6 +37,7 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, Long> {
     )
     suspend fun upsert(
         pocketId: Long,
+        financialProfileId: Long,
         partnerId: Long?,
         signingDate: String?,
         expirationDate: String?,
@@ -40,6 +56,7 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, Long> {
             p.is_contract_pocket,
             p.is_archived,
             p.created_at,
+            c.financial_profile_id,
             c.partner_id,
             c.signing_date,
             c.expiration_date,
@@ -65,6 +82,7 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, Long> {
             p.is_contract_pocket,
             p.is_archived,
             p.created_at,
+            c.financial_profile_id,
             c.partner_id,
             c.signing_date,
             c.expiration_date,
@@ -80,6 +98,7 @@ interface ContractRepository : CoroutineCrudRepository<ContractModel, Long> {
 suspend fun ContractRepository.upsert(model: ContractModel) {
     upsert(
         pocketId = model.pocketId,
+        financialProfileId = model.financialProfileId,
         partnerId = model.partnerId,
         signingDate = model.signingDate,
         expirationDate = model.expirationDate,

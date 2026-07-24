@@ -8,6 +8,7 @@ fun DomainTransactionTemplate.toDTO() = recurrencePattern.let { pattern ->
         id = id,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
+        financialProfileId = financialProfileId,
         partnerId = partnerId,
         title = title,
         description = description,

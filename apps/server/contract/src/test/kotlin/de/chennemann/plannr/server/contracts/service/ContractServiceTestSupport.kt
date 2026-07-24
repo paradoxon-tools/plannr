@@ -1,5 +1,9 @@
 package de.chennemann.plannr.server.contracts.service
 
+import de.chennemann.plannr.server.financialprofiles.api.dto.CreateFinancialProfileCommand
+import de.chennemann.plannr.server.financialprofiles.api.dto.FinancialProfile
+import de.chennemann.plannr.server.financialprofiles.api.dto.UpdateFinancialProfileCommand
+import de.chennemann.plannr.server.financialprofiles.service.FinancialProfileService
 import de.chennemann.plannr.server.partners.api.dto.CreatePartnerCommand
 import de.chennemann.plannr.server.partners.api.dto.Partner
 import de.chennemann.plannr.server.partners.api.dto.UpdatePartnerCommand
@@ -9,6 +13,10 @@ import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.CreatePocketForContractCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
+import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
+import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 
 object ContractTestPartners {
     fun partner(
@@ -19,6 +27,33 @@ object ContractTestPartners {
         createdAt: Long = 1_710_000_200L,
     ): Partner =
         Partner(id, name, description, isArchived, createdAt)
+}
+
+class FakeFinancialProfileService(
+    private val profile: FinancialProfile = FinancialProfile(
+        id = 1L,
+        name = "Household",
+        description = null,
+        kind = "GROUP",
+        isDefault = true,
+        isFallback = true,
+        isArchived = false,
+        createdAt = 1_710_000_000L,
+    ),
+) : FinancialProfileService {
+    override suspend fun resolveForAssignment(id: Long?): FinancialProfile =
+        profile.copy(id = id ?: profile.id)
+
+    override suspend fun getById(id: Long): FinancialProfile? = profile.takeIf { it.id == id }
+    override suspend fun create(command: CreateFinancialProfileCommand): FinancialProfile = unsupported()
+    override suspend fun update(command: UpdateFinancialProfileCommand): FinancialProfile = unsupported()
+    override suspend fun makeDefault(id: Long): FinancialProfile = unsupported()
+    override suspend fun archive(id: Long): FinancialProfile = unsupported()
+    override suspend fun unarchive(id: Long): FinancialProfile = unsupported()
+    override suspend fun delete(id: Long) = unsupported<Unit>()
+    override suspend fun list(query: String?, archived: Boolean): List<FinancialProfile> = listOf(profile)
+
+    private fun <T> unsupported(): T = throw UnsupportedOperationException("Not used")
 }
 
 class FakePartnerService(
@@ -33,6 +68,27 @@ class FakePartnerService(
     override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun list(query: String?, archived: Boolean): List<Partner> = partners.values.toList()
     override suspend fun getById(id: Long): Partner? = partners[id]
+}
+
+class FakeTransactionTemplateService : TransactionTemplateService {
+    val refreshedPocketIds = mutableListOf<Long>()
+
+    override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) {
+        refreshedPocketIds += pocketId
+    }
+
+    override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate = unsupported()
+    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>): List<TransactionTemplate> = unsupported()
+    override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate = unsupported()
+    override suspend fun archive(id: Long): TransactionTemplate = unsupported()
+    override suspend fun unarchive(id: Long): TransactionTemplate = unsupported()
+    override suspend fun archiveForPocket(pocketId: Long) = unsupported<Unit>()
+    override suspend fun unarchiveForPocket(pocketId: Long) = unsupported<Unit>()
+    override suspend fun delete(id: Long) = unsupported<Unit>()
+    override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
+    override suspend fun getById(id: Long): TransactionTemplate? = null
+
+    private fun <T> unsupported(): T = throw UnsupportedOperationException("Not used")
 }
 
 class FakePocketService(

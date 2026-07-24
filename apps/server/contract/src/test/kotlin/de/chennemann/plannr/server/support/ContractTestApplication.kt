@@ -1,9 +1,13 @@
 package de.chennemann.plannr.server.support
 
 import de.chennemann.plannr.server.contracts.service.FakePartnerService
+import de.chennemann.plannr.server.contracts.service.FakeFinancialProfileService
 import de.chennemann.plannr.server.contracts.service.FakePocketService
+import de.chennemann.plannr.server.contracts.service.FakeTransactionTemplateService
+import de.chennemann.plannr.server.financialprofiles.service.FinancialProfileService
 import de.chennemann.plannr.server.partners.service.PartnerService
 import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
@@ -12,10 +16,18 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
 @EnableR2dbcRepositories(basePackages = ["de.chennemann.plannr.server.contracts"])
 class ContractTestApplication {
     @Bean
+    fun financialProfileService(): FinancialProfileService =
+        FakeFinancialProfileService()
+
+    @Bean
     fun partnerService(): PartnerService =
         FakePartnerService(emptyList())
 
     @Bean
     fun pocketService(): PocketService =
         FakePocketService()
+
+    @Bean
+    fun transactionTemplateService(): TransactionTemplateService =
+        FakeTransactionTemplateService()
 }

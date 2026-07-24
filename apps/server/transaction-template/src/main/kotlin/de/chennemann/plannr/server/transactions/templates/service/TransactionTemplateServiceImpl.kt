@@ -3,6 +3,8 @@ package de.chennemann.plannr.server.transactions.templates.service
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.TimeProvider
+import de.chennemann.plannr.server.contracts.service.ContractService
+import de.chennemann.plannr.server.financialprofiles.service.FinancialProfileService
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializationOperation
@@ -25,16 +27,24 @@ import org.springframework.transaction.annotation.Transactional
 internal class TransactionTemplateServiceImpl(
     private val transactionTemplateRepository: TransactionTemplateRepository,
     private val transactionMaterializerService: TransactionMaterializerService,
+    private val financialProfileService: FinancialProfileService,
+    private val contractService: ContractService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
     private val upcomingTransactionCache: UpcomingTransactionCache? = null,
 ) : TransactionTemplateService {
     override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate {
+        val financialProfileId = resolveFinancialProfileId(
+            sourcePocketId = command.sourcePocketId,
+            destinationPocketId = command.destinationPocketId,
+            requestedProfileId = command.financialProfileId,
+        )
         val created = transactionTemplateRepository.save(
             TransactionTemplateModel(
                 id = null,
                 sourcePocketId = command.sourcePocketId,
                 destinationPocketId = command.destinationPocketId,
+                financialProfileId = financialProfileId,
                 partnerId = command.partnerId,
                 title = command.title,
                 description = command.description,
@@ -73,10 +83,16 @@ internal class TransactionTemplateServiceImpl(
 
     override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate {
         val existing = existingTransactionTemplate(command.id)
+        val financialProfileId = resolveFinancialProfileId(
+            sourcePocketId = command.sourcePocketId,
+            destinationPocketId = command.destinationPocketId,
+            requestedProfileId = command.financialProfileId,
+        )
         val updated = transactionTemplateRepository.save(
             existing.copy(
                 sourcePocketId = command.sourcePocketId,
                 destinationPocketId = command.destinationPocketId,
+                financialProfileId = financialProfileId,
                 partnerId = command.partnerId,
                 title = command.title,
                 description = command.description,
@@ -147,6 +163,29 @@ internal class TransactionTemplateServiceImpl(
             }
     }
 
+    override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) {
+        transactionTemplateRepository.findAllByPocketId(pocketId)
+            .toList()
+            .map(TransactionTemplateModel::toDTO)
+            .forEach { existing ->
+                val financialProfileId = resolveFinancialProfileId(
+                    sourcePocketId = existing.sourcePocketId,
+                    destinationPocketId = existing.destinationPocketId,
+                    requestedProfileId = existing.financialProfileId,
+                )
+                if (financialProfileId != existing.financialProfileId) {
+                    val updated = transactionTemplateRepository.save(existing.copy(financialProfileId = financialProfileId))
+                    transactionMaterializerService.materialize(MaterializationOperation.FullRefresh(updated))
+                    if (updated.isArchived) {
+                        upcomingTransactionCache?.invalidate(updated.id)
+                    } else {
+                        upcomingTransactionCache?.refresh(updated)
+                    }
+                    enqueueProjectionChange(updated.id)
+                }
+            }
+    }
+
     override suspend fun delete(id: Long) {
         existingTransactionTemplate(id)
         transactionTemplateRepository.deleteById(id)
@@ -173,6 +212,17 @@ internal class TransactionTemplateServiceImpl(
                 message = "Transaction template not found",
                 details = mapOf("id" to id),
             )
+
+    private suspend fun resolveFinancialProfileId(
+        sourcePocketId: Long?,
+        destinationPocketId: Long?,
+        requestedProfileId: Long?,
+    ): Long {
+        val contractProfileId = sourcePocketId
+            ?.let { contractService.getById(it)?.financialProfileId }
+            ?: destinationPocketId?.let { contractService.getById(it)?.financialProfileId }
+        return financialProfileService.resolveForAssignment(contractProfileId ?: requestedProfileId).id
+    }
 
     private suspend fun enqueueProjectionChange(id: Long) {
         projectionEventQueue?.enqueue(
@@ -203,6 +253,7 @@ private fun TransactionTemplate.sameScheduleExceptEndDate(other: TransactionTemp
         transactionType == other.transactionType &&
         sourcePocketId == other.sourcePocketId &&
         destinationPocketId == other.destinationPocketId &&
+        financialProfileId == other.financialProfileId &&
         partnerId == other.partnerId &&
         title == other.title &&
         description == other.description &&
@@ -215,6 +266,7 @@ private fun TransactionTemplate.requiresFullRefresh(other: TransactionTemplate):
         transactionType != other.transactionType ||
         sourcePocketId != other.sourcePocketId ||
         destinationPocketId != other.destinationPocketId ||
+        financialProfileId != other.financialProfileId ||
         partnerId != other.partnerId ||
         title != other.title ||
         description != other.description
