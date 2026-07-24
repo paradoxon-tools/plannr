@@ -18,6 +18,8 @@ data class ContractPocketRow(
     val isArchived: Boolean,
     @Column("created_at")
     val createdAt: Long,
+    @Column("financial_profile_id")
+    val financialProfileId: Long,
     @Column("partner_id")
     val partnerId: Long?,
     @Column("signing_date")
@@ -32,6 +34,7 @@ fun ContractPocketRow.toDTO(): Contract =
     Contract(
         id = id,
         pocketId = id,
+        financialProfileId = financialProfileId,
         partnerId = partnerId,
         signingDate = signingDate,
         expirationDate = expirationDate,

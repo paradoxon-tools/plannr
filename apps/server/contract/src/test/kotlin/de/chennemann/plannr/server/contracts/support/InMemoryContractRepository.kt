@@ -23,12 +23,20 @@ class InMemoryContractRepository(
 
     override suspend fun upsert(
         pocketId: Long,
+        financialProfileId: Long,
         partnerId: Long?,
         signingDate: String?,
         expirationDate: String?,
         lastCancellationDate: String?,
     ): Int {
-        contracts[pocketId] = ContractModel(pocketId, partnerId, signingDate, expirationDate, lastCancellationDate)
+        contracts[pocketId] = ContractModel(
+            pocketId,
+            financialProfileId,
+            partnerId,
+            signingDate,
+            expirationDate,
+            lastCancellationDate,
+        )
         return 1
     }
 
@@ -58,6 +66,7 @@ class InMemoryContractRepository(
             isContractPocket = pocket.isContractPocket,
             isArchived = pocket.isArchived,
             createdAt = pocket.createdAt,
+            financialProfileId = contract.financialProfileId,
             partnerId = contract.partnerId,
             signingDate = contract.signingDate,
             expirationDate = contract.expirationDate,

@@ -17,6 +17,8 @@ data class MaterializedTransactionModel(
     val sourcePocketId: Long?,
     @Column("destination_pocket_id")
     val destinationPocketId: Long?,
+    @Column("financial_profile_id")
+    val financialProfileId: Long,
     @Column("partner_id")
     val partnerId: Long?,
     val title: String,
@@ -37,6 +39,7 @@ fun MaterializedTransactionModel.toDomain(): MaterializedTransaction =
         transactionDate = transactionDate,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
+        financialProfileId = financialProfileId,
         partnerId = partnerId,
         title = title,
         description = description,

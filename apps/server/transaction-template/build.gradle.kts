@@ -4,6 +4,10 @@ plugins {
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":contract-api"))
+    implementation(project(":contract-shared"))
+    implementation(project(":financial-profile-api"))
+    implementation(project(":financial-profile-shared"))
     implementation(project(":transaction-materialization-shared"))
     implementation(project(":transaction-projection-shared"))
     implementation(project(":transaction-template-api"))

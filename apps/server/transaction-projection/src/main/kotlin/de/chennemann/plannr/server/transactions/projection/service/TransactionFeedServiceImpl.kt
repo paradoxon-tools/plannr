@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.transactions.projection.service
 
 import de.chennemann.plannr.server.common.error.ValidationException
+import de.chennemann.plannr.server.transactions.projection.api.dto.TransactionFeedFinancialProfileReference
 import de.chennemann.plannr.server.transactions.projection.api.dto.TransactionFeedItem
 import de.chennemann.plannr.server.transactions.projection.api.dto.TransactionFeedReference
 import de.chennemann.plannr.server.transactions.projection.api.dto.TransactionFeedResponse
@@ -113,11 +114,19 @@ internal class TransactionFeedServiceImpl(
             transactionAmount = requiredLong("transaction_amount"),
             signedAmount = requiredLong("signed_amount"),
             balanceAfter = requiredLong("balance_after"),
+            financialProfile = financialProfileReference(),
             partner = reference("partner_id", "partner_name"),
             sourcePocket = reference("source_pocket_id", "source_pocket_name", "source_pocket_color"),
             destinationPocket = reference("destination_pocket_id", "destination_pocket_name", "destination_pocket_color"),
             transferPocket = reference("transfer_pocket_id", "transfer_pocket_name", "transfer_pocket_color"),
             isArchived = get("is_archived", java.lang.Boolean::class.java)?.booleanValue() ?: false,
+        )
+
+    private fun io.r2dbc.spi.Row.financialProfileReference(): TransactionFeedFinancialProfileReference =
+        TransactionFeedFinancialProfileReference(
+            id = requiredLong("financial_profile_id"),
+            name = requiredString("financial_profile_name"),
+            kind = requiredString("financial_profile_kind"),
         )
 
     private fun io.r2dbc.spi.Row.reference(
@@ -152,6 +161,9 @@ internal class TransactionFeedServiceImpl(
             transaction_amount,
             signed_amount,
             balance_after,
+            financial_profile_id,
+            financial_profile_name,
+            financial_profile_kind,
             partner_id,
             partner_name,
             source_pocket_id,
@@ -177,6 +189,9 @@ internal class TransactionFeedServiceImpl(
             transaction_amount,
             signed_amount,
             balance_after,
+            financial_profile_id,
+            financial_profile_name,
+            financial_profile_kind,
             partner_id,
             partner_name,
             NULL::BIGINT AS source_pocket_id,

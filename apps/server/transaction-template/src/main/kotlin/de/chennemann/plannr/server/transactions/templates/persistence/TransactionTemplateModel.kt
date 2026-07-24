@@ -14,6 +14,8 @@ data class TransactionTemplateModel(
     val sourcePocketId: Long?,
     @Column("destination_pocket_id")
     val destinationPocketId: Long?,
+    @Column("financial_profile_id")
+    val financialProfileId: Long,
     @Column("partner_id")
     val partnerId: Long?,
     val title: String,
@@ -52,6 +54,7 @@ fun TransactionTemplateModel.toDTO(): TransactionTemplate =
         id = requireNotNull(id) { "TransactionTemplateModel.id must not be null when mapping to domain" },
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
+        financialProfileId = financialProfileId,
         partnerId = partnerId,
         title = title,
         description = description,
@@ -78,6 +81,7 @@ fun TransactionTemplate.toModel(): TransactionTemplateModel =
         id = id,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
+        financialProfileId = financialProfileId,
         partnerId = partnerId,
         title = title,
         description = description,

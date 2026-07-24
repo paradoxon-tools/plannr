@@ -18,11 +18,18 @@ data class TransactionFeedItem(
     val transactionAmount: Long,
     val signedAmount: Long,
     val balanceAfter: Long,
+    val financialProfile: TransactionFeedFinancialProfileReference,
     val partner: TransactionFeedReference?,
     val sourcePocket: TransactionFeedReference?,
     val destinationPocket: TransactionFeedReference?,
     val transferPocket: TransactionFeedReference?,
     val isArchived: Boolean,
+)
+
+data class TransactionFeedFinancialProfileReference(
+    val id: Long,
+    val name: String,
+    val kind: String,
 )
 
 data class TransactionFeedReference(

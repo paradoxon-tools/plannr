@@ -37,6 +37,7 @@ class TransactionMaterializerServiceImplTest {
             listOf("2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23"),
             result.map(MaterializedTransaction::transactionDate),
         )
+        assertEquals(List(result.size) { 1L }, result.map(MaterializedTransaction::financialProfileId))
         assertTrue(result.none { LocalDate.parse(it.transactionDate).isAfter(LocalDate.parse("2026-07-23")) })
     }
 
@@ -61,6 +62,7 @@ class TransactionMaterializerServiceImplTest {
         )
 
         assertEquals(listOf("2026-07-23"), result.map(MaterializedTransaction::transactionDate))
+        assertEquals(listOf(1L), result.map(MaterializedTransaction::financialProfileId))
     }
 
     private fun transactionTemplate(
@@ -70,6 +72,7 @@ class TransactionMaterializerServiceImplTest {
         id = TEMPLATE_ID,
         sourcePocketId = 10L,
         destinationPocketId = null,
+        financialProfileId = 1L,
         partnerId = null,
         title = "Test",
         description = null,
@@ -100,6 +103,7 @@ class TransactionMaterializerServiceImplTest {
         transactionDate = date,
         sourcePocketId = 10L,
         destinationPocketId = null,
+        financialProfileId = 1L,
         partnerId = null,
         title = "Test",
         description = null,

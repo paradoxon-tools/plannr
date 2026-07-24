@@ -6,6 +6,7 @@ data class MaterializedTransaction(
     val transactionDate: String,
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,
+    val financialProfileId: Long,
     val partnerId: Long?,
     val title: String,
     val description: String?,

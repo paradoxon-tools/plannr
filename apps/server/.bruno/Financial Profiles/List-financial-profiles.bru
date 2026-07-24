@@ -1,0 +1,20 @@
+meta {
+  name: List financial profiles
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/financial-profiles
+  body: none
+  auth: none
+}
+
+params:query {
+  query: Household
+  archived: false
+}
+
+headers {
+  Accept: application/json
+}
