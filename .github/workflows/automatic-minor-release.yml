@@ -1,0 +1,67 @@
+name: Publish automatic minor release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: master-release-versioning
+  cancel-in-progress: false
+
+jobs:
+  create-minor-tag:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      ref: ${{ steps.version.outputs.ref }}
+      publish: ${{ steps.version.outputs.publish }}
+
+    steps:
+      - name: Check out master with all release tags
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Determine and create the next minor tag
+        id: version
+        shell: bash
+        run: |
+          latest_tag=$(git tag -l 'v*.*' --sort=-v:refname | grep -E '^v[1-9][0-9]*\.[0-9]+$' | head -n 1 || true)
+          if [ -z "$latest_tag" ]; then
+            echo "No release tag exists. Awaiting a manually pushed initial major tag (for example v1.0) for this master commit."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          major=${latest_tag#v}
+          major=${major%%.*}
+          minor=${latest_tag##*.}
+          next_tag="v${major}.$((minor + 1))"
+          release_commit=$(git rev-parse HEAD)
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$next_tag" "$release_commit"
+          git push origin "refs/tags/$next_tag"
+
+          echo "tag=$next_tag" >> "$GITHUB_OUTPUT"
+          echo "ref=$release_commit" >> "$GITHUB_OUTPUT"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: create-minor-tag
+    if: needs.create-minor-tag.outputs.publish == 'true'
+    uses: ./.github/workflows/publish-release.yml
+    with:
+      tag: ${{ needs.create-minor-tag.outputs.tag }}
+      ref: ${{ needs.create-minor-tag.outputs.ref }}
+    permissions:
+      contents: write
+      packages: write
