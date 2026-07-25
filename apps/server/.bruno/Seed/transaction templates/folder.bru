@@ -1,6 +1,6 @@
 meta {
   name: transaction templates
-  seq: 3
+  seq: 5
 }
 
 script:pre-request {
@@ -9,9 +9,13 @@ script:pre-request {
     const contractName = bru.getRequestVar("contractName");
     const partnerName = bru.getRequestVar("partnerName");
   
-    const incomeBucket = "Income Bucket";
-    const insuranceAndContracts = "Insurance & Contracts";
-    const rentAndAppliances = "Rent & Appliances";
+    const incomeBucketAccountId = requiredAccountId("income_bucket");
+    const insuranceAndContractsAccountId = requiredAccountId(
+      "insurance_and_contracts"
+    );
+    const rentAndAppliancesAccountId = requiredAccountId(
+      "rent_and_appliances"
+    );
   
     function send(options) {
       return new Promise((resolve, reject) => {
@@ -49,14 +53,25 @@ script:pre-request {
       return entity;
     }
   
-    function findDefaultPocket(account, pockets) {
+    function requiredAccountId(variableName) {
+      const value = bru.getVar(variableName);
+      const accountId = Number(value);
+
+      if (!Number.isSafeInteger(accountId)) {
+        throw new Error(`Missing or invalid account variable '${variableName}'`);
+      }
+
+      return accountId;
+    }
+
+    function findDefaultPocket(accountId, accountName, pockets) {
       const pocket = pockets.find(
-        (item) => item.accountId === account.id && item.isDefault === true
+        (item) => item.accountId === accountId && item.isDefault === true
       );
   
       if (!pocket) {
         throw new Error(
-          `No default pocket found for account '${account.name}'`
+          `No default pocket found for account '${accountName}'`
         );
       }
   
@@ -80,16 +95,10 @@ script:pre-request {
     };
   
     const [
-      accountsResponse,
       pocketsResponse,
       contractsResponse,
       partnersResponse
     ] = await Promise.all([
-      send({
-        method: "GET",
-        url: `${baseUrl}/accounts?archived=false`,
-        headers: requestHeaders
-      }),
       send({
         method: "GET",
         url: `${baseUrl}/pockets?archived=false`,
@@ -107,7 +116,6 @@ script:pre-request {
       })
     ]);
   
-    const accounts = responseData(accountsResponse, "accounts");
     const pockets = responseData(pocketsResponse, "pockets");
     const contracts = responseData(contractsResponse, "contracts");
     const partners = responseData(partnersResponse, "partners");
@@ -130,36 +138,21 @@ script:pre-request {
   
     const partner = findByName(partners, partnerName, "partner");
   
-    const incomeBucketAccount = findByName(
-      accounts,
-      incomeBucket,
-      "account"
-    );
-  
-    const insuranceAndContractsAccount = findByName(
-      accounts,
-      insuranceAndContracts,
-      "account"
-    );
-  
-    const rentAndAppliancesAccount = findByName(
-      accounts,
-      rentAndAppliances,
-      "account"
-    );
-  
     const incomeBucketPocket = findDefaultPocket(
-      incomeBucketAccount,
+      incomeBucketAccountId,
+      "Income Bucket",
       pockets
     );
   
     const insuranceAndContractsPocket = findDefaultPocket(
-      insuranceAndContractsAccount,
+      insuranceAndContractsAccountId,
+      "Insurance & Contracts",
       pockets
     );
   
     const rentAndAppliancesPocket = findDefaultPocket(
-      rentAndAppliancesAccount,
+      rentAndAppliancesAccountId,
+      "Rent & Appliances",
       pockets
     );
   

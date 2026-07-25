@@ -2,3 +2,184 @@ meta {
   name: Seed
   seq: 9
 }
+
+script:pre-request {
+  const baseUrl = bru.getEnvVar("baseUrl") || bru.getVar("baseUrl");
+
+  if (!baseUrl) {
+    throw new Error("Missing 'baseUrl'");
+  }
+
+  function send(options) {
+    return new Promise((resolve, reject) => {
+      bru.sendRequest(options, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(response);
+      });
+    });
+  }
+
+  function responseData(response, entityType) {
+    const body = response.data ?? response.body;
+    const data = typeof body === "string" ? JSON.parse(body) : body;
+
+    if (!Array.isArray(data)) {
+      throw new Error(`Expected the ${entityType} response to be an array`);
+    }
+
+    return data;
+  }
+
+  function normalizedName(name, entityType) {
+    const normalized = name
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+
+    if (!normalized) {
+      throw new Error(
+        `Cannot create a ${entityType} variable from name '${name}'`
+      );
+    }
+
+    return normalized;
+  }
+
+  function setEntityVariables(entities, entityType, prefix, variableNames) {
+    for (const entity of entities) {
+      const variableName = `${prefix}${normalizedName(entity.name, entityType)}`;
+
+      if (variableNames.has(variableName)) {
+        throw new Error(
+          `Multiple ${entityType} normalize to the variable '${variableName}'`
+        );
+      }
+
+      variableNames.add(variableName);
+      bru.setVar(variableName, entity.id);
+    }
+  }
+
+  function setPocketVariables(pockets, accounts, contracts, variableNames) {
+    const accountsById = new Map(accounts.map((account) => [account.id, account]));
+    const contractsById = new Map(contracts.map((contract) => [contract.id, contract]));
+
+    for (const pocket of pockets) {
+      let variableName;
+
+      if (pocket.contractId) {
+        const contract = contractsById.get(pocket.contractId);
+        if (!contract) {
+          throw new Error(`No contract found for pocket '${pocket.id}'`);
+        }
+        variableName = `contract_pocket_${normalizedName(contract.name, "contract")}`;
+      } else if (pocket.isDefault) {
+        const account = accountsById.get(pocket.accountId);
+        if (!account) {
+          throw new Error(`No account found for pocket '${pocket.id}'`);
+        }
+        variableName = `pocket_${normalizedName(account.name, "account")}`;
+      } else {
+        continue;
+      }
+
+      if (variableNames.has(variableName)) {
+        throw new Error(`Multiple pockets map to '${variableName}'`);
+      }
+      variableNames.add(variableName);
+      bru.setVar(variableName, pocket.id);
+    }
+  }
+
+  const requestHeaders = { Accept: "application/json" };
+  const [
+    activeAccountsResponse,
+    archivedAccountsResponse,
+    activeFinancialProfilesResponse,
+    archivedFinancialProfilesResponse,
+    activePartnersResponse,
+    archivedPartnersResponse,
+    activeContractsResponse,
+    archivedContractsResponse,
+    activePocketsResponse,
+    archivedPocketsResponse
+  ] = await Promise.all([
+    send({
+      method: "GET",
+      url: `${baseUrl}/accounts?archived=false`,
+      headers: requestHeaders
+    }),
+    send({
+      method: "GET",
+      url: `${baseUrl}/accounts?archived=true`,
+      headers: requestHeaders
+    }),
+    send({
+      method: "GET",
+      url: `${baseUrl}/financial-profiles?archived=false`,
+      headers: requestHeaders
+    }),
+    send({
+      method: "GET",
+      url: `${baseUrl}/financial-profiles?archived=true`,
+      headers: requestHeaders
+    }),
+    send({ method: "GET", url: `${baseUrl}/partners?archived=false`, headers: requestHeaders }),
+    send({ method: "GET", url: `${baseUrl}/partners?archived=true`, headers: requestHeaders }),
+    send({ method: "GET", url: `${baseUrl}/contracts?archived=false`, headers: requestHeaders }),
+    send({ method: "GET", url: `${baseUrl}/contracts?archived=true`, headers: requestHeaders }),
+    send({ method: "GET", url: `${baseUrl}/pockets?archived=false`, headers: requestHeaders }),
+    send({ method: "GET", url: `${baseUrl}/pockets?archived=true`, headers: requestHeaders })
+  ]);
+
+  const accounts = [
+    ...responseData(activeAccountsResponse, "accounts"),
+    ...responseData(archivedAccountsResponse, "accounts")
+  ];
+  const variableNames = new Set();
+  setEntityVariables(accounts, "accounts", "", variableNames);
+
+  const financialProfiles = [
+    ...responseData(activeFinancialProfilesResponse, "financial profiles"),
+    ...responseData(archivedFinancialProfilesResponse, "financial profiles")
+  ];
+  setEntityVariables(
+    financialProfiles,
+    "financial profiles", "",
+    variableNames
+  );
+
+  const partners = [
+    ...responseData(activePartnersResponse, "partners"),
+    ...responseData(archivedPartnersResponse, "partners")
+  ];
+  setEntityVariables(partners, "partners", "partner_", variableNames);
+
+  const contracts = [
+    ...responseData(activeContractsResponse, "contracts"),
+    ...responseData(archivedContractsResponse, "contracts")
+  ];
+  setEntityVariables(contracts, "contracts", "contract_", variableNames);
+
+  const pockets = [
+    ...responseData(activePocketsResponse, "pockets"),
+    ...responseData(archivedPocketsResponse, "pockets")
+  ];
+  setPocketVariables(pockets, accounts, contracts, variableNames);
+
+  const unassignedProfile = financialProfiles.find(
+    (profile) => profile.name === "Unassigned" && profile.isDefault
+  );
+
+  if (!unassignedProfile) {
+    throw new Error("Missing the default 'Unassigned' financial profile");
+  }
+
+  bru.setVar("unassigned", unassignedProfile.id);
+}
