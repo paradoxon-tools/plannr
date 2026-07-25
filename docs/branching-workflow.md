@@ -26,9 +26,20 @@ At a chosen release point, ensure `develop` is current and open a pull request
 from `develop` to `master`. GitHub requires that exact source branch and that
 the pull request is up to date with `master`. Use **Rebase and merge**.
 
-After it is merged, create the version tag and GitHub Release from the new
-`master` commit. That tag is the immutable release point; no release branch is
-needed or allowed to merge into `master`.
+After it is merged, GitHub creates the next minor version automatically. Release
+tags use `v<major>.<minor>` (for example, `v1.4`): the action finds the highest
+existing release tag for the current major, increments its minor component, and
+publishes the GitHub Release from the new `master` commit. The release includes
+generated notes, a directly linked mobile APK, and a link to the versioned
+server image on GHCR.
+
+The first release and every major version are deliberate, manual operations.
+After merging the release PR, tag that exact `master` commit as `v<major>.0`
+(for example, `v1.0` or `v2.0`) and push the tag. The manual-tag workflow
+publishes the release and its artifacts. Subsequent `develop` to `master`
+promotions then increment that major's minor version automatically.
+
+No release branch is needed or allowed to merge into `master`.
 
 ## Guardrails
 

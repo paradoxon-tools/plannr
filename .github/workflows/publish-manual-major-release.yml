@@ -1,0 +1,30 @@
+name: Publish manually tagged major release
+
+on:
+  push:
+    tags:
+      - 'v*.*'
+
+jobs:
+  validate-major-tag:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a manually selected major version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[1-9][0-9]*\.0$ ]]; then
+            echo "Manual release tags must be major baselines in v<major>.0 format; received: $TAG"
+            exit 1
+          fi
+
+  publish:
+    needs: validate-major-tag
+    uses: ./.github/workflows/publish-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      ref: ${{ github.sha }}
+    permissions:
+      contents: write
+      packages: write
