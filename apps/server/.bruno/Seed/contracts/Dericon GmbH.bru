@@ -21,16 +21,11 @@ body:json {
     "description": null,
     "color": 2733171,
     "type": "ACCUMULATING",
-    "accountIds": ["{{seedAccountId}}"],
-    "financialProfileId": null,
-    "partnerId": "{{seedPartnerId}}",
+    "accountIds": ["{{income_bucket}}"],
+    "financialProfileId": "{{unassigned}}",
+    "partnerId": "{{partner_dericon_gmbh}}",
     "signingDate": null,
     "expirationDate": null,
     "lastCancellationDate": null
   }
-}
-
-vars:pre-request {
-  accountName: Income Bucket
-  partnerName: Dericon GmbH
 }

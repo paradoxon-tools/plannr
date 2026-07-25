@@ -1,21 +1,22 @@
 meta {
   name: Get upcoming contract transactions
   type: http
+  seq: 1
 }
 
 get {
-  url: {{baseUrl}}/contracts/:contractId/upcoming-transactions
+  url: {{baseUrl}}/contracts/:contractId/upcoming-transactions?after=2026-06-09&count=20
   body: none
   auth: none
 }
 
-params:path {
-  contractId: 1
+params:query {
+  after: 2026-06-09
+  count: 20
 }
 
-params:query {
-  after: 2026-07-24
-  count: 20
+params:path {
+  contractId: 21
 }
 
 headers {

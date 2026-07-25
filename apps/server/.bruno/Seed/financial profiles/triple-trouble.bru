@@ -1,0 +1,23 @@
+meta {
+  name: triple trouble
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/financial-profiles
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "triple trouble",
+    "description": null
+  }
+}
