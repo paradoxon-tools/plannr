@@ -5,6 +5,5 @@ interface FinancialProfileUsageRepository {
         sourceProfileId: Long,
         fallbackProfileId: Long,
         fallbackProfileName: String,
-        fallbackProfileKind: String,
     )
 }

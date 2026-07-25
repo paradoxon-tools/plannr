@@ -19,19 +19,17 @@ import kotlin.test.assertTrue
 
 class FinancialProfileServiceImplTest {
     @Test
-    fun `creates normalized person profile`() = runTest {
+    fun `creates normalized profile`() = runTest {
         val service = service()
 
         val created = service.create(
             CreateFinancialProfileCommand(
                 name = "  Alice  ",
                 description = "Child",
-                kind = " person ",
             ),
         )
 
         assertEquals("Alice", created.name)
-        assertEquals("PERSON", created.kind)
         assertFalse(created.isDefault)
         assertFalse(created.isFallback)
         assertFalse(created.isArchived)
@@ -40,10 +38,10 @@ class FinancialProfileServiceImplTest {
     @Test
     fun `rejects duplicate names ignoring case and whitespace`() = runTest {
         val service = service()
-        service.create(CreateFinancialProfileCommand("Alice", null, "PERSON"))
+        service.create(CreateFinancialProfileCommand("Alice", null))
 
         assertFailsWith<ConflictException> {
-            service.create(CreateFinancialProfileCommand(" alice ", null, "GROUP"))
+            service.create(CreateFinancialProfileCommand(" alice ", null))
         }
     }
 
@@ -52,17 +50,14 @@ class FinancialProfileServiceImplTest {
         val service = service()
 
         assertFailsWith<ValidationException> {
-            service.create(CreateFinancialProfileCommand(" ", null, "PERSON"))
-        }
-        assertFailsWith<ValidationException> {
-            service.create(CreateFinancialProfileCommand("Alice", null, "FAMILY"))
+            service.create(CreateFinancialProfileCommand(" ", null))
         }
     }
 
     @Test
     fun `resolves null assignment to default and explicit active profile`() = runTest {
         val service = service()
-        val alice = service.create(CreateFinancialProfileCommand("Alice", null, "PERSON"))
+        val alice = service.create(CreateFinancialProfileCommand("Alice", null))
 
         assertEquals(DEFAULT_ID, service.resolveForAssignment(null).id)
         assertEquals(alice.id, service.resolveForAssignment(alice.id).id)
@@ -72,7 +67,7 @@ class FinancialProfileServiceImplTest {
     fun `deleting selected default restores fallback as default`() = runTest {
         val usage = InMemoryFinancialProfileUsageRepository()
         val service = service(usage)
-        val household = service.create(CreateFinancialProfileCommand("Household", null, "GROUP"))
+        val household = service.create(CreateFinancialProfileCommand("Household", null))
 
         val selected = service.makeDefault(household.id)
 
@@ -91,7 +86,7 @@ class FinancialProfileServiceImplTest {
     @Test
     fun `archived profile remains readable but cannot be assigned`() = runTest {
         val service = service()
-        val alice = service.create(CreateFinancialProfileCommand("Alice", null, "PERSON"))
+        val alice = service.create(CreateFinancialProfileCommand("Alice", null))
 
         val archived = service.archive(alice.id)
 
@@ -105,7 +100,7 @@ class FinancialProfileServiceImplTest {
     fun `deleting profile reassigns references to fallback`() = runTest {
         val usage = InMemoryFinancialProfileUsageRepository()
         val service = service(usage)
-        val alice = service.create(CreateFinancialProfileCommand("Alice", null, "PERSON"))
+        val alice = service.create(CreateFinancialProfileCommand("Alice", null))
 
         service.delete(alice.id)
 
@@ -115,7 +110,6 @@ class FinancialProfileServiceImplTest {
                 sourceProfileId = alice.id,
                 fallbackProfileId = DEFAULT_ID,
                 fallbackProfileName = "Unassigned",
-                fallbackProfileKind = "GROUP",
             ),
             usage.reassignments.single(),
         )
@@ -131,7 +125,6 @@ class FinancialProfileServiceImplTest {
                     id = DEFAULT_ID,
                     name = "Household",
                     description = null,
-                    kind = "GROUP",
                 ),
             )
         }
@@ -161,13 +154,11 @@ private class InMemoryFinancialProfileUsageRepository : FinancialProfileUsageRep
         sourceProfileId: Long,
         fallbackProfileId: Long,
         fallbackProfileName: String,
-        fallbackProfileKind: String,
     ) {
         reassignments += ProfileReassignment(
             sourceProfileId,
             fallbackProfileId,
             fallbackProfileName,
-            fallbackProfileKind,
         )
     }
 }
@@ -176,7 +167,6 @@ private data class ProfileReassignment(
     val sourceProfileId: Long,
     val fallbackProfileId: Long,
     val fallbackProfileName: String,
-    val fallbackProfileKind: String,
 )
 
 private class InMemoryFinancialProfileRepository : FinancialProfileRepository {
@@ -185,7 +175,6 @@ private class InMemoryFinancialProfileRepository : FinancialProfileRepository {
             id = 1L,
             name = "Unassigned",
             description = null,
-            kind = "GROUP",
             isDefault = true,
             isFallback = true,
             isArchived = false,

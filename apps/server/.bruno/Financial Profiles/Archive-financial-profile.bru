@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/financial-profiles/2/archive
+  url: {{baseUrl}}/financial-profiles/:financialProfileId/archive
   body: none
   auth: none
+}
+
+params:path {
+  financialProfileId: financial-profile-id
 }
 
 headers {

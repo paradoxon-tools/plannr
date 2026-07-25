@@ -110,7 +110,7 @@ class FinancialProfileMigrationTest {
 
         val profile = databaseClient.sql(
             """
-            SELECT id, name, kind, is_default, is_fallback
+            SELECT id, name, is_default, is_fallback
             FROM financial_profiles
             """,
         )
@@ -118,7 +118,6 @@ class FinancialProfileMigrationTest {
                 MigratedProfile(
                     id = requireNotNull(row.get("id", java.lang.Long::class.java)).toLong(),
                     name = requireNotNull(row.get("name", String::class.java)),
-                    kind = requireNotNull(row.get("kind", String::class.java)),
                     isDefault = requireNotNull(row.get("is_default", java.lang.Boolean::class.java)).booleanValue(),
                     isFallback = requireNotNull(row.get("is_fallback", java.lang.Boolean::class.java)).booleanValue(),
                 )
@@ -126,7 +125,6 @@ class FinancialProfileMigrationTest {
             .awaitOne()
 
         assertEquals("Unassigned", profile.name)
-        assertEquals("GROUP", profile.kind)
         assertEquals(true, profile.isDefault)
         assertEquals(true, profile.isFallback)
 
@@ -140,9 +138,9 @@ class FinancialProfileMigrationTest {
         execute(
             """
             INSERT INTO financial_profiles (
-                id, name, description, kind, is_default, is_fallback, is_archived, created_at
+                id, name, description, is_default, is_fallback, is_archived, created_at
             )
-            VALUES (2, 'Alice', NULL, 'PERSON', FALSE, FALSE, FALSE, 2)
+            VALUES (2, 'Alice', NULL, FALSE, FALSE, FALSE, 2)
             """,
         )
         listOf("contracts", "transaction_templates", "transaction_materializations").forEach { table ->
@@ -153,7 +151,6 @@ class FinancialProfileMigrationTest {
             sourceProfileId = 2L,
             fallbackProfileId = profile.id,
             fallbackProfileName = profile.name,
-            fallbackProfileKind = profile.kind,
         )
 
         listOf("contracts", "transaction_templates", "transaction_materializations").forEach { table ->
@@ -181,7 +178,6 @@ class FinancialProfileMigrationTest {
     private data class MigratedProfile(
         val id: Long,
         val name: String,
-        val kind: String,
         val isDefault: Boolean,
         val isFallback: Boolean,
     )
