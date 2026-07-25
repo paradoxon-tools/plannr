@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/financial-profiles/1
+  url: {{baseUrl}}/financial-profiles/:financialProfileId
   body: none
   auth: none
+}
+
+params:path {
+  financialProfileId: financial-profile-id
 }
 
 headers {

@@ -13,7 +13,6 @@ internal class R2dbcFinancialProfileUsageRepository(
         sourceProfileId: Long,
         fallbackProfileId: Long,
         fallbackProfileName: String,
-        fallbackProfileKind: String,
     ) {
         listOf("contracts", "transaction_templates", "transaction_materializations").forEach { table ->
             databaseClient.sql(
@@ -35,14 +34,12 @@ internal class R2dbcFinancialProfileUsageRepository(
                 """
                 UPDATE $table
                 SET financial_profile_id = :fallbackProfileId,
-                    financial_profile_name = :fallbackProfileName,
-                    financial_profile_kind = :fallbackProfileKind
+                    financial_profile_name = :fallbackProfileName
                 WHERE financial_profile_id = :sourceProfileId
                 """.trimIndent(),
             )
                 .bind("fallbackProfileId", fallbackProfileId)
                 .bind("fallbackProfileName", fallbackProfileName)
-                .bind("fallbackProfileKind", fallbackProfileKind)
                 .bind("sourceProfileId", sourceProfileId)
                 .fetch()
                 .rowsUpdated()

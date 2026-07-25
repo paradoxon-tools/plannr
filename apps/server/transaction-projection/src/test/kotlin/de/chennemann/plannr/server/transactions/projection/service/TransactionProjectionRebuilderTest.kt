@@ -145,20 +145,19 @@ class TransactionProjectionRebuilderTest {
         listOf("account_transaction_feed", "pocket_transaction_feed", "contract_transaction_feed").forEach { table ->
             val snapshot = databaseClient.sql(
                 """
-                SELECT financial_profile_id, financial_profile_name, financial_profile_kind
+                SELECT financial_profile_id, financial_profile_name
                 FROM $table
                 """,
             )
                 .map { row, _ ->
-                    Triple(
+                    Pair(
                         requireNotNull(row.get("financial_profile_id", java.lang.Long::class.java)).toLong(),
                         requireNotNull(row.get("financial_profile_name", String::class.java)),
-                        requireNotNull(row.get("financial_profile_kind", String::class.java)),
                     )
                 }
                 .awaitOne()
 
-            assertEquals(Triple(profileId, "Unassigned", "GROUP"), snapshot)
+            assertEquals(Pair(profileId, "Unassigned"), snapshot)
         }
 
         val feedItem = TransactionFeedServiceImpl(databaseClient)
@@ -168,7 +167,6 @@ class TransactionProjectionRebuilderTest {
 
         assertEquals(profileId, feedItem.financialProfile.id)
         assertEquals("Unassigned", feedItem.financialProfile.name)
-        assertEquals("GROUP", feedItem.financialProfile.kind)
     }
 
     private suspend fun execute(sql: String) {

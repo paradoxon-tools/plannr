@@ -36,7 +36,6 @@ internal class FinancialProfileServiceImpl(
                 id = null,
                 name = name,
                 description = command.description,
-                kind = normalizeKind(command.kind),
                 isDefault = false,
                 isFallback = false,
                 isArchived = false,
@@ -50,8 +49,7 @@ internal class FinancialProfileServiceImpl(
     override suspend fun update(command: UpdateFinancialProfileCommand): FinancialProfile {
         val existing = existingProfile(command.id)
         val name = normalizeName(command.name)
-        val kind = normalizeKind(command.kind)
-        if (existing.isFallback && (name != FALLBACK_NAME || kind != FALLBACK_KIND)) {
+        if (existing.isFallback && name != FALLBACK_NAME) {
             throw ConflictException(
                 code = "conflict",
                 message = "Fallback financial profile identity cannot be changed",
@@ -63,7 +61,6 @@ internal class FinancialProfileServiceImpl(
             existing.copy(
                 name = name,
                 description = command.description,
-                kind = kind,
             ).toModel(),
         )
         enqueueProjectionChange(updated.id)
@@ -115,7 +112,6 @@ internal class FinancialProfileServiceImpl(
             sourceProfileId = existing.id,
             fallbackProfileId = fallback.id,
             fallbackProfileName = fallback.name,
-            fallbackProfileKind = fallback.kind,
         )
         try {
             financialProfileRepository.deleteById(id)
@@ -193,16 +189,6 @@ internal class FinancialProfileServiceImpl(
                 details = mapOf("field" to "name"),
             )
 
-    private fun normalizeKind(value: String): String {
-        val normalized = value.trim().uppercase()
-        return FinancialProfileKind.entries.firstOrNull { it.name == normalized }?.name
-            ?: throw ValidationException(
-                code = "validation_error",
-                message = "Financial profile kind is invalid",
-                details = mapOf("field" to "kind", "supportedValues" to FinancialProfileKind.entries.map { it.name }),
-            )
-    }
-
     private fun ensureNotDefault(profile: FinancialProfile, action: String) {
         if (profile.isDefault) {
             throw ConflictException(
@@ -235,10 +221,4 @@ internal class FinancialProfileServiceImpl(
     }
 }
 
-private enum class FinancialProfileKind {
-    PERSON,
-    GROUP,
-}
-
 private const val FALLBACK_NAME = "Unassigned"
-private const val FALLBACK_KIND = "GROUP"

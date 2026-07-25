@@ -34,7 +34,6 @@ class FakeFinancialProfileService(
         id = 1L,
         name = "Household",
         description = null,
-        kind = "GROUP",
         isDefault = true,
         isFallback = true,
         isArchived = false,

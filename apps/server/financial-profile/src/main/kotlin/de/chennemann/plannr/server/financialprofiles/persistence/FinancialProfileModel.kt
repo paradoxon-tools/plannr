@@ -11,7 +11,6 @@ data class FinancialProfileModel(
     val id: Long?,
     val name: String,
     val description: String?,
-    val kind: String,
     @Column("is_default")
     val isDefault: Boolean,
     @Column("is_fallback")
@@ -27,7 +26,6 @@ fun FinancialProfileModel.toDTO(): FinancialProfile =
         id = requireNotNull(id) { "FinancialProfileModel.id must not be null when mapping to DTO" },
         name = name,
         description = description,
-        kind = kind,
         isDefault = isDefault,
         isFallback = isFallback,
         isArchived = isArchived,
@@ -39,7 +37,6 @@ fun FinancialProfile.toModel(): FinancialProfileModel =
         id = id,
         name = name,
         description = description,
-        kind = kind,
         isDefault = isDefault,
         isFallback = isFallback,
         isArchived = isArchived,
