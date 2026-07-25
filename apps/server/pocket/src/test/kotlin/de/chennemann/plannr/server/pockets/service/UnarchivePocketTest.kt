@@ -13,7 +13,7 @@ class UnarchivePocketTest {
     @Test
     fun `unarchives pocket and transaction templates`() = runTest {
         val repository = InMemoryPocketRepository()
-        repository.save(PocketFixtures.pocket(isContractPocket = true, isArchived = true).toModel())
+        repository.save(PocketFixtures.pocket(isArchived = true).toModel())
         val pocketService = pocketService(repository)
 
         val result = pocketService.unarchive(PocketFixtures.DEFAULT_ID)

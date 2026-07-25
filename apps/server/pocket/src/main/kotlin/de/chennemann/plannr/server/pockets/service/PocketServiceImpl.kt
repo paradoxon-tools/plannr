@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.pockets.service
 
 import de.chennemann.plannr.server.accounts.service.AccountService
 import de.chennemann.plannr.server.common.error.NotFoundException
+import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
@@ -24,6 +25,8 @@ internal class PocketServiceImpl(
     private val pocketRepository: PocketRepository,
     @param:Lazy
     private val accountService: AccountService,
+    @param:Lazy
+    private val contractPresentationService: ContractPresentationService,
     private val transactionTemplateService: TransactionTemplateService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
@@ -37,7 +40,7 @@ internal class PocketServiceImpl(
                 description = command.description,
                 color = command.color,
                 isDefault = command.isDefault,
-                isContractPocket = false,
+                contractId = null,
             )
         enqueueProjectionChange(pocket.id)
         return pocket
@@ -45,28 +48,36 @@ internal class PocketServiceImpl(
 
     override suspend fun createForContract(command: CreatePocketForContractCommand): Pocket {
         val accountId = existingAccountId(command.accountId)
-        return if (command.useDefaultPocket) {
-            defaultPocket(accountId).let { defaultPocket ->
-                if (defaultPocket.isContractPocket) {
-                    defaultPocket
-                } else {
-                    pocketRepository.save(defaultPocket.copy(isContractPocket = true))
-                }
-            }
-        } else {
-            createPocket(
-                accountId = accountId,
-                name = command.name,
-                description = command.description,
-                color = command.color,
-                isDefault = false,
-                isContractPocket = true,
-            )
-        }
+        return createPocket(
+            accountId = accountId,
+            name = null,
+            description = null,
+            color = null,
+            isDefault = false,
+            contractId = command.contractId,
+        )
     }
 
     override suspend fun update(command: UpdatePocketCommand): Pocket {
         val existing = existingPocket(command.id)
+        val contractId = existing.contractId
+        if (contractId != null) {
+            if (command.accountId != existing.accountId || command.isDefault) {
+                throw ValidationException(
+                    "validation_error",
+                    "Dedicated contract pockets cannot change account or become default",
+                    mapOf("id" to existing.id),
+                )
+            }
+            contractPresentationService.updatePresentation(
+                contractId,
+                command.name,
+                command.description,
+                command.color,
+            )
+            enqueueProjectionChange(existing.id)
+            return existingPocket(existing.id)
+        }
         val accountId = existingAccountId(command.accountId)
         val persisted =
             pocketRepository.save(
@@ -107,7 +118,15 @@ internal class PocketServiceImpl(
     }
 
     override suspend fun delete(id: Long) {
-        val normalizedId = existingPocket(id).id
+        val existing = existingPocket(id)
+        if (existing.contractId != null) {
+            throw ValidationException(
+                "validation_error",
+                "Dedicated contract pockets cannot be deleted directly",
+                mapOf("id" to id),
+            )
+        }
+        val normalizedId = existing.id
         pocketRepository.deleteById(normalizedId)
         enqueueProjectionChange(normalizedId)
     }
@@ -123,30 +142,30 @@ internal class PocketServiceImpl(
             ).toList()
             .map { it.toDTO() }
 
-    override suspend fun getById(id: Long): Pocket? = pocketRepository.findById(id)?.toDTO()
+    override suspend fun getById(id: Long): Pocket? = pocketRepository.findResolvedById(id)?.toDTO()
 
     private suspend fun createPocket(
         accountId: Long,
-        name: String,
+        name: String?,
         description: String?,
-        color: Int,
+        color: Int?,
         isDefault: Boolean,
-        isContractPocket: Boolean,
+        contractId: Long?,
     ): Pocket =
         pocketRepository
             .save(
                 PocketModel(
                     id = null,
                     accountId = accountId,
+                    contractId = contractId,
                     name = name,
                     description = description,
                     color = color,
                     isDefault = isDefault,
-                    isContractPocket = isContractPocket,
                     isArchived = false,
                     createdAt = timeProvider(),
                 ),
-            ).toDTO()
+            ).let { pocketRepository.findResolvedById(requireNotNull(it.id))!!.toDTO() }
 
     private suspend fun existingAccountId(accountId: Long): Long {
         if (accountService.getById(accountId) == null) {
@@ -160,19 +179,11 @@ internal class PocketServiceImpl(
     }
 
     private suspend fun existingPocket(id: Long): Pocket =
-        pocketRepository.findById(id)?.toDTO()
+        pocketRepository.findResolvedById(id)?.toDTO()
             ?: throw NotFoundException(
                 code = "not_found",
                 message = "Pocket not found",
                 details = mapOf("id" to id),
-            )
-
-    private suspend fun defaultPocket(accountId: Long): Pocket =
-        pocketRepository.findDefaultByAccountId(accountId)?.toDTO()
-            ?: throw NotFoundException(
-                code = "not_found",
-                message = "Default pocket not found",
-                details = mapOf("accountId" to accountId),
             )
 
     private suspend fun enqueueProjectionChange(id: Long) {

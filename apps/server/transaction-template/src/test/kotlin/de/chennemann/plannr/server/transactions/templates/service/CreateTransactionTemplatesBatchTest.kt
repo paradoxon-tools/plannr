@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.transactions.templates.service
 
 import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.contracts.api.dto.Contract
+import de.chennemann.plannr.server.contracts.api.dto.ContractType
 import de.chennemann.plannr.server.contracts.api.dto.CreateContractCommand
 import de.chennemann.plannr.server.contracts.api.dto.UpdateContractCommand
 import de.chennemann.plannr.server.contracts.service.ContractService
@@ -114,13 +115,14 @@ class CreateTransactionTemplatesBatchTest {
                 firstOccurrenceDate = "2025-01-15",
                 recurrenceType = "MONTHLY",
                 daysOfMonth = listOf(15),
+                contractId = 1L,
             ),
         )
 
         assertEquals(7L, created.financialProfileId)
 
         contracts[1L] = contract(financialProfileId = 8L)
-        service.refreshFinancialProfilesForPocket(1L)
+        service.refreshFinancialProfilesForContract(1L)
 
         assertEquals(8L, service.getById(created.id)?.financialProfileId)
         assertEquals(2, materializer.operations.size)
@@ -131,12 +133,17 @@ class CreateTransactionTemplatesBatchTest {
     private fun contract(financialProfileId: Long) =
         Contract(
             id = 1L,
-            pocketId = 1L,
             financialProfileId = financialProfileId,
             partnerId = null,
+            name = "Contract",
+            description = null,
+            color = 0,
+            type = ContractType.ACCUMULATING,
             signingDate = null,
             expirationDate = null,
             lastCancellationDate = null,
+            isArchived = false,
+            createdAt = 1L,
         )
 
     private fun createCommand(
@@ -145,7 +152,9 @@ class CreateTransactionTemplatesBatchTest {
         recurrenceType: String,
         daysOfMonth: List<Int>,
         monthsOfYear: List<Int>? = null,
+        contractId: Long? = null,
     ) = CreateTransactionTemplateCommand(
+        contractId = contractId,
         sourcePocketId = 1L,
         destinationPocketId = null,
         financialProfileId = null,

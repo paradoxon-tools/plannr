@@ -112,21 +112,15 @@ script:pre-request {
     const contracts = responseData(contractsResponse, "contracts");
     const partners = responseData(partnersResponse, "partners");
   
-    const pocketsById = new Map(
-      pockets.map((pocket) => [pocket.id, pocket])
-    );
-  
-    // Contract information is joined with pockets using only contract.id.
-    const contract = contracts.find((item) => {
-      const pocket = pocketsById.get(item.id);
-      return pocket?.name === contractName;
-    });
+    const contract = contracts.find((item) => item.name === contractName);
   
     if (!contract) {
       throw new Error(`No contract found with name '${contractName}'`);
     }
   
-    const contractPocket = pocketsById.get(contract.id);
+    const contractPocket = pockets.find(
+      (pocket) => pocket.contractId === contract.id
+    );
   
     if (!contractPocket) {
       throw new Error(
@@ -170,6 +164,7 @@ script:pre-request {
     );
   
     bru.setVar("contractPocketId", contractPocket.id);
+    bru.setVar("contractId", contract.id);
     bru.setVar("partnerId", partner.id);
     bru.setVar("incomeBucketPocketId", incomeBucketPocket.id);
     bru.setVar("insuranceAndContractsPocketId", insuranceAndContractsPocket.id);

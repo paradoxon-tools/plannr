@@ -84,6 +84,7 @@ internal class TransactionMaterializerServiceImpl(
         MaterializedTransactionModel(
             id = null,
             transactionTemplateId = id,
+            contractId = contractId,
             transactionDate = transactionDate,
             sourcePocketId = sourcePocketId,
             destinationPocketId = destinationPocketId,

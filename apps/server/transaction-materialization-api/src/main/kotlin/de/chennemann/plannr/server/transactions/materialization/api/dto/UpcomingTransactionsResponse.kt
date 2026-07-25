@@ -8,6 +8,7 @@ data class UpcomingTransactionsResponse(
 
 data class UpcomingTransactionItem(
     val transactionTemplateId: Long,
+    val contractId: Long?,
     val occurrenceDate: String,
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,

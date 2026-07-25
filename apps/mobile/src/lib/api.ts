@@ -13,11 +13,11 @@ export type Account = {
 export type Pocket = {
   id: number;
   accountId: number;
+  contractId: number | null;
   name: string;
   description: string | null;
   color: number;
   isDefault: boolean;
-  isContractPocket: boolean;
   isArchived: boolean;
   createdAt: number;
   currentBalance?: number | null;
@@ -25,11 +25,17 @@ export type Pocket = {
 
 export type Contract = {
   id: number;
-  pocketId: number;
+  financialProfileId: number;
   partnerId: number | null;
+  name: string;
+  description: string | null;
+  color: number;
+  type: 'ACCUMULATING' | 'NON_ACCUMULATING';
   signingDate: string | null;
   expirationDate: string | null;
   lastCancellationDate: string | null;
+  isArchived: boolean;
+  createdAt: number;
 };
 
 export type TransactionFeedReference = {
@@ -65,6 +71,7 @@ export type TransactionFeed = {
 
 export type UpcomingTransactionItem = {
   transactionTemplateId: number;
+  contractId: number | null;
   occurrenceDate: string;
   sourcePocketId: number | null;
   destinationPocketId: number | null;

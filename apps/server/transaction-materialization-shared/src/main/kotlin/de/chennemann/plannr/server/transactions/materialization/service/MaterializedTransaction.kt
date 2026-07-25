@@ -3,6 +3,7 @@ package de.chennemann.plannr.server.transactions.materialization.service
 data class MaterializedTransaction(
     val id: Long,
     val transactionTemplateId: Long,
+    val contractId: Long? = null,
     val transactionDate: String,
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,

@@ -28,5 +28,5 @@ class UpcomingTransactionController(
         after: LocalDate?,
         count: Int,
     ): UpcomingTransactionsResponse =
-        upcomingTransactionService.getForPocket(id, after, count)
+        upcomingTransactionService.getForContract(id, after, count)
 }
