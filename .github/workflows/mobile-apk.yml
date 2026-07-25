@@ -2,7 +2,7 @@ name: Build mobile APK
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["master"]
     tags: ["mobile-v*"]
     paths:
       - 'apps/mobile/**'
