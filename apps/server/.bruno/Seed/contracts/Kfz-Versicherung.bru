@@ -17,13 +17,11 @@ headers {
 
 body:json {
   {
-    "accountId": "{{seedAccountId}}",
     "name": "Kfz-Versicherung",
-    "pocket": {
-      "description": null,
-      "color": 16755968,
-      "useDefaultPocket": false
-    },
+    "description": null,
+    "color": 16755968,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{seedAccountId}}"],
     "financialProfileId": null,
     "partnerId": "{{seedPartnerId}}",
     "signingDate": null,

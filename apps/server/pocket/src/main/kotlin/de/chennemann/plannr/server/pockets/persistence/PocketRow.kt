@@ -1,21 +1,17 @@
 package de.chennemann.plannr.server.pockets.persistence
 
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
-import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
-import org.springframework.data.relational.core.mapping.Table
 
-@Table("pockets")
-data class PocketModel(
-    @Id
-    val id: Long?,
+data class PocketRow(
+    val id: Long,
     @Column("account_id")
     val accountId: Long,
     @Column("contract_id")
     val contractId: Long?,
-    val name: String?,
+    val name: String,
     val description: String?,
-    val color: Int?,
+    val color: Int,
     @Column("is_default")
     val isDefault: Boolean,
     @Column("is_archived")
@@ -24,14 +20,14 @@ data class PocketModel(
     val createdAt: Long,
 )
 
-fun Pocket.toModel(): PocketModel =
-    PocketModel(
+fun PocketRow.toDTO(): Pocket =
+    Pocket(
         id = id,
         accountId = accountId,
         contractId = contractId,
-        name = if (contractId == null) name else null,
-        description = if (contractId == null) description else null,
-        color = if (contractId == null) color else null,
+        name = name,
+        description = description,
+        color = color,
         isDefault = isDefault,
         isArchived = isArchived,
         createdAt = createdAt,

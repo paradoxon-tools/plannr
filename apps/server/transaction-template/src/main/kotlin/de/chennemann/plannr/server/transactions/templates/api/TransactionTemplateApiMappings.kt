@@ -6,6 +6,7 @@ import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemp
 fun DomainTransactionTemplate.toDTO() = recurrencePattern.let { pattern ->
     TransactionTemplate(
         id = id,
+        contractId = contractId,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
         financialProfileId = financialProfileId,

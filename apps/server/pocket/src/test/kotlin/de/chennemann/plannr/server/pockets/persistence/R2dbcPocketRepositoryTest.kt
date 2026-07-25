@@ -31,7 +31,8 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
 
         val saved = pocketRepository.save(pocket.toModel().copy(id = null))
 
-        assertEquals(pocket.copy(id = saved.toDTO().id), pocketRepository.findById(saved.toDTO().id)?.toDTO())
+        val savedId = requireNotNull(saved.id)
+        assertEquals(pocket.copy(id = savedId), pocketRepository.findResolvedById(savedId)?.toDTO())
         assertNull(pocketRepository.findById(999L))
     }
 
@@ -45,20 +46,19 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
             description = null,
             color = 42,
             isDefault = true,
-            isContractPocket = original.isContractPocket,
             isArchived = true,
         )
 
         pocketRepository.save(updated.toModel())
 
-        assertEquals(updated, pocketRepository.findById(PocketFixtures.DEFAULT_ID)?.toDTO())
+        assertEquals(updated, pocketRepository.findResolvedById(PocketFixtures.DEFAULT_ID)?.toDTO())
     }
 
     @Test
     fun `finds all pockets ordered by created at and id and supports filters`() = runBlocking {
-        insertPocket(PocketModel(id = 2L, accountId = 1L, name = "Second", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 2))
-        insertPocket(PocketModel(id = 1L, accountId = 1L, name = "First", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = true, createdAt = 1))
-        insertPocket(PocketModel(id = 3L, accountId = 2L, name = "Third", description = null, color = 0, isDefault = false, isContractPocket = false, isArchived = false, createdAt = 3))
+        insertPocket(PocketModel(id = 2L, accountId = 1L, contractId = null, name = "Second", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 2))
+        insertPocket(PocketModel(id = 1L, accountId = 1L, contractId = null, name = "First", description = null, color = 0, isDefault = false, isArchived = true, createdAt = 1))
+        insertPocket(PocketModel(id = 3L, accountId = 2L, contractId = null, name = "Third", description = null, color = 0, isDefault = false, isArchived = false, createdAt = 3))
 
         val all = pocketRepository.findAllByAccountIdAndArchived(accountId = null, archived = null).toList()
         val filtered = pocketRepository.findAllByAccountIdAndArchived(accountId = 1L, archived = true).toList()
@@ -97,20 +97,23 @@ class R2dbcPocketRepositoryTest : ApiIntegrationTest() {
     private suspend fun insertPocket(pocket: PocketModel) {
         val spec = databaseClient.sql(
             """
-            INSERT INTO pockets (id, account_id, name, description, color, is_default, is_contract_pocket, is_archived, created_at)
-            VALUES (:id, :accountId, :name, :description, :color, :isDefault, :isContractPocket, :isArchived, :createdAt)
+            INSERT INTO pockets (id, account_id, contract_id, name, description, color, is_default, is_archived, created_at)
+            VALUES (:id, :accountId, :contractId, :name, :description, :color, :isDefault, :isArchived, :createdAt)
             """.trimIndent(),
         )
             .bind("id", requireNotNull(pocket.id))
             .bind("accountId", pocket.accountId)
-            .bind("name", pocket.name)
-            .bind("color", pocket.color)
             .bind("isDefault", pocket.isDefault)
-            .bind("isContractPocket", pocket.isContractPocket)
             .bind("isArchived", pocket.isArchived)
             .bind("createdAt", pocket.createdAt)
-        val boundSpec = pocket.description?.let { spec.bind("description", it) }
-            ?: spec.bindNull("description", String::class.java)
+        var boundSpec = pocket.contractId?.let { spec.bind("contractId", it) }
+            ?: spec.bindNull("contractId", java.lang.Long::class.java)
+        boundSpec = pocket.name?.let { boundSpec.bind("name", it) }
+            ?: boundSpec.bindNull("name", String::class.java)
+        boundSpec = pocket.color?.let { boundSpec.bind("color", it) }
+            ?: boundSpec.bindNull("color", Integer::class.java)
+        boundSpec = pocket.description?.let { boundSpec.bind("description", it) }
+            ?: boundSpec.bindNull("description", String::class.java)
         boundSpec.fetch().rowsUpdated().awaitSingle()
     }
 }

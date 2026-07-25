@@ -17,13 +17,11 @@ headers {
 
 body:json {
   {
-    "accountId": "{{seedAccountId}}",
     "name": "Fitness First",
-    "pocket": {
-      "description": null,
-      "color": 8017481,
-      "useDefaultPocket": false
-    },
+    "description": null,
+    "color": 8017481,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{seedAccountId}}"],
     "financialProfileId": null,
     "partnerId": "{{seedPartnerId}}",
     "signingDate": null,

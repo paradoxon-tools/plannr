@@ -13,10 +13,11 @@ class UpdatePocketTest {
     @Test
     fun `updates existing pocket`() = runTest {
         val pocketRepository = InMemoryPocketRepository()
-        pocketRepository.save(PocketFixtures.pocket(isContractPocket = true).toModel())
+        pocketRepository.save(PocketFixtures.pocket().toModel())
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountService = StubAccountService { it in setOf(PocketFixtures.DEFAULT_ACCOUNT_ID, 2L) },
+            contractPresentationService = NoOpContractPresentationService,
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -36,7 +37,6 @@ class UpdatePocketTest {
         assertEquals("Updated description", updated.description)
         assertEquals(99, updated.color)
         assertEquals(true, updated.isDefault)
-        assertEquals(true, updated.isContractPocket)
         assertEquals(PocketFixtures.DEFAULT_CREATED_AT, updated.createdAt)
     }
 
@@ -45,6 +45,7 @@ class UpdatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = InMemoryPocketRepository(),
             accountService = StubAccountService(),
+            contractPresentationService = NoOpContractPresentationService,
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )
@@ -61,6 +62,7 @@ class UpdatePocketTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = pocketRepository,
             accountService = StubAccountService { false },
+            contractPresentationService = NoOpContractPresentationService,
             transactionTemplateService = NoOpTransactionTemplateService,
             timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
         )

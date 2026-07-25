@@ -17,13 +17,11 @@ headers {
 
 body:json {
   {
-    "accountId": "{{seedAccountId}}",
     "name": "Amazon Prime",
-    "pocket": {
-      "description": null,
-      "color": 30661,
-      "useDefaultPocket": false
-    },
+    "description": null,
+    "color": 30661,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{seedAccountId}}"],
     "financialProfileId": null,
     "partnerId": "{{seedPartnerId}}",
     "signingDate": null,

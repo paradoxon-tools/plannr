@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.transactions.templates.api.dto
 
 data class TransactionTemplate(
     val id: Long,
+    val contractId: Long?,
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,
     val financialProfileId: Long,

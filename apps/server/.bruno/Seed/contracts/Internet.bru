@@ -17,13 +17,11 @@ headers {
 
 body:json {
   {
-    "accountId": "{{seedAccountId}}",
     "name": "Internet",
-    "pocket": {
-      "description": null,
-      "color": 12058624,
-      "useDefaultPocket": false
-    },
+    "description": null,
+    "color": 12058624,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{seedAccountId}}"],
     "financialProfileId": null,
     "partnerId": "{{seedPartnerId}}",
     "signingDate": null,

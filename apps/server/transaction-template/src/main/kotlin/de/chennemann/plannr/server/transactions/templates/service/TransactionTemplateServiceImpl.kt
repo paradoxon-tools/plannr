@@ -35,6 +35,7 @@ internal class TransactionTemplateServiceImpl(
 ) : TransactionTemplateService {
     override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate {
         val financialProfileId = resolveFinancialProfileId(
+            contractId = command.contractId,
             sourcePocketId = command.sourcePocketId,
             destinationPocketId = command.destinationPocketId,
             requestedProfileId = command.financialProfileId,
@@ -42,6 +43,7 @@ internal class TransactionTemplateServiceImpl(
         val created = transactionTemplateRepository.save(
             TransactionTemplateModel(
                 id = null,
+                contractId = command.contractId,
                 sourcePocketId = command.sourcePocketId,
                 destinationPocketId = command.destinationPocketId,
                 financialProfileId = financialProfileId,
@@ -84,12 +86,14 @@ internal class TransactionTemplateServiceImpl(
     override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate {
         val existing = existingTransactionTemplate(command.id)
         val financialProfileId = resolveFinancialProfileId(
+            contractId = command.contractId,
             sourcePocketId = command.sourcePocketId,
             destinationPocketId = command.destinationPocketId,
             requestedProfileId = command.financialProfileId,
         )
         val updated = transactionTemplateRepository.save(
             existing.copy(
+                contractId = command.contractId,
                 sourcePocketId = command.sourcePocketId,
                 destinationPocketId = command.destinationPocketId,
                 financialProfileId = financialProfileId,
@@ -169,6 +173,7 @@ internal class TransactionTemplateServiceImpl(
             .map(TransactionTemplateModel::toDTO)
             .forEach { existing ->
                 val financialProfileId = resolveFinancialProfileId(
+                    contractId = existing.contractId,
                     sourcePocketId = existing.sourcePocketId,
                     destinationPocketId = existing.destinationPocketId,
                     requestedProfileId = existing.financialProfileId,
@@ -181,6 +186,26 @@ internal class TransactionTemplateServiceImpl(
                     } else {
                         upcomingTransactionCache?.refresh(updated)
                     }
+                    enqueueProjectionChange(updated.id)
+                }
+            }
+    }
+
+    override suspend fun refreshFinancialProfilesForContract(contractId: Long) {
+        transactionTemplateRepository.findAll()
+            .toList()
+            .filter { it.contractId == contractId }
+            .map(TransactionTemplateModel::toDTO)
+            .forEach { existing ->
+                val financialProfileId = resolveFinancialProfileId(
+                    contractId = contractId,
+                    sourcePocketId = existing.sourcePocketId,
+                    destinationPocketId = existing.destinationPocketId,
+                    requestedProfileId = existing.financialProfileId,
+                )
+                if (financialProfileId != existing.financialProfileId) {
+                    val updated = transactionTemplateRepository.save(existing.copy(financialProfileId = financialProfileId))
+                    transactionMaterializerService.materialize(MaterializationOperation.FullRefresh(updated))
                     enqueueProjectionChange(updated.id)
                 }
             }
@@ -214,13 +239,19 @@ internal class TransactionTemplateServiceImpl(
             )
 
     private suspend fun resolveFinancialProfileId(
+        contractId: Long?,
         sourcePocketId: Long?,
         destinationPocketId: Long?,
         requestedProfileId: Long?,
     ): Long {
-        val contractProfileId = sourcePocketId
-            ?.let { contractService.getById(it)?.financialProfileId }
-            ?: destinationPocketId?.let { contractService.getById(it)?.financialProfileId }
+        val contractProfileId = contractId?.let {
+            contractService.getById(it)?.financialProfileId
+                ?: throw NotFoundException(
+                    "not_found",
+                    "Contract not found",
+                    mapOf("id" to it),
+                )
+        }
         return financialProfileService.resolveForAssignment(contractProfileId ?: requestedProfileId).id
     }
 
@@ -253,6 +284,7 @@ private fun TransactionTemplate.sameScheduleExceptEndDate(other: TransactionTemp
         transactionType == other.transactionType &&
         sourcePocketId == other.sourcePocketId &&
         destinationPocketId == other.destinationPocketId &&
+        contractId == other.contractId &&
         financialProfileId == other.financialProfileId &&
         partnerId == other.partnerId &&
         title == other.title &&
@@ -266,6 +298,7 @@ private fun TransactionTemplate.requiresFullRefresh(other: TransactionTemplate):
         transactionType != other.transactionType ||
         sourcePocketId != other.sourcePocketId ||
         destinationPocketId != other.destinationPocketId ||
+        contractId != other.contractId ||
         financialProfileId != other.financialProfileId ||
         partnerId != other.partnerId ||
         title != other.title ||

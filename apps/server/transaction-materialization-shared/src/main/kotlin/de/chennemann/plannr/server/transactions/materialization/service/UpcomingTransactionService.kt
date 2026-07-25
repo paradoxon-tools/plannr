@@ -15,4 +15,10 @@ interface UpcomingTransactionService {
         after: LocalDate?,
         count: Int,
     ): UpcomingTransactionsResponse
+
+    suspend fun getForContract(
+        contractId: Long,
+        after: LocalDate?,
+        count: Int,
+    ): UpcomingTransactionsResponse
 }
