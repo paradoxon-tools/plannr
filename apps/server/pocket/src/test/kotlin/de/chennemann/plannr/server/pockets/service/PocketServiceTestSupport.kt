@@ -21,6 +21,7 @@ internal object NoOpTransactionTemplateService : TransactionTemplateService {
     override suspend fun archiveForPocket(pocketId: Long) = Unit
     override suspend fun unarchiveForPocket(pocketId: Long) = Unit
     override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) = Unit
+    override suspend fun refreshFinancialProfilesForContract(contractId: Long) = Unit
     override suspend fun delete(id: Long) = Unit
     override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
     override suspend fun getById(id: Long) = null
@@ -51,6 +52,10 @@ internal class StubAccountService(
     private fun <T> unsupported(): T = throw UnsupportedOperationException("Not used")
 }
 
+internal object NoOpContractPresentationService : ContractPresentationService {
+    override suspend fun updatePresentation(contractId: Long, name: String, description: String?, color: Int) = Unit
+}
+
 internal fun pocketService(
     repository: InMemoryPocketRepository = InMemoryPocketRepository(),
     accountService: AccountService = StubAccountService(),
@@ -59,6 +64,7 @@ internal fun pocketService(
     PocketServiceImpl(
         pocketRepository = repository,
         accountService = accountService,
+        contractPresentationService = NoOpContractPresentationService,
         transactionTemplateService = transactionTemplateService,
         timeProvider = { PocketFixtures.DEFAULT_CREATED_AT },
     )

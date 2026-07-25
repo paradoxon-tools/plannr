@@ -137,13 +137,13 @@ export default function AccountScreen() {
         <StateBlock title="No contracts" detail="The server returned no contracts for this account." />
       ) : null}
       {contracts.map((contract) => {
-        const pocket = pockets.find((item) => item.id === contract.pocketId);
+        const pocket = pockets.find((item) => item.contractId === contract.id);
         if (!pocket) {
           return null;
         }
 
         return (
-          <Link key={contract.id} href={`/pocket/${contract.pocketId}?accountId=${account.id}`} asChild>
+          <Link key={contract.id} href={`/pocket/${pocket.id}?accountId=${account.id}`} asChild>
             <Pressable style={styles.card}>
               <View style={[styles.swatch, { backgroundColor: colorFromInt(pocket.color) }]} />
               <View style={styles.cardText}>

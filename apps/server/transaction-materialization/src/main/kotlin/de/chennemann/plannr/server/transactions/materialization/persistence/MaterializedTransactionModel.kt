@@ -11,6 +11,8 @@ data class MaterializedTransactionModel(
     val id: Long?,
     @Column("transaction_template_id")
     val transactionTemplateId: Long,
+    @Column("contract_id")
+    val contractId: Long? = null,
     @Column("transaction_date")
     val transactionDate: String,
     @Column("source_pocket_id")
@@ -36,6 +38,7 @@ fun MaterializedTransactionModel.toDomain(): MaterializedTransaction =
     MaterializedTransaction(
         id = requireNotNull(id) { "MaterializedTransactionModel.id must not be null when mapping to domain" },
         transactionTemplateId = transactionTemplateId,
+        contractId = contractId,
         transactionDate = transactionDate,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,

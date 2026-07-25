@@ -3,6 +3,7 @@ package de.chennemann.plannr.server.pockets.support
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
+import de.chennemann.plannr.server.pockets.persistence.PocketRow
 import de.chennemann.plannr.server.pockets.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -40,17 +41,21 @@ class InMemoryPocketRepository : PocketRepository {
         entityStream.collect { emit(save(it)) }
     }
 
-    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketModel> =
+    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketRow> =
         pockets.values
             .filter { accountId == null || it.accountId == accountId }
             .filter { archived == null || it.isArchived == archived }
             .sortedWith(compareBy<PocketModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
+            .map { it.toRow() }
             .asFlow()
 
-    override suspend fun findDefaultByAccountId(accountId: Long): PocketModel? =
+    override suspend fun findDefaultByAccountId(accountId: Long): PocketRow? =
         pockets.values
             .filter { it.accountId == accountId && it.isDefault }
             .minWithOrNull(compareBy<PocketModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
+            ?.toRow()
+
+    override suspend fun findResolvedById(id: Long): PocketRow? = pockets[id]?.toRow()
 
     override suspend fun count(): Long = pockets.size.toLong()
 
@@ -82,11 +87,24 @@ class InMemoryPocketRepository : PocketRepository {
         Pocket(
             id = requireNotNull(id),
             accountId = accountId,
-            name = name,
+            contractId = contractId,
+            name = name ?: "Contract $contractId",
             description = description,
-            color = color,
+            color = color ?: 0,
             isDefault = isDefault,
-            isContractPocket = isContractPocket,
+            isArchived = isArchived,
+            createdAt = createdAt,
+        )
+
+    private fun PocketModel.toRow(): PocketRow =
+        PocketRow(
+            id = requireNotNull(id),
+            accountId = accountId,
+            contractId = contractId,
+            name = name ?: "Contract $contractId",
+            description = description,
+            color = color ?: 0,
+            isDefault = isDefault,
             isArchived = isArchived,
             createdAt = createdAt,
         )

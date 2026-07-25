@@ -70,10 +70,12 @@ class FakePartnerService(
 }
 
 class FakeTransactionTemplateService : TransactionTemplateService {
-    val refreshedPocketIds = mutableListOf<Long>()
+    val refreshedContractIds = mutableListOf<Long>()
 
     override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) {
-        refreshedPocketIds += pocketId
+    }
+    override suspend fun refreshFinancialProfilesForContract(contractId: Long) {
+        refreshedContractIds += contractId
     }
 
     override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate = unsupported()
@@ -98,19 +100,15 @@ class FakePocketService(
 
     override suspend fun createForContract(command: CreatePocketForContractCommand): Pocket {
         contractCreateCommands += command
-        if (command.useDefaultPocket) {
-            return pockets.values.firstOrNull { it.accountId == command.accountId && it.isDefault }
-                ?: throw IllegalStateException("Default pocket not configured")
-        }
         val id = (pockets.keys.maxOrNull() ?: 0L) + 1L
         return Pocket(
             id = id,
             accountId = command.accountId,
-            name = command.name,
-            description = command.description,
-            color = command.color,
+            contractId = command.contractId,
+            name = "Contract ${command.contractId}",
+            description = null,
+            color = 0,
             isDefault = false,
-            isContractPocket = true,
             isArchived = false,
             createdAt = 1_710_000_100L,
         ).also { pockets[id] = it }

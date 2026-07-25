@@ -8,6 +8,7 @@ import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransact
 import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
+import de.chennemann.plannr.server.pockets.service.ContractPresentationService
 import org.springframework.context.annotation.Bean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
@@ -49,8 +50,15 @@ class PocketTestApplication {
             override suspend fun archiveForPocket(pocketId: Long) = Unit
             override suspend fun unarchiveForPocket(pocketId: Long) = Unit
             override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) = Unit
+            override suspend fun refreshFinancialProfilesForContract(contractId: Long) = Unit
             override suspend fun delete(id: Long) = Unit
             override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
             override suspend fun getById(id: Long) = null
+        }
+
+    @Bean
+    fun contractPresentationService(): ContractPresentationService =
+        object : ContractPresentationService {
+            override suspend fun updatePresentation(contractId: Long, name: String, description: String?, color: Int) = Unit
         }
 }

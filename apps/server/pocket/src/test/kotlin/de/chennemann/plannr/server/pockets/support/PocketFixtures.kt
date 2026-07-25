@@ -15,22 +15,22 @@ object PocketFixtures {
     fun pocket(
         id: Long = DEFAULT_ID,
         accountId: Long = DEFAULT_ACCOUNT_ID,
+        contractId: Long? = null,
         name: String = DEFAULT_NAME,
         description: String? = DEFAULT_DESCRIPTION,
         color: Int = DEFAULT_COLOR,
         isDefault: Boolean = false,
-        isContractPocket: Boolean = false,
         isArchived: Boolean = false,
         createdAt: Long = DEFAULT_CREATED_AT,
     ): Pocket =
         Pocket(
             id = id,
             accountId = accountId,
+            contractId = contractId,
             name = name,
             description = description,
             color = color,
             isDefault = isDefault,
-            isContractPocket = isContractPocket,
             isArchived = isArchived,
             createdAt = createdAt,
         )

@@ -13,6 +13,7 @@ interface TransactionTemplateService {
     suspend fun archiveForPocket(pocketId: Long)
     suspend fun unarchiveForPocket(pocketId: Long)
     suspend fun refreshFinancialProfilesForPocket(pocketId: Long)
+    suspend fun refreshFinancialProfilesForContract(contractId: Long) = Unit
     suspend fun delete(id: Long)
     suspend fun list(archived: Boolean? = null): List<TransactionTemplate>
     suspend fun getById(id: Long): TransactionTemplate?

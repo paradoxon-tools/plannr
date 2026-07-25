@@ -43,6 +43,17 @@ internal class UpcomingTransactionServiceImpl(
             templateFilter = { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId },
         )
 
+    override suspend fun getForContract(
+        contractId: Long,
+        after: LocalDate?,
+        count: Int,
+    ): UpcomingTransactionsResponse =
+        upcomingTransactions(
+            after = after,
+            count = count,
+            templateFilter = { it.contractId == contractId },
+        )
+
     private suspend fun upcomingTransactions(
         after: LocalDate?,
         count: Int,
@@ -127,6 +138,7 @@ internal class UpcomingTransactionServiceImpl(
         fun currentItem(): UpcomingTransactionItem =
             UpcomingTransactionItem(
                 transactionTemplateId = transactionTemplate.id,
+                contractId = transactionTemplate.contractId,
                 occurrenceDate = expansion[index].toString(),
                 sourcePocketId = transactionTemplate.sourcePocketId,
                 destinationPocketId = transactionTemplate.destinationPocketId,

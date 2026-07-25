@@ -13,7 +13,7 @@ class ArchivePocketTest {
     @Test
     fun `archives pocket and transaction templates`() = runTest {
         val repository = InMemoryPocketRepository()
-        repository.save(PocketFixtures.pocket(isContractPocket = true).toModel())
+        repository.save(PocketFixtures.pocket().toModel())
         val pocketService = pocketService(repository)
 
         val result = pocketService.archive(PocketFixtures.DEFAULT_ID)

@@ -17,13 +17,11 @@ headers {
 
 body:json {
   {
-    "accountId": "{{seedAccountId}}",
     "name": "Auto Apps",
-    "pocket": {
-      "description": null,
-      "color": 3457023,
-      "useDefaultPocket": false
-    },
+    "description": null,
+    "color": 3457023,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{seedAccountId}}"],
     "financialProfileId": null,
     "partnerId": "{{seedPartnerId}}",
     "signingDate": null,

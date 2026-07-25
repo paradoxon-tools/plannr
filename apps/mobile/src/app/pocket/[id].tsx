@@ -64,8 +64,8 @@ export default function PocketScreen() {
         api.getAccount(resolvedAccountId),
         api.listContracts(resolvedAccountId),
       ]);
-      const contractData = contracts.find((item) => item.id === pocketId) ?? null;
-      const feedData = contractData ? await api.getContractFeed(pocketId) : await api.getPocketFeed(pocketId);
+      const contractData = contracts.find((item) => item.id === pocketData.contractId) ?? null;
+      const feedData = contractData ? await api.getContractFeed(contractData.id) : await api.getPocketFeed(pocketId);
       await replaceCachedData<PocketScreenData>(cacheKey, {
         account: accountData,
         pocket: pocketData,

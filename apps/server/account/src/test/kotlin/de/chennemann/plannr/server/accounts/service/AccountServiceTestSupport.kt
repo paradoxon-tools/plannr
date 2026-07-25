@@ -33,7 +33,6 @@ internal class RecordingPocketService : PocketService {
             description = command.description,
             color = command.color,
             isDefault = command.isDefault,
-            isContractPocket = false,
             isArchived = false,
             createdAt = AccountFixtures.DEFAULT_CREATED_AT,
         )

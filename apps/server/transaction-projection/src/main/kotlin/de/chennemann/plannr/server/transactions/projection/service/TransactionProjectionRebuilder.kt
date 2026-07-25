@@ -84,17 +84,19 @@ internal class TransactionProjectionRebuilder(
                         m.partner_id,
                         partner.name AS partner_name,
                         sp.id AS source_pocket_id,
-                        sp.name AS source_pocket_name,
-                        sp.color AS source_pocket_color,
+                        COALESCE(sp.name, spc.name) AS source_pocket_name,
+                        COALESCE(sp.color, spc.color) AS source_pocket_color,
                         dp.id AS destination_pocket_id,
-                        dp.name AS destination_pocket_name,
-                        dp.color AS destination_pocket_color,
+                        COALESCE(dp.name, dpc.name) AS destination_pocket_name,
+                        COALESCE(dp.color, dpc.color) AS destination_pocket_color,
                         template.is_archived,
                         m.created_at
                     FROM transaction_materializations m
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     JOIN pockets sp ON sp.id = m.source_pocket_id
                     LEFT JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    LEFT JOIN contracts spc ON spc.id = sp.contract_id
+                    LEFT JOIN contracts dpc ON dpc.id = dp.contract_id
                     JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('EXPENSE', 'TRANSFER')
@@ -114,17 +116,19 @@ internal class TransactionProjectionRebuilder(
                         m.partner_id,
                         partner.name AS partner_name,
                         sp.id AS source_pocket_id,
-                        sp.name AS source_pocket_name,
-                        sp.color AS source_pocket_color,
+                        COALESCE(sp.name, spc.name) AS source_pocket_name,
+                        COALESCE(sp.color, spc.color) AS source_pocket_color,
                         dp.id AS destination_pocket_id,
-                        dp.name AS destination_pocket_name,
-                        dp.color AS destination_pocket_color,
+                        COALESCE(dp.name, dpc.name) AS destination_pocket_name,
+                        COALESCE(dp.color, dpc.color) AS destination_pocket_color,
                         template.is_archived,
                         m.created_at
                     FROM transaction_materializations m
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     LEFT JOIN pockets sp ON sp.id = m.source_pocket_id
                     JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    LEFT JOIN contracts spc ON spc.id = sp.contract_id
+                    LEFT JOIN contracts dpc ON dpc.id = dp.contract_id
                     JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('INCOME', 'TRANSFER')
@@ -252,14 +256,15 @@ internal class TransactionProjectionRebuilder(
                         m.partner_id,
                         partner.name AS partner_name,
                         dp.id AS transfer_pocket_id,
-                        dp.name AS transfer_pocket_name,
-                        dp.color AS transfer_pocket_color,
+                        COALESCE(dp.name, dpc.name) AS transfer_pocket_name,
+                        COALESCE(dp.color, dpc.color) AS transfer_pocket_color,
                         template.is_archived,
                         m.created_at
                     FROM transaction_materializations m
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     JOIN pockets sp ON sp.id = m.source_pocket_id
                     LEFT JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    LEFT JOIN contracts dpc ON dpc.id = dp.contract_id
                     JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('EXPENSE', 'TRANSFER')
@@ -280,14 +285,15 @@ internal class TransactionProjectionRebuilder(
                         m.partner_id,
                         partner.name AS partner_name,
                         sp.id AS transfer_pocket_id,
-                        sp.name AS transfer_pocket_name,
-                        sp.color AS transfer_pocket_color,
+                        COALESCE(sp.name, spc.name) AS transfer_pocket_name,
+                        COALESCE(sp.color, spc.color) AS transfer_pocket_color,
                         template.is_archived,
                         m.created_at
                     FROM transaction_materializations m
                     JOIN transaction_templates template ON template.id = m.transaction_template_id
                     LEFT JOIN pockets sp ON sp.id = m.source_pocket_id
                     JOIN pockets dp ON dp.id = m.destination_pocket_id
+                    LEFT JOIN contracts spc ON spc.id = sp.contract_id
                     JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
                     LEFT JOIN partners partner ON partner.id = m.partner_id
                     WHERE m.transaction_type IN ('INCOME', 'TRANSFER')
@@ -373,38 +379,82 @@ internal class TransactionProjectionRebuilder(
                 transfer_pocket_color,
                 is_archived
             )
+            WITH entries AS (
+                SELECT
+                    m.contract_id,
+                    CASE
+                        WHEN m.transaction_type = 'INCOME' THEN dp.account_id
+                        ELSE COALESCE(sp.account_id, dp.account_id)
+                    END AS account_id,
+                    m.id AS transaction_id,
+                    m.transaction_template_id,
+                    m.transaction_date,
+                    m.transaction_type AS type,
+                    m.title,
+                    m.description,
+                    m.amount AS transaction_amount,
+                    CASE
+                        WHEN m.transaction_type = 'EXPENSE' THEN -m.amount
+                        WHEN m.transaction_type = 'INCOME' THEN m.amount
+                        WHEN sp.contract_id = m.contract_id AND dp.contract_id = m.contract_id THEN 0
+                        WHEN dp.contract_id = m.contract_id THEN m.amount
+                        WHEN sp.contract_id = m.contract_id THEN -m.amount
+                        ELSE 0
+                    END AS signed_amount,
+                    m.financial_profile_id,
+                    financial_profile.name AS financial_profile_name,
+                    m.partner_id,
+                    partner.name AS partner_name,
+                    CASE WHEN sp.contract_id = m.contract_id THEN dp.id ELSE sp.id END AS transfer_pocket_id,
+                    CASE
+                        WHEN sp.contract_id = m.contract_id THEN COALESCE(dp.name, dpc.name)
+                        ELSE COALESCE(sp.name, spc.name)
+                    END AS transfer_pocket_name,
+                    CASE
+                        WHEN sp.contract_id = m.contract_id THEN COALESCE(dp.color, dpc.color)
+                        ELSE COALESCE(sp.color, spc.color)
+                    END AS transfer_pocket_color,
+                    template.is_archived,
+                    m.created_at
+                FROM transaction_materializations m
+                JOIN transaction_templates template ON template.id = m.transaction_template_id
+                JOIN financial_profiles financial_profile ON financial_profile.id = m.financial_profile_id
+                LEFT JOIN partners partner ON partner.id = m.partner_id
+                LEFT JOIN pockets sp ON sp.id = m.source_pocket_id
+                LEFT JOIN pockets dp ON dp.id = m.destination_pocket_id
+                LEFT JOIN contracts spc ON spc.id = sp.contract_id
+                LEFT JOIN contracts dpc ON dpc.id = dp.contract_id
+                WHERE m.contract_id IS NOT NULL
+            )
             SELECT
-                ptf.pocket_id AS contract_id,
-                ptf.account_id,
-                ptf.transaction_id,
-                ptf.transaction_template_id,
+                contract_id,
+                account_id,
+                transaction_id,
+                transaction_template_id,
                 ROW_NUMBER() OVER (
-                    PARTITION BY ptf.pocket_id
-                    ORDER BY ptf.transaction_date ASC, materialized.created_at ASC, ptf.transaction_id ASC
+                    PARTITION BY contract_id
+                    ORDER BY transaction_date ASC, created_at ASC, transaction_id ASC
                 ) AS history_position,
-                ptf.transaction_date,
-                ptf.type,
-                ptf.title,
-                ptf.description,
-                ptf.transaction_amount,
-                ptf.signed_amount,
-                SUM(ptf.signed_amount) OVER (
-                    PARTITION BY ptf.pocket_id
-                    ORDER BY ptf.transaction_date ASC, materialized.created_at ASC, ptf.transaction_id ASC
+                transaction_date,
+                type,
+                title,
+                description,
+                transaction_amount,
+                signed_amount,
+                SUM(signed_amount) OVER (
+                    PARTITION BY contract_id
+                    ORDER BY transaction_date ASC, created_at ASC, transaction_id ASC
                     ROWS UNBOUNDED PRECEDING
                 ) AS balance_after,
-                ptf.financial_profile_id,
-                ptf.financial_profile_name,
-                ptf.partner_id,
-                ptf.partner_name,
-                ptf.transfer_pocket_id,
-                ptf.transfer_pocket_name,
-                ptf.transfer_pocket_color,
-                ptf.is_archived
-            FROM pocket_transaction_feed ptf
-            JOIN pockets pocket ON pocket.id = ptf.pocket_id
-            JOIN transaction_materializations materialized ON materialized.id = ptf.transaction_id
-            WHERE pocket.is_contract_pocket = TRUE
+                financial_profile_id,
+                financial_profile_name,
+                partner_id,
+                partner_name,
+                transfer_pocket_id,
+                transfer_pocket_name,
+                transfer_pocket_color,
+                is_archived
+            FROM entries
         """.trimIndent()
     }
 }

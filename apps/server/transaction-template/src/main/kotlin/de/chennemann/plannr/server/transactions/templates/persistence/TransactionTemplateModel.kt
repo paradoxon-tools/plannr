@@ -10,6 +10,8 @@ import org.springframework.data.relational.core.mapping.Table
 data class TransactionTemplateModel(
     @Id
     val id: Long?,
+    @Column("contract_id")
+    val contractId: Long?,
     @Column("source_pocket_id")
     val sourcePocketId: Long?,
     @Column("destination_pocket_id")
@@ -52,6 +54,7 @@ data class TransactionTemplateModel(
 fun TransactionTemplateModel.toDTO(): TransactionTemplate =
     TransactionTemplate(
         id = requireNotNull(id) { "TransactionTemplateModel.id must not be null when mapping to domain" },
+        contractId = contractId,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
         financialProfileId = financialProfileId,
@@ -79,6 +82,7 @@ fun TransactionTemplateModel.toDTO(): TransactionTemplate =
 fun TransactionTemplate.toModel(): TransactionTemplateModel =
     TransactionTemplateModel(
         id = id,
+        contractId = contractId,
         sourcePocketId = sourcePocketId,
         destinationPocketId = destinationPocketId,
         financialProfileId = financialProfileId,
