@@ -7,12 +7,14 @@ import kotlinx.coroutines.runBlocking
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOne
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @Tag("integration")
 @Testcontainers
@@ -160,6 +162,44 @@ class FinancialProfileMigrationTest {
             assertEquals(profile.id, assignedId)
         }
         execute("DELETE FROM financial_profiles WHERE id = 2")
+
+        assertFailsWith<DataIntegrityViolationException> {
+            execute("DELETE FROM financial_profiles WHERE id = ${profile.id}")
+        }
+        assertEquals(
+            1L,
+            databaseClient.sql("SELECT COUNT(*) AS profile_count FROM financial_profiles WHERE id = ${profile.id}")
+                .map { row, _ -> requireNotNull(row.get("profile_count", java.lang.Long::class.java)).toLong() }
+                .awaitOne(),
+        )
+    }
+
+    @Test
+    fun `restores fallback removed before truncate protection was installed`() = runBlocking {
+        flyway().clean()
+        flyway(target = "38").migrate()
+        execute("TRUNCATE TABLE financial_profiles CASCADE")
+
+        flyway().migrate()
+
+        val fallbackCount = databaseClient.sql(
+            "SELECT COUNT(*) AS fallback_count FROM financial_profiles WHERE is_fallback = TRUE",
+        )
+            .map { row, _ -> requireNotNull(row.get("fallback_count", java.lang.Long::class.java)).toLong() }
+            .awaitOne()
+        assertEquals(1L, fallbackCount)
+
+        assertFailsWith<DataIntegrityViolationException> {
+            execute("TRUNCATE TABLE financial_profiles CASCADE")
+        }
+        assertEquals(
+            1L,
+            databaseClient.sql(
+                "SELECT COUNT(*) AS fallback_count FROM financial_profiles WHERE is_fallback = TRUE",
+            )
+                .map { row, _ -> requireNotNull(row.get("fallback_count", java.lang.Long::class.java)).toLong() }
+                .awaitOne(),
+        )
     }
 
     private fun flyway(target: String? = null): Flyway {
