@@ -36,3 +36,23 @@ fun Pocket.toModel(): PocketModel =
         isArchived = isArchived,
         createdAt = createdAt,
     )
+
+/**
+ * Converts a pocket read from a resolved query to the API representation.
+ *
+ * The database check constraint guarantees a direct pocket owns its name and
+ * color. For a contract pocket, the repository query resolves both fields
+ * from its required contract.
+ */
+fun PocketModel.toDTO(): Pocket =
+    Pocket(
+        id = requireNotNull(id),
+        accountId = accountId,
+        contractId = contractId,
+        name = requireNotNull(name),
+        description = description,
+        color = requireNotNull(color),
+        isDefault = isDefault,
+        isArchived = isArchived,
+        createdAt = createdAt,
+    )
