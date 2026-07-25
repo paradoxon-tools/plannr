@@ -21,16 +21,11 @@ body:json {
     "description": null,
     "color": 12058624,
     "type": "ACCUMULATING",
-    "accountIds": ["{{seedAccountId}}"],
-    "financialProfileId": null,
-    "partnerId": "{{seedPartnerId}}",
+    "accountIds": ["{{rent_and_appliances}}"],
+    "financialProfileId": "{{unassigned}}",
+    "partnerId": "{{partner_vodafone}}",
     "signingDate": null,
     "expirationDate": null,
     "lastCancellationDate": null
   }
-}
-
-vars:pre-request {
-  accountName: Rent & Appliances
-  partnerName: Vodafone
 }

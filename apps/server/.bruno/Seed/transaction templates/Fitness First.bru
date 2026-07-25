@@ -14,11 +14,11 @@ body:json {
   {
     "templates": [
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{incomeBucketPocketId}}",
-      "destinationPocketId": "{{contractPocketId}}",
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{pocket_income_bucket}}",
+      "destinationPocketId": "{{contract_pocket_fitness_first}}",
+      "financialProfileId": "{{unassigned}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Rückstellung",
       "description": "",
       "amount": 10414,
@@ -37,11 +37,11 @@ body:json {
       "maxRecurrenceCount": null
     },
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{incomeBucketPocketId}}",
-      "destinationPocketId": "{{contractPocketId}}",
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{pocket_income_bucket}}",
+      "destinationPocketId": "{{contract_pocket_fitness_first}}",
+      "financialProfileId": "{{unassigned}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Rückstellung (Übertrag)",
       "description": "",
       "amount": 20828,
@@ -60,11 +60,11 @@ body:json {
       "maxRecurrenceCount": null
     },
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{contractPocketId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{contract_pocket_fitness_first}}",
       "destinationPocketId": null,
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "financialProfileId": "{{linka}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Mitgliedspauschale (Linka)",
       "description": "",
       "amount": 2900,
@@ -88,11 +88,11 @@ body:json {
       "maxRecurrenceCount": null
     },
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{contractPocketId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{contract_pocket_fitness_first}}",
       "destinationPocketId": null,
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "financialProfileId": "{{linka}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Mitgliedsbeitrag (Linka)",
       "description": "",
       "amount": 2180,
@@ -111,11 +111,11 @@ body:json {
       "maxRecurrenceCount": null
     },
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{contractPocketId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{contract_pocket_fitness_first}}",
       "destinationPocketId": null,
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "financialProfileId": "{{linka}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Mitgliedsbeitrag (Linka)",
       "description": "",
       "amount": 1090,
@@ -134,11 +134,11 @@ body:json {
       "maxRecurrenceCount": null
     },
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{contractPocketId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{contract_pocket_fitness_first}}",
       "destinationPocketId": null,
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "financialProfileId": "{{cryzsh}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Mitgliedspauschale (Cryzsh)",
       "description": "",
       "amount": 2900,
@@ -162,11 +162,11 @@ body:json {
       "maxRecurrenceCount": null
     },
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{contractPocketId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{contract_pocket_fitness_first}}",
       "destinationPocketId": null,
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "financialProfileId": "{{cryzsh}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Mitgliedsbeitrag (Cryzsh)",
       "description": "",
       "amount": 2180,
@@ -185,11 +185,11 @@ body:json {
       "maxRecurrenceCount": null
     },
     {
-      "contractId": "{{contractId}}",
-      "sourcePocketId": "{{contractPocketId}}",
+      "contractId": "{{contract_fitness_first}}",
+      "sourcePocketId": "{{contract_pocket_fitness_first}}",
       "destinationPocketId": null,
-      "financialProfileId": null,
-      "partnerId": "{{partnerId}}",
+      "financialProfileId": "{{cryzsh}}",
+      "partnerId": "{{partner_fitness_first}}",
       "title": "Mitgliedsbeitrag (Cryzsh)",
       "description": "",
       "amount": 2336,
@@ -207,11 +207,6 @@ body:json {
     }
     ]
   }
-}
-
-vars:pre-request {
-  contractName: Fitness First
-  partnerName: Fitness First
 }
 
 settings {

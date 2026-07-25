@@ -1,0 +1,23 @@
+meta {
+  name: cryzsh
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/financial-profiles
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "cryzsh",
+    "description": null
+  }
+}
