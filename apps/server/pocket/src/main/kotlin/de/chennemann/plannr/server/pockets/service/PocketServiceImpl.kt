@@ -27,6 +27,7 @@ internal class PocketServiceImpl(
     private val accountService: AccountService,
     @param:Lazy
     private val contractPresentationService: ContractPresentationService,
+    @param:Lazy
     private val transactionTemplateService: TransactionTemplateService,
     private val timeProvider: TimeProvider,
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,

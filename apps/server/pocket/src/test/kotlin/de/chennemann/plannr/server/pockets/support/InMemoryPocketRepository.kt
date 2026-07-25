@@ -3,7 +3,6 @@ package de.chennemann.plannr.server.pockets.support
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.domain.PocketRepository
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
-import de.chennemann.plannr.server.pockets.persistence.PocketRow
 import de.chennemann.plannr.server.pockets.persistence.toModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -41,21 +40,21 @@ class InMemoryPocketRepository : PocketRepository {
         entityStream.collect { emit(save(it)) }
     }
 
-    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketRow> =
+    override fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketModel> =
         pockets.values
             .filter { accountId == null || it.accountId == accountId }
             .filter { archived == null || it.isArchived == archived }
             .sortedWith(compareBy<PocketModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
-            .map { it.toRow() }
+            .map { it.toResolvedModel() }
             .asFlow()
 
-    override suspend fun findDefaultByAccountId(accountId: Long): PocketRow? =
+    override suspend fun findDefaultByAccountId(accountId: Long): PocketModel? =
         pockets.values
             .filter { it.accountId == accountId && it.isDefault }
             .minWithOrNull(compareBy<PocketModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
-            ?.toRow()
+            ?.toResolvedModel()
 
-    override suspend fun findResolvedById(id: Long): PocketRow? = pockets[id]?.toRow()
+    override suspend fun findResolvedById(id: Long): PocketModel? = pockets[id]?.toResolvedModel()
 
     override suspend fun count(): Long = pockets.size.toLong()
 
@@ -96,16 +95,11 @@ class InMemoryPocketRepository : PocketRepository {
             createdAt = createdAt,
         )
 
-    private fun PocketModel.toRow(): PocketRow =
-        PocketRow(
-            id = requireNotNull(id),
-            accountId = accountId,
-            contractId = contractId,
+    // Mirrors the production repository's contract join for tests that do not
+    // provide a contract repository.
+    private fun PocketModel.toResolvedModel(): PocketModel =
+        copy(
             name = name ?: "Contract $contractId",
-            description = description,
             color = color ?: 0,
-            isDefault = isDefault,
-            isArchived = isArchived,
-            createdAt = createdAt,
         )
 }

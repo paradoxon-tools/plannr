@@ -2,7 +2,6 @@ package de.chennemann.plannr.server.pockets.domain
 
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.persistence.PocketModel
-import de.chennemann.plannr.server.pockets.persistence.PocketRow
 import de.chennemann.plannr.server.pockets.persistence.toDTO
 import de.chennemann.plannr.server.pockets.persistence.toModel
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +24,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
         LIMIT 1
         """,
     )
-    suspend fun findDefaultByAccountId(accountId: Long): PocketRow?
+    suspend fun findDefaultByAccountId(accountId: Long): PocketModel?
 
     @Query(
         """
@@ -41,7 +40,10 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
         ORDER BY p.created_at ASC, p.id ASC
         """,
     )
-    fun findAllByAccountIdAndArchived(accountId: Long?, archived: Boolean?): Flow<PocketRow>
+    fun findAllByAccountIdAndArchived(
+        accountId: Long?,
+        archived: Boolean?,
+    ): Flow<PocketModel>
 
     @Query(
         """
@@ -55,8 +57,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
         WHERE p.id = :id
         """,
     )
-    suspend fun findResolvedById(id: Long): PocketRow?
+    suspend fun findResolvedById(id: Long): PocketModel?
 }
 
-suspend fun PocketRepository.save(pocket: Pocket): Pocket =
-    save(pocket.toModel()).let { findResolvedById(requireNotNull(it.id))!!.toDTO() }
+suspend fun PocketRepository.save(pocket: Pocket): Pocket = save(pocket.toModel()).let { findResolvedById(requireNotNull(it.id))!!.toDTO() }
