@@ -1,15 +1,15 @@
 meta {
   name: Seed
-  seq: 9
+  seq: 10
 }
 
-script:pre-request {
+script:post-response {
   const baseUrl = bru.getEnvVar("baseUrl") || bru.getVar("baseUrl");
-
+  
   if (!baseUrl) {
     throw new Error("Missing 'baseUrl'");
   }
-
+  
   function send(options) {
     return new Promise((resolve, reject) => {
       bru.sendRequest(options, (error, response) => {
@@ -17,23 +17,23 @@ script:pre-request {
           reject(error);
           return;
         }
-
+  
         resolve(response);
       });
     });
   }
-
+  
   function responseData(response, entityType) {
     const body = response.data ?? response.body;
     const data = typeof body === "string" ? JSON.parse(body) : body;
-
+  
     if (!Array.isArray(data)) {
       throw new Error(`Expected the ${entityType} response to be an array`);
     }
-
+  
     return data;
   }
-
+  
   function normalizedName(name, entityType) {
     const normalized = name
       .trim()
@@ -41,44 +41,102 @@ script:pre-request {
       .replace(/&/g, " and ")
       .replace(/[^a-z0-9]+/g, "_")
       .replace(/^_+|_+$/g, "");
-
+  
     if (!normalized) {
       throw new Error(
         `Cannot create a ${entityType} variable from name '${name}'`
       );
     }
-
+  
     return normalized;
   }
-
-  function setEntityVariables(entities, entityType, prefix, variableNames) {
+  
+  function clearEntityVariables() {
+    const prefixes = [
+      "account_",
+      "pocket_",
+      "profile_",
+      "contract_",
+      "partner_"
+    ];
+  
+    for (const variableName of Object.keys(bru.getAllVars())) {
+      if (prefixes.some((prefix) => variableName.startsWith(prefix))) {
+        bru.deleteVar(variableName);
+      }
+    }
+  }
+  
+  function setEntityVariables(
+    entities,
+    entityType,
+    prefix,
+    variableNames,
+    tieBreakerName
+  ) {
+    const normalizedNames = entities.map((entity) =>
+      normalizedName(entity.name, entityType)
+    );
+    const nameCounts = normalizedNames.reduce((counts, name) => {
+      counts.set(name, (counts.get(name) || 0) + 1);
+      return counts;
+    }, new Map());
+  
     for (const entity of entities) {
-      const variableName = `${prefix}${normalizedName(entity.name, entityType)}`;
-
+      const name = normalizedName(entity.name, entityType);
+      const tieBreaker = nameCounts.get(name) > 1 && tieBreakerName
+        ? `_${normalizedName(tieBreakerName(entity), entityType)}`
+        : "";
+      const variableName = `${prefix}${name}${tieBreaker}`;
+  
       if (variableNames.has(variableName)) {
         throw new Error(
           `Multiple ${entityType} normalize to the variable '${variableName}'`
         );
       }
-
+  
       variableNames.add(variableName);
       bru.setVar(variableName, entity.id);
     }
   }
-
-  function setPocketVariables(pockets, accounts, contracts, variableNames) {
+  
+  function setPocketVariables(
+    pockets,
+    accounts,
+    contracts,
+    financialProfiles,
+    variableNames
+  ) {
     const accountsById = new Map(accounts.map((account) => [account.id, account]));
     const contractsById = new Map(contracts.map((contract) => [contract.id, contract]));
-
+    const financialProfilesById = new Map(
+      financialProfiles.map((profile) => [profile.id, profile])
+    );
+    const contractNameCounts = contracts.reduce((counts, contract) => {
+      const name = normalizedName(contract.name, "contract");
+      counts.set(name, (counts.get(name) || 0) + 1);
+      return counts;
+    }, new Map());
+  
     for (const pocket of pockets) {
       let variableName;
-
+  
       if (pocket.contractId) {
         const contract = contractsById.get(pocket.contractId);
         if (!contract) {
           throw new Error(`No contract found for pocket '${pocket.id}'`);
         }
-        variableName = `contract_pocket_${normalizedName(contract.name, "contract")}`;
+        const contractName = normalizedName(contract.name, "contract");
+        const financialProfile = financialProfilesById.get(
+          contract.financialProfileId
+        );
+        if (!financialProfile) {
+          throw new Error(`No financial profile found for contract '${contract.id}'`);
+        }
+        const tieBreaker = contractNameCounts.get(contractName) > 1
+          ? `_${normalizedName(financialProfile.name, "financial profile")}`
+          : "";
+        variableName = `pocket_${contractName}${tieBreaker}`;
       } else if (pocket.isDefault) {
         const account = accountsById.get(pocket.accountId);
         if (!account) {
@@ -88,7 +146,7 @@ script:pre-request {
       } else {
         continue;
       }
-
+  
       if (variableNames.has(variableName)) {
         throw new Error(`Multiple pockets map to '${variableName}'`);
       }
@@ -96,7 +154,7 @@ script:pre-request {
       bru.setVar(variableName, pocket.id);
     }
   }
-
+  
   const requestHeaders = { Accept: "application/json" };
   const [
     activeAccountsResponse,
@@ -137,49 +195,73 @@ script:pre-request {
     send({ method: "GET", url: `${baseUrl}/pockets?archived=false`, headers: requestHeaders }),
     send({ method: "GET", url: `${baseUrl}/pockets?archived=true`, headers: requestHeaders })
   ]);
-
+  
   const accounts = [
     ...responseData(activeAccountsResponse, "accounts"),
     ...responseData(archivedAccountsResponse, "accounts")
   ];
+  clearEntityVariables();
   const variableNames = new Set();
-  setEntityVariables(accounts, "accounts", "", variableNames);
-
+  setEntityVariables(accounts, "accounts", "account_", variableNames);
+  
   const financialProfiles = [
     ...responseData(activeFinancialProfilesResponse, "financial profiles"),
     ...responseData(archivedFinancialProfilesResponse, "financial profiles")
   ];
   setEntityVariables(
     financialProfiles,
-    "financial profiles", "",
+    "financial profiles", "profile_",
     variableNames
   );
-
+  
   const partners = [
     ...responseData(activePartnersResponse, "partners"),
     ...responseData(archivedPartnersResponse, "partners")
   ];
   setEntityVariables(partners, "partners", "partner_", variableNames);
-
+  
   const contracts = [
     ...responseData(activeContractsResponse, "contracts"),
     ...responseData(archivedContractsResponse, "contracts")
   ];
-  setEntityVariables(contracts, "contracts", "contract_", variableNames);
-
+  const financialProfilesById = new Map(
+    financialProfiles.map((profile) => [profile.id, profile])
+  );
+  setEntityVariables(
+    contracts,
+    "contracts",
+    "contract_",
+    variableNames,
+    (contract) => {
+      const financialProfile = financialProfilesById.get(
+        contract.financialProfileId
+      );
+      if (!financialProfile) {
+        throw new Error(`No financial profile found for contract '${contract.id}'`);
+      }
+      return financialProfile.name;
+    }
+  );
+  
   const pockets = [
     ...responseData(activePocketsResponse, "pockets"),
     ...responseData(archivedPocketsResponse, "pockets")
   ];
-  setPocketVariables(pockets, accounts, contracts, variableNames);
-
-  const unassignedProfile = financialProfiles.find(
-    (profile) => profile.name === "Unassigned" && profile.isDefault
+  setPocketVariables(
+    pockets,
+    accounts,
+    contracts,
+    financialProfiles,
+    variableNames
   );
-
+  
+  const unassignedProfile = financialProfiles.find(
+    (profile) => profile.name === "Unassigned" && profile.isFallback
+  );
+  
   if (!unassignedProfile) {
     throw new Error("Missing the default 'Unassigned' financial profile");
   }
-
-  bru.setVar("unassigned", unassignedProfile.id);
+  
+  bru.setVar("profile_unassigned", unassignedProfile.id);
 }

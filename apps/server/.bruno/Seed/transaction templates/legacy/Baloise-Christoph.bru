@@ -2,6 +2,9 @@ meta {
   name: Baloise (Christoph)
   type: http
   seq: 4
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedContractPocketId}}",
     "destinationPocketId": null,
-    "financialProfileId": "{{cryzsh}}",
+    "financialProfileId": "{{profile_cryzsh}}",
     "partnerId": "{{seedPartnerId}}",
     "title": "Baloise (Christoph)",
     "description": null,

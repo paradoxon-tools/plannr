@@ -1,0 +1,31 @@
+meta {
+  name: Fitness First - cryzsh
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Fitness First RED",
+    "description": null,
+    "color": 8017481,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_cryzsh}}",
+    "partnerId": "{{partner_fitness_first}}",
+    "signingDate": "2024-09-13",
+    "expirationDate": "2026-09-12",
+    "lastCancellationDate": "2026-08-12"
+  }
+}

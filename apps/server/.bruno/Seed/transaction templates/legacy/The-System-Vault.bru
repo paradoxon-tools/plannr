@@ -2,6 +2,9 @@ meta {
   name: The System Vault - The System Vault (6)
   type: http
   seq: 55
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedContractPocketId}}",
     "destinationPocketId": null,
-    "financialProfileId": "{{unassigned}}",
+    "financialProfileId": "{{profile_unassigned}}",
     "partnerId": "{{seedPartnerId}}",
     "title": "The System Vault",
     "description": "The System Vault (6)",

@@ -2,6 +2,9 @@ meta {
   name: Dericon GmbH - Gehalt (3)
   type: http
   seq: 60
+  tags: [
+    legacy
+  ]
 }
 
 post {
@@ -20,7 +23,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": null,
     "destinationPocketId": {{seedContractPocketId}},
-    "financialProfileId": "{{unassigned}}",
+    "financialProfileId": "{{profile_unassigned}}",
     "partnerId": "{{seedPartnerId}}",
     "title": "Gehalt",
     "description": "Dericon GmbH",

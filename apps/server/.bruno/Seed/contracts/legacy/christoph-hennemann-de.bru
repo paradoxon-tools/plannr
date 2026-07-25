@@ -1,0 +1,34 @@
+meta {
+  name: christoph-hennemann.de
+  type: http
+  seq: 10
+  tags: [
+    legacy
+  ]
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "christoph-hennemann.de",
+    "description": null,
+    "color": 3457023,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_cryzsh}}",
+    "partnerId": "{{partner_malte_wolf_it_service_und_beratung}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

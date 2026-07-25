@@ -2,6 +2,9 @@ meta {
   name: Reserve PZR (Linka) - Rückstellung
   type: http
   seq: 43
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedReserveSourcePocketId}}",
     "destinationPocketId": "{{seedContractPocketId}}",
-    "financialProfileId": "{{linka}}",
+    "financialProfileId": "{{profile_linka}}",
     "partnerId": null,
     "title": "Reserve PZR (Linka)",
     "description": "Rückstellung (7)",

@@ -1,0 +1,34 @@
+meta {
+  name: Rundfunkbeitrag
+  type: http
+  seq: 24
+  tags: [
+    legacy
+  ]
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Rundfunkbeitrag",
+    "description": null,
+    "color": 4545124,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_unassigned}}",
+    "partnerId": "{{partner_ard_zdf_deutschlandradio_beitragsservice}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

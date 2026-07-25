@@ -2,6 +2,9 @@ meta {
   name: Reserve Smart Launcher - Rückstellung
   type: http
   seq: 46
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedReserveSourcePocketId}}",
     "destinationPocketId": "{{seedContractPocketId}}",
-    "financialProfileId": "{{unassigned}}",
+    "financialProfileId": "{{profile_unassigned}}",
     "partnerId": null,
     "title": "Reserve Smart Launcher",
     "description": "Rückstellung (7)",

@@ -2,6 +2,9 @@ meta {
   name: WWK (Linka) - WWK (7)
   type: http
   seq: 56
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedContractPocketId}}",
     "destinationPocketId": null,
-    "financialProfileId": "{{linka}}",
+    "financialProfileId": "{{profile_linka}}",
     "partnerId": "{{seedPartnerId}}",
     "title": "WWK (Linka)",
     "description": "WWK (7)",

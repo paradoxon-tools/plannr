@@ -1,0 +1,34 @@
+meta {
+  name: Dericon GmbH
+  type: http
+  seq: 31
+  tags: [
+    legacy
+  ]
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Dericon GmbH",
+    "description": null,
+    "color": 2733171,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_income_bucket}}"],
+    "financialProfileId": "{{profile_unassigned}}",
+    "partnerId": "{{partner_dericon_gmbh}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

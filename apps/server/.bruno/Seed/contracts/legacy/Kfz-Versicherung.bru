@@ -1,0 +1,34 @@
+meta {
+  name: Kfz-Versicherung
+  type: http
+  seq: 18
+  tags: [
+    legacy
+  ]
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Kfz-Versicherung",
+    "description": null,
+    "color": 16755968,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_unassigned}}",
+    "partnerId": "{{partner_huk24}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}
