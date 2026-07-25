@@ -1,0 +1,24 @@
+name: Master promotion policy
+
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  master-source-branch:
+    name: master-source-branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require develop as the pull-request source
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ "$HEAD_REF" != "develop" ]; then
+            echo "Only the current develop branch may be promoted to master."
+            echo "Received pull request from: $HEAD_REF"
+            exit 1
+          fi
