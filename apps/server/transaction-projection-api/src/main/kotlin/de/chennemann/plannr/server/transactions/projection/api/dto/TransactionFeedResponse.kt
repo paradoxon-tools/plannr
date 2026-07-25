@@ -29,7 +29,6 @@ data class TransactionFeedItem(
 data class TransactionFeedFinancialProfileReference(
     val id: Long,
     val name: String,
-    val kind: String,
 )
 
 data class TransactionFeedReference(

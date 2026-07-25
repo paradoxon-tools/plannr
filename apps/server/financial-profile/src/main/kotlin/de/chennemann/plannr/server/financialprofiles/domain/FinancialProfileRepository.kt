@@ -12,7 +12,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 interface FinancialProfileRepository : CoroutineCrudRepository<FinancialProfileModel, Long> {
     @Query(
         """
-        SELECT id, name, description, kind, is_default, is_fallback, is_archived, created_at
+        SELECT id, name, description, is_default, is_fallback, is_archived, created_at
         FROM financial_profiles
         WHERE (:query IS NULL OR LOWER(name) LIKE LOWER(CONCAT('%', :query, '%')))
           AND is_archived = :archived
@@ -23,7 +23,7 @@ interface FinancialProfileRepository : CoroutineCrudRepository<FinancialProfileM
 
     @Query(
         """
-        SELECT id, name, description, kind, is_default, is_fallback, is_archived, created_at
+        SELECT id, name, description, is_default, is_fallback, is_archived, created_at
         FROM financial_profiles
         WHERE LOWER(BTRIM(name)) = LOWER(BTRIM(:name))
         LIMIT 1
@@ -33,7 +33,7 @@ interface FinancialProfileRepository : CoroutineCrudRepository<FinancialProfileM
 
     @Query(
         """
-        SELECT id, name, description, kind, is_default, is_fallback, is_archived, created_at
+        SELECT id, name, description, is_default, is_fallback, is_archived, created_at
         FROM financial_profiles
         WHERE is_default = TRUE
         LIMIT 1
@@ -43,7 +43,7 @@ interface FinancialProfileRepository : CoroutineCrudRepository<FinancialProfileM
 
     @Query(
         """
-        SELECT id, name, description, kind, is_default, is_fallback, is_archived, created_at
+        SELECT id, name, description, is_default, is_fallback, is_archived, created_at
         FROM financial_profiles
         WHERE is_fallback = TRUE
         LIMIT 1

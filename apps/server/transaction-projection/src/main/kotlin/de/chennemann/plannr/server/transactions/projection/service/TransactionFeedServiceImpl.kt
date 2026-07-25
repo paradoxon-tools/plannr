@@ -126,7 +126,6 @@ internal class TransactionFeedServiceImpl(
         TransactionFeedFinancialProfileReference(
             id = requiredLong("financial_profile_id"),
             name = requiredString("financial_profile_name"),
-            kind = requiredString("financial_profile_kind"),
         )
 
     private fun io.r2dbc.spi.Row.reference(
@@ -163,7 +162,6 @@ internal class TransactionFeedServiceImpl(
             balance_after,
             financial_profile_id,
             financial_profile_name,
-            financial_profile_kind,
             partner_id,
             partner_name,
             source_pocket_id,
@@ -191,7 +189,6 @@ internal class TransactionFeedServiceImpl(
             balance_after,
             financial_profile_id,
             financial_profile_name,
-            financial_profile_kind,
             partner_id,
             partner_name,
             NULL::BIGINT AS source_pocket_id,

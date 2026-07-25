@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/financial-profiles/2
+  url: {{baseUrl}}/financial-profiles/:financialProfileId
   body: none
   auth: none
+}
+
+params:path {
+  financialProfileId: financial-profile-id
 }
