@@ -12,3 +12,14 @@ delete {
 headers {
   Accept: application/json
 }
+
+script:post-response {
+  if (res.status >= 200 && res.status < 300) {
+    const baseUrl = bru.getEnvVar("baseUrl") || bru.getVar("baseUrl");
+    bru.deleteAllVars();
+
+    if (baseUrl) {
+      bru.setVar("baseUrl", baseUrl);
+    }
+  }
+}

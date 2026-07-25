@@ -2,6 +2,9 @@ meta {
   name: o2 (Linka) - o2 (7)
   type: http
   seq: 18
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedContractPocketId}}",
     "destinationPocketId": null,
-    "financialProfileId": "{{linka}}",
+    "financialProfileId": "{{profile_linka}}",
     "partnerId": "{{seedPartnerId}}",
     "title": "o2 (Linka)",
     "description": "o2 (7)",

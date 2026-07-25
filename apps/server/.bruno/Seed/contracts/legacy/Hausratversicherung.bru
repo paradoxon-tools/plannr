@@ -1,0 +1,34 @@
+meta {
+  name: Hausratversicherung
+  type: http
+  seq: 14
+  tags: [
+    legacy
+  ]
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Hausratversicherung",
+    "description": null,
+    "color": 16755968,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_unassigned}}",
+    "partnerId": "{{partner_helvetia}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

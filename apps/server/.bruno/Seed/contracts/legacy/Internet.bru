@@ -1,0 +1,34 @@
+meta {
+  name: Internet
+  type: http
+  seq: 16
+  tags: [
+    legacy
+  ]
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Internet",
+    "description": null,
+    "color": 12058624,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_rent_and_appliances}}"],
+    "financialProfileId": "{{profile_unassigned}}",
+    "partnerId": "{{partner_vodafone}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

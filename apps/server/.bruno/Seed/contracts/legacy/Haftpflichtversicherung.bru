@@ -1,0 +1,34 @@
+meta {
+  name: Haftpflichtversicherung
+  type: http
+  seq: 13
+  tags: [
+    legacy
+  ]
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Haftpflichtversicherung",
+    "description": null,
+    "color": 16755968,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_unassigned}}",
+    "partnerId": "{{partner_vhv}}",
+    "signingDate": "2023-08-05",
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}
