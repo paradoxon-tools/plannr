@@ -22,15 +22,38 @@ jobs:
       publish: ${{ steps.version.outputs.publish }}
 
     steps:
-      - name: Check out master with all release tags
+      - name: Check out the release merge commit with all release tags
         uses: actions/checkout@v4
         with:
-          ref: master
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Verify the release was merged with a merge commit
+        env:
+          RELEASE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+          RELEASE_HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          read -r commit first_parent second_parent extra < <(git rev-list --parents -n 1 "$RELEASE_COMMIT")
+
+          if [ -z "$second_parent" ] || [ -n "$extra" ]; then
+            echo "Release pull requests must use 'Create a merge commit'."
+            echo "Expected exactly two parents for $RELEASE_COMMIT."
+            exit 1
+          fi
+
+          if [ "$second_parent" != "$RELEASE_HEAD" ]; then
+            echo "The release merge commit does not contain the reviewed develop tip as its second parent."
+            echo "Expected: $RELEASE_HEAD"
+            echo "Received: $second_parent"
+            exit 1
+          fi
+
       - name: Determine and create the next minor tag
         id: version
+        env:
+          RELEASE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
         shell: bash
         run: |
           latest_tag=$(git tag -l 'v*.*' --sort=-v:refname | grep -E '^v(0|[1-9][0-9]*)\.[0-9]+$' | head -n 1 || true)
@@ -43,15 +66,13 @@ jobs:
             next_tag="v${major}.$((minor + 1))"
           fi
 
-          release_commit=$(git rev-parse HEAD)
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "$next_tag" "$release_commit"
+          git tag "$next_tag" "$RELEASE_COMMIT"
           git push origin "refs/tags/$next_tag"
 
           echo "tag=$next_tag" >> "$GITHUB_OUTPUT"
-          echo "ref=$release_commit" >> "$GITHUB_OUTPUT"
+          echo "ref=$RELEASE_COMMIT" >> "$GITHUB_OUTPUT"
           echo "publish=true" >> "$GITHUB_OUTPUT"
 
   publish:
