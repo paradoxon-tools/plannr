@@ -16,22 +16,28 @@ git rebase origin/develop
 git push --force-with-lease
 ```
 
-Open the pull request against `develop` and use **Rebase and merge**. Do not
-create merge commits or squash commits. This keeps `develop` as one linear
-sequence of features.
+Open the pull request against `develop` and use **Rebase and merge** only after
+the feature branch has been rebased. Do not create merge commits or squash
+commits on `develop`. This keeps `develop` as one linear sequence of features:
+each feature is replayed onto the current `develop` tip before `develop`
+advances to include it.
 
 ## Releases
 
 At a chosen release point, ensure `develop` is current and open a pull request
-from `develop` to `master`. GitHub requires that exact source branch and that
-the pull request is up to date with `master`. Use **Rebase and merge**.
+from `develop` to `master`. GitHub requires that exact source branch. Use
+**Create a merge commit**. Never use **Rebase and merge** for a release pull
+request: the merge commit keeps the existing `develop` commit IDs intact on
+`master` and becomes the release commit.
 
 After it is merged, GitHub creates the next minor version automatically. Release
 tags use `v<major>.<minor>` (for example, `v1.4`): the first release is `v0.1`;
 after that, the action finds the highest existing release tag for the current
 major and increments its minor component. It publishes the GitHub Release from
-the new `master` commit with generated notes, a directly linked mobile APK, and
-a link to the versioned server image on GHCR.
+the release PR's merge commit with generated notes, a directly linked mobile
+APK, and a link to the versioned server image on GHCR. The action rejects a
+release that does not have the reviewed `develop` tip as the second parent of a
+two-parent merge commit.
 
 Every major version is a deliberate, manual operation. After merging the
 release PR, tag that exact `master` commit as `v<major>.0` (for example, `v1.0`
@@ -45,6 +51,7 @@ No release branch is needed or allowed to merge into `master`.
 
 - Direct pushes and force-pushes to `develop` and `master` are blocked.
 - Pull requests are required for both protected branches.
-- Only rebase-and-merge is enabled repository-wide.
+- Feature pull requests into `develop` require rebase merging.
+- Release pull requests into `master` require a merge commit.
 - The required `master-source-branch` check fails every `master` pull request
   whose source is not `develop`.
