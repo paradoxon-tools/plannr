@@ -11,7 +11,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
     @Query(
         """
-        SELECT p.id, p.account_id, p.contract_id,
+        SELECT p.id, p.account_id, p.contract_id, p.saving_goal_id,
                COALESCE(p.name, c.name) AS name,
                CASE WHEN p.contract_id IS NULL THEN p.description ELSE c.description END AS description,
                COALESCE(p.color, c.color) AS color,
@@ -28,7 +28,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
 
     @Query(
         """
-        SELECT p.id, p.account_id, p.contract_id,
+        SELECT p.id, p.account_id, p.contract_id, p.saving_goal_id,
                COALESCE(p.name, c.name) AS name,
                CASE WHEN p.contract_id IS NULL THEN p.description ELSE c.description END AS description,
                COALESCE(p.color, c.color) AS color,
@@ -47,7 +47,7 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
 
     @Query(
         """
-        SELECT p.id, p.account_id, p.contract_id,
+        SELECT p.id, p.account_id, p.contract_id, p.saving_goal_id,
                COALESCE(p.name, c.name) AS name,
                CASE WHEN p.contract_id IS NULL THEN p.description ELSE c.description END AS description,
                COALESCE(p.color, c.color) AS color,
@@ -58,6 +58,21 @@ interface PocketRepository : CoroutineCrudRepository<PocketModel, Long> {
         """,
     )
     suspend fun findResolvedById(id: Long): PocketModel?
+
+    @Query(
+        """
+        SELECT p.id, p.account_id, p.contract_id, p.saving_goal_id,
+               COALESCE(p.name, c.name) AS name,
+               CASE WHEN p.contract_id IS NULL THEN p.description ELSE c.description END AS description,
+               COALESCE(p.color, c.color) AS color,
+               p.is_default, p.is_archived, p.created_at
+        FROM pockets p
+        LEFT JOIN contracts c ON c.id = p.contract_id
+        WHERE p.saving_goal_id = :savingGoalId
+        ORDER BY p.created_at ASC, p.id ASC
+        """,
+    )
+    fun findAllBySavingGoalId(savingGoalId: Long): Flow<PocketModel>
 }
 
 suspend fun PocketRepository.save(pocket: Pocket): Pocket = save(pocket.toModel()).let { findResolvedById(requireNotNull(it.id))!!.toDTO() }

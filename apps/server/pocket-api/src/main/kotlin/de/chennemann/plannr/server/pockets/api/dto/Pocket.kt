@@ -4,6 +4,7 @@ data class Pocket(
     val id: Long,
     val accountId: Long,
     val contractId: Long? = null,
+    val savingGoalId: Long? = null,
     val name: String,
     val description: String?,
     val color: Int,

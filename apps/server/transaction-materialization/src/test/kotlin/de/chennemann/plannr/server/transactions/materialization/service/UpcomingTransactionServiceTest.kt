@@ -154,6 +154,14 @@ private data object UnusedPocketService : PocketService {
 
     override suspend fun createForContract(command: CreatePocketForContractCommand): Pocket = unsupported()
 
+    override suspend fun createForSavingGoal(
+        command: de.chennemann.plannr.server.pockets.service.CreatePocketForSavingGoalCommand,
+    ): Pocket = unsupported()
+
+    override suspend fun updateForSavingGoal(
+        command: de.chennemann.plannr.server.pockets.service.UpdatePocketsForSavingGoalCommand,
+    ) = unsupported<Unit>()
+
     override suspend fun update(command: UpdatePocketCommand): Pocket = unsupported()
 
     override suspend fun archive(id: Long): Pocket = unsupported()
@@ -164,12 +172,18 @@ private data object UnusedPocketService : PocketService {
 
     override suspend fun unarchiveForAccount(accountId: Long) = unsupported<Unit>()
 
+    override suspend fun archiveForSavingGoal(savingGoalId: Long) = unsupported<Unit>()
+
+    override suspend fun unarchiveForSavingGoal(savingGoalId: Long) = unsupported<Unit>()
+
     override suspend fun delete(id: Long) = unsupported<Unit>()
 
     override suspend fun list(
         accountId: Long?,
         archived: Boolean?,
     ): List<Pocket> = unsupported()
+
+    override suspend fun listForSavingGoal(savingGoalId: Long): List<Pocket> = unsupported()
 
     override suspend fun getById(id: Long): Pocket? = unsupported()
 

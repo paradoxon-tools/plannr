@@ -7,7 +7,9 @@ import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.CreatePocketForContractCommand
+import de.chennemann.plannr.server.pockets.service.CreatePocketForSavingGoalCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.pockets.service.UpdatePocketsForSavingGoalCommand
 
 internal fun accountService(
     accountRepository: AccountRepository = InMemoryAccountRepository(),
@@ -38,6 +40,8 @@ internal class RecordingPocketService : PocketService {
         )
     }
     override suspend fun createForContract(command: CreatePocketForContractCommand): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun createForSavingGoal(command: CreatePocketForSavingGoalCommand): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun updateForSavingGoal(command: UpdatePocketsForSavingGoalCommand) = Unit
     override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
@@ -52,4 +56,7 @@ internal class RecordingPocketService : PocketService {
     override suspend fun unarchiveForAccount(accountId: Long) {
         unarchivedAccountIds += accountId
     }
+    override suspend fun archiveForSavingGoal(savingGoalId: Long) = Unit
+    override suspend fun unarchiveForSavingGoal(savingGoalId: Long) = Unit
+    override suspend fun listForSavingGoal(savingGoalId: Long): List<Pocket> = emptyList()
 }

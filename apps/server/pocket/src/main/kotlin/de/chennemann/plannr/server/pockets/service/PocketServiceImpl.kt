@@ -42,6 +42,7 @@ internal class PocketServiceImpl(
                 color = command.color,
                 isDefault = command.isDefault,
                 contractId = null,
+                savingGoalId = null,
             )
         enqueueProjectionChange(pocket.id)
         return pocket
@@ -56,7 +57,36 @@ internal class PocketServiceImpl(
             color = null,
             isDefault = false,
             contractId = command.contractId,
+            savingGoalId = null,
         )
+    }
+
+    override suspend fun createForSavingGoal(command: CreatePocketForSavingGoalCommand): Pocket {
+        val accountId = existingAccountId(command.accountId)
+        val pocket = createPocket(
+            accountId = accountId,
+            name = command.name,
+            description = command.description,
+            color = command.color,
+            isDefault = false,
+            contractId = null,
+            savingGoalId = command.savingGoalId,
+        )
+        enqueueProjectionChange(pocket.id)
+        return pocket
+    }
+
+    override suspend fun updateForSavingGoal(command: UpdatePocketsForSavingGoalCommand) {
+        listForSavingGoal(command.savingGoalId).forEach { pocket ->
+            pocketRepository.save(
+                pocket.copy(
+                    name = command.name,
+                    description = command.description,
+                    color = command.color,
+                ),
+            )
+            enqueueProjectionChange(pocket.id)
+        }
     }
 
     override suspend fun update(command: UpdatePocketCommand): Pocket {
@@ -78,6 +108,13 @@ internal class PocketServiceImpl(
             )
             enqueueProjectionChange(existing.id)
             return existingPocket(existing.id)
+        }
+        if (existing.savingGoalId != null) {
+            throw ValidationException(
+                "validation_error",
+                "Dedicated saving goal pockets must be updated through their saving goal",
+                mapOf("id" to existing.id),
+            )
         }
         val accountId = existingAccountId(command.accountId)
         val persisted =
@@ -118,12 +155,20 @@ internal class PocketServiceImpl(
         list(accountId = accountId).forEach { unarchive(it.id) }
     }
 
+    override suspend fun archiveForSavingGoal(savingGoalId: Long) {
+        listForSavingGoal(savingGoalId).forEach { archive(it.id) }
+    }
+
+    override suspend fun unarchiveForSavingGoal(savingGoalId: Long) {
+        listForSavingGoal(savingGoalId).forEach { unarchive(it.id) }
+    }
+
     override suspend fun delete(id: Long) {
         val existing = existingPocket(id)
-        if (existing.contractId != null) {
+        if (existing.contractId != null || existing.savingGoalId != null) {
             throw ValidationException(
                 "validation_error",
-                "Dedicated contract pockets cannot be deleted directly",
+                "Managed pockets cannot be deleted directly",
                 mapOf("id" to id),
             )
         }
@@ -143,6 +188,9 @@ internal class PocketServiceImpl(
             ).toList()
             .map { it.toDTO() }
 
+    override suspend fun listForSavingGoal(savingGoalId: Long): List<Pocket> =
+        pocketRepository.findAllBySavingGoalId(savingGoalId).toList().map { it.toDTO() }
+
     override suspend fun getById(id: Long): Pocket? = pocketRepository.findResolvedById(id)?.toDTO()
 
     private suspend fun createPocket(
@@ -152,6 +200,7 @@ internal class PocketServiceImpl(
         color: Int?,
         isDefault: Boolean,
         contractId: Long?,
+        savingGoalId: Long?,
     ): Pocket =
         pocketRepository
             .save(
@@ -159,6 +208,7 @@ internal class PocketServiceImpl(
                     id = null,
                     accountId = accountId,
                     contractId = contractId,
+                    savingGoalId = savingGoalId,
                     name = name,
                     description = description,
                     color = color,

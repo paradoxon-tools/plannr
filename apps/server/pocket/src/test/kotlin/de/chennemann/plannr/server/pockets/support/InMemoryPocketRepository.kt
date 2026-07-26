@@ -48,6 +48,13 @@ class InMemoryPocketRepository : PocketRepository {
             .map { it.toResolvedModel() }
             .asFlow()
 
+    override fun findAllBySavingGoalId(savingGoalId: Long): Flow<PocketModel> =
+        pockets.values
+            .filter { it.savingGoalId == savingGoalId }
+            .sortedWith(compareBy<PocketModel> { it.createdAt }.thenBy { requireNotNull(it.id) })
+            .map { it.toResolvedModel() }
+            .asFlow()
+
     override suspend fun findDefaultByAccountId(accountId: Long): PocketModel? =
         pockets.values
             .filter { it.accountId == accountId && it.isDefault }
@@ -87,6 +94,7 @@ class InMemoryPocketRepository : PocketRepository {
             id = requireNotNull(id),
             accountId = accountId,
             contractId = contractId,
+            savingGoalId = savingGoalId,
             name = name ?: "Contract $contractId",
             description = description,
             color = color ?: 0,
