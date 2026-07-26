@@ -1,0 +1,71 @@
+meta {
+  name: Duolingo
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_duolingo}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_duolingo}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_duolingo}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 1025,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2024-12-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [
+          1
+        ],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_duolingo}}",
+        "sourcePocketId": "{{pocket_duolingo}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_duolingo}}",
+        "title": "Duolingo",
+        "description": "",
+        "amount": 12299,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2025-11-15",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "YEARLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [
+          15
+        ],
+        "monthsOfYear": [
+          11
+        ],
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

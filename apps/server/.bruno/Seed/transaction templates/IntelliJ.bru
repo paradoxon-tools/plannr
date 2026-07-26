@@ -1,0 +1,86 @@
+meta {
+  name: IntelliJ
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_intellij}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_intellij}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_jetbrains}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 1181,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2025-10-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_intellij}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_intellij}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_jetbrains}}",
+        "title": "Rückstellungsausgleich",
+        "description": "",
+        "amount": 3532,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2026-06-18",
+        "finalOccurrenceDate": "2026-06-18",
+        "recurrenceType": "NONE",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": null,
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_intellij}}",
+        "sourcePocketId": "{{pocket_intellij}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_jetbrains}}",
+        "title": "IntelliJ IDEA",
+        "description": "",
+        "amount": 14161,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2026-07-09",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "YEARLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [9],
+        "monthsOfYear": [7],
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

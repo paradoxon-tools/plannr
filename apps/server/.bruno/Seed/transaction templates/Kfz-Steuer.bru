@@ -1,0 +1,86 @@
+meta {
+  name: Kfz-Steuer
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_kfz_steuer}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_kfz_steuer}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_hauptzollamt}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 900,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2024-12-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_kfz_steuer}}",
+        "sourcePocketId": "{{pocket_kfz_steuer}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_hauptzollamt}}",
+        "title": "Kfz-Steuer",
+        "description": "",
+        "amount": 10800,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2024-11-28",
+        "finalOccurrenceDate": "2024-11-28",
+        "recurrenceType": "NONE",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": null,
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_kfz_steuer}}",
+        "sourcePocketId": "{{pocket_kfz_steuer}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_hauptzollamt}}",
+        "title": "Kfz-Steuer",
+        "description": "",
+        "amount": 10800,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2025-10-17",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "YEARLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [17],
+        "monthsOfYear": [10],
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,65 @@
+meta {
+  name: WWK
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_wwk_linka}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_wwk_linka}}",
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_wwk}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 5500,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2025-10-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_wwk_linka}}",
+        "sourcePocketId": "{{pocket_wwk_linka}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_wwk}}",
+        "title": "WWK",
+        "description": "",
+        "amount": 5500,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2025-10-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
