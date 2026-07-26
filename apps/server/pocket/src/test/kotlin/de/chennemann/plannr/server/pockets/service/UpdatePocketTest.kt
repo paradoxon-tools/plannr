@@ -71,4 +71,15 @@ class UpdatePocketTest {
             pocketService.update(PocketFixtures.updatePocketCommand(accountId = 999L))
         }
     }
+
+    @Test
+    fun `rejects direct updates to saving goal pocket`() = runTest {
+        val pocketRepository = InMemoryPocketRepository()
+        pocketRepository.save(PocketFixtures.pocket(savingGoalId = 24L).toModel())
+        val pocketService = pocketService(repository = pocketRepository)
+
+        assertFailsWith<de.chennemann.plannr.server.common.error.ValidationException> {
+            pocketService.update(PocketFixtures.updatePocketCommand())
+        }
+    }
 }
