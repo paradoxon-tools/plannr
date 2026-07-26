@@ -1,0 +1,25 @@
+meta {
+  name: Private Corner
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/accounts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Everyday Life",
+    "institution": "ING",
+    "currencyCode": "EUR",
+    "weekendHandling": "NO_SHIFT"
+  }
+}
