@@ -1,0 +1,28 @@
+meta {
+  name: Update saving goal
+  type: http
+}
+
+put {
+  url: {{baseUrl}}/saving-goals
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "id": "saving-goal-id",
+    "financialProfileId": "financial-profile-id",
+    "name": "Emergency fund",
+    "description": "Six months of expenses",
+    "color": 9125110,
+    "targetAmount": 600000,
+    "currencyCode": "EUR",
+    "targetDate": "2028-06-30"
+  }
+}

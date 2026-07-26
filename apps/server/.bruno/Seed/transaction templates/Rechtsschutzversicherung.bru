@@ -1,0 +1,86 @@
+meta {
+  name: Rechtsschutzversicherung
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_rechtsschutzversicherung}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_rechtsschutzversicherung}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_ks_auxilia}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 2225,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2024-12-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_rechtsschutzversicherung}}",
+        "sourcePocketId": "{{pocket_rechtsschutzversicherung}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_ks_auxilia}}",
+        "title": "Rechtsschutzversicherung",
+        "description": "",
+        "amount": 26700,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2025-04-01",
+        "finalOccurrenceDate": "2025-04-01",
+        "recurrenceType": "NONE",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": null,
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_rechtsschutzversicherung}}",
+        "sourcePocketId": "{{pocket_rechtsschutzversicherung}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_ks_auxilia}}",
+        "title": "Rechtsschutzversicherung",
+        "description": "",
+        "amount": 30208,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2026-04-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "YEARLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": [4],
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,65 @@
+meta {
+  name: AXA Leben
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_axa_leben_linka}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_axa_leben_linka}}",
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_axa_lebensversicherung_ag}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 4144,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2025-10-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_axa_leben_linka}}",
+        "sourcePocketId": "{{pocket_axa_leben_linka}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_axa_lebensversicherung_ag}}",
+        "title": "AXA Leben",
+        "description": "",
+        "amount": 4144,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2025-10-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

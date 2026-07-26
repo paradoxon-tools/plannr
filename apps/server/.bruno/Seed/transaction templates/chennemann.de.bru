@@ -1,0 +1,65 @@
+meta {
+  name: chennemann.de
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_chennemann_de}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_chennemann_de}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_strato}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 80,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2025-10-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_chennemann_de}}",
+        "sourcePocketId": "{{pocket_chennemann_de}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_strato}}",
+        "title": "Domain",
+        "description": "",
+        "amount": 960,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2026-07-15",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "YEARLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [15],
+        "monthsOfYear": [7],
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

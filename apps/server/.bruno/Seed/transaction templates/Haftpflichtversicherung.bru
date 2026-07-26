@@ -1,0 +1,107 @@
+meta {
+  name: Haftpflichtversicherung
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_haftpflichtversicherung}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_haftpflichtversicherung}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_vhv}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 559,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2024-12-01",
+        "finalOccurrenceDate": "2025-08-01",
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_haftpflichtversicherung}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_haftpflichtversicherung}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_vhv}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 612,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2025-09-01",
+        "finalOccurrenceDate": "2026-06-01",
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_haftpflichtversicherung}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_haftpflichtversicherung}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_vhv}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 671,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2026-07-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_haftpflichtversicherung}}",
+        "sourcePocketId": "{{pocket_haftpflichtversicherung}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_vhv}}",
+        "title": "Haftpflichtversicherung",
+        "description": "",
+        "amount": 7340,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2025-08-06",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "YEARLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [6],
+        "monthsOfYear": [8],
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

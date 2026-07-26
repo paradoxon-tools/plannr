@@ -1,0 +1,71 @@
+meta {
+  name: Amazon Prime
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_amazon_prime}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_amazon_prime}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_amazon_prime}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 750,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2024-12-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [
+          1
+        ],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_amazon_prime}}",
+        "sourcePocketId": "{{pocket_amazon_prime}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_amazon_prime}}",
+        "title": "Amazon Prime",
+        "description": "",
+        "amount": 8990,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2025-01-10",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "YEARLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [
+          10
+        ],
+        "monthsOfYear": [
+          1
+        ],
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

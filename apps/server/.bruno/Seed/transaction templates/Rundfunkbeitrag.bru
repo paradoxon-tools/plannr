@@ -1,0 +1,65 @@
+meta {
+  name: Rundfunkbeitrag
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_rundfunkbeitrag}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_rundfunkbeitrag}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_ard_zdf_deutschlandradio_beitragsservice}}",
+        "title": "Rückstellung",
+        "description": "",
+        "amount": 1836,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2024-12-01",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [1],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      },
+      {
+        "contractId": "{{contract_rundfunkbeitrag}}",
+        "sourcePocketId": "{{pocket_rundfunkbeitrag}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_ard_zdf_deutschlandradio_beitragsservice}}",
+        "title": "Rundfunkbeitrag",
+        "description": "",
+        "amount": 5508,
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "firstOccurrenceDate": "2024-11-15",
+        "finalOccurrenceDate": null,
+        "recurrenceType": "MONTHLY",
+        "skipCount": 2,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": [15],
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

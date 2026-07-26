@@ -1,0 +1,19 @@
+meta {
+  name: List saving goals
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/saving-goals
+  body: none
+  auth: none
+}
+
+params:query {
+  accountId: account-id
+  archived: false
+}
+
+headers {
+  Accept: application/json
+}
