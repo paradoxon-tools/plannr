@@ -1,0 +1,44 @@
+meta {
+  name: Dericon
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_dericon_gmbh}}",
+        "sourcePocketId": "{{pocket_private_corner}}",
+        "destinationPocketId": "{{pocket_income_bucket}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_dericon_gmbh}}",
+        "title": "Gemeinschaftskontoeinzahlung",
+        "description": "",
+        "amount": 366322,
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "firstOccurrenceDate": "2025-08-20",
+        "finalOccurrenceDate": "2025-08-20",
+        "recurrenceType": "NONE",
+        "skipCount": 0,
+        "daysOfWeek": null,
+        "weeksOfMonth": null,
+        "daysOfMonth": null,
+        "monthsOfYear": null,
+        "maxRecurrenceCount": null
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
