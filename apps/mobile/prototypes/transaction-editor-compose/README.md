@@ -2,11 +2,12 @@
 
 Throwaway Compose Multiplatform prototype for [Prototype the transaction editor workflow](https://github.com/paradoxon-tools/plannr/issues/18).
 
-Three variants answer how one shared editor should expose one-off and recurring income, expense, and transfer entries:
+Four variants retain the original editor's transaction-type navigation and focused-input model while comparing the layout of its persistent "receipt":
 
-- **A — Focus deck:** a persistent transaction summary above one focused input surface.
-- **B — Guided path:** one relationship or schedule decision per step, with a live receipt alongside it.
-- **C — Compact sheet:** a scan-friendly form whose relationship rows open full-screen pickers.
+- **A — Original reference:** a reconstruction of the `plannr-kmm` amount, source/destination, category, and focused-input composition.
+- **B — Ledger receipt:** a dense ruled summary that makes every server relationship explicit.
+- **C — Route receipt:** a source-to-counterparty/destination path, with profile and timing as metadata.
+- **D — Torn receipt:** a narrow typographic paper receipt optimized for rapid scanning.
 
 Run from the repository root:
 

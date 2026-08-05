@@ -27,7 +27,12 @@ private val Muted = Color(0xFF686864)
 private val Rule = Color(0xFFD4D2CB)
 private val Danger = Color(0xFFB3261E)
 
-private enum class Variant(val label: String) { A("Focus deck"), B("Guided path"), C("Compact sheet") }
+private enum class Variant(val label: String) {
+    A("Original reference"),
+    B("Ledger receipt"),
+    C("Route receipt"),
+    D("Torn receipt"),
+}
 private enum class Kind { EXPENSE, INCOME, TRANSFER }
 private enum class Rhythm { ONE_OFF, RECURRING }
 private enum class Field { AMOUNT, FROM, TO, PARTNER, PROFILE, CONTRACT, DATE, SCHEDULE, NOTE }
@@ -65,8 +70,8 @@ fun TransactionEditorPrototype() {
             Modifier.fillMaxSize().background(Paper).focusable().onPreviewKeyEvent {
                 if (it.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                 when (it.key) {
-                    Key.DirectionLeft -> { variant = Variant.entries[(variant.ordinal + 2) % 3]; true }
-                    Key.DirectionRight -> { variant = Variant.entries[(variant.ordinal + 1) % 3]; true }
+                    Key.DirectionLeft -> { variant = Variant.entries[(variant.ordinal + Variant.entries.size - 1) % Variant.entries.size]; true }
+                    Key.DirectionRight -> { variant = Variant.entries[(variant.ordinal + 1) % Variant.entries.size]; true }
                     Key.O -> { state.online = !state.online; state.saveInterrupted = false; true }
                     Key.S -> { state.online = false; state.saveInterrupted = true; true }
                     Key.Escape -> { state.activeField = null; true }
@@ -75,12 +80,13 @@ fun TransactionEditorPrototype() {
             }
         ) {
             when (variant) {
-                Variant.A -> FocusDeck(state)
-                Variant.B -> GuidedPath(state)
-                Variant.C -> CompactSheet(state)
+                Variant.A -> OriginalReference(state)
+                Variant.B -> ReceiptEditor(state, receipt = { LedgerReceipt(state) })
+                Variant.C -> ReceiptEditor(state, receipt = { RouteReceipt(state) })
+                Variant.D -> ReceiptEditor(state, receipt = { TornReceipt(state) })
             }
             ConnectivityBadge(state, Modifier.align(Alignment.TopEnd).padding(12.dp))
-            VariantSwitcher(variant, { variant = Variant.entries[(variant.ordinal + 2) % 3] }, { variant = Variant.entries[(variant.ordinal + 1) % 3] }, Modifier.align(Alignment.BottomCenter))
+            VariantSwitcher(variant, { variant = Variant.entries[(variant.ordinal + Variant.entries.size - 1) % Variant.entries.size] }, { variant = Variant.entries[(variant.ordinal + 1) % Variant.entries.size] }, Modifier.align(Alignment.BottomCenter))
         }
     }
 }
@@ -105,14 +111,121 @@ fun TransactionEditorPrototype() {
     }
 }
 
-@Composable private fun FocusDeck(state: EditorState) {
+@Composable private fun OriginalReference(state: EditorState) {
     Column(Modifier.fillMaxSize().padding(bottom = 72.dp)) {
-        EditorHeader(state, "Transaction entry", "Keep the whole entry visible; focus one input below.")
-        SummaryCard(state, Modifier.padding(horizontal = 24.dp))
+        EditorHeader(state, "Original editor", "Reference reconstruction from plannr-kmm.")
+        OriginalReceipt(state, Modifier.padding(horizontal = 24.dp))
         Spacer(Modifier.height(12.dp))
         FocusTabs(state)
         Box(Modifier.fillMaxWidth().weight(1f).background(Ink).padding(24.dp)) { FocusInput(state) }
         SaveBar(state)
+    }
+}
+
+@Composable private fun ReceiptEditor(state: EditorState, receipt: @Composable () -> Unit) {
+    Column(Modifier.fillMaxSize().padding(bottom = 72.dp)) {
+        EditorHeader(state, "Transaction entry", "Original interaction model; experimental receipt layout.")
+        Box(Modifier.padding(horizontal = 24.dp)) { receipt() }
+        Spacer(Modifier.height(12.dp))
+        FocusTabs(state)
+        Box(Modifier.fillMaxWidth().weight(1f).background(Ink).padding(24.dp)) { FocusInput(state) }
+        SaveBar(state)
+    }
+}
+
+@Composable private fun OriginalReceipt(state: EditorState, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth().background(Color.White).padding(20.dp), horizontalAlignment = Alignment.End) {
+        Text(state.kind.name, Modifier.align(Alignment.Start), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(18.dp))
+        Text("AMOUNT", fontSize = 9.sp, color = Muted)
+        Text("€ ${state.amount}", fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.weight(1f, fill = false)); Spacer(Modifier.height(20.dp))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            OriginalSlot(if (state.kind == Kind.INCOME) state.partner else state.from, "Source", Modifier.weight(1f))
+            Text("→", Modifier.padding(horizontal = 12.dp), color = Muted, fontSize = 22.sp)
+            OriginalSlot(if (state.kind == Kind.TRANSFER) state.to else if (state.kind == Kind.EXPENSE) state.partner else state.from, "Destination", Modifier.weight(1f))
+        }
+        if (state.kind != Kind.TRANSFER) {
+            Spacer(Modifier.height(16.dp)); OriginalSlot(state.contract, "Category", Modifier.align(Alignment.End).width(150.dp))
+        }
+        Spacer(Modifier.height(14.dp))
+        Text(if (state.rhythm == Rhythm.RECURRING) "${state.date}  ·  ${state.schedule}" else state.date, fontSize = 11.sp, color = Muted)
+    }
+}
+
+@Composable private fun OriginalSlot(value: String, placeholder: String, modifier: Modifier = Modifier) {
+    Column(modifier.border(1.dp, Rule, RoundedCornerShape(6.dp)).padding(horizontal = 10.dp, vertical = 9.dp)) {
+        Text(placeholder.uppercase(), fontSize = 8.sp, color = Muted)
+        Text(value, fontSize = 12.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+    }
+}
+
+@Composable private fun LedgerReceipt(state: EditorState) {
+    Column(Modifier.fillMaxWidth().border(1.dp, Ink)) {
+        Row(Modifier.fillMaxWidth().background(Ink).padding(horizontal = 14.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("${state.kind.name} ENTRY", color = Color.White, fontSize = 10.sp, letterSpacing = 1.sp)
+            Text(if (state.rhythm == Rhythm.ONE_OFF) "ONE-OFF" else "RECURRING", color = Color.White, fontSize = 10.sp)
+        }
+        Column(Modifier.padding(14.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("AMOUNT", fontSize = 9.sp, color = Muted); Text("€ ${state.amount}", fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
+            }
+            HorizontalDivider(Modifier.padding(vertical = 10.dp), color = Ink)
+            SummaryLine("SOURCE", state.from)
+            SummaryLine(if (state.kind == Kind.TRANSFER) "DESTINATION" else "PARTNER", if (state.kind == Kind.TRANSFER) state.to else state.partner)
+            SummaryLine("PROFILE", state.profile)
+            if (state.kind != Kind.TRANSFER) SummaryLine("CONTRACT", state.contract)
+            SummaryLine(if (state.rhythm == Rhythm.RECURRING) "FIRST / RULE" else "DATE", if (state.rhythm == Rhythm.RECURRING) "${state.date} / ${state.schedule}" else state.date)
+        }
+    }
+}
+
+@Composable private fun RouteReceipt(state: EditorState) {
+    Column(Modifier.fillMaxWidth().border(1.dp, Rule).padding(16.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Column { Text(state.kind.name, fontSize = 10.sp, color = Muted, letterSpacing = 1.sp); Text("€ ${state.amount}", fontSize = 30.sp, fontWeight = FontWeight.SemiBold) }
+            Surface(shape = CircleShape, color = Ink) { Text(if (state.rhythm == Rhythm.ONE_OFF) "1×" else "↻", Modifier.padding(10.dp), color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+        Spacer(Modifier.height(18.dp))
+        RouteStop("01", "FROM", state.from, true)
+        if (state.kind != Kind.TRANSFER) RouteStop("02", "WITH", state.partner, true)
+        RouteStop(if (state.kind == Kind.TRANSFER) "02" else "03", if (state.kind == Kind.TRANSFER) "TO" else "FOR", if (state.kind == Kind.TRANSFER) state.to else state.contract, false)
+        Spacer(Modifier.height(12.dp))
+        Text("${state.profile}  ·  ${if (state.rhythm == Rhythm.RECURRING) state.schedule else state.date}", fontSize = 11.sp, color = Muted)
+    }
+}
+
+@Composable private fun RouteStop(number: String, label: String, value: String, continuing: Boolean) {
+    Row(Modifier.fillMaxWidth().height(48.dp)) {
+        Column(Modifier.width(34.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(Modifier.size(22.dp).border(1.dp, Ink, CircleShape), contentAlignment = Alignment.Center) { Text(number, fontSize = 8.sp, fontWeight = FontWeight.Bold) }
+            if (continuing) Box(Modifier.width(1.dp).weight(1f).background(Ink))
+        }
+        Column(Modifier.padding(start = 8.dp)) { Text(label, fontSize = 8.sp, color = Muted); Text(value, fontSize = 14.sp, fontWeight = FontWeight.Medium) }
+    }
+}
+
+@Composable private fun TornReceipt(state: EditorState) {
+    Column(Modifier.fillMaxWidth().background(Color.White).padding(18.dp)) {
+        Text("PLANNR", fontSize = 10.sp, letterSpacing = 3.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Text("TRANSACTION ENTRY", fontSize = 9.sp, color = Muted, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Spacer(Modifier.height(12.dp)); HorizontalDivider(color = Ink)
+        ReceiptLine(state.kind.name, "€ ${state.amount}", strong = true)
+        ReceiptLine("FROM", state.from)
+        ReceiptLine(if (state.kind == Kind.TRANSFER) "TO" else "PARTNER", if (state.kind == Kind.TRANSFER) state.to else state.partner)
+        ReceiptLine("PROFILE", state.profile)
+        if (state.kind != Kind.TRANSFER) ReceiptLine("CONTRACT", state.contract)
+        HorizontalDivider(Modifier.padding(vertical = 8.dp), color = Rule)
+        ReceiptLine(if (state.rhythm == Rhythm.RECURRING) "REPEATS" else "DATE", if (state.rhythm == Rhythm.RECURRING) state.schedule else state.date)
+        if (state.rhythm == Rhythm.RECURRING) ReceiptLine("START", state.date)
+        Spacer(Modifier.height(10.dp)); Text("· · · · · · · · · · · · · · · · · · ·", color = Rule, modifier = Modifier.align(Alignment.CenterHorizontally))
+    }
+}
+
+@Composable private fun ReceiptLine(label: String, value: String, strong: Boolean = false) {
+    Row(Modifier.fillMaxWidth().padding(vertical = if (strong) 10.dp else 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, fontSize = if (strong) 12.sp else 9.sp, color = if (strong) Ink else Muted, fontWeight = if (strong) FontWeight.Bold else FontWeight.Normal)
+        Text(value, fontSize = if (strong) 20.sp else 11.sp, fontWeight = if (strong) FontWeight.Bold else FontWeight.Medium)
     }
 }
 
