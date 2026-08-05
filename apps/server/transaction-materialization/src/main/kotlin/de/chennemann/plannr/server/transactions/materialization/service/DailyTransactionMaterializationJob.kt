@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.transactions.materialization.service
 
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
+import de.chennemann.plannr.server.transactions.templates.domain.EffectiveTransactionTemplate
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
 import org.springframework.scheduling.annotation.Scheduled
@@ -18,9 +19,12 @@ internal class DailyTransactionMaterializationJob(
     )
     suspend fun materializeTransactionsThroughToday() {
         val activeTemplates = transactionTemplateService.list(archived = false)
-        activeTemplates.forEach { transactionTemplate ->
-            transactionMaterializerService.materialize(MaterializationOperation.EndDateChange(transactionTemplate))
-            upcomingTransactionCache.refresh(transactionTemplate)
+        activeTemplates.forEach { template ->
+            template.versions.forEach { version ->
+                val effective = EffectiveTransactionTemplate(template, version)
+                transactionMaterializerService.materialize(MaterializationOperation.EndDateChange(effective))
+                upcomingTransactionCache.refresh(effective)
+            }
         }
         projectionEventQueue.enqueue(TransactionProjectionChangeEvent.FullRebuild)
     }

@@ -128,8 +128,13 @@ private class StubTransactionTemplateService(
     override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate =
         unsupported()
 
-    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>): List<TransactionTemplate> =
+    override suspend fun createBatch(commands: List<de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateWithVersionsCommand>): List<TransactionTemplate> =
         unsupported()
+
+    override suspend fun createVersion(
+        transactionTemplateId: Long,
+        command: de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateVersionCommand,
+    ): TransactionTemplate = unsupported()
 
     override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate =
         unsupported()
@@ -145,6 +150,7 @@ private class StubTransactionTemplateService(
     override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) = unsupported<Unit>()
 
     override suspend fun delete(id: Long) = unsupported<Unit>()
+    override suspend fun deleteVersion(transactionTemplateId: Long, versionId: Long): TransactionTemplate? = unsupported()
 
     private fun <T> unsupported(): T = error("Not used by this test")
 }

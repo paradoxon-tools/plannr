@@ -3,6 +3,7 @@ package de.chennemann.plannr.server.transactions.templates.api
 import de.chennemann.plannr.server.common.error.NotFoundException
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplatesCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateVersionCommand
 import de.chennemann.plannr.server.transactions.templates.api.dto.TransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
@@ -19,6 +20,9 @@ class TransactionTemplateController(
         transactionTemplateService.createBatch(command.templates)
             .map { it.toDTO() }
 
+    override suspend fun createVersion(id: Long, command: CreateTransactionTemplateVersionCommand): TransactionTemplate =
+        transactionTemplateService.createVersion(id, command).toDTO()
+
     override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate =
         transactionTemplateService.update(command).toDTO()
 
@@ -31,6 +35,9 @@ class TransactionTemplateController(
     override suspend fun delete(id: Long) =
         transactionTemplateService.delete(id)
 
+    override suspend fun deleteVersion(id: Long, versionId: Long): TransactionTemplate? =
+        transactionTemplateService.deleteVersion(id, versionId)?.toDTO()
+
     override suspend fun list(archived: Boolean?): List<TransactionTemplate> =
         transactionTemplateService.list(archived).map { it.toDTO() }
 
@@ -38,4 +45,3 @@ class TransactionTemplateController(
         transactionTemplateService.getById(id)?.toDTO()
             ?: throw NotFoundException("not_found", "Transaction template not found", mapOf("id" to id))
 }
-

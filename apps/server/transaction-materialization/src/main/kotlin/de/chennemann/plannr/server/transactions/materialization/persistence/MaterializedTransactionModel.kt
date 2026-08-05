@@ -11,6 +11,8 @@ data class MaterializedTransactionModel(
     val id: Long?,
     @Column("transaction_template_id")
     val transactionTemplateId: Long,
+    @Column("transaction_template_version_id")
+    val transactionTemplateVersionId: Long = transactionTemplateId,
     @Column("contract_id")
     val contractId: Long? = null,
     @Column("transaction_date")

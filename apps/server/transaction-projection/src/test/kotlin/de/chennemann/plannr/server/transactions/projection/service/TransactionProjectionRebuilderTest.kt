@@ -49,6 +49,7 @@ class TransactionProjectionRebuilderTest {
                     pocket_transaction_feed,
                     account_transaction_feed,
                     transaction_materializations,
+                    transaction_template_versions,
                     transaction_templates,
                     contracts,
                     pockets,
@@ -93,17 +94,16 @@ class TransactionProjectionRebuilderTest {
         execute(
             """
             INSERT INTO transaction_templates (
-                id,
-                contract_id,
-                source_pocket_id,
-                destination_pocket_id,
-                financial_profile_id,
-                partner_id,
-                title,
-                description,
-                amount,
-                currency_code,
-                transaction_type,
+                id, contract_id, source_pocket_id, destination_pocket_id, financial_profile_id,
+                partner_id, title, description, currency_code, transaction_type, is_archived, created_at
+            )
+            VALUES (1, 1, 1, NULL, $profileId, NULL, 'Phone', NULL, 'EUR', 'EXPENSE', FALSE, 1)
+            """,
+        )
+        execute(
+            """
+            INSERT INTO transaction_template_versions (
+                id, transaction_template_id, amount,
                 first_occurrence_date,
                 final_occurrence_date,
                 recurrence_type,
@@ -112,13 +112,13 @@ class TransactionProjectionRebuilderTest {
                 weeks_of_month,
                 days_of_month,
                 months_of_year,
-                previous_version_id,
-                is_archived,
+                valid_from,
+                valid_until,
                 created_at
             )
             VALUES (
-                1, 1, 1, NULL, $profileId, NULL, 'Phone', NULL, 1000, 'EUR', 'EXPENSE',
-                '2026-01-01', NULL, 'MONTHLY', 0, NULL, NULL, '1', NULL, NULL, FALSE, 1
+                1, 1, 1000, '2026-01-01', NULL, 'MONTHLY', 0,
+                NULL, NULL, '1', NULL, '2026-01-01', NULL, 1
             )
             """,
         )
@@ -127,6 +127,7 @@ class TransactionProjectionRebuilderTest {
             INSERT INTO transaction_materializations (
                 id,
                 transaction_template_id,
+                transaction_template_version_id,
                 contract_id,
                 transaction_date,
                 source_pocket_id,
@@ -140,7 +141,7 @@ class TransactionProjectionRebuilderTest {
                 transaction_type,
                 created_at
             )
-            VALUES (1, 1, 1, '2026-01-01', 1, NULL, $profileId, NULL, 'Phone', NULL, 1000, 'EUR', 'EXPENSE', 1)
+            VALUES (1, 1, 1, 1, '2026-01-01', 1, NULL, $profileId, NULL, 'Phone', NULL, 1000, 'EUR', 'EXPENSE', 1)
             """,
         )
 

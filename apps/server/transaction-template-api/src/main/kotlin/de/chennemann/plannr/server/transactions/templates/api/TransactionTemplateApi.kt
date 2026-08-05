@@ -2,6 +2,7 @@ package de.chennemann.plannr.server.transactions.templates.api
 
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplatesCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateVersionCommand
 import de.chennemann.plannr.server.transactions.templates.api.dto.TransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import org.springframework.http.HttpStatus
@@ -25,6 +26,13 @@ interface TransactionTemplateApi {
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun createBatch(@RequestBody command: CreateTransactionTemplatesCommand): List<TransactionTemplate>
 
+    @PostExchange("/{id}/versions")
+    @ResponseStatus(HttpStatus.CREATED)
+    suspend fun createVersion(
+        @PathVariable id: Long,
+        @RequestBody command: CreateTransactionTemplateVersionCommand,
+    ): TransactionTemplate
+
     @PutExchange
     suspend fun update(@RequestBody command: UpdateTransactionTemplateCommand): TransactionTemplate
 
@@ -37,6 +45,9 @@ interface TransactionTemplateApi {
     @DeleteExchange("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun delete(@PathVariable id: Long)
+
+    @DeleteExchange("/{id}/versions/{versionId}")
+    suspend fun deleteVersion(@PathVariable id: Long, @PathVariable versionId: Long): TransactionTemplate?
 
     @GetExchange
     suspend fun list(
