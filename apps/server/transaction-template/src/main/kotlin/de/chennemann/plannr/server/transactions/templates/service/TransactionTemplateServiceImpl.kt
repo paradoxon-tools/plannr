@@ -5,19 +5,28 @@ import de.chennemann.plannr.server.common.error.ValidationException
 import de.chennemann.plannr.server.common.time.TimeProvider
 import de.chennemann.plannr.server.contracts.service.ContractService
 import de.chennemann.plannr.server.financialprofiles.service.FinancialProfileService
-import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
-import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.materialization.service.MaterializationOperation
 import de.chennemann.plannr.server.transactions.materialization.service.TransactionMaterializerService
 import de.chennemann.plannr.server.transactions.materialization.service.UpcomingTransactionCache
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionChangeEvent
 import de.chennemann.plannr.server.transactions.projection.service.TransactionProjectionEventQueue
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateVersionCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateWithVersionsCommand
+import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
+import de.chennemann.plannr.server.transactions.templates.domain.EffectiveTransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.domain.RecurrencePattern
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplateRepository
-import de.chennemann.plannr.server.transactions.templates.domain.save
+import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplateVersion
+import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplateVersionRepository
 import de.chennemann.plannr.server.transactions.templates.persistence.TransactionTemplateModel
-import de.chennemann.plannr.server.transactions.templates.persistence.toDTO
+import de.chennemann.plannr.server.transactions.templates.persistence.TransactionTemplateVersionModel
+import de.chennemann.plannr.server.transactions.templates.persistence.toCsv
+import de.chennemann.plannr.server.transactions.templates.persistence.toDomain
+import de.chennemann.plannr.server.transactions.templates.persistence.toModel
+import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -26,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 internal class TransactionTemplateServiceImpl(
     private val transactionTemplateRepository: TransactionTemplateRepository,
+    private val transactionTemplateVersionRepository: TransactionTemplateVersionRepository,
     private val transactionMaterializerService: TransactionMaterializerService,
     private val financialProfileService: FinancialProfileService,
     private val contractService: ContractService,
@@ -33,273 +43,259 @@ internal class TransactionTemplateServiceImpl(
     private val projectionEventQueue: TransactionProjectionEventQueue? = null,
     private val upcomingTransactionCache: UpcomingTransactionCache? = null,
 ) : TransactionTemplateService {
-    override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate {
-        val financialProfileId = resolveFinancialProfileId(
-            contractId = command.contractId,
-            sourcePocketId = command.sourcePocketId,
-            destinationPocketId = command.destinationPocketId,
-            requestedProfileId = command.financialProfileId,
-        )
-        val created = transactionTemplateRepository.save(
-            TransactionTemplateModel(
-                id = null,
-                contractId = command.contractId,
-                sourcePocketId = command.sourcePocketId,
-                destinationPocketId = command.destinationPocketId,
-                financialProfileId = financialProfileId,
-                partnerId = command.partnerId,
-                title = command.title,
-                description = command.description,
-                amount = command.amount,
-                currencyCode = command.currencyCode,
-                transactionType = command.transactionType,
-                firstOccurrenceDate = command.firstOccurrenceDate,
-                finalOccurrenceDate = command.finalOccurrenceDate,
-                recurrenceType = command.recurrenceType,
-                skipCount = command.skipCount,
-                daysOfWeek = command.daysOfWeek.toCsv(),
-                weeksOfMonth = command.weeksOfMonth.toCsv(),
-                daysOfMonth = command.daysOfMonth.toCsv(),
-                monthsOfYear = command.monthsOfYear.toCsv(),
-                previousVersionId = null,
-                isArchived = false,
-                createdAt = timeProvider(),
-            ),
-        ).toDTO()
-        transactionMaterializerService.materialize(MaterializationOperation.NewTransactionTemplate(created))
-        upcomingTransactionCache?.refresh(created)
-        enqueueProjectionChange(created.id)
-        return created
+    override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate =
+        createAggregate(command.toBatchCommand())
+
+    override suspend fun createBatch(commands: List<CreateTransactionTemplateWithVersionsCommand>): List<TransactionTemplate> {
+        if (commands.isEmpty()) throw validation("At least one transaction template is required", "templates")
+        commands.forEachIndexed(::validateTimeline)
+        return commands.map { createAggregate(it) }
     }
 
-    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>): List<TransactionTemplate> {
-        if (commands.isEmpty()) {
-            throw ValidationException(
-                code = "validation_error",
-                message = "At least one transaction template is required",
-                details = mapOf("field" to "templates"),
-            )
-        }
-        return commands.map { create(it) }
+    override suspend fun createVersion(
+        transactionTemplateId: Long,
+        command: CreateTransactionTemplateVersionCommand,
+    ): TransactionTemplate {
+        val template = existingTransactionTemplate(transactionTemplateId)
+        val latest = template.currentVersion
+        val start = parseDate(command.firstOccurrenceDate, "firstOccurrenceDate")
+        requireAfter(start, parseDate(latest.validFrom, "validFrom"))
+        persistAndRefresh(template, latest.copy(validUntil = start.minusDays(1).toString()), MaterializationOperation::EndDateChange)
+        val created = saveVersion(transactionTemplateId, command, null)
+        refresh(template, created, MaterializationOperation::NewTransactionTemplate)
+        enqueueProjectionChange(transactionTemplateId)
+        return existingTransactionTemplate(transactionTemplateId)
     }
 
     override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate {
-        val existing = existingTransactionTemplate(command.id)
-        val financialProfileId = resolveFinancialProfileId(
-            contractId = command.contractId,
-            sourcePocketId = command.sourcePocketId,
-            destinationPocketId = command.destinationPocketId,
-            requestedProfileId = command.financialProfileId,
-        )
-        val updated = transactionTemplateRepository.save(
-            existing.copy(
+        val existingVersion = existingVersion(command.id)
+        val template = existingTransactionTemplate(existingVersion.transactionTemplateId)
+        val index = template.versions.indexOfFirst { it.id == existingVersion.id }
+        val start = parseDate(command.firstOccurrenceDate, "firstOccurrenceDate")
+        val previous = template.versions.getOrNull(index - 1)
+        val next = template.versions.getOrNull(index + 1)
+        previous?.let { requireAfter(start, parseDate(it.validFrom, "validFrom")) }
+        next?.let { requireAfter(parseDate(it.validFrom, "validFrom"), start) }
+
+        val profileId = resolveFinancialProfileId(command.contractId, command.financialProfileId)
+        transactionTemplateRepository.save(
+            template.toModel().copy(
                 contractId = command.contractId,
                 sourcePocketId = command.sourcePocketId,
                 destinationPocketId = command.destinationPocketId,
-                financialProfileId = financialProfileId,
+                financialProfileId = profileId,
                 partnerId = command.partnerId,
                 title = command.title,
                 description = command.description,
-                amount = command.amount,
                 currencyCode = command.currencyCode,
                 transactionType = command.transactionType,
-                recurrencePattern = command.toRecurrencePattern(),
             ),
         )
-        val operation = when {
-            existing.sameScheduleExceptEndDate(updated) -> MaterializationOperation.EndDateChange(updated)
-            existing.requiresFullRefresh(updated) -> MaterializationOperation.FullRefresh(updated)
-            else -> MaterializationOperation.FullRefresh(updated)
+        val correctedTemplate = existingTransactionTemplate(template.id)
+        val updatedVersion = existingVersion.copy(
+            amount = command.amount,
+            recurrencePattern = command.toRecurrencePattern(),
+            validFrom = start.toString(),
+            validUntil = next?.validFrom?.let { parseDate(it, "validFrom").minusDays(1).toString() },
+        )
+        persistAndRefresh(correctedTemplate, updatedVersion, MaterializationOperation::FullRefresh)
+        previous?.let {
+            persistAndRefresh(correctedTemplate, it.copy(validUntil = start.minusDays(1).toString()), MaterializationOperation::EndDateChange)
         }
-        transactionMaterializerService.materialize(operation)
-        upcomingTransactionCache?.refresh(updated)
-        enqueueProjectionChange(updated.id)
-        return updated
+        enqueueProjectionChange(template.id)
+        return existingTransactionTemplate(template.id)
     }
 
-    override suspend fun archive(id: Long): TransactionTemplate {
-        val existing = existingTransactionTemplate(id)
-        val archived = transactionTemplateRepository.save(existing.copy(isArchived = true))
-        upcomingTransactionCache?.invalidate(archived.id)
-        enqueueProjectionChange(archived.id)
-        return archived
-    }
-
-    override suspend fun unarchive(id: Long): TransactionTemplate {
-        val existing = existingTransactionTemplate(id)
-        val unarchived = transactionTemplateRepository.save(existing.copy(isArchived = false))
-        upcomingTransactionCache?.refresh(unarchived)
-        enqueueProjectionChange(unarchived.id)
-        return unarchived
-    }
-
-    override suspend fun archiveForPocket(pocketId: Long) {
-        transactionTemplateRepository
-            .findAllBySourcePocketIdAndIsArchivedOrDestinationPocketIdAndIsArchivedOrderByCreatedAtAscIdAsc(
-                sourcePocketId = pocketId,
-                sourceIsArchived = false,
-                destinationPocketId = pocketId,
-                destinationIsArchived = false,
-            )
-            .toList()
-            .map(TransactionTemplateModel::toDTO)
-            .forEach {
-                val archived = transactionTemplateRepository.save(it.copy(isArchived = true))
-                upcomingTransactionCache?.invalidate(archived.id)
-                enqueueProjectionChange(archived.id)
-            }
-    }
-
-    override suspend fun unarchiveForPocket(pocketId: Long) {
-        transactionTemplateRepository
-            .findAllBySourcePocketIdAndIsArchivedOrDestinationPocketIdAndIsArchivedOrderByCreatedAtAscIdAsc(
-                sourcePocketId = pocketId,
-                sourceIsArchived = true,
-                destinationPocketId = pocketId,
-                destinationIsArchived = true,
-            )
-            .toList()
-            .map(TransactionTemplateModel::toDTO)
-            .forEach {
-                val unarchived = transactionTemplateRepository.save(it.copy(isArchived = false))
-                upcomingTransactionCache?.refresh(unarchived)
-                enqueueProjectionChange(unarchived.id)
-            }
-    }
+    override suspend fun archive(id: Long) = setArchived(id, true)
+    override suspend fun unarchive(id: Long) = setArchived(id, false)
+    override suspend fun archiveForPocket(pocketId: Long) = setArchivedForPocket(pocketId, true)
+    override suspend fun unarchiveForPocket(pocketId: Long) = setArchivedForPocket(pocketId, false)
 
     override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) {
-        transactionTemplateRepository.findAllByPocketId(pocketId)
-            .toList()
-            .map(TransactionTemplateModel::toDTO)
-            .forEach { existing ->
-                val financialProfileId = resolveFinancialProfileId(
-                    contractId = existing.contractId,
-                    sourcePocketId = existing.sourcePocketId,
-                    destinationPocketId = existing.destinationPocketId,
-                    requestedProfileId = existing.financialProfileId,
-                )
-                if (financialProfileId != existing.financialProfileId) {
-                    val updated = transactionTemplateRepository.save(existing.copy(financialProfileId = financialProfileId))
-                    transactionMaterializerService.materialize(MaterializationOperation.FullRefresh(updated))
-                    if (updated.isArchived) {
-                        upcomingTransactionCache?.invalidate(updated.id)
-                    } else {
-                        upcomingTransactionCache?.refresh(updated)
-                    }
-                    enqueueProjectionChange(updated.id)
-                }
-            }
+        transactionTemplateRepository.findAll().toList()
+            .filter { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
+            .forEach { refreshFinancialProfile(it) }
     }
 
     override suspend fun refreshFinancialProfilesForContract(contractId: Long) {
-        transactionTemplateRepository.findAll()
-            .toList()
-            .filter { it.contractId == contractId }
-            .map(TransactionTemplateModel::toDTO)
-            .forEach { existing ->
-                val financialProfileId = resolveFinancialProfileId(
-                    contractId = contractId,
-                    sourcePocketId = existing.sourcePocketId,
-                    destinationPocketId = existing.destinationPocketId,
-                    requestedProfileId = existing.financialProfileId,
-                )
-                if (financialProfileId != existing.financialProfileId) {
-                    val updated = transactionTemplateRepository.save(existing.copy(financialProfileId = financialProfileId))
-                    transactionMaterializerService.materialize(MaterializationOperation.FullRefresh(updated))
-                    enqueueProjectionChange(updated.id)
-                }
-            }
+        transactionTemplateRepository.findAll().toList().filter { it.contractId == contractId }.forEach { refreshFinancialProfile(it) }
     }
 
     override suspend fun delete(id: Long) {
-        existingTransactionTemplate(id)
+        val template = existingTransactionTemplate(id)
         transactionTemplateRepository.deleteById(id)
-        upcomingTransactionCache?.invalidate(id)
+        template.versions.forEach { upcomingTransactionCache?.invalidate(it.id) }
         enqueueProjectionChange(id)
     }
 
-    override suspend fun list(archived: Boolean?): List<TransactionTemplate> {
-        val models = if (archived == null) {
-            transactionTemplateRepository.findAll().toList()
-        } else {
-            transactionTemplateRepository.findAllByIsArchivedOrderByCreatedAtAscIdAsc(archived).toList()
+    override suspend fun deleteVersion(transactionTemplateId: Long, versionId: Long): TransactionTemplate? {
+        val template = existingTransactionTemplate(transactionTemplateId)
+        val index = template.versions.indexOfFirst { it.id == versionId }
+        if (index < 0) throw notFound("Transaction template version", versionId)
+        if (template.versions.size == 1) {
+            delete(transactionTemplateId)
+            return null
         }
-        return models.map(TransactionTemplateModel::toDTO)
+        transactionTemplateVersionRepository.deleteById(versionId)
+        upcomingTransactionCache?.invalidate(versionId)
+        template.versions.getOrNull(index - 1)?.let { previous ->
+            val next = template.versions.getOrNull(index + 1)
+            persistAndRefresh(
+                template,
+                previous.copy(validUntil = next?.validFrom?.let { parseDate(it, "validFrom").minusDays(1).toString() }),
+                MaterializationOperation::EndDateChange,
+            )
+        }
+        enqueueProjectionChange(transactionTemplateId)
+        return existingTransactionTemplate(transactionTemplateId)
     }
 
-    override suspend fun getById(id: Long): TransactionTemplate? =
-        transactionTemplateRepository.findById(id)?.toDTO()
+    override suspend fun list(archived: Boolean?): List<TransactionTemplate> {
+        val models = if (archived == null) transactionTemplateRepository.findAll().toList()
+        else transactionTemplateRepository.findAllByIsArchivedOrderByCreatedAtAscIdAsc(archived).toList()
+        return models.map { it.toDomainAggregate() }
+    }
 
-    private suspend fun existingTransactionTemplate(id: Long): TransactionTemplate =
-        getById(id)
-            ?: throw NotFoundException(
-                code = "not_found",
-                message = "Transaction template not found",
-                details = mapOf("id" to id),
-            )
+    override suspend fun getById(id: Long) = transactionTemplateRepository.findById(id)?.toDomainAggregate()
 
-    private suspend fun resolveFinancialProfileId(
-        contractId: Long?,
-        sourcePocketId: Long?,
-        destinationPocketId: Long?,
-        requestedProfileId: Long?,
-    ): Long {
-        val contractProfileId = contractId?.let {
-            contractService.getById(it)?.financialProfileId
-                ?: throw NotFoundException(
-                    "not_found",
-                    "Contract not found",
-                    mapOf("id" to it),
-                )
+    private suspend fun createAggregate(command: CreateTransactionTemplateWithVersionsCommand): TransactionTemplate {
+        validateTimeline(0, command)
+        val createdAt = timeProvider()
+        val profileId = resolveFinancialProfileId(command.contractId, command.financialProfileId)
+        val model = transactionTemplateRepository.save(
+            TransactionTemplateModel(
+                null, command.contractId, command.sourcePocketId, command.destinationPocketId, profileId,
+                command.partnerId, command.title, command.description, command.currencyCode,
+                command.transactionType, false, createdAt,
+            ),
+        )
+        val templateId = requireNotNull(model.id)
+        var template = model.toDomainAggregate()
+        command.versions.forEachIndexed { index, versionCommand ->
+            val validUntil = command.versions.getOrNull(index + 1)?.firstOccurrenceDate
+                ?.let { parseDate(it, "firstOccurrenceDate").minusDays(1).toString() }
+            val version = saveVersion(templateId, versionCommand, validUntil)
+            template = template.copy(versions = template.versions + version)
+            refresh(template, version, MaterializationOperation::NewTransactionTemplate)
         }
+        enqueueProjectionChange(templateId)
+        return template
+    }
+
+    private suspend fun saveVersion(
+        templateId: Long,
+        command: CreateTransactionTemplateVersionCommand,
+        validUntil: String?,
+    ) = transactionTemplateVersionRepository.save(
+        TransactionTemplateVersionModel(
+            null, templateId, command.amount, command.firstOccurrenceDate, command.finalOccurrenceDate,
+            command.recurrenceType, command.skipCount, command.daysOfWeek.toCsv(), command.weeksOfMonth.toCsv(),
+            command.daysOfMonth.toCsv(), command.monthsOfYear.toCsv(), command.firstOccurrenceDate, validUntil, timeProvider(),
+        ),
+    ).toDomain()
+
+    private suspend fun TransactionTemplateModel.toDomainAggregate() = TransactionTemplate(
+        requireNotNull(id), contractId, sourcePocketId, destinationPocketId, financialProfileId,
+        partnerId, title, description, currencyCode, transactionType,
+        transactionTemplateVersionRepository.findAllByTransactionTemplateIdOrderByValidFromAscIdAsc(requireNotNull(id))
+            .toList().map(TransactionTemplateVersionModel::toDomain),
+        isArchived, createdAt,
+    )
+
+    private fun TransactionTemplate.toModel() = TransactionTemplateModel(
+        id, contractId, sourcePocketId, destinationPocketId, financialProfileId, partnerId,
+        title, description, currencyCode, transactionType, isArchived, createdAt,
+    )
+
+    private suspend fun existingTransactionTemplate(id: Long) = getById(id) ?: throw notFound("Transaction template", id)
+    private suspend fun existingVersion(id: Long) = transactionTemplateVersionRepository.findById(id)?.toDomain()
+        ?: throw notFound("Transaction template version", id)
+
+    private suspend fun setArchived(id: Long, archived: Boolean): TransactionTemplate {
+        val template = existingTransactionTemplate(id)
+        transactionTemplateRepository.save(template.toModel().copy(isArchived = archived))
+        template.versions.forEach { if (archived) upcomingTransactionCache?.invalidate(it.id) else upcomingTransactionCache?.refresh(EffectiveTransactionTemplate(template, it)) }
+        enqueueProjectionChange(id)
+        return template.copy(isArchived = archived)
+    }
+
+    private suspend fun setArchivedForPocket(pocketId: Long, archived: Boolean) {
+        transactionTemplateRepository.findAll().toList()
+            .filter { it.sourcePocketId == pocketId || it.destinationPocketId == pocketId }
+            .forEach { setArchived(requireNotNull(it.id), archived) }
+    }
+
+    private suspend fun refreshFinancialProfile(model: TransactionTemplateModel) {
+        val resolved = resolveFinancialProfileId(model.contractId, model.financialProfileId)
+        if (resolved != model.financialProfileId) {
+            transactionTemplateRepository.save(model.copy(financialProfileId = resolved))
+            val template = existingTransactionTemplate(requireNotNull(model.id))
+            template.versions.forEach { refresh(template, it, MaterializationOperation::FullRefresh) }
+            enqueueProjectionChange(template.id)
+        }
+    }
+
+    private suspend fun persistAndRefresh(
+        template: TransactionTemplate,
+        version: TransactionTemplateVersion,
+        operation: (EffectiveTransactionTemplate) -> MaterializationOperation,
+    ) {
+        transactionTemplateVersionRepository.save(version.toModel())
+        refresh(template, version, operation)
+    }
+
+    private suspend fun refresh(
+        template: TransactionTemplate,
+        version: TransactionTemplateVersion,
+        operation: (EffectiveTransactionTemplate) -> MaterializationOperation,
+    ) {
+        val effective = EffectiveTransactionTemplate(template, version)
+        transactionMaterializerService.materialize(operation(effective))
+        upcomingTransactionCache?.refresh(effective)
+    }
+
+    private fun validateTimeline(index: Int, command: CreateTransactionTemplateWithVersionsCommand) {
+        if (command.versions.isEmpty()) throw validation("Each transaction template requires at least one version", "templates[$index].versions")
+        command.versions.zipWithNext().forEachIndexed { versionIndex, (previous, next) ->
+            val previousStart = parseDate(previous.firstOccurrenceDate, "templates[$index].versions[$versionIndex].firstOccurrenceDate")
+            val nextStart = parseDate(next.firstOccurrenceDate, "templates[$index].versions[${versionIndex + 1}].firstOccurrenceDate")
+            if (!nextStart.isAfter(previousStart)) throw validation(
+                "Transaction template versions must be ordered chronologically",
+                "templates[$index].versions[${versionIndex + 1}].firstOccurrenceDate",
+            )
+        }
+    }
+
+    private suspend fun resolveFinancialProfileId(contractId: Long?, requestedProfileId: Long?): Long {
+        val contractProfileId = contractId?.let { contractService.getById(it)?.financialProfileId ?: throw notFound("Contract", it) }
         return financialProfileService.resolveForAssignment(contractProfileId ?: requestedProfileId).id
     }
 
-    private suspend fun enqueueProjectionChange(id: Long) {
-        projectionEventQueue?.enqueue(
-            TransactionProjectionChangeEvent.TransactionTemplateChanged(id),
-        )
+    private fun parseDate(value: String, field: String) = try { LocalDate.parse(value) } catch (_: DateTimeParseException) {
+        throw validation("Transaction template date must use ISO-8601 format", field)
     }
+
+    private fun requireAfter(later: LocalDate, earlier: LocalDate) {
+        if (!later.isAfter(earlier)) throw validation("A transaction template version must start after the preceding version", "firstOccurrenceDate")
+    }
+
+    private fun validation(message: String, field: String) = ValidationException("validation_error", message, mapOf("field" to field))
+    private fun notFound(type: String, id: Long) = NotFoundException("not_found", "$type not found", mapOf("id" to id))
+    private suspend fun enqueueProjectionChange(id: Long) { projectionEventQueue?.enqueue(TransactionProjectionChangeEvent.TransactionTemplateChanged(id)) }
 }
 
-private fun List<*>?.toCsv(): String? =
-    this?.joinToString(",")?.takeIf { it.isNotBlank() }
+private fun CreateTransactionTemplateCommand.toBatchCommand() = CreateTransactionTemplateWithVersionsCommand(
+    contractId, sourcePocketId, destinationPocketId, financialProfileId, partnerId, title, description,
+    currencyCode, transactionType,
+    listOf(
+        CreateTransactionTemplateVersionCommand(
+            amount, firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount,
+            daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear, maxRecurrenceCount,
+        ),
+    ),
+)
 
-private fun UpdateTransactionTemplateCommand.toRecurrencePattern(): RecurrencePattern =
-    RecurrencePattern(
-        firstOccurrenceDate = firstOccurrenceDate,
-        finalOccurrenceDate = finalOccurrenceDate,
-        recurrenceType = recurrenceType,
-        skipCount = skipCount,
-        daysOfWeek = daysOfWeek,
-        weeksOfMonth = weeksOfMonth,
-        daysOfMonth = daysOfMonth,
-        monthsOfYear = monthsOfYear,
-    )
-
-private fun TransactionTemplate.sameScheduleExceptEndDate(other: TransactionTemplate): Boolean =
-    recurrencePattern.copy(finalOccurrenceDate = null) == other.recurrencePattern.copy(finalOccurrenceDate = null) &&
-        amount == other.amount &&
-        currencyCode == other.currencyCode &&
-        transactionType == other.transactionType &&
-        sourcePocketId == other.sourcePocketId &&
-        destinationPocketId == other.destinationPocketId &&
-        contractId == other.contractId &&
-        financialProfileId == other.financialProfileId &&
-        partnerId == other.partnerId &&
-        title == other.title &&
-        description == other.description &&
-        recurrencePattern.finalOccurrenceDate != other.recurrencePattern.finalOccurrenceDate
-
-private fun TransactionTemplate.requiresFullRefresh(other: TransactionTemplate): Boolean =
-    recurrencePattern != other.recurrencePattern ||
-        amount != other.amount ||
-        currencyCode != other.currencyCode ||
-        transactionType != other.transactionType ||
-        sourcePocketId != other.sourcePocketId ||
-        destinationPocketId != other.destinationPocketId ||
-        contractId != other.contractId ||
-        financialProfileId != other.financialProfileId ||
-        partnerId != other.partnerId ||
-        title != other.title ||
-        description != other.description
+private fun UpdateTransactionTemplateCommand.toRecurrencePattern() = RecurrencePattern(
+    firstOccurrenceDate, finalOccurrenceDate, recurrenceType, skipCount,
+    daysOfWeek, weeksOfMonth, daysOfMonth, monthsOfYear,
+)

@@ -81,13 +81,15 @@ class FakeTransactionTemplateService : TransactionTemplateService {
     }
 
     override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate = unsupported()
-    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>): List<TransactionTemplate> = unsupported()
+    override suspend fun createBatch(commands: List<de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateWithVersionsCommand>): List<TransactionTemplate> = unsupported()
+    override suspend fun createVersion(transactionTemplateId: Long, command: de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateVersionCommand): TransactionTemplate = unsupported()
     override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate = unsupported()
     override suspend fun archive(id: Long): TransactionTemplate = unsupported()
     override suspend fun unarchive(id: Long): TransactionTemplate = unsupported()
     override suspend fun archiveForPocket(pocketId: Long) = unsupported<Unit>()
     override suspend fun unarchiveForPocket(pocketId: Long) = unsupported<Unit>()
     override suspend fun delete(id: Long) = unsupported<Unit>()
+    override suspend fun deleteVersion(transactionTemplateId: Long, versionId: Long): TransactionTemplate? = unsupported()
     override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
     override suspend fun getById(id: Long): TransactionTemplate? = null
 

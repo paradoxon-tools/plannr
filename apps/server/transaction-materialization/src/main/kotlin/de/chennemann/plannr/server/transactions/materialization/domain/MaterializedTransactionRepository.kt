@@ -5,11 +5,11 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface MaterializedTransactionRepository : CoroutineCrudRepository<MaterializedTransactionModel, Long> {
-    fun findAllByTransactionTemplateIdOrderByTransactionDateAscIdAsc(transactionTemplateId: Long): Flow<MaterializedTransactionModel>
+    fun findAllByTransactionTemplateVersionIdOrderByTransactionDateAscIdAsc(transactionTemplateVersionId: Long): Flow<MaterializedTransactionModel>
 
-    suspend fun findByTransactionTemplateIdAndTransactionDate(transactionTemplateId: Long, transactionDate: String): MaterializedTransactionModel?
+    suspend fun findByTransactionTemplateVersionIdAndTransactionDate(transactionTemplateVersionId: Long, transactionDate: String): MaterializedTransactionModel?
 
-    suspend fun deleteAllByTransactionTemplateId(transactionTemplateId: Long)
+    suspend fun deleteAllByTransactionTemplateVersionId(transactionTemplateVersionId: Long)
 
-    suspend fun deleteAllByTransactionTemplateIdAndTransactionDateNotIn(transactionTemplateId: Long, transactionDates: Collection<String>)
+    suspend fun deleteAllByTransactionTemplateVersionIdAndTransactionDateNotIn(transactionTemplateVersionId: Long, transactionDates: Collection<String>)
 }

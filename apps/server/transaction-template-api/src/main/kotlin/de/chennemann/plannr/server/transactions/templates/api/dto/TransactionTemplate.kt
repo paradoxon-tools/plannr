@@ -9,9 +9,17 @@ data class TransactionTemplate(
     val partnerId: Long?,
     val title: String,
     val description: String?,
-    val amount: Long,
     val currencyCode: String,
     val transactionType: String,
+    val versions: List<TransactionTemplateVersion>,
+    val isArchived: Boolean,
+    val createdAt: Long,
+)
+
+data class TransactionTemplateVersion(
+    val id: Long,
+    val transactionTemplateId: Long,
+    val amount: Long,
     val firstOccurrenceDate: String,
     val finalOccurrenceDate: String?,
     val recurrenceType: String,
@@ -20,7 +28,7 @@ data class TransactionTemplate(
     val weeksOfMonth: List<Int>?,
     val daysOfMonth: List<Int>?,
     val monthsOfYear: List<Int>?,
-    val previousVersionId: Long?,
-    val isArchived: Boolean,
+    val validFrom: String,
+    val validUntil: String?,
     val createdAt: Long,
 )

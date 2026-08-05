@@ -2,7 +2,7 @@ package de.chennemann.plannr.server.transactions.materialization.service
 
 import de.chennemann.plannr.server.common.domain.RecurrenceType
 import de.chennemann.plannr.server.transactions.materialization.domain.RecurrenceCalculator
-import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
+import de.chennemann.plannr.server.transactions.templates.domain.EffectiveTransactionTemplate
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -13,11 +13,14 @@ internal class UpcomingOccurrenceCalculator(
     private val recurrenceCalculator: RecurrenceCalculator = RecurrenceCalculator(),
 ) {
     fun nextExpansionAfter(
-        transactionTemplate: TransactionTemplate,
+        transactionTemplate: EffectiveTransactionTemplate,
         afterExclusive: LocalDate,
     ): List<LocalDate> {
         val pattern = transactionTemplate.recurrencePattern
-        val explicitEnd = pattern.finalOccurrenceDate?.let(LocalDate::parse)
+        val explicitEnd = listOfNotNull(
+            pattern.finalOccurrenceDate?.let(LocalDate::parse),
+            transactionTemplate.validUntil?.let(LocalDate::parse),
+        ).minOrNull()
         val firstOccurrenceDate = LocalDate.parse(pattern.firstOccurrenceDate)
         if (RecurrenceType.valueOf(pattern.recurrenceType) == RecurrenceType.NONE) {
             return if (firstOccurrenceDate.isAfter(afterExclusive)) listOf(firstOccurrenceDate) else emptyList()
@@ -35,7 +38,7 @@ internal class UpcomingOccurrenceCalculator(
             )
             val futureOccurrences = recurrenceCalculator
                 .occurrences(pattern = pattern, endInclusive = searchEnd)
-                .filter { it.isAfter(afterExclusive) }
+                .filter { it.isAfter(afterExclusive) && !it.isBefore(LocalDate.parse(transactionTemplate.validFrom)) }
 
             if (futureOccurrences.isNotEmpty()) {
                 val firstCycle = cycleOf(pattern.recurrenceType, futureOccurrences.first())

@@ -14,7 +14,8 @@ import de.chennemann.plannr.server.transactions.templates.service.TransactionTem
 
 internal object NoOpTransactionTemplateService : TransactionTemplateService {
     override suspend fun create(command: CreateTransactionTemplateCommand) = throw UnsupportedOperationException("Not used")
-    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>) = throw UnsupportedOperationException("Not used")
+    override suspend fun createBatch(commands: List<de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateWithVersionsCommand>) = throw UnsupportedOperationException("Not used")
+    override suspend fun createVersion(transactionTemplateId: Long, command: de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateVersionCommand) = throw UnsupportedOperationException("Not used")
     override suspend fun update(command: UpdateTransactionTemplateCommand) = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: Long) = throw UnsupportedOperationException("Not used")
@@ -23,6 +24,7 @@ internal object NoOpTransactionTemplateService : TransactionTemplateService {
     override suspend fun refreshFinancialProfilesForPocket(pocketId: Long) = Unit
     override suspend fun refreshFinancialProfilesForContract(contractId: Long) = Unit
     override suspend fun delete(id: Long) = Unit
+    override suspend fun deleteVersion(transactionTemplateId: Long, versionId: Long): TransactionTemplate? = null
     override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
     override suspend fun getById(id: Long) = null
 }

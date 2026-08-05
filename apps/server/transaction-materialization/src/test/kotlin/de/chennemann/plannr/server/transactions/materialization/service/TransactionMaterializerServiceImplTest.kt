@@ -149,32 +149,32 @@ private class InMemoryMaterializedTransactionRepository : MaterializedTransactio
         entityStream.collect { emit(save(it)) }
     }
 
-    override fun findAllByTransactionTemplateIdOrderByTransactionDateAscIdAsc(
-        transactionTemplateId: Long,
+    override fun findAllByTransactionTemplateVersionIdOrderByTransactionDateAscIdAsc(
+        transactionTemplateVersionId: Long,
     ): Flow<MaterializedTransactionModel> =
         transactions.values
-            .filter { it.transactionTemplateId == transactionTemplateId }
+            .filter { it.transactionTemplateVersionId == transactionTemplateVersionId }
             .sortedWith(compareBy<MaterializedTransactionModel> { it.transactionDate }.thenBy { it.id })
             .asFlow()
 
-    override suspend fun findByTransactionTemplateIdAndTransactionDate(
-        transactionTemplateId: Long,
+    override suspend fun findByTransactionTemplateVersionIdAndTransactionDate(
+        transactionTemplateVersionId: Long,
         transactionDate: String,
     ): MaterializedTransactionModel? =
         transactions.values.find {
-            it.transactionTemplateId == transactionTemplateId && it.transactionDate == transactionDate
+            it.transactionTemplateVersionId == transactionTemplateVersionId && it.transactionDate == transactionDate
         }
 
-    override suspend fun deleteAllByTransactionTemplateId(transactionTemplateId: Long) {
-        transactions.entries.removeIf { it.value.transactionTemplateId == transactionTemplateId }
+    override suspend fun deleteAllByTransactionTemplateVersionId(transactionTemplateVersionId: Long) {
+        transactions.entries.removeIf { it.value.transactionTemplateVersionId == transactionTemplateVersionId }
     }
 
-    override suspend fun deleteAllByTransactionTemplateIdAndTransactionDateNotIn(
-        transactionTemplateId: Long,
+    override suspend fun deleteAllByTransactionTemplateVersionIdAndTransactionDateNotIn(
+        transactionTemplateVersionId: Long,
         transactionDates: Collection<String>,
     ) {
         transactions.entries.removeIf {
-            it.value.transactionTemplateId == transactionTemplateId &&
+            it.value.transactionTemplateVersionId == transactionTemplateVersionId &&
                 it.value.transactionDate !in transactionDates
         }
     }
