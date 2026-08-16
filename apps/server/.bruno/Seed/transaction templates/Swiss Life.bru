@@ -21,18 +21,24 @@ body:json {
         "partnerId": "{{partner_swiss_life}}",
         "title": "Rückstellung",
         "description": "",
-        "amount": 11242,
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2025-10-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 11242,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_swiss_life_linka}}",
@@ -42,23 +48,28 @@ body:json {
         "partnerId": "{{partner_swiss_life}}",
         "title": "Swiss Life",
         "description": "",
-        "amount": 11242,
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2025-10-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 11242,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       }
     ]
   }
 }
-
 settings {
   encodeUrl: true
   timeout: 0

@@ -1,0 +1,31 @@
+meta {
+  name: Miete Münsterstraße
+  type: http
+  seq: 51
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Miete Münsterstraße",
+    "description": "Münsterstraße",
+    "color": 10053171,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_rent_and_appliances}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": "{{partner_marie_sophie_wegner}}",
+    "signingDate": null,
+    "expirationDate": "2026-05-31",
+    "lastCancellationDate": null
+  }
+}

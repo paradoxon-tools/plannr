@@ -1,0 +1,31 @@
+meta {
+  name: Kindergeld
+  type: http
+  seq: 41
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Kindergeld",
+    "description": null,
+    "color": 16753920,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_savings}}"],
+    "financialProfileId": "{{profile_buburuza}}",
+    "partnerId": "{{partner_familienkasse}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

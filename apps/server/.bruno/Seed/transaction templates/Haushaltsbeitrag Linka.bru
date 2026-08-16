@@ -1,0 +1,60 @@
+meta {
+  name: Haushaltsbeitrag Linka
+  type: http
+  seq: 44
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_haushaltsbeitrag_linka}}",
+        "sourcePocketId": null,
+        "destinationPocketId": "{{pocket_income_bucket}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_linka}}",
+        "title": "Haushaltsbeitrag",
+        "description": "Linka",
+        "currencyCode": "EUR",
+        "transactionType": "INCOME",
+        "versions": [
+          {
+            "amount": 293000,
+            "firstOccurrenceDate": "2024-11-28",
+            "finalOccurrenceDate": "2025-08-28",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [28],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 293000,
+            "firstOccurrenceDate": "2025-09-01",
+            "finalOccurrenceDate": "2025-09-01",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

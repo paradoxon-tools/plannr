@@ -1,0 +1,31 @@
+meta {
+  name: Netflix
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Netflix",
+    "description": null,
+    "color": 13970206,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": "{{partner_michael_fisches}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

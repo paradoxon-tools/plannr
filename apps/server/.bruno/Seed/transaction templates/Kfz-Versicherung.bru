@@ -21,18 +21,24 @@ body:json {
         "partnerId": "{{partner_huk24}}",
         "title": "Rückstellung",
         "description": "",
-        "amount": 4594,
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2024-12-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 4594,
+            "firstOccurrenceDate": "2024-12-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_kfz_versicherung}}",
@@ -42,44 +48,42 @@ body:json {
         "partnerId": "{{partner_huk24}}",
         "title": "Kfz-Versicherung",
         "description": "",
-        "amount": 55124,
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2024-12-20",
-        "finalOccurrenceDate": "2024-12-20",
-        "recurrenceType": "NONE",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": null,
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
-      },
-      {
-        "contractId": "{{contract_kfz_versicherung}}",
-        "sourcePocketId": "{{pocket_kfz_versicherung}}",
-        "destinationPocketId": null,
-        "financialProfileId": "{{profile_triple_trouble}}",
-        "partnerId": "{{partner_huk24}}",
-        "title": "Kfz-Versicherung",
-        "description": "",
-        "amount": 54042,
-        "currencyCode": "EUR",
-        "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2025-11-21",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "YEARLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [21],
-        "monthsOfYear": [11],
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 55124,
+            "firstOccurrenceDate": "2024-12-20",
+            "finalOccurrenceDate": "2024-12-20",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 54042,
+            "firstOccurrenceDate": "2025-11-21",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "YEARLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              21
+            ],
+            "monthsOfYear": [
+              11
+            ],
+            "maxRecurrenceCount": null
+          }
+        ]
       }
     ]
   }
 }
-
 settings {
   encodeUrl: true
   timeout: 0

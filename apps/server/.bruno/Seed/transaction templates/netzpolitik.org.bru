@@ -1,0 +1,50 @@
+meta {
+  name: netzpolitik.org
+  type: http
+  seq: 24
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": null,
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_netzpolitik_org}}",
+        "title": "netzpolitik.org",
+        "description": "Spende",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 1500,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,101 @@
+meta {
+  name: Kindergeld
+  type: http
+  seq: 38
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_kindergeld}}",
+        "sourcePocketId": null,
+        "destinationPocketId": "{{pocket_income_bucket}}",
+        "financialProfileId": "{{profile_buburuza}}",
+        "partnerId": "{{partner_familienkasse}}",
+        "title": "Kindergeld",
+        "description": "Bundesagentur für Arbeit – Familienkasse",
+        "currencyCode": "EUR",
+        "transactionType": "INCOME",
+        "versions": [
+          { "amount": 51000, "firstOccurrenceDate": "2025-06-30", "finalOccurrenceDate": "2025-06-30", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-07-07", "finalOccurrenceDate": "2025-07-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-08-07", "finalOccurrenceDate": "2025-08-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-09-08", "finalOccurrenceDate": "2025-09-08", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-10-09", "finalOccurrenceDate": "2025-10-09", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-11-07", "finalOccurrenceDate": "2025-11-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-12-05", "finalOccurrenceDate": "2025-12-05", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-01-09", "finalOccurrenceDate": "2026-01-09", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-02-10", "finalOccurrenceDate": "2026-02-10", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-03-06", "finalOccurrenceDate": "2026-03-06", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-04-13", "finalOccurrenceDate": "2026-04-13", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-05-08", "finalOccurrenceDate": "2026-05-08", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-06-09", "finalOccurrenceDate": "2026-06-09", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-07-07", "finalOccurrenceDate": null, "recurrenceType": "MONTHLY", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": [7], "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      },
+      {
+        "contractId": "{{contract_kindergeld}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_kindergeld}}",
+        "financialProfileId": "{{profile_buburuza}}",
+        "partnerId": "{{partner_familienkasse}}",
+        "title": "Kindergeld sparen",
+        "description": "Kindergeld für Buburuza zurücklegen",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          { "amount": 51000, "firstOccurrenceDate": "2025-06-30", "finalOccurrenceDate": "2025-06-30", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-07-07", "finalOccurrenceDate": "2025-07-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-08-07", "finalOccurrenceDate": "2025-08-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-09-10", "finalOccurrenceDate": "2025-09-10", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-10-02", "finalOccurrenceDate": "2025-10-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-10-13", "finalOccurrenceDate": "2025-10-13", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-11-12", "finalOccurrenceDate": "2025-11-12", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25500, "firstOccurrenceDate": "2025-12-12", "finalOccurrenceDate": "2025-12-12", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-05-07", "finalOccurrenceDate": "2026-05-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 25900, "firstOccurrenceDate": "2026-06-01", "finalOccurrenceDate": null, "recurrenceType": "MONTHLY", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": [1], "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      },
+      {
+        "contractId": "{{contract_kindergeld}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_kindergeld}}",
+        "financialProfileId": "{{profile_buburuza}}",
+        "partnerId": "{{partner_familienkasse}}",
+        "title": "Fehlende Kindergeld-Rückstellung",
+        "description": "Nachholung Januar bis April 2026",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          { "amount": 103600, "firstOccurrenceDate": "2026-05-07", "finalOccurrenceDate": "2026-05-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      },
+      {
+        "contractId": "{{contract_kindergeld}}",
+        "sourcePocketId": "{{pocket_kindergeld}}",
+        "destinationPocketId": "{{pocket_income_bucket}}",
+        "financialProfileId": "{{profile_buburuza}}",
+        "partnerId": "{{partner_familienkasse}}",
+        "title": "Doppeltes Kindergeld",
+        "description": "Doppelte Rückstellung zurück in den Income Bucket",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          { "amount": 25500, "firstOccurrenceDate": "2025-10-15", "finalOccurrenceDate": "2025-10-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

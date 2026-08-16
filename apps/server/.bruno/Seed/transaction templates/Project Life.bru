@@ -1,0 +1,48 @@
+meta {
+  name: Project Life
+  type: http
+  seq: 40
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_project_life}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_project_life}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": null,
+        "title": "Build it up",
+        "description": "Project Life",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 20000,
+            "firstOccurrenceDate": "2024-11-01",
+            "finalOccurrenceDate": "2025-09-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

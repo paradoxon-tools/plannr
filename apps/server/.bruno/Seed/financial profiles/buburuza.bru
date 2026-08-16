@@ -1,0 +1,23 @@
+meta {
+  name: buburuza
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/financial-profiles
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Buburuza",
+    "description": null
+  }
+}

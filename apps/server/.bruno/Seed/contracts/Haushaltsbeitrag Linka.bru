@@ -1,0 +1,31 @@
+meta {
+  name: Haushaltsbeitrag Linka
+  type: http
+  seq: 47
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Haushaltsbeitrag Linka",
+    "description": "Monatliche Beteiligung an den Haushaltskosten",
+    "color": 16744192,
+    "type": "NON_ACCUMULATING",
+    "accountIds": ["{{account_income_bucket}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": "{{partner_linka}}",
+    "signingDate": "2024-11-28",
+    "expirationDate": "2025-09-01",
+    "lastCancellationDate": null
+  }
+}

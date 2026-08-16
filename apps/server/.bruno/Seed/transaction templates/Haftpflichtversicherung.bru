@@ -21,18 +21,64 @@ body:json {
         "partnerId": "{{partner_vhv}}",
         "title": "Rückstellung",
         "description": "",
-        "amount": 559,
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2024-12-01",
-        "finalOccurrenceDate": "2025-08-01",
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 559,
+            "firstOccurrenceDate": "2024-10-29",
+            "finalOccurrenceDate": "2024-10-29",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 559,
+            "firstOccurrenceDate": "2024-12-01",
+            "finalOccurrenceDate": "2025-08-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 612,
+            "firstOccurrenceDate": "2025-09-01",
+            "finalOccurrenceDate": "2026-06-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 671,
+            "firstOccurrenceDate": "2026-07-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_haftpflichtversicherung}}",
@@ -40,20 +86,26 @@ body:json {
         "destinationPocketId": "{{pocket_haftpflichtversicherung}}",
         "financialProfileId": "{{profile_triple_trouble}}",
         "partnerId": "{{partner_vhv}}",
-        "title": "Rückstellung",
-        "description": "",
-        "amount": 612,
+        "title": "Rückstellungsübertrag",
+        "description": "Auf drei Monate verteilter Eröffnungsbestand",
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2025-09-01",
-        "finalOccurrenceDate": "2026-06-01",
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 559,
+            "firstOccurrenceDate": "2024-07-01",
+            "finalOccurrenceDate": "2024-09-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_haftpflichtversicherung}}",
@@ -61,20 +113,36 @@ body:json {
         "destinationPocketId": "{{pocket_haftpflichtversicherung}}",
         "financialProfileId": "{{profile_triple_trouble}}",
         "partnerId": "{{partner_vhv}}",
-        "title": "Rückstellung",
-        "description": "",
-        "amount": 671,
+        "title": "Beitragserhöhung",
+        "description": "Zusätzliche Rückstellung für die erhöhte Versicherungsprämie",
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2026-07-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 693,
+            "firstOccurrenceDate": "2025-08-06",
+            "finalOccurrenceDate": "2025-08-06",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 700,
+            "firstOccurrenceDate": "2026-06-25",
+            "finalOccurrenceDate": "2026-06-25",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_haftpflichtversicherung}}",
@@ -84,23 +152,46 @@ body:json {
         "partnerId": "{{partner_vhv}}",
         "title": "Haftpflichtversicherung",
         "description": "",
-        "amount": 7340,
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2025-08-06",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "YEARLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [6],
-        "monthsOfYear": [8],
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 7340,
+            "firstOccurrenceDate": "2025-08-06",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "YEARLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              6
+            ],
+            "monthsOfYear": [
+              8
+            ],
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 8044,
+            "firstOccurrenceDate": "2026-08-06",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "YEARLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              6
+            ],
+            "monthsOfYear": [
+              8
+            ],
+            "maxRecurrenceCount": null
+          }
+        ]
       }
     ]
   }
 }
-
 settings {
   encodeUrl: true
   timeout: 0

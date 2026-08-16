@@ -1,0 +1,77 @@
+meta {
+  name: Kita Frankfurt (Catalina)
+  type: http
+  seq: 33
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_kita_frankfurt_catalina}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_kita_frankfurt_catalina}}",
+        "financialProfileId": "{{profile_buburuza}}",
+        "partnerId": "{{partner_kita_frankfurt}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 28700,
+            "firstOccurrenceDate": "2026-07-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_kita_frankfurt_catalina}}",
+        "sourcePocketId": "{{pocket_kita_frankfurt_catalina}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_buburuza}}",
+        "partnerId": "{{partner_kita_frankfurt}}",
+        "title": "Kinderbetreuung",
+        "description": "Kita Frankfurt – Catalina",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 28700,
+            "firstOccurrenceDate": "2026-08-03",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              3
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

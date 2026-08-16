@@ -1,0 +1,31 @@
+meta {
+  name: Deutschlandticket (Linka)
+  type: http
+  seq: 38
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Deutschlandticket (Linka)",
+    "description": null,
+    "color": 3457023,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_linka}}",
+    "partnerId": "{{partner_ticket_plus}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

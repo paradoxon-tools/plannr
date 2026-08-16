@@ -1,0 +1,31 @@
+meta {
+  name: Elterngeld
+  type: http
+  seq: 46
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Elterngeld",
+    "description": null,
+    "color": 16760576,
+    "type": "NON_ACCUMULATING",
+    "accountIds": ["{{account_income_bucket}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": "{{partner_linka}}",
+    "signingDate": "2025-09-21",
+    "expirationDate": "2026-05-17",
+    "lastCancellationDate": null
+  }
+}

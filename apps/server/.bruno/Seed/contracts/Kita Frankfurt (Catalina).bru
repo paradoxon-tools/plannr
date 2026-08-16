@@ -1,0 +1,31 @@
+meta {
+  name: Kita Frankfurt (Catalina)
+  type: http
+  seq: 35
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Kita Frankfurt (Catalina)",
+    "description": null,
+    "color": 7951688,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_buburuza}}",
+    "partnerId": "{{partner_kita_frankfurt}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

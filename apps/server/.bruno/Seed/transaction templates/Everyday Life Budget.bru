@@ -1,0 +1,97 @@
+meta {
+  name: Everyday Life Budget
+  type: http
+  seq: 47
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_everyday_life_budget}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_everyday_life_budget}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": null,
+        "title": "Budget bereitstellen",
+        "description": "Monatliche Bereitstellung über Rent & Appliances",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 100000,
+            "firstOccurrenceDate": "2024-11-01",
+            "finalOccurrenceDate": "2025-09-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 130000,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_everyday_life_budget}}",
+        "sourcePocketId": "{{pocket_everyday_life_budget}}",
+        "destinationPocketId": "{{pocket_everyday_life}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": null,
+        "title": "Everyday Life Budget",
+        "description": "Zwei Raten pro Monat",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 50000,
+            "firstOccurrenceDate": "2024-11-01",
+            "finalOccurrenceDate": "2025-09-15",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1, 15],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 65000,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1, 15],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

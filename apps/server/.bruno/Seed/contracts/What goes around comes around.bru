@@ -1,0 +1,31 @@
+meta {
+  name: What goes around comes around
+  type: http
+  seq: 44
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "What goes around comes around",
+    "description": "Rainy Day Fund",
+    "color": 6710886,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_what_goes_around_comes_around}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": null,
+    "signingDate": null,
+    "expirationDate": "2026-06-01",
+    "lastCancellationDate": null
+  }
+}

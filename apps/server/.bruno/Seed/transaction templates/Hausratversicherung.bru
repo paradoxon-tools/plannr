@@ -21,60 +21,52 @@ body:json {
         "partnerId": "{{partner_helvetia}}",
         "title": "Rückstellung",
         "description": "",
-        "amount": 542,
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2024-12-01",
-        "finalOccurrenceDate": "2025-10-01",
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
-      },
-      {
-        "contractId": "{{contract_hausratversicherung}}",
-        "sourcePocketId": "{{pocket_income_bucket}}",
-        "destinationPocketId": "{{pocket_hausratversicherung}}",
-        "financialProfileId": "{{profile_triple_trouble}}",
-        "partnerId": "{{partner_helvetia}}",
-        "title": "Rückstellung",
-        "description": "",
-        "amount": 549,
-        "currencyCode": "EUR",
-        "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2025-11-01",
-        "finalOccurrenceDate": "2026-06-01",
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
-      },
-      {
-        "contractId": "{{contract_hausratversicherung}}",
-        "sourcePocketId": "{{pocket_income_bucket}}",
-        "destinationPocketId": "{{pocket_hausratversicherung}}",
-        "financialProfileId": "{{profile_triple_trouble}}",
-        "partnerId": "{{partner_helvetia}}",
-        "title": "Rückstellung",
-        "description": "",
-        "amount": 917,
-        "currencyCode": "EUR",
-        "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2026-07-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 542,
+            "firstOccurrenceDate": "2024-12-01",
+            "finalOccurrenceDate": "2025-10-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 549,
+            "firstOccurrenceDate": "2025-11-01",
+            "finalOccurrenceDate": "2026-06-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 917,
+            "firstOccurrenceDate": "2026-07-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_hausratversicherung}}",
@@ -84,23 +76,30 @@ body:json {
         "partnerId": "{{partner_helvetia}}",
         "title": "Hausratversicherung",
         "description": "",
-        "amount": 6578,
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2025-10-16",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "YEARLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [16],
-        "monthsOfYear": [10],
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 6578,
+            "firstOccurrenceDate": "2025-10-16",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "YEARLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              16
+            ],
+            "monthsOfYear": [
+              10
+            ],
+            "maxRecurrenceCount": null
+          }
+        ]
       }
     ]
   }
 }
-
 settings {
   encodeUrl: true
   timeout: 0

@@ -1,0 +1,22 @@
+meta {
+  name: Ziarul de Garde
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Ziarul de Garde",
+    "description": "Moldovan newspaper or publication."
+  }
+}

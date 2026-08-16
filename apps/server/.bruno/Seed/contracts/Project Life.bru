@@ -1,0 +1,31 @@
+meta {
+  name: Project Life
+  type: http
+  seq: 43
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Project Life",
+    "description": "Build it up",
+    "color": 10181046,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_project_life}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": null,
+    "signingDate": null,
+    "expirationDate": "2025-09-01",
+    "lastCancellationDate": null
+  }
+}
