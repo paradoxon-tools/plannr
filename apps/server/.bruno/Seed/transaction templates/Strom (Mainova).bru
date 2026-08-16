@@ -1,0 +1,95 @@
+meta {
+  name: Strom (Mainova)
+  type: http
+  seq: 37
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_strom_mainova}}",
+        "sourcePocketId": "{{pocket_rent_and_appliances}}",
+        "destinationPocketId": "{{pocket_strom_mainova}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_mainova}}",
+        "title": "Fehlende Rückstellung",
+        "description": "April und Mai 2026",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {"amount": 21800, "firstOccurrenceDate": "2026-05-07", "finalOccurrenceDate": "2026-05-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_mainova}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_strom_mainova}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_mainova}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {"amount": 10900, "firstOccurrenceDate": "2026-06-01", "finalOccurrenceDate": null, "recurrenceType": "MONTHLY", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": [1], "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_mainova}}",
+        "sourcePocketId": null,
+        "destinationPocketId": "{{pocket_strom_mainova}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_mainova}}",
+        "title": "Wechselbonus",
+        "description": "Mainova signing bonus",
+        "currencyCode": "EUR",
+        "transactionType": "INCOME",
+        "versions": [
+          {"amount": 26100, "firstOccurrenceDate": "2026-04-09", "finalOccurrenceDate": "2026-04-09", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_mainova}}",
+        "sourcePocketId": "{{pocket_strom_mainova}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_mainova}}",
+        "title": "Strom",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {"amount": 10900, "firstOccurrenceDate": "2026-04-07", "finalOccurrenceDate": "2026-04-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 10900, "firstOccurrenceDate": "2026-05-05", "finalOccurrenceDate": "2026-05-05", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 10900, "firstOccurrenceDate": "2026-08-10", "finalOccurrenceDate": null, "recurrenceType": "MONTHLY", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": [10], "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_mainova}}",
+        "sourcePocketId": "{{pocket_strom_mainova}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_mainova}}",
+        "title": "Schlussrechnung vorherige Adresse",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {"amount": 7958, "firstOccurrenceDate": "2026-06-24", "finalOccurrenceDate": "2026-06-24", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

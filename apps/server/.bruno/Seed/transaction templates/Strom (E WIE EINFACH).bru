@@ -1,0 +1,143 @@
+meta {
+  name: Strom (E WIE EINFACH)
+  type: http
+  seq: 36
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_strom_e_wie_einfach}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_strom_e_wie_einfach}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_e_wie_einfach}}",
+        "title": "Rückstellungsübertrag",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 9200,
+            "firstOccurrenceDate": "2024-10-29",
+            "finalOccurrenceDate": "2024-10-29",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_e_wie_einfach}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_strom_e_wie_einfach}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_e_wie_einfach}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 9200,
+            "firstOccurrenceDate": "2024-11-28",
+            "finalOccurrenceDate": "2025-08-28",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [28],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 9200,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": "2026-05-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_e_wie_einfach}}",
+        "sourcePocketId": "{{pocket_strom_e_wie_einfach}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_e_wie_einfach}}",
+        "title": "Strom",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {"amount": 9200, "firstOccurrenceDate": "2024-11-15", "finalOccurrenceDate": "2024-11-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9200, "firstOccurrenceDate": "2024-12-16", "finalOccurrenceDate": "2024-12-16", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9200, "firstOccurrenceDate": "2025-01-31", "finalOccurrenceDate": "2025-01-31", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-02-17", "finalOccurrenceDate": "2025-02-17", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-03-17", "finalOccurrenceDate": "2025-03-17", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-04-15", "finalOccurrenceDate": "2025-04-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-05-15", "finalOccurrenceDate": "2025-05-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-06-16", "finalOccurrenceDate": "2025-06-16", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-07-15", "finalOccurrenceDate": "2025-07-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-08-18", "finalOccurrenceDate": "2025-08-18", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-09-15", "finalOccurrenceDate": "2025-09-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-10-15", "finalOccurrenceDate": "2025-10-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-11-17", "finalOccurrenceDate": "2025-11-17", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2025-12-15", "finalOccurrenceDate": "2025-12-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2026-01-15", "finalOccurrenceDate": "2026-01-15", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 9100, "firstOccurrenceDate": "2026-02-16", "finalOccurrenceDate": "2026-02-16", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_e_wie_einfach}}",
+        "sourcePocketId": "{{pocket_strom_e_wie_einfach}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_e_wie_einfach}}",
+        "title": "Schlussrechnung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {"amount": 4064, "firstOccurrenceDate": "2026-03-23", "finalOccurrenceDate": "2026-03-23", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      },
+      {
+        "contractId": "{{contract_strom_e_wie_einfach}}",
+        "sourcePocketId": null,
+        "destinationPocketId": "{{pocket_strom_e_wie_einfach}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_e_wie_einfach}}",
+        "title": "Rückerstattung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "INCOME",
+        "versions": [
+          {"amount": 29277, "firstOccurrenceDate": "2025-02-06", "finalOccurrenceDate": "2025-02-06", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null},
+          {"amount": 1754, "firstOccurrenceDate": "2026-01-07", "finalOccurrenceDate": "2026-01-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null}
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

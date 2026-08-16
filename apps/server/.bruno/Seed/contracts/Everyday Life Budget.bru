@@ -1,0 +1,31 @@
+meta {
+  name: Everyday Life Budget
+  type: http
+  seq: 50
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Everyday Life Budget",
+    "description": "Gemeinsames Haushaltsbudget einschließlich Catalina, bereitgestellt über Rent & Appliances",
+    "color": 4359668,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_rent_and_appliances}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": null,
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

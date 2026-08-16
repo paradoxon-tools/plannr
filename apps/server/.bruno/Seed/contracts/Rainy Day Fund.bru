@@ -1,0 +1,31 @@
+meta {
+  name: Rainy Day Fund
+  type: http
+  seq: 45
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Rainy Day Fund",
+    "description": null,
+    "color": 5592405,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_savings}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": null,
+    "signingDate": null,
+    "expirationDate": "2025-09-26",
+    "lastCancellationDate": null
+  }
+}

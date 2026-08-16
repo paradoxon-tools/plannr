@@ -1,0 +1,31 @@
+meta {
+  name: Strom (E WIE EINFACH)
+  type: http
+  seq: 39
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Strom (E WIE EINFACH)",
+    "description": null,
+    "color": 16766720,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_rent_and_appliances}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": "{{partner_e_wie_einfach}}",
+    "signingDate": null,
+    "expirationDate": "2026-03-23",
+    "lastCancellationDate": null
+  }
+}

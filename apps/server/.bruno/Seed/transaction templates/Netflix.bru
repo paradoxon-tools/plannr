@@ -1,0 +1,77 @@
+meta {
+  name: Netflix
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_netflix}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_netflix}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_michael_fisches}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 500,
+            "firstOccurrenceDate": "2024-11-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_netflix}}",
+        "sourcePocketId": "{{pocket_netflix}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_michael_fisches}}",
+        "title": "Netflix",
+        "description": "Netflix Caro",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 500,
+            "firstOccurrenceDate": "2024-11-28",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              28
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,50 @@
+meta {
+  name: Auto Apps
+  type: http
+  seq: 30
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_auto_apps}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_auto_apps}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_auto_apps}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 88,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

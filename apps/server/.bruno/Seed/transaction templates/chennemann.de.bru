@@ -21,18 +21,24 @@ body:json {
         "partnerId": "{{partner_strato}}",
         "title": "Rückstellung",
         "description": "",
-        "amount": 80,
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2025-10-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 80,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_chennemann_de}}",
@@ -42,23 +48,30 @@ body:json {
         "partnerId": "{{partner_strato}}",
         "title": "Domain",
         "description": "",
-        "amount": 960,
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2026-07-15",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "YEARLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [15],
-        "monthsOfYear": [7],
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 960,
+            "firstOccurrenceDate": "2026-07-15",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "YEARLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              15
+            ],
+            "monthsOfYear": [
+              7
+            ],
+            "maxRecurrenceCount": null
+          }
+        ]
       }
     ]
   }
 }
-
 settings {
   encodeUrl: true
   timeout: 0

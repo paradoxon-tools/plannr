@@ -1,0 +1,48 @@
+meta {
+  name: Travel Budget
+  type: http
+  seq: 39
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_travel_budget}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_travel_budget}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": null,
+        "title": "Travel Budget",
+        "description": "Fly Baby, Fly",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 40000,
+            "firstOccurrenceDate": "2024-11-01",
+            "finalOccurrenceDate": "2025-09-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,131 @@
+meta {
+  name: Deutschlandticket
+  type: http
+  seq: 35
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_deutschlandticket_christoph}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_deutschlandticket_christoph}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_ticket_plus}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 6300,
+            "firstOccurrenceDate": "2026-07-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_deutschlandticket_christoph}}",
+        "sourcePocketId": "{{pocket_deutschlandticket_christoph}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_ticket_plus}}",
+        "title": "Deutschlandticket",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 6300,
+            "firstOccurrenceDate": "2026-08-03",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              3
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_deutschlandticket_linka}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_deutschlandticket_linka}}",
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_ticket_plus}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 6300,
+            "firstOccurrenceDate": "2026-07-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_deutschlandticket_linka}}",
+        "sourcePocketId": "{{pocket_deutschlandticket_linka}}",
+        "destinationPocketId": "{{pocket_everyday_life}}",
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_ticket_plus}}",
+        "title": "Deutschlandticket",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 6300,
+            "firstOccurrenceDate": "2026-07-15",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              15
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

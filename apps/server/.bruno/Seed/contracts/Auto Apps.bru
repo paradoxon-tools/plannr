@@ -1,0 +1,31 @@
+meta {
+  name: Auto Apps
+  type: http
+  seq: 31
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Auto Apps",
+    "description": null,
+    "color": 3457023,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_cryzsh}}",
+    "partnerId": "{{partner_auto_apps}}",
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

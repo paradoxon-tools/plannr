@@ -1,0 +1,48 @@
+meta {
+  name: Auto Wartung und Reparatur
+  type: http
+  seq: 49
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_auto_wartung_und_reparatur}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_auto_wartung_und_reparatur}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": null,
+        "title": "Auto Wartung & Reparatur",
+        "description": "Monatliche Rücklage",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 5000,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

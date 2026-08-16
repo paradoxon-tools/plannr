@@ -21,18 +21,24 @@ body:json {
         "partnerId": "{{partner_ard_zdf_deutschlandradio_beitragsservice}}",
         "title": "Rückstellung",
         "description": "",
-        "amount": 1836,
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2024-12-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [1],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 1836,
+            "firstOccurrenceDate": "2024-12-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_rundfunkbeitrag}}",
@@ -42,23 +48,28 @@ body:json {
         "partnerId": "{{partner_ard_zdf_deutschlandradio_beitragsservice}}",
         "title": "Rundfunkbeitrag",
         "description": "",
-        "amount": 5508,
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2024-11-15",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 2,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [15],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 5508,
+            "firstOccurrenceDate": "2024-11-15",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 2,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              15
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       }
     ]
   }
 }
-
 settings {
   encodeUrl: true
   timeout: 0

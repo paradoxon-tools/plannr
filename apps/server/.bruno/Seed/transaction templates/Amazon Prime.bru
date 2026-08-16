@@ -21,20 +21,24 @@ body:json {
         "partnerId": "{{partner_amazon_prime}}",
         "title": "Rückstellung",
         "description": "",
-        "amount": 750,
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
-        "firstOccurrenceDate": "2024-12-01",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "MONTHLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [
-          1
-        ],
-        "monthsOfYear": null,
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 750,
+            "firstOccurrenceDate": "2024-12-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
       },
       {
         "contractId": "{{contract_amazon_prime}}",
@@ -44,27 +48,30 @@ body:json {
         "partnerId": "{{partner_amazon_prime}}",
         "title": "Amazon Prime",
         "description": "",
-        "amount": 8990,
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
-        "firstOccurrenceDate": "2025-01-10",
-        "finalOccurrenceDate": null,
-        "recurrenceType": "YEARLY",
-        "skipCount": 0,
-        "daysOfWeek": null,
-        "weeksOfMonth": null,
-        "daysOfMonth": [
-          10
-        ],
-        "monthsOfYear": [
-          1
-        ],
-        "maxRecurrenceCount": null
+        "versions": [
+          {
+            "amount": 8990,
+            "firstOccurrenceDate": "2025-01-10",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "YEARLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              10
+            ],
+            "monthsOfYear": [
+              1
+            ],
+            "maxRecurrenceCount": null
+          }
+        ]
       }
     ]
   }
 }
-
 settings {
   encodeUrl: true
   timeout: 0
