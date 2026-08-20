@@ -1,0 +1,24 @@
+-- Partners involved in transactions (people or businesses)
+CREATE TABLE IF NOT EXISTS partners (
+  partnerId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+
+  UNIQUE (name)
+);
+
+loadPartners:
+SELECT * FROM partners;
+
+getById:
+SELECT * FROM partners WHERE partnerId = :id;
+
+addPartner:
+INSERT INTO partners (name)
+VALUES (:name);
+
+
+INSERT INTO partners (name)
+VALUES
+    ("DERICON"),
+    ("REWE"),
+    ("LIDL");

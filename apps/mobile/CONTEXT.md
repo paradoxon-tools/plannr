@@ -16,6 +16,26 @@ _Avoid_: Home, Finances overview
 The feature pane for inspecting a user's financial position and its composition, judging whether goals and obligations are adequately funded, and working with accounts, pockets, contracts, saving goals, historical transactions, and upcoming transactions. It may use upcoming activity to explain financial state, but cross-feature attention prioritization belongs to Dashboard. Its short name is also its navigation label.
 _Avoid_: Money Management, finance dashboard
 
+**Pocket**:
+The primitive financial structure through which money is held and balance-bearing views are composed. Every pocket belongs to exactly one account.
+_Avoid_: Sub-account, envelope
+
+**Account**:
+An institutional grouping and aggregate view over all pockets belonging to it. It has no balance independent of those pockets.
+_Avoid_: Money container, pocket
+
+**Accumulating contract**:
+A contract presented as an aggregate view over one dedicated pocket in each associated account. Its funding balance exists only in those pockets.
+_Avoid_: Contract account, contract balance container
+
+**Non-accumulating contract**:
+A contract with no dedicated pockets, presented as a cash-flow and obligation view over its attributed transactions.
+_Avoid_: Unfunded pocket, zero-balance contract
+
+**Saving goal**:
+A target presented as an aggregate view over one dedicated pocket in each associated account. Its saved amount exists only in those pockets.
+_Avoid_: Goal account, virtual balance
+
 **Account balance**:
 The sum of the current balances of every pocket belonging to an account. It represents the total funds held in that account.
 _Avoid_: Total balance, combined pocket balance

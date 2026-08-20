@@ -1,0 +1,11 @@
+import kotlin.Boolean;
+
+-- Pockets within an account
+CREATE TABLE IF NOT EXISTS pockets (
+  pocketId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  accountId INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  isDefault INTEGER AS Boolean NOT NULL DEFAULT 0, -- 1 for default bucket, 0 otherwise
+  FOREIGN KEY (accountId) REFERENCES accounts(accountId) ON DELETE CASCADE,
+  UNIQUE (accountId, name) -- Ensure bucket names are unique within an account
+);
