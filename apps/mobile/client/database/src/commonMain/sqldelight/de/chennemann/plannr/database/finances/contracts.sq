@@ -1,0 +1,57 @@
+CREATE TABLE IF NOT EXISTS contracts (
+    contractId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    pocketId INTEGER NOT NULL,
+    partnerId INTEGER NOT NULL,
+
+    FOREIGN KEY (pocketId) REFERENCES pockets(pocketId) ON DELETE CASCADE,
+    FOREIGN KEY (partnerId) REFERENCES partners(partnerId) ON DELETE CASCADE,
+    UNIQUE (name, pocketId)
+);
+
+loadContracts:
+SELECT
+    c.contractId,
+    p1.accountId,
+    p1.pocketId,
+    c.name AS contractName,
+    c.description,
+    p2.partnerId,
+    p2.name AS partnerName,
+    CAST(
+        COALESCE(SUM(CASE WHEN t.destinationPocketId = p1.pocketId THEN t.amount ELSE 0 END), 0) -
+        COALESCE(SUM(CASE WHEN t.sourcePocketId = p1.pocketId THEN t.amount ELSE 0 END), 0) AS INTEGER
+    ) AS balance
+FROM contracts AS c
+    JOIN pockets AS p1 ON p1.pocketId = c.pocketId
+    JOIN partners AS p2 ON p2.partnerId = c.partnerId
+    LEFT JOIN transactions AS t ON p1.pocketId = t.destinationPocketId OR p1.pocketId = t.sourcePocketId
+GROUP BY
+    p1.pocketId;
+
+
+addContract:
+INSERT INTO contracts (name, description, pocketId, partnerId)
+VALUES (:name, :description, :pocketId, :partnerId);
+
+addContractPocket:
+INSERT INTO pockets (accountId, name, isDefault)
+VALUES (:accountId, :name, 0);
+
+updateContractName {
+    UPDATE contracts
+    SET name = :newName
+    WHERE contractId = :contractId;
+
+    UPDATE pockets
+    SET name = :newName
+    WHERE pocketId = (
+        SELECT pocketId FROM contracts WHERE contractId = :contractId
+    );
+}
+
+updateContractDescription:
+UPDATE contracts
+SET description = :newDescription
+WHERE contractId = :contractId;

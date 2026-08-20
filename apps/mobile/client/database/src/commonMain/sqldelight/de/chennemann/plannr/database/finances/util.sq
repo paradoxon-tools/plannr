@@ -1,0 +1,3 @@
+-- util.sq
+lastInsertedRowId:
+SELECT last_insert_rowid();

@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS contracts (
+    contractId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    pocketId INTEGER NOT NULL,
+    partnerId INTEGER NOT NULL,
+
+    FOREIGN KEY (pocketId) REFERENCES pockets(pocketId) ON DELETE CASCADE,
+    FOREIGN KEY (partnerId) REFERENCES partners(partnerId) ON DELETE CASCADE,
+    UNIQUE (name, pocketId)
+);

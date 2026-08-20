@@ -1,0 +1,60 @@
+import kotlin.time.Instant;
+
+-- Transactions table to record all money movements
+CREATE TABLE IF NOT EXISTS transactions (
+    transactionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT NULL,
+    contractId INTEGER DEFAULT NULL,
+    -- savingsGoalId INTEGER DEFAULT NULL,
+
+    templateId INTEGER DEFAULT NULL,
+
+    date TEXT AS Instant NOT NULL,
+    amount INTEGER NOT NULL, -- The amount of the transaction. Positive for inflow, negative for outflow relative to the source/destination.
+    currency TEXT NOT NULL DEFAULT "EUR",
+    -- Fields to link to the involved accounts/pockets and partner
+    sourcePocketId INTEGER DEFAULT NULL,  -- Null for 'Into the system' transactions, optional for 'Expense'
+    destinationPocketId INTEGER DEFAULT NULL, -- Null for 'Out of the system' transactions, optional for 'Income'
+    partnerId INTEGER DEFAULT NULL, -- Null for internal transfers between accounts/pockets
+
+    FOREIGN KEY (sourcePocketId) REFERENCES pockets(pocketId),
+    FOREIGN KEY (destinationPocketId) REFERENCES pockets(pocketId),
+    FOREIGN KEY (partnerId) REFERENCES partners(partnerId),
+
+    FOREIGN KEY (contractId) REFERENCES contracts(contractId),
+
+    FOREIGN KEY (templateId) REFERENCES transactionTemplates(transactionTemplateId)
+);
+
+loadTransactions:
+SELECT * FROM transactions;
+
+materializeTemplate:
+-- Add materialized Transaction
+INSERT INTO transactions (title, description, templateId, contractId, date, amount, currency, sourcePocketId, destinationPocketId, partnerId)
+VALUES (:title, :description, :templateId, :contractId, :date, :amount, :currency, :sourcePocketId, :destinationPocketId, :partnerId);
+
+updateTemplateOccurrence {
+    BEGIN;
+    UPDATE transactionTemplateOccurrences
+      SET lastMaterializedOccurrence = :lastMaterializedOccurrence,
+          nextOccurrence            = :nextOccurrence
+      WHERE transactionTemplateId  = :templateId;
+    -- if no rows were updated, insert instead
+    INSERT OR IGNORE INTO transactionTemplateOccurrences (
+      transactionTemplateId,
+      lastMaterializedOccurrence,
+      nextOccurrence
+    ) VALUES (
+      :templateId,
+      :lastMaterializedOccurrence,
+      :nextOccurrence
+    );
+    COMMIT;
+}
+-- -- Update the template occurrence so it can be processed correctly the next time
+-- UPDATE transactionTemplateOccurrences
+-- SET lastMaterializedOccurrence = :lastMaterializedOccurrence,
+--     nextOccurrence = :nextOccurrence
+-- WHERE transactionTemplateId = :templateId;

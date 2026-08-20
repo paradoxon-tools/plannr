@@ -1,0 +1,46 @@
+-- Accounts themselves, linked to an account group
+CREATE TABLE IF NOT EXISTS accounts (
+  accountId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+
+  UNIQUE (name)
+);
+
+loadAccounts:
+SELECT
+    p.accountId,
+    p.pocketId,
+    a.name AS accountName, -- Get the account name
+    p.name AS pocketName, -- Assuming 'name' is the pocket name column
+    p.isDefault,
+    CAST(
+        COALESCE(SUM(CASE WHEN t.destinationPocketId = p.pocketId THEN t.amount ELSE 0 END), 0) -
+        COALESCE(SUM(CASE WHEN t.sourcePocketId = p.pocketId THEN t.amount ELSE 0 END), 0) AS INTEGER
+    ) AS balance
+FROM pockets AS p
+    JOIN accounts AS a ON p.accountId = a.accountId -- Join to get the account name
+    LEFT JOIN transactions AS t ON p.pocketId = t.destinationPocketId OR p.pocketId = t.sourcePocketId
+GROUP BY
+    p.pocketId;
+
+addAccount:
+INSERT INTO accounts (name)
+VALUES (:name);
+
+addDefaultAccountPocket:
+INSERT INTO pockets (accountId, name, isDefault)
+VALUES (:accountId, :name, 1);
+
+
+updateAccount {
+    UPDATE accounts
+    SET name = :newName
+    WHERE accountId = :accountId;
+
+    UPDATE pockets
+    SET name = :newName
+    WHERE accountId = :accountId AND isDefault = 1;
+}
+
+
+
