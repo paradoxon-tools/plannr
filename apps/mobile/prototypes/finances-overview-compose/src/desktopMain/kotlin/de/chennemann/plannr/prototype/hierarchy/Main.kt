@@ -9,7 +9,7 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         state = rememberWindowState(width = 460.dp, height = 900.dp),
-        title = "Plannr Finances information hierarchy — prototype",
+        title = "Plannr Finances content inventory — prototype",
     ) {
         FinancesHierarchyPrototypeApp()
     }

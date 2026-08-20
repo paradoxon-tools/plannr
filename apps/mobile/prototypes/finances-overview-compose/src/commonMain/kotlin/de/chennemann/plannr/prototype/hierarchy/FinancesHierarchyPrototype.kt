@@ -62,13 +62,29 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// PROTOTYPE — three Finances information hierarchies, switchable in one Compose host.
-// The selected Ledger visual language and full-takeover secondary screens are fixed inputs.
+// PROTOTYPE — nineteen Finances overview inventories, switchable in one Compose host.
+// Question: which content stays on the overview, appears conditionally, or moves to a focused screen?
 
 private enum class HierarchyVariant(val key: String, val label: String, val thesis: String) {
-    Position("A", "Position first", "What do I have, what changes soon, and why?"),
-    Time("B", "Time first", "What happens next, and where does it land?"),
-    Structure("C", "Structure first", "Where is everything organized, and what belongs together?"),
+    Complete("A", "Complete inventories", "Keep every primary financial entity directly browsable."),
+    Attention("B", "Attention filtered", "Show holdings in full, but only surface plans that need attention."),
+    Directory("C", "Summary directory", "Keep the overview compact and defer every inventory to focused screens."),
+    Questions("D", "Question led", "Organize representative content around the questions the user came to answer."),
+    Accounts("E", "Accounts as spine", "Use accounts as the complete inventory and nest purpose relationships beneath them."),
+    Funding("F", "Funding ledger", "Make contracts and saving goals primary; reduce accounts to a compact directory."),
+    Activity("G", "Activity preview", "Use transaction activity as the overview inventory and entities as context."),
+    Actions("H", "Action launcher", "Show no inventories; make every row an explicit task or destination."),
+    Horizons("I", "Two horizons", "Separate what is true now from what changes in the next 30 days."),
+    Index("J", "Unified index", "Mix all primary entities into one typed, ungrouped inventory."),
+    GuidedAttention("K", "Guided attention", "Answer the user's questions while hiding healthy plans."),
+    GuidedAccounts("L", "Guided accounts", "Answer each question through the complete account spine."),
+    AccountExceptions("M", "Account exceptions", "Keep every account, but nest only purpose relationships needing attention."),
+    SelectedAccount("N", "Selected account", "Answer every overview question for one account at a time."),
+    AttentionByAccount("O", "Attention by account", "Group funding exceptions beneath the account whose funds back them."),
+    AnswerLadder("P", "Answer ladder", "Turn the overview into a numbered sequence of concise answers."),
+    AccountMatrix("Q", "Account matrix", "Give each account a compact now, next, and attention summary."),
+    PurposeTrails("R", "Purpose trails", "Follow complete accounts into the contract and goal views composed from them."),
+    BrowseAndTriage("S", "Browse and triage", "Pair a complete account browser with a separate compact attention queue."),
 }
 
 private enum class Appearance { Light, Dark }
@@ -98,7 +114,7 @@ private data class FocusedDestination(
 
 @Composable
 fun FinancesHierarchyPrototypeApp() {
-    var variant by remember { mutableStateOf(HierarchyVariant.Position) }
+    var variant by remember { mutableStateOf(HierarchyVariant.GuidedAttention) }
     var appearance by remember { mutableStateOf(Appearance.Light) }
     var largeText by remember { mutableStateOf(false) }
     var focused by remember { mutableStateOf<FocusedDestination?>(null) }
@@ -164,13 +180,29 @@ fun FinancesHierarchyPrototypeApp() {
                 Crossfade(
                     targetState = variant,
                     animationSpec = tween(160),
-                    label = "hierarchy-variant",
+                    label = "inventory-variant",
                 ) { selected ->
                     key(selected) {
                             when (selected) {
-                                HierarchyVariant.Position -> PositionFirstPane(tokens, onOpen = { focused = it })
-                                HierarchyVariant.Time -> TimeFirstPane(tokens, onOpen = { focused = it })
-                                HierarchyVariant.Structure -> StructureFirstPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Complete -> CompleteInventoryPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Attention -> AttentionInventoryPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Directory -> DirectoryInventoryPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Questions -> QuestionLedPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Accounts -> AccountsSpinePane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Funding -> FundingLedgerPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Activity -> ActivityPreviewPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Actions -> ActionLauncherPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Horizons -> TwoHorizonsPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.Index -> UnifiedIndexPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.GuidedAttention -> GuidedAttentionPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.GuidedAccounts -> GuidedAccountsPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.AccountExceptions -> AccountExceptionsPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.SelectedAccount -> SelectedAccountPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.AttentionByAccount -> AttentionByAccountPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.AnswerLadder -> AnswerLadderPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.AccountMatrix -> AccountMatrixPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.PurposeTrails -> PurposeTrailsPane(tokens, onOpen = { focused = it })
+                                HierarchyVariant.BrowseAndTriage -> BrowseAndTriagePane(tokens, onOpen = { focused = it })
                             }
                     }
                 }
@@ -240,8 +272,8 @@ private fun tokensFor(appearance: Appearance) = if (appearance == Appearance.Lig
 
 @Composable
 private fun PositionFirstPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
-    LedgerList(HierarchyVariant.Position) {
-        item { PrototypeHeading(HierarchyVariant.Position, tokens) }
+    LedgerList(HierarchyVariant.Complete) {
+        item { PrototypeHeading(HierarchyVariant.Complete, tokens) }
         item {
             ProfileLine("Personal", "Default financial profile", tokens) {
                 onOpen(profilesDestination())
@@ -308,8 +340,8 @@ private fun PositionFirstPane(tokens: LedgerTokens, onOpen: (FocusedDestination)
 
 @Composable
 private fun TimeFirstPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
-    LedgerList(HierarchyVariant.Time) {
-        item { PrototypeHeading(HierarchyVariant.Time, tokens) }
+    LedgerList(HierarchyVariant.Attention) {
+        item { PrototypeHeading(HierarchyVariant.Attention, tokens) }
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
@@ -368,8 +400,8 @@ private fun TimeFirstPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> 
 
 @Composable
 private fun StructureFirstPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
-    LedgerList(HierarchyVariant.Structure) {
-        item { PrototypeHeading(HierarchyVariant.Structure, tokens) }
+    LedgerList(HierarchyVariant.Directory) {
+        item { PrototypeHeading(HierarchyVariant.Directory, tokens) }
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
@@ -427,6 +459,749 @@ private fun StructureFirstPane(tokens: LedgerTokens, onOpen: (FocusedDestination
         }
         item {
             SectionHeading("FINANCIAL PROFILES", "2 · Personal default", "MANAGE", tokens) { onOpen(profilesDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun CompleteInventoryPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Complete) {
+        item { PrototypeHeading(HierarchyVariant.Complete, tokens) }
+        item {
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+        }
+        item {
+            SectionHeading("NEXT 30 DAYS", "+ €2,732.80 · 9 entries", "ALL TRANSACTIONS", tokens) {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Electricity", "Tomorrow · Personal", "− €87.00", tokens, status = "PENDING") {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Rent", "1 Aug · Personal", "− €1,120.00", tokens) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            LedgerRow("Salary", "2 Aug · Personal", "+ €3,940.00", tokens) {
+                onOpen(upcomingDestination())
+            }
+        }
+        item {
+            SectionHeading("ALL ACCOUNTS", "2 institutional views", "OPEN ACCOUNTS", tokens) {
+                onOpen(accountsDestination())
+            }
+            LedgerRow("Everyday", "Account €4,821.60 · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Long term", "Account €7,658.60 · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+        }
+        item {
+            SectionHeading("ALL CONTRACTS", "3 · balances are not additive", "OPEN CONTRACTS", tokens) {
+                onOpen(contractsDestination())
+            }
+            LedgerRow("Rent reserve", "Accumulating · 2.3 months ahead", "€ 2,240.00", tokens, marker = tokens.green) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            LedgerRow("Electricity", "Non-accumulating · next due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                onOpen(contractDestination("Electricity"))
+            }
+            LedgerRow("MagentaMobil", "Non-accumulating · on track", "€ 49.95/mo", tokens) {
+                onOpen(contractDestination("MagentaMobil"))
+            }
+        }
+        item {
+            SectionHeading("ALL SAVING GOALS", "2 · balances are not additive", "OPEN GOALS", tokens) {
+                onOpen(pocketsDestination())
+            }
+            LedgerRow("Emergency reserve", "Saving goal · 5.4 months ahead", "€ 6,840.00", tokens, marker = tokens.green) {
+                onOpen(goalDestination("Emergency reserve"))
+            }
+            LedgerRow("Japan", "Saving goal · 3 weeks behind", "€ 720.00", tokens, marker = tokens.violet, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+            Text(
+                "Pockets stay inside account, contract, and saving-goal screens; these are alternative views of the same funds.",
+                color = tokens.secondary,
+                fontSize = 10.sp,
+                lineHeight = 15.sp,
+                modifier = Modifier.padding(top = 16.dp, bottom = 20.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AttentionInventoryPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Attention) {
+        item { PrototypeHeading(HierarchyVariant.Attention, tokens) }
+        item {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+            }
+        }
+        item {
+            SectionHeading("UPCOMING", "+ €2,732.80 · 9 in next 30 days", "OPEN TIMELINE", tokens) {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Electricity", "Next · tomorrow · Personal", "− €87.00", tokens, status = "PENDING") {
+                onOpen(upcomingDestination())
+            }
+        }
+        item {
+            SectionHeading("ACCOUNTS", "Always complete · 2", "OPEN ACCOUNTS", tokens) {
+                onOpen(accountsDestination())
+            }
+            LedgerRow("Everyday", "Account €4,821.60 · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Long term", "Account €7,658.60 · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+        }
+        item {
+            SectionHeading("FUNDING ATTENTION", "2 items need review", "REVIEW ALL", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            LedgerRow("Japan", "Saving goal · 3 weeks behind", "€ 720.00", tokens, marker = tokens.violet, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+            LedgerRow("Electricity", "Contract · due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                onOpen(contractDestination("Electricity"))
+            }
+            TextAction("ALL 3 CONTRACTS", tokens) { onOpen(contractsDestination()) }
+            TextAction("ALL 2 SAVING GOALS", tokens) { onOpen(pocketsDestination()) }
+            Text(
+                "Healthy contracts and goals are intentionally absent here. Pockets remain available only inside their owning views.",
+                color = tokens.secondary,
+                fontSize = 10.sp,
+                lineHeight = 15.sp,
+                modifier = Modifier.padding(top = 12.dp, bottom = 20.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun DirectoryInventoryPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Directory) {
+        item { PrototypeHeading(HierarchyVariant.Directory, tokens) }
+        item {
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+        }
+        item {
+            SectionHeading("NEXT 30 DAYS", "+ €2,732.80 · 9 entries", "ALL TRANSACTIONS", tokens) {
+                onOpen(upcomingDestination())
+            }
+            SummaryPair("INCOME", "+ €4,420.00", "OUTGOING", "− €1,687.20", tokens)
+        }
+        item {
+            SectionHeading("FUNDING HEALTH", "2 need review", "OPEN REVIEW", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            SummaryPair("CONTRACTS", "1 due · 2 healthy", "SAVING GOALS", "1 behind · 1 healthy", tokens)
+        }
+        item {
+            SectionHeading("FINANCIAL DIRECTORY", "Inventories open as focused screens", "", tokens) {}
+            DirectoryButton("ACCOUNTS · 2", tokens, Modifier.fillMaxWidth()) { onOpen(accountsDestination()) }
+            Spacer(Modifier.height(8.dp))
+            DirectoryButton("CONTRACTS · 3", tokens, Modifier.fillMaxWidth()) { onOpen(contractsDestination()) }
+            Spacer(Modifier.height(8.dp))
+            DirectoryButton("SAVING GOALS · 2", tokens, Modifier.fillMaxWidth()) { onOpen(pocketsDestination()) }
+            Text(
+                "No account, contract, goal, pocket, or transaction row is directly browsable on the overview in this variant.",
+                color = tokens.secondary,
+                fontSize = 10.sp,
+                lineHeight = 15.sp,
+                modifier = Modifier.padding(top = 16.dp, bottom = 20.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuestionLedPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Questions) {
+        item { PrototypeHeading(HierarchyVariant.Questions, tokens) }
+        item { PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) } }
+        item {
+            SectionHeading("WHERE IS MY MONEY?", "2 accounts", "OPEN ACCOUNTS", tokens) { onOpen(accountsDestination()) }
+            LedgerRow("Everyday", "Account €4,821.60 · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Long term", "Account €7,658.60 · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+        }
+        item {
+            SectionHeading("WHAT CHANGES SOON?", "+ €2,732.80 · 9 in 30 days", "ALL TRANSACTIONS", tokens) {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Electricity", "Tomorrow · Personal profile", "− €87.00", tokens, status = "PENDING") {
+                onOpen(upcomingDestination())
+            }
+        }
+        item {
+            SectionHeading("WHAT NEEDS ATTENTION?", "1 contract · 1 saving goal", "REVIEW", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            LedgerRow("Japan", "Saving goal · Personal profile · 3 weeks behind", "€ 720.00", tokens, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+            LedgerRow("Electricity", "Contract · Personal profile · due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                onOpen(contractDestination("Electricity"))
+            }
+        }
+        item {
+            SectionHeading("WHAT AM I FUNDING?", "3 contracts · 2 saving goals", "OPEN DIRECTORY", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            SummaryPair("CONTRACTS", "1 due · 2 healthy", "SAVING GOALS", "1 behind · 1 healthy", tokens)
+        }
+    }
+}
+
+@Composable
+private fun AccountsSpinePane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Accounts) {
+        item { PrototypeHeading(HierarchyVariant.Accounts, tokens) }
+        item {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Label("UPCOMING · 30 DAYS", tokens)
+                    Text("+ €2,732.80 · 9 entries", color = tokens.strong, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                }
+                CompactAction("+ ADD", tokens) { onOpen(transactionDestination()) }
+            }
+        }
+        item {
+            SectionHeading("ACCOUNTS", "Complete institutional inventory", "ALL TRANSACTIONS", tokens) {
+                onOpen(upcomingDestination())
+            }
+            StructureAccountHeader("Everyday", "Account · Available €3,210.40", "€ 4,821.60", tokens.blue, tokens) {
+                onOpen(accountDestination("Everyday"))
+            }
+            NestedRow("Rent reserve", "Contract view · Personal · 2.3 months ahead", "€ 960.00", tokens) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            NestedRow("Electricity", "Contract view · Personal · due tomorrow", "€ 87.00", tokens) {
+                onOpen(contractDestination("Electricity"))
+            }
+            StructureAccountHeader("Long term", "Account · Available €98.60", "€ 7,658.60", tokens.violet, tokens) {
+                onOpen(accountDestination("Long term"))
+            }
+            NestedRow("Emergency reserve", "Saving-goal view · Personal · 5.4 months ahead", "€ 6,840.00", tokens) {
+                onOpen(goalDestination("Emergency reserve"))
+            }
+            NestedRow("Japan", "Saving-goal view · Personal · 3 weeks behind", "€ 720.00", tokens) {
+                onOpen(goalDestination("Japan"))
+            }
+            Text(
+                "Contracts and goals appear only where their constituent funds live; they have no separate overview inventory.",
+                color = tokens.secondary,
+                fontSize = 10.sp,
+                lineHeight = 15.sp,
+                modifier = Modifier.padding(top = 16.dp, bottom = 20.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun FundingLedgerPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Funding) {
+        item { PrototypeHeading(HierarchyVariant.Funding, tokens) }
+        item {
+            SummaryPair("CONTRACT HEALTH", "1 due · 2 healthy", "GOAL HEALTH", "1 behind · 1 healthy", tokens)
+            Spacer(Modifier.height(12.dp))
+            PrimaryAction("REVIEW FUNDING", tokens) { onOpen(financesDirectoryDestination()) }
+        }
+        item {
+            SectionHeading("CONTRACTS", "Complete funding and obligation inventory", "OPEN ALL", tokens) {
+                onOpen(contractsDestination())
+            }
+            LedgerRow("Electricity", "Non-accumulating · Personal · due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                onOpen(contractDestination("Electricity"))
+            }
+            LedgerRow("Rent reserve", "Accumulating · Personal · 2.3 months ahead", "€ 2,240.00", tokens, marker = tokens.green) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            LedgerRow("MagentaMobil", "Non-accumulating · Personal · on track", "€ 49.95/mo", tokens) {
+                onOpen(contractDestination("MagentaMobil"))
+            }
+        }
+        item {
+            SectionHeading("SAVING GOALS", "Complete funding inventory", "OPEN ALL", tokens) { onOpen(pocketsDestination()) }
+            LedgerRow("Japan", "Personal · 3 weeks behind", "€ 720.00", tokens, marker = tokens.violet, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+            LedgerRow("Emergency reserve", "Personal · 5.4 months ahead", "€ 6,840.00", tokens, marker = tokens.green) {
+                onOpen(goalDestination("Emergency reserve"))
+            }
+        }
+        item {
+            SectionHeading("HOLDINGS", "2 accounts · no combined position", "OPEN ACCOUNTS", tokens) { onOpen(accountsDestination()) }
+            DirectoryButton("ACCOUNT DIRECTORY · 2", tokens, Modifier.fillMaxWidth()) { onOpen(accountsDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun ActivityPreviewPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Activity) {
+        item { PrototypeHeading(HierarchyVariant.Activity, tokens) }
+        item {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Label("30-DAY UPCOMING SUMMARY", tokens)
+                    Text("+ €2,732.80 · 9 entries", color = tokens.strong, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                }
+                CompactAction("+ ADD", tokens) { onOpen(transactionDestination()) }
+            }
+        }
+        item {
+            SectionHeading("RECENTLY BOOKED", "Account balances reflect these entries", "ALL HISTORY", tokens) {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Groceries", "Today · Everyday account · Personal profile", "− €64.20", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Fuel", "Yesterday · Everyday account · Personal profile", "− €71.10", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+        }
+        item {
+            SectionHeading("UPCOMING", "Separate until the combined-timeline decision", "OPEN UPCOMING", tokens) {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Electricity", "Tomorrow · Contract · Personal profile", "− €87.00", tokens, status = "PENDING") {
+                onOpen(contractDestination("Electricity"))
+            }
+            LedgerRow("Rent", "1 Aug · Contract · Personal profile", "− €1,120.00", tokens) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            LedgerRow("Salary", "2 Aug · Everyday account · Personal profile", "+ €3,940.00", tokens) {
+                onOpen(accountDestination("Everyday"))
+            }
+        }
+        item {
+            SectionHeading("RELATED STRUCTURES", "Entities are context, not inventories", "OPEN DIRECTORY", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            DirectoryRow(tokens, onOpen)
+        }
+    }
+}
+
+@Composable
+private fun ActionLauncherPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Actions) {
+        item { PrototypeHeading(HierarchyVariant.Actions, tokens) }
+        item {
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+            Spacer(Modifier.height(12.dp))
+            SummaryPair("NEXT 30 DAYS", "+ €2,732.80", "ENTRIES", "9", tokens)
+        }
+        item {
+            SectionHeading("WHAT DO YOU WANT TO DO?", "No entity inventory on this overview", "", tokens) {}
+            DirectoryButton("REVIEW 2 FUNDING ITEMS", tokens, Modifier.fillMaxWidth()) { onOpen(financesDirectoryDestination()) }
+            Spacer(Modifier.height(8.dp))
+            DirectoryButton("BROWSE 2 ACCOUNTS", tokens, Modifier.fillMaxWidth()) { onOpen(accountsDestination()) }
+            Spacer(Modifier.height(8.dp))
+            DirectoryButton("BROWSE 3 CONTRACTS", tokens, Modifier.fillMaxWidth()) { onOpen(contractsDestination()) }
+            Spacer(Modifier.height(8.dp))
+            DirectoryButton("BROWSE 2 SAVING GOALS", tokens, Modifier.fillMaxWidth()) { onOpen(pocketsDestination()) }
+            Spacer(Modifier.height(8.dp))
+            DirectoryButton("INSPECT 9 UPCOMING ENTRIES", tokens, Modifier.fillMaxWidth()) { onOpen(upcomingDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun TwoHorizonsPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Horizons) {
+        item { PrototypeHeading(HierarchyVariant.Horizons, tokens) }
+        item { PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) } }
+        item {
+            SectionHeading("NOW", "Current holdings and funding health", "OPEN DIRECTORY", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            LedgerRow("Everyday", "Account · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Long term", "Account · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+            LedgerRow("Japan", "Saving goal · Personal · 3 weeks behind", "€ 720.00", tokens, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+        }
+        item {
+            SectionHeading("NEXT 30 DAYS", "+ €2,732.80 · 9 entries", "OPEN TIMELINE", tokens) { onOpen(upcomingDestination()) }
+            LedgerRow("Electricity", "Tomorrow · contract obligation", "− €87.00", tokens, status = "PENDING") {
+                onOpen(contractDestination("Electricity"))
+            }
+            LedgerRow("Rent", "1 Aug · contract obligation", "− €1,120.00", tokens) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            LedgerRow("Salary", "2 Aug · Everyday account", "+ €3,940.00", tokens) {
+                onOpen(accountDestination("Everyday"))
+            }
+        }
+    }
+}
+
+@Composable
+private fun UnifiedIndexPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.Index) {
+        item { PrototypeHeading(HierarchyVariant.Index, tokens) }
+        item {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Label("ALL FINANCIAL STRUCTURES · A–Z", tokens)
+                    Text("7 entities · balances are not additive", color = tokens.secondary, fontSize = 11.sp)
+                }
+                CompactAction("+ ADD", tokens) { onOpen(transactionDestination()) }
+            }
+        }
+        item {
+            LedgerRow("Emergency reserve", "SAVING GOAL · Personal · 5.4 months ahead", "€ 6,840.00", tokens, marker = tokens.green) {
+                onOpen(goalDestination("Emergency reserve"))
+            }
+            LedgerRow("Electricity", "CONTRACT · Personal · due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                onOpen(contractDestination("Electricity"))
+            }
+            LedgerRow("Everyday", "ACCOUNT · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Japan", "SAVING GOAL · Personal · 3 weeks behind", "€ 720.00", tokens, marker = tokens.violet, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+            LedgerRow("Long term", "ACCOUNT · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+            LedgerRow("MagentaMobil", "CONTRACT · Personal · on track", "€ 49.95/mo", tokens) {
+                onOpen(contractDestination("MagentaMobil"))
+            }
+            LedgerRow("Rent reserve", "CONTRACT · Personal · 2.3 months ahead", "€ 2,240.00", tokens, marker = tokens.green) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+        }
+        item {
+            SectionHeading("UPCOMING", "+ €2,732.80 · 9 entries", "ALL TRANSACTIONS", tokens) { onOpen(upcomingDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun GuidedAttentionPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.GuidedAttention) {
+        item { PrototypeHeading(HierarchyVariant.GuidedAttention, tokens) }
+        item { PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) } }
+        item {
+            SectionHeading("WHAT CHANGES SOON?", "+ €2,732.80 · 9 in 30 days", "OPEN TIMELINE", tokens) {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Electricity", "Next · tomorrow · Personal profile", "− €87.00", tokens, status = "PENDING") {
+                onOpen(contractDestination("Electricity"))
+            }
+        }
+        item {
+            SectionHeading("WHERE IS MY MONEY?", "Every account remains visible", "OPEN ACCOUNTS", tokens) {
+                onOpen(accountsDestination())
+            }
+            LedgerRow("Everyday", "Account €4,821.60 · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Long term", "Account €7,658.60 · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+        }
+        item {
+            SectionHeading("WHAT NEEDS ATTENTION?", "Healthy plans stay out of sight", "REVIEW ALL", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            LedgerRow("Japan", "Saving goal · Personal · 3 weeks behind", "€ 720.00", tokens, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+            LedgerRow("Electricity", "Contract · Personal · due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                onOpen(contractDestination("Electricity"))
+            }
+        }
+    }
+}
+
+@Composable
+private fun GuidedAccountsPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.GuidedAccounts) {
+        item { PrototypeHeading(HierarchyVariant.GuidedAccounts, tokens) }
+        item {
+            SectionHeading("WHAT CHANGES SOON?", "+ €2,732.80 · 9 in 30 days", "ALL TRANSACTIONS", tokens) {
+                onOpen(upcomingDestination())
+            }
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+        }
+        item {
+            SectionHeading("WHERE IS IT HELD?", "Complete account spine", "OPEN ACCOUNTS", tokens) { onOpen(accountsDestination()) }
+            StructureAccountHeader("Everyday", "Account · Available €3,210.40", "€ 4,821.60", tokens.blue, tokens) {
+                onOpen(accountDestination("Everyday"))
+            }
+            NestedRow("What is it funding?", "Rent reserve · Personal · 2.3 months ahead", "€ 960.00", tokens) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            NestedRow("What needs attention?", "Electricity · Personal · due tomorrow", "€ 87.00", tokens) {
+                onOpen(contractDestination("Electricity"))
+            }
+            StructureAccountHeader("Long term", "Account · Available €98.60", "€ 7,658.60", tokens.violet, tokens) {
+                onOpen(accountDestination("Long term"))
+            }
+            NestedRow("What is it funding?", "Emergency reserve · Personal · 5.4 months ahead", "€ 6,840.00", tokens) {
+                onOpen(goalDestination("Emergency reserve"))
+            }
+            NestedRow("What needs attention?", "Japan · Personal · 3 weeks behind", "€ 720.00", tokens) {
+                onOpen(goalDestination("Japan"))
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccountExceptionsPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.AccountExceptions) {
+        item { PrototypeHeading(HierarchyVariant.AccountExceptions, tokens) }
+        item {
+            SummaryPair("ACCOUNT VIEWS", "2 complete", "EXCEPTIONS", "2 visible", tokens)
+            Spacer(Modifier.height(12.dp))
+            CompactAction("+ ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+        }
+        item {
+            StructureAccountHeader("Everyday", "Account €4,821.60 · Available €3,210.40", "1 exception", tokens.blue, tokens) {
+                onOpen(accountDestination("Everyday"))
+            }
+            NestedRow("Electricity", "Contract relationship · due tomorrow", "€ 87.00", tokens) {
+                onOpen(contractDestination("Electricity"))
+            }
+            TextAction("HEALTHY RELATIONSHIPS HIDDEN", tokens) { onOpen(accountDestination("Everyday")) }
+        }
+        item {
+            StructureAccountHeader("Long term", "Account €7,658.60 · Available €98.60", "1 exception", tokens.violet, tokens) {
+                onOpen(accountDestination("Long term"))
+            }
+            NestedRow("Japan", "Saving-goal relationship · 3 weeks behind", "€ 720.00", tokens) {
+                onOpen(goalDestination("Japan"))
+            }
+            TextAction("HEALTHY RELATIONSHIPS HIDDEN", tokens) { onOpen(accountDestination("Long term")) }
+        }
+        item {
+            SectionHeading("UPCOMING", "+ €2,732.80 · 9 in 30 days", "OPEN TIMELINE", tokens) { onOpen(upcomingDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun SelectedAccountPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    var selectedAccount by remember { mutableStateOf("Everyday") }
+    LedgerList(HierarchyVariant.SelectedAccount) {
+        item { PrototypeHeading(HierarchyVariant.SelectedAccount, tokens) }
+        item {
+            Label("SELECT AN ACCOUNT", tokens)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DirectoryButton("EVERYDAY", tokens, Modifier.weight(1f)) { selectedAccount = "Everyday" }
+                DirectoryButton("LONG TERM", tokens, Modifier.weight(1f)) { selectedAccount = "Long term" }
+            }
+            Text(
+                "Selected account · $selectedAccount",
+                color = tokens.secondary,
+                fontSize = 10.sp,
+                modifier = Modifier.padding(top = 10.dp),
+            )
+        }
+        if (selectedAccount == "Everyday") {
+            item {
+                SectionHeading("WHAT IS HERE?", "Account €4,821.60", "OPEN ACCOUNT", tokens) {
+                    onOpen(accountDestination("Everyday"))
+                }
+                SummaryPair("AVAILABLE", "€3,210.40", "PURPOSE VIEWS", "2", tokens)
+            }
+            item {
+                SectionHeading("WHAT CHANGES SOON?", "+ €2,733 · 4 entries", "OPEN TIMELINE", tokens) {
+                    onOpen(upcomingDestination())
+                }
+                LedgerRow("Salary", "2 Aug · Personal profile", "+ €3,940.00", tokens) { onOpen(upcomingDestination()) }
+            }
+            item {
+                SectionHeading("WHAT NEEDS ATTENTION?", "1 relationship", "REVIEW", tokens) {
+                    onOpen(contractDestination("Electricity"))
+                }
+                LedgerRow("Electricity", "Contract · due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                    onOpen(contractDestination("Electricity"))
+                }
+            }
+        } else {
+            item {
+                SectionHeading("WHAT IS HERE?", "Account €7,658.60", "OPEN ACCOUNT", tokens) {
+                    onOpen(accountDestination("Long term"))
+                }
+                SummaryPair("AVAILABLE", "€98.60", "PURPOSE VIEWS", "2", tokens)
+            }
+            item {
+                SectionHeading("WHAT CHANGES SOON?", "+ €1,084 · 2 entries", "OPEN TIMELINE", tokens) {
+                    onOpen(upcomingDestination())
+                }
+                LedgerRow("Goal contribution", "20 Aug · Personal profile", "− €300.00", tokens) { onOpen(upcomingDestination()) }
+            }
+            item {
+                SectionHeading("WHAT NEEDS ATTENTION?", "1 relationship", "REVIEW", tokens) { onOpen(goalDestination("Japan")) }
+                LedgerRow("Japan", "Saving goal · 3 weeks behind", "€ 720.00", tokens, status = "BEHIND") {
+                    onOpen(goalDestination("Japan"))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AttentionByAccountPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.AttentionByAccount) {
+        item { PrototypeHeading(HierarchyVariant.AttentionByAccount, tokens) }
+        item {
+            SectionHeading("WHICH ACCOUNT NEEDS REVIEW?", "2 accounts · 2 exceptions", "OPEN ALL", tokens) {
+                onOpen(accountsDestination())
+            }
+            StructureAccountHeader("Everyday", "Available €3,210.40", "1 due", tokens.blue, tokens) {
+                onOpen(accountDestination("Everyday"))
+            }
+            NestedRow("Electricity", "Paid from Everyday · Personal profile", "DUE TOMORROW", tokens) {
+                onOpen(contractDestination("Electricity"))
+            }
+            StructureAccountHeader("Long term", "Available €98.60", "1 behind", tokens.violet, tokens) {
+                onOpen(accountDestination("Long term"))
+            }
+            NestedRow("Japan", "Funded from Long term · Personal profile", "3 WEEKS", tokens) {
+                onOpen(goalDestination("Japan"))
+            }
+        }
+        item {
+            SectionHeading("WHAT CHANGES SOON?", "+ €2,732.80 · 9 in 30 days", "OPEN TIMELINE", tokens) {
+                onOpen(upcomingDestination())
+            }
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun AnswerLadderPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.AnswerLadder) {
+        item { PrototypeHeading(HierarchyVariant.AnswerLadder, tokens) }
+        item {
+            SectionHeading("01 / WHAT CAN I USE?", "Available balances", "OPEN ACCOUNTS", tokens) { onOpen(accountsDestination()) }
+            SummaryPair("EVERYDAY", "€3,210.40", "LONG TERM", "€98.60", tokens)
+        }
+        item {
+            SectionHeading("02 / WHAT CHANGES NEXT?", "+ €2,732.80 · 9 entries", "OPEN TIMELINE", tokens) {
+                onOpen(upcomingDestination())
+            }
+            LedgerRow("Electricity", "Tomorrow · Personal profile", "− €87.00", tokens, status = "PENDING") {
+                onOpen(contractDestination("Electricity"))
+            }
+        }
+        item {
+            SectionHeading("03 / WHAT NEEDS ME?", "2 funding exceptions", "REVIEW", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            SummaryPair("CONTRACT", "1 due", "SAVING GOAL", "1 behind", tokens)
+        }
+        item {
+            SectionHeading("04 / WHAT CAN I DO?", "Create or inspect", "", tokens) {}
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+            TextAction("BROWSE COMPLETE ACCOUNTS", tokens) { onOpen(accountsDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun AccountMatrixPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.AccountMatrix) {
+        item { PrototypeHeading(HierarchyVariant.AccountMatrix, tokens) }
+        item {
+            SectionHeading("EVERYDAY", "Account · open details", "OPEN", tokens) { onOpen(accountDestination("Everyday")) }
+            SummaryPair("ACCOUNT BALANCE", "€4,821.60", "AVAILABLE", "€3,210.40", tokens)
+            Spacer(Modifier.height(8.dp))
+            SummaryPair("NEXT 30 DAYS", "+ €2,733", "ATTENTION", "1 due", tokens)
+        }
+        item {
+            SectionHeading("LONG TERM", "Account · open details", "OPEN", tokens) { onOpen(accountDestination("Long term")) }
+            SummaryPair("ACCOUNT BALANCE", "€7,658.60", "AVAILABLE", "€98.60", tokens)
+            Spacer(Modifier.height(8.dp))
+            SummaryPair("NEXT 30 DAYS", "+ €1,084", "ATTENTION", "1 behind", tokens)
+        }
+        item {
+            SectionHeading("ALL ACCOUNTS", "Questions answered per account", "OPEN DIRECTORY", tokens) { onOpen(accountsDestination()) }
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun PurposeTrailsPane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.PurposeTrails) {
+        item { PrototypeHeading(HierarchyVariant.PurposeTrails, tokens) }
+        item {
+            SectionHeading("ACCOUNT → PURPOSE TRAILS", "Same funds, connected views", "OPEN ACCOUNTS", tokens) {
+                onOpen(accountsDestination())
+            }
+            LedgerRow("Everyday", "ACCOUNT · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            NestedRow("↳ Rent reserve", "CONTRACT · Personal · 2.3 months ahead", "€ 960.00", tokens) {
+                onOpen(contractDestination("Rent reserve"))
+            }
+            NestedRow("↳ Electricity", "CONTRACT · Personal · due tomorrow", "€ 87.00", tokens) {
+                onOpen(contractDestination("Electricity"))
+            }
+            LedgerRow("Long term", "ACCOUNT · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+            NestedRow("↳ Emergency reserve", "SAVING GOAL · Personal · 5.4 months ahead", "€ 6,840.00", tokens) {
+                onOpen(goalDestination("Emergency reserve"))
+            }
+            NestedRow("↳ Japan", "SAVING GOAL · Personal · 3 weeks behind", "€ 720.00", tokens) {
+                onOpen(goalDestination("Japan"))
+            }
+        }
+        item {
+            SectionHeading("UPCOMING", "+ €2,732.80 · 9 in 30 days", "OPEN TIMELINE", tokens) { onOpen(upcomingDestination()) }
+        }
+    }
+}
+
+@Composable
+private fun BrowseAndTriagePane(tokens: LedgerTokens, onOpen: (FocusedDestination) -> Unit) {
+    LedgerList(HierarchyVariant.BrowseAndTriage) {
+        item { PrototypeHeading(HierarchyVariant.BrowseAndTriage, tokens) }
+        item {
+            SectionHeading("BROWSE", "Complete accounts", "OPEN ACCOUNTS", tokens) { onOpen(accountsDestination()) }
+            LedgerRow("Everyday", "Account €4,821.60 · Available €3,210.40", "€ 4,821.60", tokens, marker = tokens.blue) {
+                onOpen(accountDestination("Everyday"))
+            }
+            LedgerRow("Long term", "Account €7,658.60 · Available €98.60", "€ 7,658.60", tokens, marker = tokens.violet) {
+                onOpen(accountDestination("Long term"))
+            }
+        }
+        item {
+            SectionHeading("TRIAGE", "Only unhealthy or imminent relationships", "REVIEW ALL", tokens) {
+                onOpen(financesDirectoryDestination())
+            }
+            LedgerRow("Electricity", "Contract · Everyday · due tomorrow", "€ 87.00", tokens, status = "DUE") {
+                onOpen(contractDestination("Electricity"))
+            }
+            LedgerRow("Japan", "Saving goal · Long term · 3 weeks behind", "€ 720.00", tokens, status = "BEHIND") {
+                onOpen(goalDestination("Japan"))
+            }
+        }
+        item {
+            SectionHeading("TRANSACTIONS", "+ €2,732.80 · 9 in 30 days", "OPEN TIMELINE", tokens) { onOpen(upcomingDestination()) }
+            PrimaryAction("ADD TRANSACTION", tokens) { onOpen(transactionDestination()) }
         }
     }
 }
