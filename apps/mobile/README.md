@@ -5,6 +5,7 @@ Kotlin Multiplatform mobile client for this repository, based on the sibling `pl
 ## Layout
 
 - `bridge`: shared domain and recurrence models used by the client modules
+- `client/androidApp`: Android application entry point and packaging module
 - `client/compose`: Compose Multiplatform application code for Android, iOS, and desktop
 - `client/database`: SQLDelight database and repositories
 - `client/iosApp`: Xcode host application for the iOS target
@@ -14,7 +15,7 @@ Kotlin Multiplatform mobile client for this repository, based on the sibling `pl
 From [`apps/mobile`](D:/Development/chennemann/plannr-server/apps/mobile):
 
 ```bash
-./gradlew :client:compose:assembleDebug
+./gradlew :client:androidApp:assembleDebug
 ```
 
 For desktop development:
@@ -26,7 +27,7 @@ For desktop development:
 For Android installs:
 
 ```bash
-./gradlew :client:compose:installDebug
+./gradlew :client:androidApp:installDebug
 ```
 
 ## Notes

@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kmp.library)
     alias(libs.plugins.sqldelight)
 }
 
@@ -23,7 +23,10 @@ sqldelight {
 }
 
 kotlin {
-    androidTarget("android") {
+    android {
+        namespace = "de.chennemann.plannr.database"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
         }
@@ -63,25 +66,9 @@ kotlin {
     }
 
     compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-        freeCompilerArgs.add("-Xwhen-guards")
         freeCompilerArgs.add("-Xexpect-actual-classes")
 
         optIn.add("kotlin.time.ExperimentalTime")
-    }
-}
-
-android {
-    namespace = "de.chennemann.plannr.database"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
