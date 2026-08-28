@@ -30,5 +30,6 @@ dependencyResolutionManagement {
 }
 
 include(":bridge")
+include(":client:androidApp")
 include(":client:compose")
 include(":client:database")

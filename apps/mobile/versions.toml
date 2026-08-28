@@ -1,42 +1,42 @@
 [versions]
 
-kotlin = "2.2.21"
+kotlin = "2.4.10"
 
-android-compileSdk = "36"
+android-compileSdk = "37"
 android-minSdk = "24"
-android-targetSdk = "36"
+android-targetSdk = "37"
 
 # Gradle Plugins
-androidGradlePlugin = "8.12.3"
-composeMultiplatformGradlePlugin = "1.10.0-rc02"
-composeHotReloadGradlePlugin = "1.0.0"
+androidGradlePlugin = "9.1.1"
+composeMultiplatformGradlePlugin = "1.12.0"
+composeHotReloadGradlePlugin = "1.2.0"
 
 # Libraries
-androidx-activityCompose = "1.12.1"
+androidx-activityCompose = "1.13.0"
 
-compose = "1.10.0-rc02"
-compose-material = "1.10.0-alpha05"
-compose-grid = "2.5.2"
+compose = "1.12.0"
+compose-material = "1.12.0-alpha03"
+compose-grid = "2.8.0"
 androidx-navigation = "2.9.2"
 
-koin = "4.1.1"
+koin = "4.2.2"
 
-kotlinx-coroutines = "1.10.2"
-kotlinx-datetime = "0.7.1"
-kotlinx-serialization = "1.9.0"
+kotlinx-coroutines = "1.11.0"
+kotlinx-datetime = "0.8.0"
+kotlinx-serialization = "1.11.0"
 
-moko-resources = "0.25.2"
+moko-resources = "0.26.4"
 
-spring-boot = "4.0.0"
+spring-boot = "4.1.1"
 spring-dependency-management = "1.1.7"
 
-sqldelight = "2.2.1"
+sqldelight = "2.3.2"
 
 
 
 [plugins]
 android-application =           { id = "com.android.application", version.ref = "androidGradlePlugin" }
-android-library =               { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-kmp-library =           { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
 
 compose-multiplatform =         { id = "org.jetbrains.compose", version.ref = "composeMultiplatformGradlePlugin" }
 compose-hotReload =             { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReloadGradlePlugin" }
@@ -62,6 +62,7 @@ compose-runtime =                       { module = "org.jetbrains.compose.runtim
 compose-foundation =                    { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
 compose-ui =                            { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
 compose-material3 =                     { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material" }
+compose-ui-tooling-preview =            { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
 
 compose-grid =                          { module = "com.cheonjaeung.compose.grid:grid", version.ref = "compose-grid"}
 navigation-compose =                    { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }

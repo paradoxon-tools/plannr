@@ -4,17 +4,21 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.kmp.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.moko.resources)
 }
 
 kotlin {
-    androidTarget("android") {
+    android {
+        namespace = "de.chennemann.plannr.compose"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
         }
+        androidResources.enable = true
     }
 
     listOf(
@@ -28,12 +32,6 @@ kotlin {
     }
 
     sourceSets {
-
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.sqldelight.android)
-        }
-
         iosMain.dependencies {
             implementation(libs.sqldelight.native)
         }
@@ -47,7 +45,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.compose.material3)
-            implementation("org.jetbrains.compose.ui:ui-tooling-preview:1.10.0-rc02")
+            implementation(libs.compose.ui.tooling.preview)
 
             implementation(libs.compose.grid)
 
@@ -68,29 +66,9 @@ kotlin {
     }
 
     compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-        freeCompilerArgs.add("-Xwhen-guards")
         freeCompilerArgs.add("-Xexpect-actual-classes")
 
         optIn.add("kotlin.time.ExperimentalTime")
-    }
-}
-
-android {
-    namespace = "de.chennemann.plannr"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    defaultConfig {
-        applicationId = "de.chennemann.plannr"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
@@ -99,7 +77,6 @@ multiplatformResources {
     resourcesPackage.set("de.chennemann.plannr.resources")
     resourcesVisibility.set(MRVisibility.Internal)
     resourcesSourceSets {
-        println(File(projectDir, "composeResources"))
         getByName("commonMain").srcDirs("src/commonMain/composeResources")
     }
 }
