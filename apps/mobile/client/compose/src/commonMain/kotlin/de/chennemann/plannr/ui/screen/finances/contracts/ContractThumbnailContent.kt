@@ -22,22 +22,22 @@ fun ContractThumbnailContent(
 ) {
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(20.dp))
             .clickable { onContractClicked(contract) }
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.surfaceVariant)
             .padding(16.dp),
     ) {
         Text(
             text = contract.name,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colors.onPrimaryMuted,
+            color = MaterialTheme.colors.tertiary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
         Text(
             text = contract.partner.name,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colors.onPrimary,
+            color = MaterialTheme.colors.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

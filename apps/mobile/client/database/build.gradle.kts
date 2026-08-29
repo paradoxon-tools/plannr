@@ -46,6 +46,9 @@ kotlin {
         commonMain.dependencies {
             api(projects.bridge)
             implementation(libs.koin)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
 
             api(libs.kotlinx.coroutines.core)
             api(libs.kotlinx.datetime)
@@ -57,10 +60,12 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.sqldelight.android)
         }
 
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
             implementation(libs.sqldelight.native)
         }
     }

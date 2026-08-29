@@ -35,3 +35,6 @@ The GitHub Actions workflow publishes the server image to GHCR:
 - `ghcr.io/paradoxon-tools/plannr-server`
 
 using `apps/server` as the build context.
+
+For a Watchtower-based test and production deployment example on hand-rolled
+infrastructure, see `apps/server/deploy`.

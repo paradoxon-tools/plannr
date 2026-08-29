@@ -5,7 +5,6 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -20,26 +19,38 @@ import androidx.compose.ui.text.TextStyle
 
 private val DarkColorScheme = PlannrColorScheme(
     materialColors = darkColorScheme(
-        background = RaisinBlack,
-        onBackground = White,
+        background = PitchBlack,
+        onBackground = SoftWhite,
 
-        surface = Jet,
-        onSurface = LightGray,
-        surfaceTint = RaisinBlack,
+        surface = CarbonBlack,
+        onSurface = SoftWhite,
+        surfaceVariant = Graphite,
+        onSurfaceVariant = MutedLilac,
+        surfaceTint = PitchBlack,
 
         primary = PersianGreen,
-        onPrimary = White
+        onPrimary = PitchBlack,
+        primaryContainer = MetallicSeaweed,
+        onPrimaryContainer = SoftWhite,
+
+        secondary = SoftWhite,
+        onSecondary = PitchBlack,
+        secondaryContainer = Graphite,
+        onSecondaryContainer = SoftWhite,
+
+        tertiary = MutedTeal,
+        onTertiary = PitchBlack
     ),
-    onBackgroundMuted = Gray,
-    onSurfaceMuted = Gray,
-    onPrimaryMuted = Gray,
-    onSecondaryMuted = Gray,
-    onTertiaryMuted = Gray,
+    onBackgroundMuted = MutedLilac,
+    onSurfaceMuted = MutedLilac,
+    onPrimaryMuted = CarbonBlack.copy(alpha = 0.6f),
+    onSecondaryMuted = CarbonBlack.copy(alpha = 0.6f),
+    onTertiaryMuted = CarbonBlack.copy(alpha = 0.6f),
     primaryDarker = MetallicSeaweed,
     primaryDark = BlueSapphire,
     primaryLighter = MountainMedow,
     primaryLight = SeaGreenCrayola,
-    statusbarColor = RaisinBlack
+    statusbarColor = PitchBlack
 )
 
 private val LightColorScheme = PlannrColorScheme(

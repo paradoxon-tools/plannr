@@ -22,29 +22,29 @@ fun AccountThumbnail(
 ) {
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(20.dp))
             .clickable { onAccountClicked(account) }
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.surfaceVariant)
             .padding(16.dp),
     ) {
         Text(
             text = account.accountName,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colors.onPrimaryMuted,
+            color = MaterialTheme.colors.tertiary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
         Text(
             text = "Pockets: ${account.pockets.size}",
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colors.onPrimary,
+            color = MaterialTheme.colors.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
         Text(
             text = "Balance: ${account.totalBalance / 100} EUR",
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colors.onPrimary,
+            color = MaterialTheme.colors.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

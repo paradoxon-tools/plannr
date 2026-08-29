@@ -91,13 +91,13 @@ fun TransactionOverviewContent(
                     Text(
                         text = stringResource(Res.strings.finances_transactions_section_label),
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colors.secondary,
+                        color = MaterialTheme.colors.onBackground,
                     )
 
                     Text(
                         text = "${transactions.size} upcoming",
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colors.secondaryDark,
+                        color = MaterialTheme.colors.onBackgroundMuted,
                     )
                 }
 
@@ -106,12 +106,12 @@ fun TransactionOverviewContent(
                         onClick = {
                             pagerState.animateToPane(Pane.Main)
                         },
-                        modifier = Modifier.background(Color.White, RoundedCornerShape(100)),
+                        modifier = Modifier.background(MaterialTheme.colors.surfaceVariant, RoundedCornerShape(100)),
                     ) {
                         Icon(
                             painterResource(Res.images.arrow_back),
                             "Back to main view",
-                            tint = MaterialTheme.colorScheme.secondary,
+                            tint = MaterialTheme.colors.onSurface,
                         )
                     }
                 }
@@ -126,7 +126,7 @@ fun TransactionOverviewContent(
                         Icon(
                             painterResource(Res.images.filter_1),
                             "Filter Transactions",
-                            tint = MaterialTheme.colorScheme.secondary,
+                            tint = MaterialTheme.colors.onSurface,
                         )
                     }
                 }

@@ -31,7 +31,7 @@ fun AccountOverviewContent(
         text = stringResource(Res.strings.finances_accounts_section_label),
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colors.secondary
+        color = MaterialTheme.colors.onBackground
     )
 
     Spacer(Modifier.height(16.dp))

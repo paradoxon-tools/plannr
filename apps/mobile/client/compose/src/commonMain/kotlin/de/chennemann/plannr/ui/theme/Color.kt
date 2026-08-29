@@ -15,6 +15,13 @@ val DarkLiver = Color(0xFF41414E)
 val Jet = Color(0xFF33333D)
 val RaisinBlack = Color(0xFF27272F)
 val RaisinBlack2 = Color(0xFF2D2D38)
+val PitchBlack = Color(0xFF000000)
+val NearBlack = Color(0xFF050505)
+val CarbonBlack = Color(0xFF111315)
+val Graphite = Color(0xFF191D20)
+val SoftWhite = Color(0xFFF4F1F8)
+val MutedLilac = Color(0xFFC6BED4)
+val MutedTeal = Color(0xFF82D8CD)
 
 
 val White = Color(0xFFFFFFFF)

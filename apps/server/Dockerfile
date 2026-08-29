@@ -12,6 +12,7 @@ FROM eclipse-temurin:25-jre
 WORKDIR /app
 
 RUN useradd --system --create-home --uid 1001 appuser
+ENV SERVER_PORT=8080
 
 COPY --from=build /workspace/app/build/libs/app.jar /app/app.jar
 

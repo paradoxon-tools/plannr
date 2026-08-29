@@ -1,9 +1,8 @@
 package de.chennemann.plannr.database.di
 
+import de.chennemann.plannr.database.remote.PlannrApiClient
+import de.chennemann.plannr.database.remote.createPlannrHttpClient
 import de.chennemann.plannr.database.repository.AccountRepository
-import de.chennemann.plannr.database.DriverFactory
-import de.chennemann.plannr.database.PlannrDB
-import de.chennemann.plannr.database.createDatabase
 import de.chennemann.plannr.database.repository.ContractRepository
 import de.chennemann.plannr.database.repository.PartnerRepository
 import de.chennemann.plannr.database.repository.TransactionRepository
@@ -30,8 +29,11 @@ fun createDatabaseModule(platformContext: Any?) = module {
     single<CoroutineScope>(qualifier<ApplicationScope>()) {
         CoroutineScope(SupervisorJob() + Dispatchers.Default)
     }
-    single<PlannrDB> {
-        createDatabase(get<DriverFactory>().createDriver())
+    single {
+        createPlannrHttpClient()
+    }
+    single {
+        PlannrApiClient(get())
     }
     single {
         AccountRepository(get(), get(qualifier<ApplicationScope>()))
