@@ -6,7 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,8 +38,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.cheonjaeung.compose.grid.SimpleGridCells
+import com.cheonjaeung.compose.grid.VerticalGrid
 import de.chennemann.plannr.resources.Res
+import de.chennemann.plannr.ui.components.button.RippleButton
 import de.chennemann.plannr.ui.components.layout.twopane.Pane
 import de.chennemann.plannr.ui.components.layout.twopane.TwoPaneLayout
 import de.chennemann.plannr.ui.components.layout.twopane.TwoPanePagerState
@@ -55,7 +62,7 @@ fun FabNavigationMenuButton(
     onClick: () -> Unit,
     painter: Painter,
     modifier: Modifier = Modifier,
-    containerColor: Color = Color.White,
+    containerColor: Color = MaterialTheme.colors.surfaceVariant,
     tint: Color = LocalContentColor.current
 ) {
     Box(
@@ -93,7 +100,8 @@ fun FabNavigationMenu(
                 onClick = {
                     onPrevious()
                 },
-                painter = painterResource(Res.images.chevron_up)
+                painter = painterResource(Res.images.chevron_up),
+                tint = MaterialTheme.colors.onSurface,
             )
         }
 
@@ -103,7 +111,8 @@ fun FabNavigationMenu(
                 onClick = {
                     onNext()
                 },
-                painter = painterResource(Res.images.chevron_down)
+                painter = painterResource(Res.images.chevron_down),
+                tint = MaterialTheme.colors.onSurface,
             )
         }
 
@@ -162,6 +171,9 @@ fun FinancesHomePageContent(
                                 Pane.Secondary -> pagerState.animateToPane(Pane.Main)
                             }
                         },
+                        containerColor = MaterialTheme.colors.primary,
+                        contentColor = MaterialTheme.colors.onPrimary,
+                        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
                         text = { Text("New Transaction") },
                         icon = { Icon(painterResource(Res.images.add), "", modifier = Modifier.size(24.dp)) }
                     )
@@ -209,20 +221,7 @@ private fun MainPage(
         }
 
         item {
-            Column(Modifier.background(Color.LightGray).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(
-                    text = "Budgets",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colors.secondary
-                )
-
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    repeat(25) { idx ->
-                        Text(text = "Budget $idx")
-                    }
-                }
-            }
+            BudgetOverviewSection()
         }
 
         item {
@@ -248,5 +247,62 @@ private fun MainPage(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun BudgetOverviewSection() {
+    Text(
+        text = "Budgets",
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colors.onBackground
+    )
+
+    Spacer(Modifier.height(16.dp))
+
+    VerticalGrid(
+        columns = SimpleGridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        repeat(4) { idx ->
+            BudgetPlaceholderCard(
+                title = "Budget ${idx + 1}",
+                detail = if (idx % 2 == 0) "No limit set" else "Track spending"
+            )
+        }
+    }
+
+    Spacer(Modifier.height(24.dp))
+
+    RippleButton(onClick = {}) {
+        Text("Add Budget")
+    }
+}
+
+@Composable
+private fun BudgetPlaceholderCard(
+    title: String,
+    detail: String,
+) {
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colors.surfaceVariant, RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colors.tertiary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = detail,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colors.onSurface
+        )
     }
 }

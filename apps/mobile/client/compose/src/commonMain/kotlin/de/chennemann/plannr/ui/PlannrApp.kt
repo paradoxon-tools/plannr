@@ -1,7 +1,6 @@
 package de.chennemann.plannr.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +17,7 @@ import org.koin.compose.KoinApplication
 @Composable
 fun PlannrApp(
     platformContext: Any? = null,
+    darkTheme: Boolean = true,
     decorationColors: @Composable (Boolean, Color, Boolean, Color, Boolean) -> Unit = { darkTheme, statusBarColor, darkStatusBarIcons, navigationBarColor, darkNavigationBarIcons ->
         DecorationColors(
             darkTheme = darkTheme,
@@ -29,8 +29,7 @@ fun PlannrApp(
     },
 ) {
     KoinApplication(application = dependencyGraph(platformContext)) {
-        val darkMode = isSystemInDarkTheme()
-        PlannrTheme(false, decorationColors) {
+        PlannrTheme(darkTheme, decorationColors) {
             Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
                 RootScreen()
             }

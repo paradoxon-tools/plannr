@@ -1,20 +1,15 @@
 package de.chennemann.plannr.database.repository
 
-import app.cash.sqldelight.coroutines.asFlow
-import app.cash.sqldelight.coroutines.mapToList
 import de.chennemann.plannr.data.Contract
 import de.chennemann.plannr.data.Partner
-import de.chennemann.plannr.database.PlannrDB
-import de.chennemann.plannr.database.runGettingLastId
+import de.chennemann.plannr.database.remote.ApiContract
+import de.chennemann.plannr.database.remote.ApiContractType
+import de.chennemann.plannr.database.remote.ApiCreateContractCommand
+import de.chennemann.plannr.database.remote.ApiUpdateContractCommand
+import de.chennemann.plannr.database.remote.PlannrApiClient
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.withContext
 
 interface ContractRepository {
     val contracts: StateFlow<List<Contract>>
@@ -24,70 +19,135 @@ interface ContractRepository {
     suspend fun updateContractDescription(contractId: Long, description: String)
 
     companion object {
-        operator fun invoke(plannrDB: PlannrDB, applicationScope: CoroutineScope): ContractRepository =
-            CachingContractRepository(plannrDB, applicationScope)
+        internal operator fun invoke(apiClient: PlannrApiClient, applicationScope: CoroutineScope): ContractRepository =
+            RemoteContractRepository(apiClient, applicationScope)
     }
 }
 
-private class CachingContractRepository(
-    private val plannrDB: PlannrDB,
+private class RemoteContractRepository(
+    private val apiClient: PlannrApiClient,
     private val applicationScope: CoroutineScope
 ): ContractRepository {
+    private val refreshLock = RefreshLock()
+    private var contractSnapshots = emptyMap<Long, de.chennemann.plannr.database.remote.ApiContract>()
 
-    override val contracts: StateFlow<List<Contract>> =
-        plannrDB.contractsQueries.loadContracts()
-            .asFlow()
-            .mapToList(Dispatchers.IO)
-            .map { loadContracts ->
-                loadContracts.map { contract ->
-                    Contract(
-                        contractId = Contract.ContractId(
-                            contractId = contract.contractId,
-                            accountId = contract.accountId,
-                            pocketId = contract.pocketId
-                        ),
-                        partner = Partner(
-                            partnerId = contract.partnerId,
-                            name = contract.partnerName
-                        ),
-                        name = contract.contractName,
-                        description = contract.description,
-                        balance = contract.balance
-                    )
-                }
-            }
-            .stateIn(
-                scope = applicationScope,
-                started = SharingStarted.Eagerly,
-                initialValue = emptyList()
-            )
+    override val contracts = MutableStateFlow<List<Contract>>(emptyList())
 
-    override suspend fun addContract(accountId: Long, partnerId: Long, name: String, description: String?): Contract.ContractId {
-        return applicationScope.async(Dispatchers.IO) {
-            plannrDB.transactionWithResult {
-
-                val contractPocketId = plannrDB.runGettingLastId {
-                    plannrDB.contractsQueries.addContractPocket(accountId, name)
-                }
-
-                val contractId = plannrDB.runGettingLastId {
-                    plannrDB.contractsQueries.addContract(name, description, contractPocketId, partnerId)
-                }
-
-                Contract.ContractId(contractId = contractId, accountId = accountId, pocketId = contractPocketId)
-            }
-        }.await()
-    }
-
-    override suspend fun updateContractName(contractId: Long, name: String) {
-        withContext(Dispatchers.IO) {
-            plannrDB.contractsQueries.updateContractName(name, contractId)
+    init {
+        applicationScope.launchRefresh("ContractRepository.refresh") {
+            refresh()
         }
     }
 
+    override suspend fun addContract(accountId: Long, partnerId: Long, name: String, description: String?): Contract.ContractId {
+        val created = apiClient.createContract(
+            ApiCreateContractCommand(
+                name = name,
+                description = description,
+                color = 0x00A896,
+                type = ApiContractType.ACCUMULATING,
+                accountIds = setOf(accountId),
+                financialProfileId = null,
+                partnerId = partnerId,
+            )
+        )
+
+        val contractPocketId = apiClient.listPockets(accountId = accountId)
+            .firstOrNull { it.contractId == created.id }
+            ?.id
+            ?: -1L
+
+        refresh()
+        return Contract.ContractId(created.id, accountId, contractPocketId)
+    }
+
+    override suspend fun updateContractName(contractId: Long, name: String) {
+        val existing = contracts.value.firstOrNull { it.contractId.contractId == contractId }
+            ?: run {
+                refresh()
+                contracts.value.firstOrNull { it.contractId.contractId == contractId }
+            }
+            ?: throw NoSuchElementException("No contract found for id $contractId")
+
+        apiClient.updateContract(
+            ApiUpdateContractCommand(
+                id = contractId,
+                financialProfileId = contractSnapshots[contractId]?.financialProfileId ?: 0L,
+                partnerId = existing.partner.partnerId,
+                name = name,
+                description = existing.description,
+                color = contractSnapshots[contractId]?.color ?: 0x00A896,
+                type = contractSnapshots[contractId]?.type ?: ApiContractType.ACCUMULATING,
+                signingDate = contractSnapshots[contractId]?.signingDate,
+                expirationDate = contractSnapshots[contractId]?.expirationDate,
+                lastCancellationDate = contractSnapshots[contractId]?.lastCancellationDate,
+            )
+        )
+
+        refresh()
+    }
+
     override suspend fun updateContractDescription(contractId: Long, description: String) {
-        withContext(Dispatchers.IO) {
-            plannrDB.contractsQueries.updateContractDescription(description, contractId)
+        val existing = contracts.value.firstOrNull { it.contractId.contractId == contractId }
+            ?: run {
+                refresh()
+                contracts.value.firstOrNull { it.contractId.contractId == contractId }
+            }
+            ?: throw NoSuchElementException("No contract found for id $contractId")
+
+        apiClient.updateContract(
+            ApiUpdateContractCommand(
+                id = contractId,
+                financialProfileId = contractSnapshots[contractId]?.financialProfileId ?: 0L,
+                partnerId = existing.partner.partnerId,
+                name = existing.name,
+                description = description,
+                color = contractSnapshots[contractId]?.color ?: 0x00A896,
+                type = contractSnapshots[contractId]?.type ?: ApiContractType.ACCUMULATING,
+                signingDate = contractSnapshots[contractId]?.signingDate,
+                expirationDate = contractSnapshots[contractId]?.expirationDate,
+                lastCancellationDate = contractSnapshots[contractId]?.lastCancellationDate,
+            )
+        )
+
+        refresh()
+    }
+
+    private suspend fun refresh() {
+        refreshLock.withRefreshLock {
+            contracts.value = loadContracts()
+        }
+    }
+
+    private suspend fun loadContracts(): List<Contract> {
+        val partners = runCatching {
+            apiClient.listPartners().associateBy { it.id }
+        }.getOrDefault(emptyMap())
+        val remoteContracts = runCatching {
+            apiClient.listContracts()
+        }.getOrElse {
+            contractSnapshots = emptyMap()
+            return emptyList()
+        }
+        contractSnapshots = remoteContracts.associateBy(ApiContract::id)
+
+        return remoteContracts.map { contract ->
+            Contract(
+                contractId = Contract.ContractId(
+                    contractId = contract.id,
+                    accountId = -1L,
+                    pocketId = -1L,
+                ),
+                partner = Partner(
+                    partnerId = contract.partnerId ?: -1L,
+                    name = partners[contract.partnerId]?.name ?: "Unknown partner",
+                ),
+                name = contract.name,
+                description = contract.description,
+                balance = runCatching {
+                    apiClient.getContractBalance(contract.id)
+                }.getOrDefault(0L),
+            )
         }
     }
 }

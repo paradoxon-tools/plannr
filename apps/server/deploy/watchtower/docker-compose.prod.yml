@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: plannr-prod-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PLANNR_DB_NAME}
+      POSTGRES_USER: ${PLANNR_DB_USERNAME}
+      POSTGRES_PASSWORD: ${PLANNR_DB_PASSWORD}
+    volumes:
+      - plannr-prod-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PLANNR_DB_USERNAME} -d ${PLANNR_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  plannr-server:
+    image: ghcr.io/paradoxon-tools/plannr-server:stable
+    container_name: plannr-server-prod
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./prod.env
+    ports:
+      - "${PLANNR_SERVER_HOST_PORT:-8080}:8080"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      com.centurylinklabs.watchtower.scope: "plannr-prod"
+
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: plannr-watchtower-prod
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.docker/config.json:/config.json:ro
+    environment:
+      DOCKER_CONFIG: /
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_SCOPE: "plannr-prod"
+      WATCHTOWER_POLL_INTERVAL: "${WATCHTOWER_POLL_INTERVAL:-300}"
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_INCLUDE_RESTARTING: "true"
+    command:
+      - plannr-server-prod
+
+volumes:
+  plannr-prod-postgres-data:

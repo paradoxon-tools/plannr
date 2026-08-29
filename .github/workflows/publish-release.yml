@@ -56,16 +56,11 @@ jobs:
           context: ./apps/server
           file: ./apps/server/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/plannr-server:${{ inputs.tag }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/plannr-server:${{ inputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/plannr-server:stable
           cache-from: type=gha,scope=server
           cache-to: type=gha,mode=max,scope=server
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 25
-          cache: npm
-          cache-dependency-path: apps/mobile/package-lock.json
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -77,28 +72,20 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install mobile dependencies
+      - name: Make mobile Gradle wrapper executable
         working-directory: apps/mobile
-        run: npm ci
-
-      - name: Lint mobile app
-        working-directory: apps/mobile
-        run: npm run lint
-
-      - name: Generate Android project
-        working-directory: apps/mobile
-        run: npx expo prebuild --platform android --no-install
+        run: chmod +x gradlew
 
       - name: Build release APK
-        working-directory: apps/mobile/android
-        run: ./gradlew assembleRelease --no-daemon
+        working-directory: apps/mobile
+        run: ./gradlew :client:androidApp:assembleRelease --no-daemon
 
       - name: Collect APK
         env:
           TAG: ${{ inputs.tag }}
         run: |
           mkdir -p dist
-          cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk "dist/plannr-mobile-${TAG}.apk"
+          cp apps/mobile/client/androidApp/build/outputs/apk/release/*.apk "dist/plannr-mobile-${TAG}.apk"
 
       - name: Create GitHub release and attach artifacts
         uses: softprops/action-gh-release@v2

@@ -15,7 +15,7 @@ spring:
     password: ${plannr.database.password}
   @springConfigImport@
 server:
-  port: 9000
+  port: ${SERVER_PORT:9000}
 plannr:
   database:
     host: ${PLANNR_DB_HOST:192.168.1.202}

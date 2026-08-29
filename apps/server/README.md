@@ -26,7 +26,7 @@ Spring derives both the R2DBC and Flyway JDBC connection settings from these val
 ## Endpoint
 
 ```bash
-curl http://localhost:8080/actuator/health
+curl http://localhost:9000/actuator/health
 ```
 
 Expected success response:
@@ -40,3 +40,8 @@ Expected success response:
 ```bash
 docker build -t plannr-server:local .
 ```
+
+## Deployment templates
+
+Example Watchtower deployment templates for test and production live in
+`deploy/watchtower`.

@@ -1,23 +1,12 @@
 package de.chennemann.plannr.database.repository
 
-import app.cash.sqldelight.coroutines.asFlow
-import app.cash.sqldelight.coroutines.mapToList
 import de.chennemann.plannr.data.Amount
 import de.chennemann.plannr.data.Transaction
-import de.chennemann.plannr.database.PlannrDB
-import de.chennemann.plannr.datetime.atEndOfDay
-import de.chennemann.plannr.datetime.atStartOfDay
+import de.chennemann.plannr.database.remote.PlannrApiClient
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import migrations.Transactions
 
 interface TransactionRepository {
     val transactions: StateFlow<List<Transaction>>
@@ -25,63 +14,58 @@ interface TransactionRepository {
     suspend fun materializeTransactions(transactions: List<Transaction>, templateId: Long, latestTransactionDate: LocalDate, nextOccurrence: LocalDate?)
 
     companion object {
-        operator fun invoke(plannrDB: PlannrDB, applicationScope: CoroutineScope): TransactionRepository =
-            CachingTransactionRepository(plannrDB, applicationScope)
+        internal operator fun invoke(apiClient: PlannrApiClient, applicationScope: CoroutineScope): TransactionRepository =
+            RemoteTransactionRepository(apiClient, applicationScope)
     }
 }
 
-private class CachingTransactionRepository(
-    private val plannrDB: PlannrDB,
+private class RemoteTransactionRepository(
+    private val apiClient: PlannrApiClient,
     private val applicationScope: CoroutineScope
 ): TransactionRepository {
+    private val refreshLock = RefreshLock()
 
-    override val transactions: StateFlow<List<Transaction>> =
-        plannrDB.transactionsQueries.loadTransactions()
-            .asFlow()
-            .mapToList(Dispatchers.IO)
-            .map { loadTransactions ->
-                loadTransactions
-                    .sortedByDescending { it.date }
-                    .asDTOs()
-            }
-            .stateIn(
-                scope = applicationScope,
-                started = SharingStarted.Eagerly,
-                initialValue = emptyList()
-            )
+    override val transactions = MutableStateFlow<List<Transaction>>(emptyList())
 
-    override suspend fun materializeTransactions(transactions: List<Transaction>, templateId: Long, latestTransactionDate: LocalDate, nextOccurrence: LocalDate?) {
-        plannrDB.transactionsQueries.transaction {
-            transactions.forEach { transaction ->
-                plannrDB.transactionsQueries.materializeTemplate(
-                    title = transaction.title,
-                    description = transaction.description,
-                    templateId = transaction.templateId,
-                    contractId = transaction.contractId,
-                    date = transaction.date.atStartOfDay(),
-                    amount = transaction.amount.amount,
-                    currency = transaction.amount.currency,
-                    sourcePocketId = transaction.sourcePocketId,
-                    destinationPocketId = transaction.destinationPocketId,
-                    partnerId = transaction.partnerId
-                )
-            }
-
-            plannrDB.transactionsQueries.updateTemplateOccurrence(latestTransactionDate.atEndOfDay(), nextOccurrence?.atStartOfDay(), templateId)
+    init {
+        applicationScope.launchRefresh("TransactionRepository.refresh") {
+            refresh()
         }
     }
-}
 
-private fun List<Transactions>.asDTOs() = map { it.asDTO() }
-private fun Transactions.asDTO() = Transaction(
-    id = transactionId,
-    title = title,
-    description = description,
-    templateId = templateId,
-    contractId = contractId,
-    date = date.toLocalDateTime(TimeZone.currentSystemDefault()).date,
-    amount = Amount(amount, currency),
-    sourcePocketId = sourcePocketId,
-    destinationPocketId = destinationPocketId,
-    partnerId = partnerId
-)
+    override suspend fun materializeTransactions(transactions: List<Transaction>, templateId: Long, latestTransactionDate: LocalDate, nextOccurrence: LocalDate?) {
+        refresh()
+    }
+
+    private suspend fun refresh() {
+        refreshLock.withRefreshLock {
+            transactions.value = loadTransactions()
+        }
+    }
+
+    private suspend fun loadTransactions(): List<Transaction> {
+        return runCatching {
+            apiClient.listAccounts()
+                .flatMap { account ->
+                    runCatching {
+                        apiClient.getUpcomingTransactionsForAccount(account.id).transactions
+                    }.getOrDefault(emptyList())
+                }
+        }.getOrDefault(emptyList())
+            .sortedBy { it.occurrenceDate }
+            .map { transaction ->
+                Transaction(
+                    id = "${transaction.transactionTemplateId}:${transaction.occurrenceDate}:${transaction.title}".hashCode().toLong(),
+                    title = transaction.title,
+                    description = transaction.description,
+                    templateId = transaction.transactionTemplateId,
+                    contractId = transaction.contractId,
+                    date = LocalDate.parse(transaction.occurrenceDate),
+                    amount = Amount(transaction.amount, transaction.currencyCode),
+                    sourcePocketId = transaction.sourcePocketId,
+                    destinationPocketId = transaction.destinationPocketId,
+                    partnerId = transaction.partnerId,
+                )
+            }
+    }
+}
