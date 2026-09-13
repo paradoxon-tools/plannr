@@ -1,0 +1,22 @@
+meta {
+  name: Ticket Plus
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Ticket Plus",
+    "description": null
+  }
+}

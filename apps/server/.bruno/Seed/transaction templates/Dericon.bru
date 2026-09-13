@@ -1,0 +1,107 @@
+meta {
+  name: Dericon
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_dericon_gmbh}}",
+        "sourcePocketId": "{{pocket_private_corner}}",
+        "destinationPocketId": "{{pocket_income_bucket}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_dericon_gmbh}}",
+        "title": "Lebensunterhalt",
+        "description": "Monatlicher Beitrag aus dem Dericon-Einkommen",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 280580,
+            "firstOccurrenceDate": "2024-11-20",
+            "finalOccurrenceDate": "2025-07-20",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [20],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 280633,
+            "firstOccurrenceDate": "2025-08-20",
+            "finalOccurrenceDate": "2025-09-20",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [20],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 412247,
+            "firstOccurrenceDate": "2025-10-20",
+            "finalOccurrenceDate": "2025-12-20",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [20],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 437537,
+            "firstOccurrenceDate": "2026-01-20",
+            "finalOccurrenceDate": "2026-04-20",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [20],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 170234,
+            "firstOccurrenceDate": "2026-05-20",
+            "finalOccurrenceDate": "2026-05-20",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 288770,
+            "firstOccurrenceDate": "2026-07-20",
+            "finalOccurrenceDate": "2026-07-20",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+settings {
+  encodeUrl: true
+  timeout: 0
+}

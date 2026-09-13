@@ -4,7 +4,9 @@ import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.CreatePocketForContractCommand
+import de.chennemann.plannr.server.pockets.service.CreatePocketForSavingGoalCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.pockets.service.UpdatePocketsForSavingGoalCommand
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
@@ -17,13 +19,18 @@ class AccountTestApplication {
         object : PocketService {
             override suspend fun create(command: CreatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
             override suspend fun createForContract(command: CreatePocketForContractCommand): Pocket = throw UnsupportedOperationException("Not used")
+            override suspend fun createForSavingGoal(command: CreatePocketForSavingGoalCommand): Pocket = throw UnsupportedOperationException("Not used")
+            override suspend fun updateForSavingGoal(command: UpdatePocketsForSavingGoalCommand) = Unit
             override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
             override suspend fun archive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
             override suspend fun unarchive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
             override suspend fun archiveForAccount(accountId: Long) = Unit
             override suspend fun unarchiveForAccount(accountId: Long) = Unit
+            override suspend fun archiveForSavingGoal(savingGoalId: Long) = Unit
+            override suspend fun unarchiveForSavingGoal(savingGoalId: Long) = Unit
             override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")
             override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> = throw UnsupportedOperationException("Not used")
+            override suspend fun listForSavingGoal(savingGoalId: Long): List<Pocket> = emptyList()
             override suspend fun getById(id: Long): Pocket? = throw UnsupportedOperationException("Not used")
         }
 }

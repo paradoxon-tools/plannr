@@ -1,0 +1,68 @@
+import de.chennemann.plannr.data.RecurrenceType;
+import kotlin.Int;
+import kotlin.collections.List;
+import kotlin.time.Instant;
+import kotlinx.datetime.DayOfWeek;
+import kotlinx.datetime.Month;
+
+CREATE TABLE IF NOT EXISTS transactionTemplates (
+    transactionTemplateId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT NULL,
+    contractId INTEGER DEFAULT NULL,
+
+    -- Recurrence Pattern
+    recurrenceType TEXT AS RecurrenceType NOT NULL DEFAULT "NONE",
+    referenceDate TEXT AS Instant NOT NULL,
+    finalOccurrenceDate TEXT AS Instant DEFAULT NULL,
+    maxRecurrenceCount INTEGER AS Int DEFAULT NULL,
+    skipCount INTEGER AS Int NOT NULL DEFAULT 0,
+    daysOfWeek TEXT AS List<DayOfWeek> DEFAULT NULL,
+    weeksOfMonth TEXT AS List<Int> DEFAULT NULL,
+    daysOfMonth TEXT AS List<Int> DEFAULT NULL,
+    monthsOfYear TEXT AS List<Month> DEFAULT NULL,
+
+    -- Template Fields
+    amount INTEGER NOT NULL,
+    currency TEXT NOT NULL DEFAULT "EUR",
+    sourcePocketId INTEGER DEFAULT NULL,  -- Null for 'Into the system' transactions, optional for 'Expense'
+    destinationPocketId INTEGER DEFAULT NULL, -- Null for 'Out of the system' transactions, optional for 'Income'
+    partnerId INTEGER DEFAULT NULL, -- Null for internal transfers between accounts/pockets
+    FOREIGN KEY (sourcePocketId) REFERENCES pockets(pocketId),
+    FOREIGN KEY (destinationPocketId) REFERENCES pockets(pocketId),
+    FOREIGN KEY (partnerId) REFERENCES partners(partnerId),
+
+    FOREIGN KEY (contractId) REFERENCES contracts(contractId)
+);
+
+CREATE TABLE IF NOT EXISTS transactionTemplateOccurrences(
+    transactionTemplateId INTEGER NOT NULL PRIMARY KEY,
+    lastMaterializedOccurrence TEXT AS Instant DEFAULT NULL,
+    nextOccurrence TEXT AS Instant DEFAULT NULL,
+    FOREIGN KEY (transactionTemplateId) REFERENCES transactionTemplates(transactionTemplateId)
+);
+
+CREATE TABLE IF NOT EXISTS transactions (
+    transactionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT NULL,
+    contractId INTEGER DEFAULT NULL,
+    -- savingsGoalId INTEGER DEFAULT NULL,
+
+    templateId INTEGER DEFAULT NULL,
+
+    date TEXT AS Instant NOT NULL,
+    amount INTEGER NOT NULL, -- The amount of the transaction. Positive for inflow, negative for outflow relative to the source/destination.
+    currency TEXT NOT NULL DEFAULT "EUR",
+    -- Fields to link to the involved accounts/pockets and partner
+    sourcePocketId INTEGER DEFAULT NULL,  -- Null for 'Into the system' transactions, optional for 'Expense'
+    destinationPocketId INTEGER DEFAULT NULL, -- Null for 'Out of the system' transactions, optional for 'Income'
+    partnerId INTEGER DEFAULT NULL, -- Null for internal transfers between accounts/pockets
+
+    FOREIGN KEY (sourcePocketId) REFERENCES pockets(pocketId),
+    FOREIGN KEY (destinationPocketId) REFERENCES pockets(pocketId),
+    FOREIGN KEY (partnerId) REFERENCES partners(partnerId),
+
+    FOREIGN KEY (contractId) REFERENCES contracts(contractId),
+    FOREIGN KEY (templateId) REFERENCES transactionTemplates(transactionTemplateId)
+);

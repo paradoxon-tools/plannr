@@ -2,6 +2,9 @@ meta {
   name: Ziarul Moldova - ziarul Moldova (7)
   type: http
   seq: 57
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedContractPocketId}}",
     "destinationPocketId": null,
-    "financialProfileId": "{{unassigned}}",
+    "financialProfileId": "{{profile_unassigned}}",
     "partnerId": "{{seedPartnerId}}",
     "title": "Ziarul Moldova",
     "description": "ziarul Moldova (7)",

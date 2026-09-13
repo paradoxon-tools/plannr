@@ -2,7 +2,7 @@ name: Build and push Docker images
 
 on:
   push:
-    branches: ["master"]
+    branches: ["develop", "master"]
     tags: ["v*"]
     paths:
       - 'apps/server/**'
@@ -34,7 +34,7 @@ jobs:
 
       - name: Run server tests
         working-directory: apps/server
-        run: ./gradlew test --no-daemon
+        run: ./gradlew test --no-daemon -Dtest.profile=integration
 
   build-and-push:
     runs-on: ubuntu-latest

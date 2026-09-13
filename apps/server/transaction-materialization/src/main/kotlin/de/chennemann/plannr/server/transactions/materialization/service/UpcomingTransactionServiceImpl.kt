@@ -5,7 +5,7 @@ import de.chennemann.plannr.server.common.time.LocalDateProvider
 import de.chennemann.plannr.server.pockets.service.PocketService
 import de.chennemann.plannr.server.transactions.materialization.api.dto.UpcomingTransactionItem
 import de.chennemann.plannr.server.transactions.materialization.api.dto.UpcomingTransactionsResponse
-import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
+import de.chennemann.plannr.server.transactions.templates.domain.EffectiveTransactionTemplate
 import de.chennemann.plannr.server.transactions.templates.service.TransactionTemplateService
 import java.time.LocalDate
 import java.util.PriorityQueue
@@ -57,11 +57,13 @@ internal class UpcomingTransactionServiceImpl(
     private suspend fun upcomingTransactions(
         after: LocalDate?,
         count: Int,
-        templateFilter: (TransactionTemplate) -> Boolean,
+        templateFilter: (EffectiveTransactionTemplate) -> Boolean,
     ): UpcomingTransactionsResponse {
         validateCount(count)
         val afterDate = after ?: localDateProvider()
-        val templates = transactionTemplateService.list(archived = false).filter(templateFilter)
+        val templates = transactionTemplateService.list(archived = false)
+            .flatMap { template -> template.versions.map { EffectiveTransactionTemplate(template, it) } }
+            .filter(templateFilter)
         val queue = PriorityQueue<TemplateOccurrenceStream>(
             compareBy(TemplateOccurrenceStream::currentDate)
                 .thenBy(TemplateOccurrenceStream::templateId),
@@ -96,7 +98,7 @@ internal class UpcomingTransactionServiceImpl(
     }
 
     private suspend fun initialStream(
-        transactionTemplate: TransactionTemplate,
+        transactionTemplate: EffectiveTransactionTemplate,
         afterDate: LocalDate,
     ): TemplateOccurrenceStream? {
         val cachedDates = if (afterDate == localDateProvider()) {
@@ -124,7 +126,7 @@ internal class UpcomingTransactionServiceImpl(
     }
 
     private class TemplateOccurrenceStream(
-        private val transactionTemplate: TransactionTemplate,
+        private val transactionTemplate: EffectiveTransactionTemplate,
         initialExpansion: List<LocalDate>,
         private val upcomingOccurrenceCalculator: UpcomingOccurrenceCalculator,
     ) {

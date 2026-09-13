@@ -42,6 +42,27 @@ class CreatePocketTest {
     }
 
     @Test
+    fun `creates dedicated pocket for saving goal`() = runTest {
+        val pocketRepository = InMemoryPocketRepository()
+        val pocketService = pocketService(repository = pocketRepository)
+
+        val created = pocketService.createForSavingGoal(
+            CreatePocketForSavingGoalCommand(
+                accountId = PocketFixtures.DEFAULT_ACCOUNT_ID,
+                savingGoalId = 24L,
+                name = "Emergency fund",
+                description = "Six months of expenses",
+                color = 42,
+            ),
+        )
+
+        assertEquals(24L, created.savingGoalId)
+        assertEquals("Emergency fund", created.name)
+        assertEquals(false, created.isDefault)
+        assertEquals(created, pocketRepository.findResolvedById(created.id)?.toDTO())
+    }
+
+    @Test
     fun `fails when account does not exist`() = runTest {
         val pocketService = PocketServiceImpl(
             pocketRepository = InMemoryPocketRepository(),

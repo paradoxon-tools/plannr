@@ -19,13 +19,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 25
-          cache: npm
-          cache-dependency-path: apps/mobile/package-lock.json
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -36,26 +29,18 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install dependencies
+      - name: Make mobile Gradle wrapper executable
         working-directory: apps/mobile
-        run: npm ci
-
-      - name: Lint mobile app
-        working-directory: apps/mobile
-        run: npm run lint
-
-      - name: Generate Android project
-        working-directory: apps/mobile
-        run: npx expo prebuild --platform android --no-install
+        run: chmod +x gradlew
 
       - name: Build release APK
-        working-directory: apps/mobile/android
-        run: ./gradlew assembleRelease --no-daemon
+        working-directory: apps/mobile
+        run: ./gradlew :client:androidApp:assembleRelease --no-daemon
 
       - name: Collect APK
         run: |
           mkdir -p dist
-          cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk dist/plannr-mobile.apk
+          cp apps/mobile/client/androidApp/build/outputs/apk/release/*.apk dist/plannr-mobile.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

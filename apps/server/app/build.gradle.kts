@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.tasks.testing.Test
 
 plugins {
     id("executable")
@@ -22,6 +23,10 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
 
     runtimeOnly("org.postgresql:postgresql")
+
+    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.4"))
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
 }
 
 tasks.withType<KotlinCompile> {
@@ -30,6 +35,14 @@ tasks.withType<KotlinCompile> {
             "-Xjsr305=strict",
             "-Xannotation-default-target=param-property",
             "-Xconsistent-data-class-copy-visibility"
-        )
+    )
+}
+
+tasks.withType<Test> {
+    if (providers.systemProperty("test.profile").orElse("unit").get() != "integration") {
+        // This module currently contains only *TestIT integration tests, which
+        // the shared unit profile intentionally excludes.
+        failOnNoDiscoveredTests = false
     }
+}
 }

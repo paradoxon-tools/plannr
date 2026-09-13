@@ -1,0 +1,22 @@
+meta {
+  name: Marie-Sophie Wegner
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Marie-Sophie Wegner",
+    "description": "Vermieterin Münsterstraße"
+  }
+}

@@ -12,7 +12,9 @@ import de.chennemann.plannr.server.pockets.api.dto.CreatePocketCommand
 import de.chennemann.plannr.server.pockets.api.dto.Pocket
 import de.chennemann.plannr.server.pockets.api.dto.UpdatePocketCommand
 import de.chennemann.plannr.server.pockets.service.CreatePocketForContractCommand
+import de.chennemann.plannr.server.pockets.service.CreatePocketForSavingGoalCommand
 import de.chennemann.plannr.server.pockets.service.PocketService
+import de.chennemann.plannr.server.pockets.service.UpdatePocketsForSavingGoalCommand
 import de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.api.dto.UpdateTransactionTemplateCommand
 import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
@@ -79,13 +81,15 @@ class FakeTransactionTemplateService : TransactionTemplateService {
     }
 
     override suspend fun create(command: CreateTransactionTemplateCommand): TransactionTemplate = unsupported()
-    override suspend fun createBatch(commands: List<CreateTransactionTemplateCommand>): List<TransactionTemplate> = unsupported()
+    override suspend fun createBatch(commands: List<de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateWithVersionsCommand>): List<TransactionTemplate> = unsupported()
+    override suspend fun createVersion(transactionTemplateId: Long, command: de.chennemann.plannr.server.transactions.templates.api.dto.CreateTransactionTemplateVersionCommand): TransactionTemplate = unsupported()
     override suspend fun update(command: UpdateTransactionTemplateCommand): TransactionTemplate = unsupported()
     override suspend fun archive(id: Long): TransactionTemplate = unsupported()
     override suspend fun unarchive(id: Long): TransactionTemplate = unsupported()
     override suspend fun archiveForPocket(pocketId: Long) = unsupported<Unit>()
     override suspend fun unarchiveForPocket(pocketId: Long) = unsupported<Unit>()
     override suspend fun delete(id: Long) = unsupported<Unit>()
+    override suspend fun deleteVersion(transactionTemplateId: Long, versionId: Long): TransactionTemplate? = unsupported()
     override suspend fun list(archived: Boolean?): List<TransactionTemplate> = emptyList()
     override suspend fun getById(id: Long): TransactionTemplate? = null
 
@@ -115,12 +119,17 @@ class FakePocketService(
     }
 
     override suspend fun create(command: CreatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun createForSavingGoal(command: CreatePocketForSavingGoalCommand): Pocket = throw UnsupportedOperationException("Not used")
+    override suspend fun updateForSavingGoal(command: UpdatePocketsForSavingGoalCommand) = Unit
     override suspend fun update(command: UpdatePocketCommand): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun archive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun unarchive(id: Long): Pocket = throw UnsupportedOperationException("Not used")
     override suspend fun archiveForAccount(accountId: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun unarchiveForAccount(accountId: Long) = throw UnsupportedOperationException("Not used")
+    override suspend fun archiveForSavingGoal(savingGoalId: Long) = Unit
+    override suspend fun unarchiveForSavingGoal(savingGoalId: Long) = Unit
     override suspend fun delete(id: Long) = throw UnsupportedOperationException("Not used")
     override suspend fun list(accountId: Long?, archived: Boolean?): List<Pocket> = pockets.values.toList()
+    override suspend fun listForSavingGoal(savingGoalId: Long): List<Pocket> = emptyList()
     override suspend fun getById(id: Long): Pocket? = pockets[id]
 }

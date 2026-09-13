@@ -13,6 +13,8 @@ data class PocketModel(
     val accountId: Long,
     @Column("contract_id")
     val contractId: Long?,
+    @Column("saving_goal_id")
+    val savingGoalId: Long? = null,
     val name: String?,
     val description: String?,
     val color: Int?,
@@ -29,6 +31,7 @@ fun Pocket.toModel(): PocketModel =
         id = id,
         accountId = accountId,
         contractId = contractId,
+        savingGoalId = savingGoalId,
         name = if (contractId == null) name else null,
         description = if (contractId == null) description else null,
         color = if (contractId == null) color else null,
@@ -40,15 +43,15 @@ fun Pocket.toModel(): PocketModel =
 /**
  * Converts a pocket read from a resolved query to the API representation.
  *
- * The database check constraint guarantees a direct pocket owns its name and
- * color. For a contract pocket, the repository query resolves both fields
- * from its required contract.
+ * Direct and saving-goal pockets own their stored presentation. For a contract
+ * pocket, the repository query resolves presentation from its contract.
  */
 fun PocketModel.toDTO(): Pocket =
     Pocket(
         id = requireNotNull(id),
         accountId = accountId,
         contractId = contractId,
+        savingGoalId = savingGoalId,
         name = requireNotNull(name),
         description = description,
         color = requireNotNull(color),

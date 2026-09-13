@@ -13,30 +13,49 @@ class AdminDatabaseController(
 ) {
     @DeleteMapping
     suspend fun wipe(): AdminDatabaseWipeResponse {
-        val tables = databaseClient.sql(
-            """
-            SELECT COALESCE(string_agg(format('%I.%I', schemaname, tablename), ', '), '') AS tables
-            FROM pg_tables
-            WHERE schemaname = 'public'
-              AND tablename <> 'flyway_schema_history'
-            """.trimIndent(),
-        )
-            .fetch()
-            .one()
-            .map { row -> row.getValue("tables") as String }
-            .awaitSingle()
+        val tables =
+            databaseClient
+                .sql(
+                    """
+                    SELECT COALESCE(string_agg(format('%I.%I', schemaname, tablename), ', '), '') AS tables
+                    FROM pg_tables
+                    WHERE schemaname = 'public'
+                      AND tablename NOT IN ('flyway_schema_history', 'financial_profiles')
+                    """.trimIndent(),
+                ).fetch()
+                .one()
+                .map { row -> row.getValue("tables") as String }
+                .awaitSingle()
 
-        if (tables.isBlank()) {
-            return AdminDatabaseWipeResponse(truncatedTables = 0)
+        if (tables.isNotBlank()) {
+            databaseClient
+                .sql("TRUNCATE TABLE $tables RESTART IDENTITY CASCADE")
+                .fetch()
+                .rowsUpdated()
+                .awaitSingle()
         }
 
-        databaseClient.sql("TRUNCATE TABLE $tables RESTART IDENTITY CASCADE")
+        databaseClient
+            .sql("DELETE FROM financial_profiles WHERE is_fallback = FALSE")
             .fetch()
             .rowsUpdated()
             .awaitSingle()
 
+        databaseClient
+            .sql(
+                """
+                SELECT setval(
+                    pg_get_serial_sequence('financial_profiles', 'id'),
+                    COALESCE((SELECT MAX(id) FROM financial_profiles), 1),
+                    EXISTS (SELECT 1 FROM financial_profiles)
+                ) AS sequence_value
+                """.trimIndent(),
+            ).fetch()
+            .one()
+            .awaitSingle()
+
         return AdminDatabaseWipeResponse(
-            truncatedTables = tables.split(",").size,
+            truncatedTables = tables.takeIf(String::isNotBlank)?.split(",")?.size ?: 0,
         )
     }
 }

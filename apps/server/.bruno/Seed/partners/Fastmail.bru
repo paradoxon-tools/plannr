@@ -1,0 +1,22 @@
+meta {
+  name: Fastmail
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Fastmail",
+    "description": null
+  }
+}

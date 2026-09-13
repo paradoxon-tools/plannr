@@ -1,0 +1,31 @@
+meta {
+  name: Auto Wartung und Reparatur
+  type: http
+  seq: 52
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Auto Wartung und Reparatur",
+    "description": "Rücklage für Wartung und Reparaturen",
+    "color": 12632256,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_triple_trouble}}",
+    "partnerId": null,
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

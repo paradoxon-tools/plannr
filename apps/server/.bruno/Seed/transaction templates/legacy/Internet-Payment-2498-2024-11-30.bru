@@ -2,6 +2,9 @@ meta {
   name: Internet - Payment 2498 from 2024-11-30
   type: http
   seq: 13
+  tags: [
+    legacy
+  ]
 }
 post {
   url: {{baseUrl}}/transactions/templates
@@ -17,7 +20,7 @@ body:json {
     "contractId": "{{contractId}}",
       "sourcePocketId": "{{seedContractPocketId}}",
     "destinationPocketId": null,
-    "financialProfileId": "{{unassigned}}",
+    "financialProfileId": "{{profile_unassigned}}",
     "partnerId": "{{seedPartnerId}}",
     "title": "Internet",
     "description": null,

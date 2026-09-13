@@ -1,7 +1,7 @@
 package de.chennemann.plannr.server.transactions.materialization.service
 
 import de.chennemann.plannr.server.common.time.LocalDateProvider
-import de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate
+import de.chennemann.plannr.server.transactions.templates.domain.EffectiveTransactionTemplate
 import java.time.LocalDate
 import java.util.concurrent.ConcurrentHashMap
 import org.springframework.stereotype.Component
@@ -13,7 +13,10 @@ internal class InMemoryUpcomingTransactionCache(
 ) : UpcomingTransactionCache {
     private val entries = ConcurrentHashMap<Long, CacheEntry>()
 
-    override suspend fun getOrRefresh(transactionTemplate: TransactionTemplate): List<String> {
+    suspend fun getOrRefresh(template: de.chennemann.plannr.server.transactions.templates.domain.TransactionTemplate) =
+        getOrRefresh(EffectiveTransactionTemplate(template, template.currentVersion))
+
+    override suspend fun getOrRefresh(transactionTemplate: EffectiveTransactionTemplate): List<String> {
         val asOfDate = localDateProvider()
         val cached = entries[transactionTemplate.id]
         if (
@@ -26,7 +29,7 @@ internal class InMemoryUpcomingTransactionCache(
         return calculateAndStore(transactionTemplate, asOfDate)
     }
 
-    override suspend fun refresh(transactionTemplate: TransactionTemplate) {
+    override suspend fun refresh(transactionTemplate: EffectiveTransactionTemplate) {
         calculateAndStore(transactionTemplate, localDateProvider())
     }
 
@@ -35,13 +38,9 @@ internal class InMemoryUpcomingTransactionCache(
     }
 
     private fun calculateAndStore(
-        transactionTemplate: TransactionTemplate,
+        transactionTemplate: EffectiveTransactionTemplate,
         asOfDate: LocalDate,
     ): List<String> {
-        if (transactionTemplate.isArchived) {
-            entries.remove(transactionTemplate.id)
-            return emptyList()
-        }
         val occurrenceDates = upcomingOccurrenceCalculator
             .nextExpansionAfter(transactionTemplate, asOfDate)
             .map(LocalDate::toString)
@@ -54,7 +53,7 @@ internal class InMemoryUpcomingTransactionCache(
     }
 
     private data class CacheEntry(
-        val transactionTemplate: TransactionTemplate,
+        val transactionTemplate: EffectiveTransactionTemplate,
         val asOfDate: LocalDate,
         val occurrenceDates: List<String>,
     )

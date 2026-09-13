@@ -1,0 +1,133 @@
+meta {
+  name: Miete Münsterstraße
+  type: http
+  seq: 48
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_miete_m_nsterstra_e}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_miete_m_nsterstra_e}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_marie_sophie_wegner}}",
+        "title": "Mietbudget",
+        "description": "Kaltmiete, Nebenkosten und Stellplatzmiete",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          { "amount": 192700, "firstOccurrenceDate": "2024-11-01", "finalOccurrenceDate": "2025-10-01", "recurrenceType": "MONTHLY", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": [1], "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 206800, "firstOccurrenceDate": "2025-11-01", "finalOccurrenceDate": "2026-05-01", "recurrenceType": "MONTHLY", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": [1], "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      },
+      {
+        "contractId": "{{contract_miete_m_nsterstra_e}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_miete_m_nsterstra_e}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_marie_sophie_wegner}}",
+        "title": "Vorsorge Mieterhöhung",
+        "description": "Frühzeitige Rückstellung für die erwartete Erhöhung der Kaltmiete",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 14100,
+            "firstOccurrenceDate": "2024-11-01",
+            "finalOccurrenceDate": "2025-10-01",
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_miete_m_nsterstra_e}}",
+        "sourcePocketId": "{{pocket_miete_m_nsterstra_e}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_marie_sophie_wegner}}",
+        "title": "Miete & Nebenkosten",
+        "description": "Münsterstraße",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          { "amount": 196800, "firstOccurrenceDate": "2025-03-03", "finalOccurrenceDate": "2025-03-03", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-04-02", "finalOccurrenceDate": "2025-04-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-05-02", "finalOccurrenceDate": "2025-05-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-06-02", "finalOccurrenceDate": "2025-06-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-07-02", "finalOccurrenceDate": "2025-07-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-08-04", "finalOccurrenceDate": "2025-08-04", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-09-02", "finalOccurrenceDate": "2025-09-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-10-02", "finalOccurrenceDate": "2025-10-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-11-03", "finalOccurrenceDate": "2025-11-03", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2025-12-02", "finalOccurrenceDate": "2025-12-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 182700, "firstOccurrenceDate": "2026-01-02", "finalOccurrenceDate": "2026-01-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 196800, "firstOccurrenceDate": "2026-03-04", "finalOccurrenceDate": "2026-03-04", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 196800, "firstOccurrenceDate": "2026-04-07", "finalOccurrenceDate": "2026-04-07", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 196800, "firstOccurrenceDate": "2026-05-04", "finalOccurrenceDate": "2026-05-04", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      },
+      {
+        "contractId": "{{contract_miete_m_nsterstra_e}}",
+        "sourcePocketId": "{{pocket_miete_m_nsterstra_e}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_marie_sophie_wegner}}",
+        "title": "Stellplatzmiete",
+        "description": "Münsterstraße",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          { "amount": 10000, "firstOccurrenceDate": "2025-03-03", "finalOccurrenceDate": "2025-03-03", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-04-02", "finalOccurrenceDate": "2025-04-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-05-02", "finalOccurrenceDate": "2025-05-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-06-02", "finalOccurrenceDate": "2025-06-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-07-02", "finalOccurrenceDate": "2025-07-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-08-04", "finalOccurrenceDate": "2025-08-04", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-09-02", "finalOccurrenceDate": "2025-09-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-10-02", "finalOccurrenceDate": "2025-10-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-11-03", "finalOccurrenceDate": "2025-11-03", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2025-12-02", "finalOccurrenceDate": "2025-12-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2026-01-02", "finalOccurrenceDate": "2026-01-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2026-02-02", "finalOccurrenceDate": "2026-02-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2026-03-02", "finalOccurrenceDate": "2026-03-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2026-04-02", "finalOccurrenceDate": "2026-04-02", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 10000, "firstOccurrenceDate": "2026-05-04", "finalOccurrenceDate": "2026-05-04", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      },
+      {
+        "contractId": "{{contract_miete_m_nsterstra_e}}",
+        "sourcePocketId": null,
+        "destinationPocketId": "{{pocket_miete_m_nsterstra_e}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_marie_sophie_wegner}}",
+        "title": "Rückerstattung",
+        "description": "Miet- und Betriebskostenkorrekturen",
+        "currencyCode": "EUR",
+        "transactionType": "INCOME",
+        "versions": [
+          { "amount": 56400, "firstOccurrenceDate": "2025-03-05", "finalOccurrenceDate": "2025-03-05", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null },
+          { "amount": 38221, "firstOccurrenceDate": "2025-12-09", "finalOccurrenceDate": "2025-12-09", "recurrenceType": "NONE", "skipCount": 0, "daysOfWeek": null, "weeksOfMonth": null, "daysOfMonth": null, "monthsOfYear": null, "maxRecurrenceCount": null }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
