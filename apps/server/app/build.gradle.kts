@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.tasks.testing.Test
 
 plugins {
     id("executable")
@@ -34,6 +35,14 @@ tasks.withType<KotlinCompile> {
             "-Xjsr305=strict",
             "-Xannotation-default-target=param-property",
             "-Xconsistent-data-class-copy-visibility"
-        )
+    )
+}
+
+tasks.withType<Test> {
+    if (providers.systemProperty("test.profile").orElse("unit").get() != "integration") {
+        // This module currently contains only *TestIT integration tests, which
+        // the shared unit profile intentionally excludes.
+        failOnNoDiscoveredTests = false
     }
+}
 }
