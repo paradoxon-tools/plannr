@@ -1,5 +1,5 @@
 meta {
-  name: Kindergeld
+  name: Catalina Growth Fund
   type: http
   seq: 38
 }
@@ -14,7 +14,7 @@ body:json {
   {
     "templates": [
       {
-        "contractId": "{{contract_kindergeld}}",
+        "contractId": "{{contract_catalina_growth_fund}}",
         "sourcePocketId": null,
         "destinationPocketId": "{{pocket_income_bucket}}",
         "financialProfileId": "{{profile_buburuza}}",
@@ -41,13 +41,13 @@ body:json {
         ]
       },
       {
-        "contractId": "{{contract_kindergeld}}",
+        "contractId": "{{contract_catalina_growth_fund}}",
         "sourcePocketId": "{{pocket_income_bucket}}",
-        "destinationPocketId": "{{pocket_kindergeld}}",
+        "destinationPocketId": "{{pocket_catalina_growth_fund}}",
         "financialProfileId": "{{profile_buburuza}}",
         "partnerId": "{{partner_familienkasse}}",
-        "title": "Kindergeld sparen",
-        "description": "Kindergeld für Buburuza zurücklegen",
+        "title": "Catalina Growth Fund",
+        "description": "Kindergeld für Catalina langfristig zurücklegen",
         "currencyCode": "EUR",
         "transactionType": "TRANSFER",
         "versions": [
@@ -64,9 +64,9 @@ body:json {
         ]
       },
       {
-        "contractId": "{{contract_kindergeld}}",
+        "contractId": "{{contract_catalina_growth_fund}}",
         "sourcePocketId": "{{pocket_income_bucket}}",
-        "destinationPocketId": "{{pocket_kindergeld}}",
+        "destinationPocketId": "{{pocket_catalina_growth_fund}}",
         "financialProfileId": "{{profile_buburuza}}",
         "partnerId": "{{partner_familienkasse}}",
         "title": "Fehlende Kindergeld-Rückstellung",
@@ -78,8 +78,8 @@ body:json {
         ]
       },
       {
-        "contractId": "{{contract_kindergeld}}",
-        "sourcePocketId": "{{pocket_kindergeld}}",
+        "contractId": "{{contract_catalina_growth_fund}}",
+        "sourcePocketId": "{{pocket_catalina_growth_fund}}",
         "destinationPocketId": "{{pocket_income_bucket}}",
         "financialProfileId": "{{profile_buburuza}}",
         "partnerId": "{{partner_familienkasse}}",

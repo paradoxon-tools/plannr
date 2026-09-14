@@ -1,7 +1,7 @@
 meta {
-  name: Buburuza
+  name: Catalina Growth Fund
   type: http
-  seq: 48
+  seq: 41
 }
 
 post {
@@ -17,13 +17,13 @@ headers {
 
 body:json {
   {
-    "name": "Buburuza",
-    "description": "Allgemeine Rücklage für Buburuza",
-    "color": 16761035,
+    "name": "Catalina Growth Fund",
+    "description": "Langfristige Rücklage aus dem Kindergeld für Catalina",
+    "color": 16753920,
     "type": "ACCUMULATING",
     "accountIds": ["{{account_savings}}"],
     "financialProfileId": "{{profile_buburuza}}",
-    "partnerId": null,
+    "partnerId": "{{partner_familienkasse}}",
     "signingDate": null,
     "expirationDate": null,
     "lastCancellationDate": null

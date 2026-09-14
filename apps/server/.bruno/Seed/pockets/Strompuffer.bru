@@ -1,0 +1,26 @@
+meta {
+  name: Strompuffer
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{account_insurance_and_contracts}}",
+    "name": "Strompuffer",
+    "description": "Rücklage für zusätzliche Stromkosten",
+    "color": 16776960,
+    "isDefault": false
+  }
+}
