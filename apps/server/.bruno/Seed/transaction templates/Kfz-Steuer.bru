@@ -25,7 +25,7 @@ body:json {
         "versions": [
           {
             "amount": 900,
-            "firstOccurrenceDate": "2024-12-01",
+            "firstOccurrenceDate": "2024-10-01",
             "finalOccurrenceDate": null,
             "recurrenceType": "MONTHLY",
             "skipCount": 0,
@@ -34,6 +34,31 @@ body:json {
             "daysOfMonth": [
               1
             ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_kfz_steuer}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_kfz_steuer}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_hauptzollamt}}",
+        "title": "Initiale Einzahlung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 10800,
+            "firstOccurrenceDate": "2024-11-28",
+            "finalOccurrenceDate": "2024-11-28",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
             "monthsOfYear": null,
             "maxRecurrenceCount": null
           }

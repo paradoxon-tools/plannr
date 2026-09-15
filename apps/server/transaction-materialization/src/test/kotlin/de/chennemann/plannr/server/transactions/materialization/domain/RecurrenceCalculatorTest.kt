@@ -145,6 +145,26 @@ class RecurrenceCalculatorTest {
     }
 
     @Test
+    fun `monthly recurrence includes due occurrences from a partial final month`() {
+        assertEquals(
+            listOf("2024-07-01", "2024-07-20", "2024-08-01", "2024-08-20", "2024-09-01")
+                .map(LocalDate::parse),
+            calculator.occurrences(
+                pattern(
+                    recurrenceType = RecurrenceType.MONTHLY,
+                    firstOccurrenceDate = "2024-07-01",
+                    finalOccurrenceDate = null,
+                    daysOfMonth = listOf(1, 20),
+                    daysOfWeek = null,
+                    weeksOfMonth = null,
+                    monthsOfYear = null,
+                ),
+                endInclusive = LocalDate.parse("2024-09-16"),
+            ),
+        )
+    }
+
+    @Test
     fun `monthly recurrence supports week of month selectors`() {
         assertEquals(
             listOf("2024-01-08", "2024-02-12", "2024-03-11").map(LocalDate::parse),

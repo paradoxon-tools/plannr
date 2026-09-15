@@ -24,20 +24,6 @@ body:json {
         "transactionType": "TRANSFER",
         "versions": [
           {
-            "amount": 542,
-            "firstOccurrenceDate": "2024-12-01",
-            "finalOccurrenceDate": "2025-07-01",
-            "recurrenceType": "MONTHLY",
-            "skipCount": 0,
-            "daysOfWeek": null,
-            "weeksOfMonth": null,
-            "daysOfMonth": [
-              1
-            ],
-            "monthsOfYear": null,
-            "maxRecurrenceCount": null
-          },
-          {
             "amount": 847,
             "firstOccurrenceDate": "2025-08-01",
             "finalOccurrenceDate": null,
@@ -55,6 +41,31 @@ body:json {
       },
       {
         "contractId": "{{contract_hausratversicherung}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_hausratversicherung}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_helvetia}}",
+        "title": "Aufstockung",
+        "description": "Rueckwirkende Beitragsanpassung",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 1045,
+            "firstOccurrenceDate": "2026-07-01",
+            "finalOccurrenceDate": "2026-07-01",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_hausratversicherung}}",
         "sourcePocketId": "{{pocket_hausratversicherung}}",
         "destinationPocketId": null,
         "financialProfileId": "{{profile_triple_trouble}}",
@@ -64,22 +75,6 @@ body:json {
         "currencyCode": "EUR",
         "transactionType": "EXPENSE",
         "versions": [
-          {
-            "amount": 6578,
-            "firstOccurrenceDate": "2025-10-16",
-            "finalOccurrenceDate": null,
-            "recurrenceType": "YEARLY",
-            "skipCount": 0,
-            "daysOfWeek": null,
-            "weeksOfMonth": null,
-            "daysOfMonth": [
-              16
-            ],
-            "monthsOfYear": [
-              10
-            ],
-            "maxRecurrenceCount": null
-          },
           {
             "amount": 10162,
             "firstOccurrenceDate": "2026-10-16",

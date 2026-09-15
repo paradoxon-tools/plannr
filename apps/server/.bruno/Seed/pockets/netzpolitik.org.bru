@@ -1,0 +1,25 @@
+meta {
+  name: netzpolitik.org
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{account_insurance_and_contracts}}",
+    "name": "netzpolitik.org",
+    "description": "Rücklage für die monatliche Spende",
+    "color": 3447003,
+    "isDefault": false
+  }
+}
