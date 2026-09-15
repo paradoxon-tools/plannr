@@ -112,21 +112,25 @@ script:post-response {
     const financialProfilesById = new Map(
       financialProfiles.map((profile) => [profile.id, profile])
     );
-  const contractNameCounts = contracts.reduce((counts, contract) => {
-    const name = normalizedName(contract.name, "contract");
-    counts.set(name, (counts.get(name) || 0) + 1);
-    return counts;
-  }, new Map());
-  const standalonePocketNameCounts = pockets
-    .filter((pocket) => !pocket.contractId && !pocket.savingGoalId && !pocket.isDefault)
-    .reduce((counts, pocket) => {
-      const name = normalizedName(pocket.name, "pocket");
+    const contractNameCounts = contracts.reduce((counts, contract) => {
+      const name = normalizedName(contract.name, "contract");
       counts.set(name, (counts.get(name) || 0) + 1);
       return counts;
     }, new Map());
-  
-    for (const pocket of pockets) {
+    const standalonePocketNameCounts = pockets
+      .filter(
+        (pocket) =>
+          !pocket.contractId && !pocket.savingGoalId && !pocket.isDefault
+      )
+      .reduce((counts, pocket) => {
+        const name = normalizedName(pocket.name, "pocket");
+        counts.set(name, (counts.get(name) || 0) + 1);
+        return counts;
+      }, new Map());
+
+    const candidates = pockets.flatMap((pocket) => {
       let variableName;
+      let ownerType;
   
       if (pocket.contractId) {
         const contract = contractsById.get(pocket.contractId);
@@ -144,12 +148,14 @@ script:post-response {
           ? `_${normalizedName(financialProfile.name, "financial profile")}`
           : "";
         variableName = `pocket_${contractName}${tieBreaker}`;
+        ownerType = "contract";
       } else if (pocket.isDefault) {
         const account = accountsById.get(pocket.accountId);
         if (!account) {
           throw new Error(`No account found for pocket '${pocket.id}'`);
         }
         variableName = `pocket_${normalizedName(account.name, "account")}`;
+        ownerType = "account";
       } else if (!pocket.savingGoalId) {
         const account = accountsById.get(pocket.accountId);
         if (!account) {
@@ -160,9 +166,31 @@ script:post-response {
           ? `_${normalizedName(account.name, "account")}`
           : "";
         variableName = `pocket_${pocketName}${tieBreaker}`;
+        ownerType = "standalone";
       } else {
-        continue;
+        return [];
       }
+
+      return [{ ownerType, pocket, variableName }];
+    });
+
+    const ownerTypesByVariableName = candidates.reduce(
+      (ownerTypesByName, candidate) => {
+        const ownerTypes =
+          ownerTypesByName.get(candidate.variableName) ?? new Set();
+        ownerTypes.add(candidate.ownerType);
+        ownerTypesByName.set(candidate.variableName, ownerTypes);
+        return ownerTypesByName;
+      },
+      new Map()
+    );
+
+    for (const candidate of candidates) {
+      const { ownerType, pocket } = candidate;
+      const ownerTypes = ownerTypesByVariableName.get(candidate.variableName);
+      const variableName = ownerTypes.size > 1
+        ? `${candidate.variableName}_${ownerType}`
+        : candidate.variableName;
   
       if (variableNames.has(variableName)) {
         throw new Error(`Multiple pockets map to '${variableName}'`);

@@ -1,0 +1,25 @@
+meta {
+  name: Catalina Growth Fund - Insurance
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{account_insurance_and_contracts}}",
+    "name": "Catalina Growth Fund",
+    "description": "Monatliche Zwischenablage vor dem Transfer zu Trade Republic",
+    "color": 16753920,
+    "isDefault": false
+  }
+}
