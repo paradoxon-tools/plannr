@@ -9,6 +9,9 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import de.chennemann.plannr.database.repository.PartnerRepository
+import de.chennemann.plannr.ui.screen.finances.management.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -26,6 +29,9 @@ import de.chennemann.plannr.ui.screen.groceries.GroceriesRootComponent
 import de.chennemann.plannr.ui.screen.home.HomeScreen
 import org.koin.compose.koinInject
 
+private const val MANAGEMENT_ROUTE = "wallet-management"
+private const val PARTNERS_ROUTE = "partner-management"
+private const val PARTNER_EDITOR_ROUTE = "partner-editor"
 private const val HOME_ROUTE = "home"
 private const val ACCOUNT_DETAILS_ROUTE = "account-details"
 private const val CONTRACT_DETAILS_ROUTE = "contract-details"
@@ -41,6 +47,9 @@ private enum class SheetDestination {
 fun RootScreen() {
     val navController = rememberNavController()
     val rootComponentFactory = koinInject<RootComponent.Factory>()
+    val partnerRepository = koinInject<PartnerRepository>()
+    val partnerManagement = remember(partnerRepository) { PartnerManagementComponent(partnerRepository) }
+    var selectedPartnerId by rememberSaveable { mutableLongStateOf(-1L) }
     val financesFactory = koinInject<FinancesRootComponent.Factory>()
     val groceriesFactory = koinInject<GroceriesRootComponent.Factory>()
     val accountDetailsFactory = koinInject<AccountDetailsComponent.Factory>()
@@ -67,6 +76,7 @@ fun RootScreen() {
                 selectedContractId = contract.contractId.contractId
                 navController.navigate(CONTRACT_DETAILS_ROUTE)
             },
+            onManagementRequested = { navController.navigate(MANAGEMENT_ROUTE) },
             onAddContractRequested = {
                 sheetDestination = SheetDestination.AddContract
             },
@@ -87,6 +97,21 @@ fun RootScreen() {
                 financesComponent = financesComponent,
                 groceriesComponent = groceriesComponent,
             )
+        }
+        composable(MANAGEMENT_ROUTE) {
+            WalletManagementScreen(
+                onBack = { navController.popBackStack() },
+                onPartners = { navController.navigate(PARTNERS_ROUTE) },
+            )
+        }
+        composable(PARTNERS_ROUTE) {
+            PartnerManagementScreen(partnerManagement,
+                onBack = { navController.popBackStack() },
+                onPartner = { selectedPartnerId = it; navController.navigate(PARTNER_EDITOR_ROUTE) },
+            )
+        }
+        composable(PARTNER_EDITOR_ROUTE) {
+            PartnerEditorScreen(partnerManagement, selectedPartnerId, onBack = { navController.popBackStack() })
         }
         composable(ACCOUNT_DETAILS_ROUTE) {
             AccountDetailsScreen(

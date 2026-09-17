@@ -3,6 +3,9 @@ package de.chennemann.plannr.ui.screen.finances.contracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.chennemann.plannr.data.Contract
+import de.chennemann.plannr.money.MoneyFormatter
 import de.chennemann.plannr.ui.theme.colors
 
 @Composable
@@ -27,6 +31,7 @@ fun ContractThumbnailContent(
             .background(MaterialTheme.colors.surfaceVariant)
             .padding(16.dp),
     ) {
+        Box(Modifier.size(16.dp).background(contractColor(contract.color), CircleShape))
         Text(
             text = contract.name,
             style = MaterialTheme.typography.titleSmall,
@@ -36,6 +41,13 @@ fun ContractThumbnailContent(
         )
         Text(
             text = contract.partner.name,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colors.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = "Balance: ${MoneyFormatter.format(contract.balance, "EUR")}",
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colors.onSurface,
             maxLines = 1,

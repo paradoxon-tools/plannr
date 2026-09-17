@@ -17,6 +17,7 @@ interface ContractRepository {
     suspend fun addContract(accountId: Long, partnerId: Long, name: String, description: String? = null): Contract.ContractId
     suspend fun updateContractName(contractId: Long, name: String)
     suspend fun updateContractDescription(contractId: Long, description: String)
+    suspend fun updateContract(contract: Contract)
 
     companion object {
         internal operator fun invoke(apiClient: PlannrApiClient, applicationScope: CoroutineScope): ContractRepository =
@@ -119,9 +120,40 @@ private class RemoteContractRepository(
         }
     }
 
+    override suspend fun updateContract(contract: Contract) {
+        require(contract.name.isNotBlank()) { "Contract name is required" }
+        val id = contract.contractId.contractId
+        val existing = contractSnapshots[id] ?: error("Contract is no longer available")
+        val updated = apiClient.updateContract(
+            ApiUpdateContractCommand(
+                id = id,
+                financialProfileId = existing.financialProfileId,
+                partnerId = contract.partner.partnerId.takeIf { it >= 0 },
+                name = contract.name.trim(),
+                description = contract.description?.trim()?.ifBlank { null },
+                color = contract.color,
+                type = existing.type,
+                signingDate = contract.signingDate,
+                expirationDate = contract.expirationDate,
+                lastCancellationDate = contract.lastCancellationDate,
+            )
+        )
+        contractSnapshots = contractSnapshots + (id to updated)
+        contracts.value = contracts.value.map {
+            if (it.contractId.contractId == id) contract.copy(
+                name = updated.name,
+                description = updated.description,
+                color = updated.color,
+                signingDate = updated.signingDate,
+                expirationDate = updated.expirationDate,
+                lastCancellationDate = updated.lastCancellationDate,
+            ) else it
+        }
+    }
+
     private suspend fun loadContracts(): List<Contract> {
         val partners = runCatching {
-            apiClient.listPartners().associateBy { it.id }
+            (apiClient.listPartners() + apiClient.listPartners(archived = true)).associateBy { it.id }
         }.getOrDefault(emptyMap())
         val remoteContracts = runCatching {
             apiClient.listContracts()
@@ -144,6 +176,10 @@ private class RemoteContractRepository(
                 ),
                 name = contract.name,
                 description = contract.description,
+                color = contract.color,
+                signingDate = contract.signingDate,
+                expirationDate = contract.expirationDate,
+                lastCancellationDate = contract.lastCancellationDate,
                 balance = runCatching {
                     apiClient.getContractBalance(contract.id)
                 }.getOrDefault(0L),

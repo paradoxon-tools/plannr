@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
@@ -37,6 +38,7 @@ fun TwoPaneLayout(
         val mainPageOffset by pagerState.mainPageOffset.collectAsState()
         val secondaryPageOffset by pagerState.secondaryPageOffset.collectAsState()
         val thresholdReached by pagerState.thresholdReached.collectAsState()
+        val currentPane by pagerState.currentPane.collectAsState()
 
         val haptic = LocalHapticFeedback.current
 
@@ -54,6 +56,7 @@ fun TwoPaneLayout(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .zIndex(if (currentPane == Pane.Main) 1f else 0f)
                     .offset { IntOffset(0, mainPageOffset) },
                 content = {
                     mainPageContent()
@@ -63,6 +66,7 @@ fun TwoPaneLayout(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .zIndex(if (currentPane == Pane.Secondary) 1f else 0f)
                     .offset { IntOffset(0, secondaryPageOffset) },
                 content = {
                     secondaryPageContent()
@@ -71,6 +75,7 @@ fun TwoPaneLayout(
 
             Box(
                 modifier = Modifier
+                    .zIndex(2f)
                     .align(Alignment.BottomEnd)
                     .padding(8.dp)
                     .padding(bottom = 16.dp),

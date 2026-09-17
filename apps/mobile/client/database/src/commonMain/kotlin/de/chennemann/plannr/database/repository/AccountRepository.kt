@@ -102,11 +102,9 @@ private class RemoteAccountRepository(
                         apiClient.getPocketBalance(pocket.id)
                     }.getOrDefault(0L)
                 }
-                val totalBalance = runCatching {
-                    apiClient.getAccountBalance(apiAccount.id)
-                }.getOrDefault(0L)
+                val totalBalance = pocketBalances.values.sum()
                 val defaultPocket = accountPockets.firstOrNull { it.isDefault }
-                val freeBalance = defaultPocket?.let { pocketBalances[it.id] } ?: totalBalance
+                val freeBalance = defaultPocket?.let { pocketBalances[it.id] } ?: 0L
 
                 Account(
                     accountId = apiAccount.id,
@@ -116,6 +114,9 @@ private class RemoteAccountRepository(
                             id = Pocket.PocketId(apiAccount.id, pocket.id),
                             pocketName = pocket.name,
                             balance = pocketBalances[pocket.id] ?: 0L,
+                            color = pocket.color,
+                            contractId = pocket.contractId,
+                            isDefault = pocket.isDefault,
                         )
                     },
                     totalBalance = totalBalance,

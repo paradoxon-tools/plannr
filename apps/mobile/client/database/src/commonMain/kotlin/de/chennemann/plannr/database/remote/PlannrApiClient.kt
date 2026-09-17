@@ -5,6 +5,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -16,7 +17,16 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-private const val DEFAULT_SERVER_URL = "https://plannr-api.local.chennemann.de"
+object PlannrServerConnection {
+    var baseUrl: String = "https://plannr-api.local.chennemann.de"
+        private set
+
+    fun useLocalDevelopmentServer() {
+        baseUrl = "http://localhost:9000"
+    }
+}
+
+private val DEFAULT_SERVER_URL: String get() = PlannrServerConnection.baseUrl
 
 internal fun HttpClientConfig<*>.configurePlannrHttpClient() {
     expectSuccess = true
@@ -36,6 +46,21 @@ internal expect fun createPlannrHttpClient(): HttpClient
 internal class PlannrApiClient(
     private val httpClient: HttpClient,
 ) {
+    suspend fun previewPartnerLogo(website: String): String =
+        httpClient.post("$DEFAULT_SERVER_URL/partners/logo-preview") {
+            contentType(ContentType.Application.Json)
+            setBody(ApiLogoPreviewCommand(website))
+        }.body<ApiLogoImage>().base64
+
+    suspend fun savePartnerLogo(id: Long, base64: String): ApiPartner =
+        httpClient.put("$DEFAULT_SERVER_URL/partners/$id/logo") {
+            contentType(ContentType.Application.Json)
+            setBody(ApiLogoImage(base64))
+        }.body()
+
+    suspend fun removePartnerLogo(id: Long): ApiPartner =
+        httpClient.delete("$DEFAULT_SERVER_URL/partners/$id/logo").body()
+
     suspend fun listAccounts(): List<ApiAccount> =
         httpClient.get("$DEFAULT_SERVER_URL/accounts") {
             accept(ContentType.Application.Json)
@@ -65,14 +90,23 @@ internal class PlannrApiClient(
             }
         }.body()
 
-    suspend fun listPartners(query: String? = null): List<ApiPartner> =
+    suspend fun listPartners(query: String? = null, archived: Boolean = false): List<ApiPartner> =
         httpClient.get("$DEFAULT_SERVER_URL/partners") {
             accept(ContentType.Application.Json)
-            parameter("archived", false)
+            parameter("archived", archived)
             if (query != null) {
                 parameter("query", query)
             }
         }.body()
+
+    suspend fun updatePartner(command: ApiUpdatePartnerCommand): ApiPartner =
+        httpClient.put("$DEFAULT_SERVER_URL/partners") {
+            contentType(ContentType.Application.Json)
+            setBody(command)
+        }.body()
+
+    suspend fun archivePartner(id: Long, archived: Boolean): ApiPartner =
+        httpClient.post("$DEFAULT_SERVER_URL/partners/$id/" + if (archived) "archive" else "unarchive").body()
 
     suspend fun createPartner(command: ApiCreatePartnerCommand): ApiPartner =
         httpClient.post("$DEFAULT_SERVER_URL/partners") {
@@ -109,6 +143,13 @@ internal class PlannrApiClient(
             accept(ContentType.Application.Json)
             parameter("limit", 1)
         }.body<ApiTransactionFeedSummary>().currentBalance
+
+    suspend fun getAccountHistory(accountId: Long, cursor: String? = null): ApiTransactionHistory =
+        httpClient.get("$DEFAULT_SERVER_URL/accounts/$accountId/feed") {
+            accept(ContentType.Application.Json)
+            parameter("limit", 100)
+            cursor?.let { parameter("cursor", it) }
+        }.body()
 
     suspend fun getPocketBalance(pocketId: Long): Long =
         httpClient.get("$DEFAULT_SERVER_URL/pockets/$pocketId/feed") {
@@ -163,6 +204,7 @@ internal data class ApiPocket(
     val savingGoalId: Long? = null,
     val name: String,
     val isDefault: Boolean,
+    val color: Int = 0,
 )
 
 @Serializable
@@ -170,7 +212,12 @@ internal data class ApiPartner(
     val id: Long,
     val name: String,
     val description: String? = null,
-)
+    val logoVersion: String? = null,
+    val isArchived: Boolean = false,
+) {
+    fun toPartner() = de.chennemann.plannr.data.Partner(id, name,
+        logoVersion?.let { "$DEFAULT_SERVER_URL/partners/$id/logo/$it" }, description, isArchived)
+}
 
 @Serializable
 internal data class ApiCreatePartnerCommand(
@@ -232,6 +279,30 @@ internal data class ApiTransactionFeedSummary(
 )
 
 @Serializable
+internal data class ApiTransactionHistory(
+    val transactions: List<ApiHistoryItem>,
+    val nextCursor: String? = null,
+    val hasMore: Boolean,
+)
+
+@Serializable
+internal data class ApiHistoryReference(val id: Long, val name: String)
+
+@Serializable
+internal data class ApiHistoryItem(
+    val transactionId: Long,
+    val transactionTemplateId: Long,
+    val transactionDate: String,
+    val title: String,
+    val description: String? = null,
+    val transactionAmount: Long,
+    val signedAmount: Long,
+    val sourcePocket: ApiHistoryReference? = null,
+    val destinationPocket: ApiHistoryReference? = null,
+    val partner: ApiHistoryReference? = null,
+)
+
+@Serializable
 internal data class ApiUpcomingTransactionsResponse(
     val transactions: List<ApiUpcomingTransactionItem>,
 )
@@ -249,3 +320,11 @@ internal data class ApiUpcomingTransactionItem(
     val amount: Long,
     val currencyCode: String,
 )
+    
+@Serializable
+internal data class ApiLogoPreviewCommand(val website: String)
+@Serializable
+internal data class ApiLogoImage(val base64: String)
+
+@Serializable
+internal data class ApiUpdatePartnerCommand(val id: Long, val name: String, val description: String? = null)

@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.chennemann.plannr.data.Account
+import de.chennemann.plannr.money.MoneyFormatter
 import de.chennemann.plannr.ui.theme.colors
 
 @Composable
@@ -42,7 +43,7 @@ fun AccountThumbnail(
             overflow = TextOverflow.Ellipsis,
         )
         Text(
-            text = "Balance: ${account.totalBalance / 100} EUR",
+            text = "Balance: ${MoneyFormatter.format(account.totalBalance, "EUR")}",
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colors.onSurface,
             maxLines = 1,
