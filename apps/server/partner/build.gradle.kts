@@ -11,6 +11,11 @@ dependencies {
     implementation(project(":transaction-projection-shared"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.springframework:spring-web")
+    implementation("org.springframework:spring-webflux")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.jsoup:jsoup:1.21.2")
+    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.12.0")
 
     runtimeOnly("org.postgresql:r2dbc-postgresql")
 

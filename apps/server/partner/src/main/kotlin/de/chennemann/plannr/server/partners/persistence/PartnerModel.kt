@@ -15,6 +15,7 @@ data class PartnerModel(
     val isArchived: Boolean,
     @Column("created_at")
     val createdAt: Long,
+    val logoVersion: String? = null,
 )
 
 fun PartnerModel.toDTO(): Partner =
@@ -24,6 +25,7 @@ fun PartnerModel.toDTO(): Partner =
         description = description,
         isArchived = isArchived,
         createdAt = createdAt,
+        logoVersion = logoVersion,
     )
 
 fun Partner.toModel(): PartnerModel =
@@ -33,4 +35,5 @@ fun Partner.toModel(): PartnerModel =
         description = description,
         isArchived = isArchived,
         createdAt = createdAt,
+        logoVersion = logoVersion,
     )
