@@ -96,6 +96,7 @@ class TwoPanePagerState internal constructor(
     private var containerHeight by Delegates.notNull<Float>()
     private var pageTransitionOffsetThreshold by Delegates.notNull<Float>()
     private var transformedOffsetThreshold by Delegates.notNull<Float>()
+    private var initialized = false
 
     private val _currentPage = MutableStateFlow(initialPane.pageNumber)
     private val currentPage: StateFlow<Int> = _currentPage
@@ -161,6 +162,10 @@ class TwoPanePagerState internal constructor(
         this.containerHeight = containerHeight
         this.pageTransitionOffsetThreshold = containerHeight * requiredOffsetPercentage
         this.transformedOffsetThreshold = offsetTransformation(pageTransitionOffsetThreshold)
+
+        // Layout recomposes while lists expand and animations run. Register collectors only once.
+        if (initialized) return
+        initialized = true
 
         coroutineScope.launch {
             combine(

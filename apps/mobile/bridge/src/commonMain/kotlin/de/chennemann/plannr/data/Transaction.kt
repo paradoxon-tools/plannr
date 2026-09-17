@@ -13,4 +13,9 @@ data class Transaction(
     val sourcePocketId: Long?,
     val destinationPocketId: Long?,
     val partnerId: Long?,
+    val sourceName: String? = null,
+    val destinationName: String? = null,
+    val sourceContractId: Long? = null,
+    val destinationContractId: Long? = null,
+    val signedAmount: Long = 0,
 )

@@ -7,11 +7,14 @@ import de.chennemann.plannr.ui.screen.finances.contracts.ContractOverviewCompone
 import de.chennemann.plannr.ui.screen.finances.transactions.TransactionOverviewComponent
 
 interface FinancesRootComponent {
+    fun openManagement()
+    val partners: kotlinx.coroutines.flow.StateFlow<List<de.chennemann.plannr.data.Partner>>
     val accountOverview: AccountOverviewComponent
     val contractOverview: ContractOverviewComponent
     val transactionOverview: TransactionOverviewComponent
 
     class Factory(
+        private val partnerRepository: de.chennemann.plannr.database.repository.PartnerRepository,
         private val accountOverviewComponentFactory: AccountOverviewComponent.Factory,
         private val contractOverviewComponentFactory: ContractOverviewComponent.Factory,
         private val transactionOverviewComponentFactory: TransactionOverviewComponent.Factory,
@@ -21,8 +24,10 @@ interface FinancesRootComponent {
             onAddAccountRequested: () -> Unit,
             onContractClicked: (Contract) -> Unit,
             onAddContractRequested: () -> Unit,
+            onManagementRequested: () -> Unit,
         ): FinancesRootComponent =
             DefaultFinancesRootComponent(
+                partnerRepository = partnerRepository,
                 accountOverviewComponentFactory = accountOverviewComponentFactory,
                 contractOverviewComponentFactory = contractOverviewComponentFactory,
                 transactionOverviewComponentFactory = transactionOverviewComponentFactory,
@@ -30,11 +35,13 @@ interface FinancesRootComponent {
                 onAddAccountRequested = onAddAccountRequested,
                 onContractClicked = onContractClicked,
                 onAddContractRequested = onAddContractRequested,
+                onManagementRequested = onManagementRequested,
             )
     }
 }
 
 private class DefaultFinancesRootComponent(
+    partnerRepository: de.chennemann.plannr.database.repository.PartnerRepository,
     accountOverviewComponentFactory: AccountOverviewComponent.Factory,
     contractOverviewComponentFactory: ContractOverviewComponent.Factory,
     transactionOverviewComponentFactory: TransactionOverviewComponent.Factory,
@@ -42,7 +49,10 @@ private class DefaultFinancesRootComponent(
     onAddAccountRequested: () -> Unit,
     onContractClicked: (Contract) -> Unit,
     onAddContractRequested: () -> Unit,
+    private val onManagementRequested: () -> Unit,
 ) : FinancesRootComponent {
+    override fun openManagement() = onManagementRequested()
+    override val partners = partnerRepository.allPartners
     override val accountOverview = accountOverviewComponentFactory(
         onAccountClicked = onAccountClicked,
         onAddAccountRequested = onAddAccountRequested,

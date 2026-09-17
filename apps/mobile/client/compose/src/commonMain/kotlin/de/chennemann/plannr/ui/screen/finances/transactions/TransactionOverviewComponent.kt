@@ -40,6 +40,10 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface TransactionOverviewComponent {
     val transactions: StateFlow<List<Transaction>>
+    val history: StateFlow<List<Transaction>>
+    val loading: StateFlow<Boolean>
+    val error: StateFlow<String?>
+    suspend fun refresh()
 
     class Factory(
         private val transactionRepository: TransactionRepository,
@@ -50,9 +54,13 @@ interface TransactionOverviewComponent {
 }
 
 private class DefaultTransactionOverviewComponent(
-    transactionRepository: TransactionRepository,
+    private val transactionRepository: TransactionRepository,
 ) : TransactionOverviewComponent {
     override val transactions = transactionRepository.transactions
+    override val history = transactionRepository.history
+    override val loading = transactionRepository.loading
+    override val error = transactionRepository.error
+    override suspend fun refresh() = transactionRepository.refresh()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -143,6 +151,15 @@ fun TransactionOverviewContent(
                 end = 16.dp,
             ),
         ) {
+            if (transactions.isEmpty()) {
+                item {
+                    Text(
+                        "No upcoming transactions",
+                        modifier = Modifier.padding(vertical = 24.dp),
+                        color = MaterialTheme.colors.onBackgroundMuted,
+                    )
+                }
+            }
             items(transactions) { transaction ->
                 TransactionThumbnailContent(transaction = transaction)
             }

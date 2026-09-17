@@ -32,13 +32,22 @@ kotlin {
     }
 
     sourceSets {
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+        }
+
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
             implementation(libs.sqldelight.native)
         }
 
         commonMain.dependencies {
 //            implementation(projects.bridge)
             implementation(projects.client.database)
+
+            implementation("io.coil-kt.coil3:coil-compose:3.6.2")
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.6.2")
+            implementation("io.github.vinceglb:filekit-dialogs-compose:0.16.0")
 
             // Compose
             implementation(libs.compose.runtime)
