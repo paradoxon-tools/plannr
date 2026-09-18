@@ -1,7 +1,6 @@
 meta {
   name: Auto Wartung und Reparatur
   type: http
-  seq: 49
 }
 
 post {
@@ -33,6 +32,31 @@ body:json {
             "daysOfWeek": null,
             "weeksOfMonth": null,
             "daysOfMonth": [1],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_auto_wartung_und_reparatur}}",
+        "sourcePocketId": "{{pocket_auto_wartung_und_reparatur}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": null,
+        "title": "Auto Wartung & Reparatur",
+        "description": "Einmalige Ausgabe",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 1485,
+            "firstOccurrenceDate": "2026-07-18",
+            "finalOccurrenceDate": "2026-07-18",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
             "monthsOfYear": null,
             "maxRecurrenceCount": null
           }

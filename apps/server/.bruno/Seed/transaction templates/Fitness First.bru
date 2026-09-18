@@ -1,7 +1,6 @@
 meta {
   name: Fitness First
   type: http
-  seq: 3
 }
 
 post {
@@ -100,6 +99,20 @@ body:json {
           {
             "amount": 2180,
             "firstOccurrenceDate": "2025-01-07",
+            "finalOccurrenceDate": "2025-05-13",
+            "recurrenceType": "WEEKLY",
+            "skipCount": 1,
+            "daysOfWeek": [
+              "TUESDAY"
+            ],
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          },
+          {
+            "amount": 2180,
+            "firstOccurrenceDate": "2025-08-19",
             "finalOccurrenceDate": null,
             "recurrenceType": "WEEKLY",
             "skipCount": 1,
@@ -154,7 +167,7 @@ body:json {
           {
             "amount": 2900,
             "firstOccurrenceDate": "2025-03-04",
-            "finalOccurrenceDate": null,
+            "finalOccurrenceDate": "2026-09-04",
             "recurrenceType": "MONTHLY",
             "skipCount": 5,
             "daysOfWeek": [
@@ -252,6 +265,7 @@ body:json {
     ]
   }
 }
+
 settings {
   encodeUrl: true
   timeout: 0

@@ -126,7 +126,7 @@ private class MonthlyRecurrence : RecurrenceRule {
         val lastDate = endInclusive ?: pattern.firstOccurrenceDate.plusYears(50)
         var monthCursor = YearMonth.from(pattern.firstOccurrenceDate)
         val stepMonths = pattern.skipCount + 1L
-        while (!monthCursor.atEndOfMonth().isAfter(lastDate)) {
+        while (!monthCursor.atDay(1).isAfter(lastDate)) {
             if (monthAllowed(monthCursor, pattern)) {
                 result += candidatesForMonth(pattern, monthCursor)
                     .filter { !it.isBefore(pattern.firstOccurrenceDate) && !it.isAfter(lastDate) }

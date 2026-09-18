@@ -1,0 +1,76 @@
+meta {
+  name: t3.chat
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_t3_chat}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_t3_chat}}",
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_t3_chat}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 1000,
+            "firstOccurrenceDate": "2026-08-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_t3_chat}}",
+        "sourcePocketId": "{{pocket_t3_chat}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": "{{partner_t3_chat}}",
+        "title": "t3.chat",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 1000,
+            "firstOccurrenceDate": "2026-09-29",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              29
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

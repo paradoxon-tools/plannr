@@ -13,6 +13,11 @@ import de.chennemann.plannr.ui.PlannrApp
 class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val emulator = android.os.Build.HARDWARE in setOf("goldfish", "ranchu") ||
+            android.os.Build.MODEL.startsWith("sdk_") || android.os.Build.FINGERPRINT.startsWith("generic")
+        if (BuildConfig.DEBUG && emulator) {
+            de.chennemann.plannr.database.remote.PlannrServerConnection.useLocalDevelopmentServer()
+        }
         enableEdgeToEdge()
         setContent {
 

@@ -24,6 +24,8 @@ android {
         versionName = "1.0"
     }
 
+    buildFeatures { buildConfig = true }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
@@ -32,5 +34,6 @@ android {
 
 dependencies {
     implementation(projects.client.compose)
+    implementation(projects.client.database)
     implementation(libs.androidx.activity.compose)
 }

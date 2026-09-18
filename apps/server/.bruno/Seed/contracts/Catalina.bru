@@ -1,0 +1,30 @@
+meta {
+  name: Catalina
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Catalina",
+    "description": "Allgemeine Rücklage für Catalina",
+    "color": 16761035,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_savings}}"],
+    "financialProfileId": "{{profile_buburuza}}",
+    "partnerId": null,
+    "signingDate": null,
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

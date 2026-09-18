@@ -6,4 +6,5 @@ data class Partner(
     val description: String?,
     val isArchived: Boolean,
     val createdAt: Long,
+    val logoVersion: String? = null,
 )

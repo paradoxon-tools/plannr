@@ -1,0 +1,30 @@
+meta {
+  name: t3.chat
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "t3.chat",
+    "description": null,
+    "color": 3457023,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_insurance_and_contracts}}"],
+    "financialProfileId": "{{profile_cryzsh}}",
+    "partnerId": "{{partner_t3_chat}}",
+    "signingDate": "2026-09-29",
+    "expirationDate": null,
+    "lastCancellationDate": null
+  }
+}

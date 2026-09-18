@@ -1,0 +1,30 @@
+meta {
+  name: Catalina Growth Fund
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/contracts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Catalina Growth Fund",
+    "description": "Langfristige Rücklage aus dem Kindergeld für Catalina",
+    "color": 16753920,
+    "type": "ACCUMULATING",
+    "accountIds": ["{{account_savings}}"],
+    "financialProfileId": "{{profile_buburuza}}",
+    "partnerId": "{{partner_familienkasse}}",
+    "signingDate": null,
+    "expirationDate": "2026-09-01",
+    "lastCancellationDate": null
+  }
+}

@@ -1,0 +1,76 @@
+meta {
+  name: Ziarul de Garde
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/transactions/templates/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "templates": [
+      {
+        "contractId": "{{contract_ziarul_de_garde}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_ziarul_de_garde}}",
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_ziarul_de_garde}}",
+        "title": "Rückstellung",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 298,
+            "firstOccurrenceDate": "2025-09-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_ziarul_de_garde}}",
+        "sourcePocketId": "{{pocket_ziarul_de_garde}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_linka}}",
+        "partnerId": "{{partner_ziarul_de_garde}}",
+        "title": "Ziarul de Garde",
+        "description": "",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 298,
+            "firstOccurrenceDate": "2025-10-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "MONTHLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [
+              1
+            ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

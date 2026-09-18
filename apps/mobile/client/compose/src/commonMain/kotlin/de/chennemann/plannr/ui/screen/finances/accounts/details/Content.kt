@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import de.chennemann.plannr.money.MoneyFormatter
 import de.chennemann.plannr.ui.theme.colors
 
 @Composable
@@ -48,7 +49,7 @@ fun AccountDetailsScreen(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = value.freeBalance.toString(),
+                text = MoneyFormatter.format(value.freeBalance, "EUR"),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colors.onPrimary,
                 maxLines = 1,

@@ -1,0 +1,27 @@
+meta {
+  name: Preview partner logo
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/partners/logo-preview
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "website": "https://example.com"
+  }
+}
+
+docs {
+  Website is transient and never persisted. Preview does not save a logo.
+  Set partnerId, logoVersion and logoBase64 from the partner/preview responses as appropriate.
+  Saved images are normalized PNGs; versioned image URLs are cached immutably.
+}

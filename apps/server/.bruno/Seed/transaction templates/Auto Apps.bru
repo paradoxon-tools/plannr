@@ -1,7 +1,6 @@
 meta {
   name: Auto Apps
   type: http
-  seq: 30
 }
 
 post {
@@ -26,7 +25,7 @@ body:json {
         "versions": [
           {
             "amount": 88,
-            "firstOccurrenceDate": "2025-10-01",
+            "firstOccurrenceDate": "2025-05-01",
             "finalOccurrenceDate": null,
             "recurrenceType": "MONTHLY",
             "skipCount": 0,
@@ -36,6 +35,31 @@ body:json {
               1
             ],
             "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_auto_apps}}",
+        "sourcePocketId": "{{pocket_auto_apps}}",
+        "destinationPocketId": null,
+        "financialProfileId": "{{profile_cryzsh}}",
+        "partnerId": null,
+        "title": "Auto Apps",
+        "description": "Jaehrliche Ausgaben",
+        "currencyCode": "EUR",
+        "transactionType": "EXPENSE",
+        "versions": [
+          {
+            "amount": 1050,
+            "firstOccurrenceDate": "2026-05-01",
+            "finalOccurrenceDate": null,
+            "recurrenceType": "YEARLY",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": [1],
+            "monthsOfYear": [5],
             "maxRecurrenceCount": null
           }
         ]

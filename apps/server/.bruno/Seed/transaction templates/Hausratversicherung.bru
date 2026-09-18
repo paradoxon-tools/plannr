@@ -1,7 +1,6 @@
 meta {
   name: Hausratversicherung
   type: http
-  seq: 12
 }
 
 post {
@@ -25,36 +24,8 @@ body:json {
         "transactionType": "TRANSFER",
         "versions": [
           {
-            "amount": 542,
-            "firstOccurrenceDate": "2024-12-01",
-            "finalOccurrenceDate": "2025-10-01",
-            "recurrenceType": "MONTHLY",
-            "skipCount": 0,
-            "daysOfWeek": null,
-            "weeksOfMonth": null,
-            "daysOfMonth": [
-              1
-            ],
-            "monthsOfYear": null,
-            "maxRecurrenceCount": null
-          },
-          {
-            "amount": 549,
-            "firstOccurrenceDate": "2025-11-01",
-            "finalOccurrenceDate": "2026-06-01",
-            "recurrenceType": "MONTHLY",
-            "skipCount": 0,
-            "daysOfWeek": null,
-            "weeksOfMonth": null,
-            "daysOfMonth": [
-              1
-            ],
-            "monthsOfYear": null,
-            "maxRecurrenceCount": null
-          },
-          {
-            "amount": 917,
-            "firstOccurrenceDate": "2026-07-01",
+            "amount": 847,
+            "firstOccurrenceDate": "2025-08-01",
             "finalOccurrenceDate": null,
             "recurrenceType": "MONTHLY",
             "skipCount": 0,
@@ -63,6 +34,31 @@ body:json {
             "daysOfMonth": [
               1
             ],
+            "monthsOfYear": null,
+            "maxRecurrenceCount": null
+          }
+        ]
+      },
+      {
+        "contractId": "{{contract_hausratversicherung}}",
+        "sourcePocketId": "{{pocket_income_bucket}}",
+        "destinationPocketId": "{{pocket_hausratversicherung}}",
+        "financialProfileId": "{{profile_triple_trouble}}",
+        "partnerId": "{{partner_helvetia}}",
+        "title": "Aufstockung",
+        "description": "Rueckwirkende Beitragsanpassung",
+        "currencyCode": "EUR",
+        "transactionType": "TRANSFER",
+        "versions": [
+          {
+            "amount": 1045,
+            "firstOccurrenceDate": "2026-07-01",
+            "finalOccurrenceDate": "2026-07-01",
+            "recurrenceType": "NONE",
+            "skipCount": 0,
+            "daysOfWeek": null,
+            "weeksOfMonth": null,
+            "daysOfMonth": null,
             "monthsOfYear": null,
             "maxRecurrenceCount": null
           }
@@ -80,8 +76,8 @@ body:json {
         "transactionType": "EXPENSE",
         "versions": [
           {
-            "amount": 6578,
-            "firstOccurrenceDate": "2025-10-16",
+            "amount": 10162,
+            "firstOccurrenceDate": "2026-10-16",
             "finalOccurrenceDate": null,
             "recurrenceType": "YEARLY",
             "skipCount": 0,

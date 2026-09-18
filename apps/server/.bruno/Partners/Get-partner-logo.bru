@@ -1,0 +1,20 @@
+meta {
+  name: Get partner logo
+  type: http
+}
+
+get {
+  url: {{baseUrl}}/partners/{{partnerId}}/logo/{{logoVersion}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: image/png
+}
+
+docs {
+  Website is transient and never persisted. Preview does not save a logo.
+  Set partnerId, logoVersion and logoBase64 from the partner/preview responses as appropriate.
+  Saved images are normalized PNGs; versioned image URLs are cached immutably.
+}

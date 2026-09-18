@@ -1,0 +1,25 @@
+meta {
+  name: Pocket Overflow
+  type: http
+}
+
+post {
+  url: {{baseUrl}}/pockets
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "accountId": "{{account_insurance_and_contracts}}",
+    "name": "Pocket Overflow",
+    "description": "Laufende zusätzliche Rücklagen für Nebenkosten und Strom",
+    "color": 6737151,
+    "isDefault": false
+  }
+}
