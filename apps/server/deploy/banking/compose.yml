@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PLANNR_DB_NAME:-plannr}
+      POSTGRES_USER: ${PLANNR_DB_USERNAME:-plannr}
+      POSTGRES_PASSWORD: ${PLANNR_DB_PASSWORD:?Set PLANNR_DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  plannr-server:
+    image: ${PLANNR_IMAGE:-ghcr.io/paradoxon-tools/plannr-server:enable-banking}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      SPRING_CLOUD_CONFIG_ENABLED: "false"
+      PLANNR_DB_HOST: postgres
+      PLANNR_DB_PORT: "5432"
+      PLANNR_DB_NAME: ${PLANNR_DB_NAME:-plannr}
+      PLANNR_DB_USERNAME: ${PLANNR_DB_USERNAME:-plannr}
+      PLANNR_DB_PASSWORD: ${PLANNR_DB_PASSWORD:?Set PLANNR_DB_PASSWORD}
+      ENABLE_BANKING_APPLICATION_ID: ${ENABLE_BANKING_APPLICATION_ID:?Set ENABLE_BANKING_APPLICATION_ID}
+      ENABLE_BANKING_PRIVATE_KEY_PATH: /run/secrets/enable-banking-private-key
+      ENABLE_BANKING_REDIRECT_URL: ${ENABLE_BANKING_REDIRECT_URL:?Set ENABLE_BANKING_REDIRECT_URL}
+    ports:
+      - "${PLANNR_BIND_ADDRESS:-127.0.0.1}:${PLANNR_SERVER_HOST_PORT:-8080}:8080"
+    secrets:
+      - enable-banking-private-key
+
+secrets:
+  enable-banking-private-key:
+    file: ${ENABLE_BANKING_PRIVATE_KEY_FILE:?Set ENABLE_BANKING_PRIVATE_KEY_FILE}
+
+volumes:
+  postgres-data:

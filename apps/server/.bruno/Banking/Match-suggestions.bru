@@ -1,0 +1,22 @@
+meta {
+  name: Match suggestions
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/banking/transactions/{{bankTransactionId}}/suggestions?days=7
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

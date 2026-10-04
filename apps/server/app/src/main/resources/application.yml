@@ -17,6 +17,10 @@ spring:
 server:
   port: ${SERVER_PORT:9000}
 plannr:
+  banking:
+    application-id: ${ENABLE_BANKING_APPLICATION_ID:}
+    private-key-path: ${ENABLE_BANKING_PRIVATE_KEY_PATH:}
+    redirect-url: ${ENABLE_BANKING_REDIRECT_URL:}
   database:
     host: ${PLANNR_DB_HOST:192.168.1.202}
     port: ${PLANNR_DB_PORT:5432}

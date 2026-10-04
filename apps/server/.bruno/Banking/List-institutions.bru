@@ -1,0 +1,22 @@
+meta {
+  name: List institutions
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/banking/institutions?country={{bankCountry}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

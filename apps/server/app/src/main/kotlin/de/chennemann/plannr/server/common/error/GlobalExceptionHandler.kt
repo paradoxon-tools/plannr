@@ -1,6 +1,7 @@
 package de.chennemann.plannr.server.common.error
 
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageConversionException
@@ -11,6 +12,12 @@ import org.springframework.web.server.ServerWebInputException
 @RestControllerAdvice
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    fun handleDataIntegrityViolation(exception: DataIntegrityViolationException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(HttpStatus.CONFLICT).body(
+            ErrorResponse(error = ApiError(code = "data_conflict", message = "This change conflicts with existing or linked records")),
+        )
 
     @ExceptionHandler(HttpMessageConversionException::class)
     fun handleHttpMessageConversionException(exception: HttpMessageConversionException): ResponseEntity<ErrorResponse> =

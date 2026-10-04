@@ -1,5 +1,7 @@
 # Watchtower deployment
 
+For GitHub Actions/GHCR publication and a standalone banking deployment, see [banking deployment](banking/README.md). It includes the private-key mount and required Enable Banking runtime variables.
+
 This directory contains a Watchtower-based deployment layout for the server.
 
 It matches the repository's existing release model:

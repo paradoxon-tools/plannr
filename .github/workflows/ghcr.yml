@@ -8,6 +8,11 @@ on:
       - 'apps/server/**'
       - '.github/workflows/ghcr.yml'
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Additional image tag (for example enable-banking)'
+        required: false
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -16,6 +21,24 @@ env:
 jobs:
   test-server:
     runs-on: ubuntu-latest
+    services:
+      banking-postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: banking_test
+          POSTGRES_USER: banking_test
+          POSTGRES_PASSWORD: banking_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U banking_test -d banking_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      BANKING_TEST_R2DBC_URL: r2dbc:postgresql://localhost:5432/banking_test
+      BANKING_TEST_DB_USER: banking_test
+      BANKING_TEST_DB_PASSWORD: banking_test
 
     steps:
       - name: Check out repository
@@ -54,6 +77,15 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Validate optional image tag
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          if [[ -n "$IMAGE_TAG" && ! "$IMAGE_TAG" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]]; then
+            echo "Invalid Docker image tag"
+            exit 1
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -73,6 +105,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=tag
             type=sha
+            type=raw,value=${{ inputs.image_tag }},enable=${{ inputs.image_tag != '' }}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
 
       - name: Build and push ${{ matrix.app }} image

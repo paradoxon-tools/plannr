@@ -1,0 +1,29 @@
+meta {
+  name: Ignore transaction
+  type: http
+  seq: 19
+}
+
+put {
+  url: {{baseUrl}}/banking/transactions/{{bankTransactionId}}/ignored
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "ignored": true
+  }
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

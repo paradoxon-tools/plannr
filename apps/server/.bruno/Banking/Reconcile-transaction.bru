@@ -1,0 +1,30 @@
+meta {
+  name: Reconcile transaction
+  type: http
+  seq: 16
+}
+
+put {
+  url: {{baseUrl}}/banking/transactions/{{bankTransactionId}}/reconciliation
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "materializationId": 1,
+    "acceptAmountDifference": false
+  }
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

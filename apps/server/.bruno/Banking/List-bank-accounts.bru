@@ -1,0 +1,22 @@
+meta {
+  name: List bank accounts
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/banking/accounts
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

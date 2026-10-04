@@ -1,0 +1,30 @@
+meta {
+  name: Sync account
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/banking/accounts/{{bankAccountId}}/sync
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "dateFrom": "2026-09-01",
+    "dateTo": "2026-09-30"
+  }
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

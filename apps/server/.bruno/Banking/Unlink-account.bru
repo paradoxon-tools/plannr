@@ -1,0 +1,22 @@
+meta {
+  name: Unlink account
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/banking/accounts/{{bankAccountId}}/link
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

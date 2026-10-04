@@ -3,6 +3,11 @@ meta {
   type: http
 }
 
+docs {
+  Returns 409 data_conflict while a bank account or reconciliation references this account.
+  Undo its reconciliations and unlink the bank account before deletion, or archive the account instead.
+}
+
 delete {
   url: {{baseUrl}}/accounts/:accountId
   body: none

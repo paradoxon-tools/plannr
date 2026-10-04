@@ -1,0 +1,22 @@
+meta {
+  name: List reconciliations
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/banking/planning-accounts/{{planningAccountId}}/reconciliations?limit=100&offset=0
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

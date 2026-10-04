@@ -1,0 +1,22 @@
+meta {
+  name: Refresh connection
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/banking/connections/{{connectionId}}/refresh
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

@@ -1,0 +1,22 @@
+meta {
+  name: Authorization callback
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/banking/callback?state={{authorizationState}}&code={{authorizationCode}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

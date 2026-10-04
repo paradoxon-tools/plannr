@@ -1,0 +1,22 @@
+meta {
+  name: Get transaction
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/banking/transactions/{{bankTransactionId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

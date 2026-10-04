@@ -1,0 +1,29 @@
+meta {
+  name: Link account
+  type: http
+  seq: 10
+}
+
+put {
+  url: {{baseUrl}}/banking/accounts/{{bankAccountId}}/link
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "accountId": 1
+  }
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

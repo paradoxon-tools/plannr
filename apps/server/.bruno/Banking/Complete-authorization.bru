@@ -1,0 +1,30 @@
+meta {
+  name: Complete authorization
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/banking/authorizations/complete
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "state": "{{authorizationState}}",
+    "code": "{{authorizationCode}}"
+  }
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

@@ -12,6 +12,7 @@ pluginManagement {
 
 rootProject.name = "server"
 include(
+    ":banking",
     ":app",
     ":account",
     ":account-api",

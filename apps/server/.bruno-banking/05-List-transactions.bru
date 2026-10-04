@@ -1,0 +1,22 @@
+meta {
+  name: List transactions
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/banking/accounts/{{bankAccountId}}/transactions?limit={{limit}}&offset={{offset}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

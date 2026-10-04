@@ -1,0 +1,39 @@
+meta {
+  name: Start connection
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/banking/connections
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "bankName": "{{bankName}}",
+    "country": "{{bankCountry}}",
+    "validUntil": "{{consentValidUntil}}"
+  }
+}
+
+script:pre-request {
+  bru.setVar('consentValidUntil', new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString());
+}
+
+script:post-response {
+  if (res.getStatus() === 200) bru.setVar('connectionId', res.getBody().connectionId);
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

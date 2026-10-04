@@ -1,0 +1,22 @@
+meta {
+  name: List connections
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/banking/connections
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

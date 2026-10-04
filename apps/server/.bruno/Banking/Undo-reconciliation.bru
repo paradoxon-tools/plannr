@@ -1,0 +1,22 @@
+meta {
+  name: Undo reconciliation
+  type: http
+  seq: 18
+}
+
+delete {
+  url: {{baseUrl}}/banking/transactions/{{bankTransactionId}}/reconciliation
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

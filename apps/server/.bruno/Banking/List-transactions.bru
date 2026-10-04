@@ -1,0 +1,22 @@
+meta {
+  name: List transactions
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/banking/accounts/{{bankAccountId}}/transactions?status=UNMATCHED&limit=100&offset=0
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test('Request succeeds', function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

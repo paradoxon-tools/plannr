@@ -2,6 +2,10 @@
 
 Coroutine-first Spring Boot backend for plannr.
 
+## Bank connections
+
+[Enable Banking setup and API guide](docs/enable-banking.md) covers connecting personal bank accounts, linking existing planning accounts, importing actual transactions, and reconciling planned occurrences. Executable requests are in the **Banking** Bruno folder.
+
 ## Run locally
 
 Prerequisite: Docker Desktop (or another local Docker engine) must be running.

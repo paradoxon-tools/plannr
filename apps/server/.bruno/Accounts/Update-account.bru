@@ -3,6 +3,11 @@ meta {
   type: http
 }
 
+docs {
+  Currency changes return 409 data_conflict while this account is linked to a bank account.
+  Undo reconciliations and unlink the bank account before changing its currency.
+}
+
 put {
   url: {{baseUrl}}/accounts
   body: json
